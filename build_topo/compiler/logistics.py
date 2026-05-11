@@ -1,67 +1,55 @@
-#!/usr/bin/env python3
-
-"""
-build_logistics_nodes.py
-
-Phase 3.5
-CairnOS Logistics Graph Builder
-
-Builds:
-- road crossings
-- trailheads
-- resupply access nodes
-- logistics connectors
-
-Inputs:
-    data/compiled/spine.geojson
-    data/compiled/nodes.geojson
-    data/raw/csv/towns.csv
-    data/raw/shp/gis_osm_roads_free_1.shp
-
-Outputs:
-    data/compiled/logistics_nodes.geojson
-    data/compiled/crossings.geojson
-"""
-
-import json
 from pathlib import Path
+import sys
+import json
 
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
 
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-# =========================================================
-# PATHS
-# =========================================================
-
-trail_root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path("trails/vermont_long_trail").resolve()
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
+)
 
 RAW_DIR = trail_root / "raw"
-COMPILED_DIR = trail_root / "compiled"
-INTERMEDIATE_DIR = trail_root / "intermediate"
 
-# =========================================================
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
+
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
+
+
+#
+# ---------------------------------------------------------
 # CONFIG
-# =========================================================
+# ---------------------------------------------------------
+#
 
-DATA_DIR = Path("data")
+SCHEMA_VERSION = "1.0"
 
-RAW_DIR = DATA_DIR / "raw"
-
-COMPILED_DIR = DATA_DIR / "compiled"
-
-SCHEMA_VERSION = "0.1-draft"
-
-TOTAL_TRAIL_MILES = 249.1
+TOTAL_TRAIL_MILES = 273.0
 
 ROAD_BUFFER_METERS = 120
 
 
-# =========================================================
+#
+# ---------------------------------------------------------
 # HELPERS
-# =========================================================
+# ---------------------------------------------------------
+#
 
 def make_id(prefix, idx):
 
@@ -76,27 +64,30 @@ def normalize_name(name):
     return str(name).strip()
 
 
-# =========================================================
+#
+# ---------------------------------------------------------
 # LOADERS
-# =========================================================
+# ---------------------------------------------------------
+#
 
 def load_spine():
 
     print("\n[INFO] Loading spine")
 
-    return gpd.read_file(
-        COMPILED_DIR / "spine.geojson",
-        engine="fiona"
+    spine_path = (
+        COMPILED_DIR /
+        "spine.geojson"
     )
 
+    if not spine_path.exists():
 
-def load_nodes():
-
-    print("\n[INFO] Loading nodes")
+        raise FileNotFoundError(
+            f"Missing spine: {spine_path}"
+        )
 
     return gpd.read_file(
-        COMPILED_DIR / "nodes.geojson",
-        engine="fiona"
+        spine_path,
+        engine="fiona",
     )
 
 
@@ -104,18 +95,29 @@ def load_roads():
 
     print("\n[INFO] Loading roads")
 
-    shp = (
-        RAW_DIR /
-        "shp" /
-        "gis_osm_roads_free_1.shp"
+    shp_files = list(
+        (
+            RAW_DIR / "shp"
+        ).glob("*roads*.shp")
     )
+
+    if not shp_files:
+
+        raise FileNotFoundError(
+            "No roads shapefile found"
+        )
+
+    roads_path = shp_files[0]
 
     gdf = gpd.read_file(
-        shp,
-        engine="fiona"
+        roads_path,
+        engine="fiona",
     )
 
-    print(f"[INFO] Raw roads: {len(gdf)}")
+    print(
+        f"[INFO] Raw roads: "
+        f"{len(gdf)}"
+    )
 
     return gdf
 
@@ -124,42 +126,66 @@ def load_towns():
 
     print("\n[INFO] Loading towns")
 
-    df = pd.read_csv(
+    towns_path = (
         RAW_DIR /
         "csv" /
         "towns.csv"
     )
 
-    print(f"[INFO] Town rows: {len(df)}")
+    if not towns_path.exists():
+
+        raise FileNotFoundError(
+            f"Missing towns.csv: "
+            f"{towns_path}"
+        )
+
+    df = pd.read_csv(
+        towns_path
+    )
+
+    print(
+        f"[INFO] Town rows: "
+        f"{len(df)}"
+    )
 
     return df
 
 
-# =========================================================
-# ROAD CROSSINGS
-# =========================================================
+#
+# ---------------------------------------------------------
+# CROSSINGS
+# ---------------------------------------------------------
+#
 
 def build_crossings(
     spine_gdf,
-    roads_gdf
+    roads_gdf,
 ):
 
     print("\n[INFO] Building crossings")
 
-    spine = spine_gdf.iloc[0].geometry
+    spine_gdf_3857 = (
+        spine_gdf.to_crs(3857)
+    )
 
-    spine_gdf_3857 = spine_gdf.to_crs(3857)
+    roads_3857 = (
+        roads_gdf.to_crs(3857)
+    )
 
-    roads_3857 = roads_gdf.to_crs(3857)
+    spine_geom = (
+        spine_gdf_3857
+        .iloc[0]
+        .geometry
+    )
 
-    spine_geom_3857 = spine_gdf_3857.iloc[0].geometry
-
-    buffer_geom = spine_geom_3857.buffer(
+    buffer_geom = spine_geom.buffer(
         ROAD_BUFFER_METERS
     )
 
     near_roads = roads_3857[
-        roads_3857.intersects(buffer_geom)
+        roads_3857.intersects(
+            buffer_geom
+        )
     ].copy()
 
     print(
@@ -173,12 +199,14 @@ def build_crossings(
 
     for _, road in near_roads.iterrows():
 
-        road_geom = road.geometry
-
         try:
 
-            intersection = road_geom.intersection(
-                spine_geom_3857
+            road_geom = road.geometry
+
+            intersection = (
+                road_geom.intersection(
+                    spine_geom
+                )
             )
 
             if intersection.is_empty:
@@ -187,79 +215,90 @@ def build_crossings(
             points = []
 
             if intersection.geom_type == "Point":
+
                 points = [intersection]
 
-            elif intersection.geom_type == "MultiPoint":
-                points = list(intersection.geoms)
+            elif (
+                intersection.geom_type
+                == "MultiPoint"
+            ):
+
+                points = list(
+                    intersection.geoms
+                )
 
             for pt in points:
 
-                projected = spine_geom_3857.project(pt)
+                projected = (
+                    spine_geom.project(pt)
+                )
 
                 normalized = (
                     projected /
-                    spine_geom_3857.length
+                    spine_geom.length
                 )
 
                 mile = round(
                     normalized *
                     TOTAL_TRAIL_MILES,
-                    1
-                )
-
-                road_name = normalize_name(
-                    road.get("name")
+                    1,
                 )
 
                 crossings.append({
 
                     "crossing_id":
-                        make_id(
-                            "crossing",
-                            idx
-                        ),
+                    make_id(
+                        "crossing",
+                        idx,
+                    ),
 
                     "name":
-                        road_name,
+                    normalize_name(
+                        road.get("name")
+                    ),
 
                     "road_type":
-                        road.get(
-                            "fclass",
-                            "unknown"
-                        ),
+                    road.get(
+                        "fclass",
+                        "unknown",
+                    ),
 
                     "trail_mile":
-                        mile,
+                    mile,
 
                     "vehicle_access":
-                        True,
+                    True,
 
                     "trailhead":
-                        True,
+                    True,
 
                     "schema_version":
-                        SCHEMA_VERSION,
+                    SCHEMA_VERSION,
 
                     "geometry":
-                        Point(
-                            pt.x,
-                            pt.y
-                        )
+                    Point(
+                        pt.x,
+                        pt.y,
+                    ),
                 })
 
                 idx += 1
 
         except Exception:
+
             continue
 
     crossings_gdf = gpd.GeoDataFrame(
+
         crossings,
+
         geometry="geometry",
-        crs="EPSG:3857"
+
+        crs="EPSG:3857",
     )
 
-    crossings_gdf = crossings_gdf.to_crs(
-        4326
+    crossings_gdf = (
+        crossings_gdf.to_crs(4326)
     )
 
     print(
@@ -270,77 +309,80 @@ def build_crossings(
     return crossings_gdf
 
 
-# =========================================================
-# RESUPPLY LOGISTICS
-# =========================================================
+#
+# ---------------------------------------------------------
+# LOGISTICS NODES
+# ---------------------------------------------------------
+#
 
 def build_logistics_nodes(
     towns_df
 ):
 
-    print("\n[INFO] Building logistics nodes")
+    print(
+        "\n[INFO] Building logistics nodes"
+    )
 
     records = []
 
-    for idx, row in towns_df.iterrows():
+    for idx, row in (
+        towns_df.iterrows()
+    ):
 
-        node = {
+        records.append({
 
             "logistics_id":
-                make_id(
-                    "logistics",
-                    idx
-                ),
+            make_id(
+                "logistics",
+                idx,
+            ),
 
             "town":
-                normalize_name(
-                    row.get("town")
-                ),
+            normalize_name(
+                row.get("town")
+            ),
 
             "division":
-                row.get("division"),
+            row.get("division"),
 
             "zip":
-                row.get("zip"),
+            row.get("zip"),
 
             "post_office":
-                bool(
-                    row.get(
-                        "post_office",
-                        False
-                    )
-                ),
+            bool(
+                row.get(
+                    "post_office",
+                    False,
+                )
+            ),
 
             "grocery":
-                bool(
-                    row.get(
-                        "grocery",
-                        False
-                    )
-                ),
-
-            "additional_amenities":
-                bool(
-                    row.get(
-                        "additional_amenities",
-                        False
-                    )
-                ),
-
-            "resupply_access":
-                True,
+            bool(
+                row.get(
+                    "grocery",
+                    False,
+                )
+            ),
 
             "zero_candidate":
-                True,
+            bool(
+                row.get(
+                    "zero_candidate",
+                    False,
+                )
+            ),
 
             "nero_candidate":
-                True,
+            bool(
+                row.get(
+                    "nero_candidate",
+                    False,
+                )
+            ),
 
             "schema_version":
-                SCHEMA_VERSION
-        }
-
-        records.append(node)
+            SCHEMA_VERSION,
+        })
 
     print(
         f"[INFO] Logistics nodes: "
@@ -350,55 +392,110 @@ def build_logistics_nodes(
     return records
 
 
-# =========================================================
-# EXPORT
-# =========================================================
+#
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+#
 
-def export_crossings(gdf):
+def main():
 
-    print("\n[EXPORTING]\n")
+    print("")
+    print(
+        "=== CairnOS Logistics Builder ==="
+    )
+    print("")
 
-    output = (
+    #
+    # loads
+    #
+
+    spine_gdf = load_spine()
+
+    roads_gdf = load_roads()
+
+    towns_df = load_towns()
+
+    #
+    # crossings
+    #
+
+    crossings_gdf = build_crossings(
+
+        spine_gdf,
+        roads_gdf,
+    )
+
+    #
+    # logistics
+    #
+
+    logistics_nodes = (
+        build_logistics_nodes(
+            towns_df
+        )
+    )
+
+    #
+    # ensure dirs
+    #
+
+    COMPILED_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    #
+    # exports
+    #
+
+    crossings_geojson = (
         COMPILED_DIR /
         "crossings.geojson"
     )
 
-    gdf.to_file(
-        output,
-        driver="GeoJSON"
-    )
-
-    print(f"[OK] {output}")
-
-
-def export_logistics(nodes):
-
-    output = (
+    logistics_json = (
         COMPILED_DIR /
         "logistics_nodes.json"
     )
 
-    with open(output, "w") as f:
+    crossings_gdf.to_file(
+
+        crossings_geojson,
+
+        driver="GeoJSON",
+    )
+
+    with open(
+        logistics_json,
+        "w",
+    ) as f:
 
         json.dump(
-            nodes,
+            logistics_nodes,
             f,
-            indent=2
+            indent=2,
         )
 
-    print(f"[OK] {output}")
+    #
+    # summary
+    #
 
+    print("")
+    print("[EXPORTING]")
+    print("")
 
-# =========================================================
-# SUMMARY
-# =========================================================
+    print(
+        f"[OK] {crossings_geojson}"
+    )
 
-def summarize(
-    crossings_gdf,
-    logistics_nodes
-):
+    print(
+        f"[OK] {logistics_json}"
+    )
 
-    print("\n[SUMMARY]\n")
+    print("")
+    print("[SUMMARY]")
+    print("")
 
     print(
         f"Road crossings: "
@@ -410,49 +507,10 @@ def summarize(
         f"{len(logistics_nodes)}"
     )
 
-
-# =========================================================
-# MAIN
-# =========================================================
-
-def main():
-
-    print(
-        "\n=== CairnOS Logistics Builder ==="
-    )
-
-    spine_gdf = load_spine()
-
-    nodes_gdf = load_nodes()
-
-    roads_gdf = load_roads()
-
-    towns_df = load_towns()
-
-    crossings_gdf = build_crossings(
-        spine_gdf,
-        roads_gdf
-    )
-
-    logistics_nodes = build_logistics_nodes(
-        towns_df
-    )
-
-    export_crossings(
-        crossings_gdf
-    )
-
-    export_logistics(
-        logistics_nodes
-    )
-
-    summarize(
-        crossings_gdf,
-        logistics_nodes
-    )
-
-    print("\n[DONE]\n")
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()

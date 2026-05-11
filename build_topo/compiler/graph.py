@@ -1,110 +1,481 @@
-# build_operational_graph.py
-
 from pathlib import Path
+import sys
 import json
+
 import geopandas as gpd
-
-COMPILED_DIR = Path(str(COMPILED_DIR) + "")
-
-SEGMENTS_FILE = COMPILED_DIR / "segments.geojson"
-CROSSINGS_FILE = COMPILED_DIR / "crossings_refined.geojson"
-NODES_FILE = COMPILED_DIR / "nodes.geojson"
-
-OUTPUT_FILE = COMPILED_DIR / "operational_graph.json"
-
-SCHEMA_VERSION = "0.2-draft"
+import pandas as pd
 
 
-def load_data():
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-    print("[INFO] Loading segments")
-    segments = gpd.read_file(SEGMENTS_FILE)
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
+)
 
-    print("[INFO] Loading crossings")
-    crossings = gpd.read_file(CROSSINGS_FILE)
+RAW_DIR = trail_root / "raw"
 
-    print("[INFO] Loading nodes")
-    nodes = gpd.read_file(NODES_FILE)
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-    return segments, crossings, nodes
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
 
-def build_graph(
-    segments,
-    crossings,
-    nodes
+#
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
+#
+
+SCHEMA_VERSION = "1.0"
+
+
+#
+# ---------------------------------------------------------
+# HELPERS
+# ---------------------------------------------------------
+#
+
+def make_node_id(idx):
+
+    return f"node_{idx:04d}"
+
+
+def make_edge_id(idx):
+
+    return f"edge_{idx:04d}"
+
+
+#
+# ---------------------------------------------------------
+# LOADERS
+# ---------------------------------------------------------
+#
+
+def load_segments():
+
+    print("\n[INFO] Loading segments")
+
+    path = (
+        COMPILED_DIR /
+        "segments.geojson"
+    )
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing segments: {path}"
+        )
+
+    gdf = gpd.read_file(
+        path,
+        engine="fiona",
+    )
+
+    print(
+        f"[INFO] Segments: "
+        f"{len(gdf)}"
+    )
+
+    return gdf
+
+
+def load_crossings():
+
+    print(
+        "\n[INFO] Loading crossings"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "crossings_refined.geojson"
+    )
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing crossings: {path}"
+        )
+
+    gdf = gpd.read_file(
+        path,
+        engine="fiona",
+    )
+
+    print(
+        f"[INFO] Crossings: "
+        f"{len(gdf)}"
+    )
+
+    return gdf
+
+
+def load_logistics_nodes():
+
+    print(
+        "\n[INFO] Loading logistics nodes"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "logistics_nodes.json"
+    )
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing logistics: {path}"
+        )
+
+    with open(path) as f:
+
+        rows = json.load(f)
+
+    print(
+        f"[INFO] Logistics nodes: "
+        f"{len(rows)}"
+    )
+
+    return rows
+
+
+#
+# ---------------------------------------------------------
+# GRAPH BUILD
+# ---------------------------------------------------------
+#
+
+def build_nodes(
+    segments_gdf,
+    crossings_gdf,
+):
+
+    print("\n[INFO] Building nodes")
+
+    nodes = []
+
+    idx = 0
+
+    #
+    # segment nodes
+    #
+
+    for _, row in (
+        segments_gdf.iterrows()
+    ):
+
+        nodes.append({
+
+            "node_id":
+            make_node_id(idx),
+
+            "node_type":
+            "segment",
+
+            "segment_id":
+            row.get(
+                "segment_id"
+            ),
+
+            "start_mile":
+            row.get(
+                "start_mile"
+            ),
+
+            "end_mile":
+            row.get(
+                "end_mile"
+            ),
+
+            "distance":
+            row.get(
+                "distance"
+            ),
+
+            "elevation_gain_ft":
+            row.get(
+                "elevation_gain_ft"
+            ),
+
+            "difficulty":
+            row.get(
+                "difficulty"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    #
+    # crossing nodes
+    #
+
+    for _, row in (
+        crossings_gdf.iterrows()
+    ):
+
+        nodes.append({
+
+            "node_id":
+            make_node_id(idx),
+
+            "node_type":
+            "crossing",
+
+            "crossing_id":
+            row.get(
+                "crossing_id"
+            ),
+
+            "name":
+            row.get("name"),
+
+            "trail_mile":
+            row.get(
+                "trail_mile"
+            ),
+
+            "road_type":
+            row.get(
+                "road_type"
+            ),
+
+            "vehicle_access":
+            row.get(
+                "vehicle_access"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    print(
+        f"[INFO] Nodes built: "
+        f"{len(nodes)}"
+    )
+
+    return nodes
+
+
+def build_edges(
+    segments_gdf
+):
+
+    print("\n[INFO] Building edges")
+
+    edges = []
+
+    idx = 0
+
+    segment_rows = list(
+        segments_gdf.iterrows()
+    )
+
+    for i in range(
+        len(segment_rows) - 1
+    ):
+
+        current = (
+            segment_rows[i][1]
+        )
+
+        nxt = (
+            segment_rows[i + 1][1]
+        )
+
+        edges.append({
+
+            "edge_id":
+            make_edge_id(idx),
+
+            "from_segment":
+            current.get(
+                "segment_id"
+            ),
+
+            "to_segment":
+            nxt.get(
+                "segment_id"
+            ),
+
+            "distance":
+            nxt.get(
+                "distance"
+            ),
+
+            "elevation_gain_ft":
+            nxt.get(
+                "elevation_gain_ft"
+            ),
+
+            "difficulty":
+            nxt.get(
+                "difficulty"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    print(
+        f"[INFO] Edges built: "
+        f"{len(edges)}"
+    )
+
+    return edges
+
+
+#
+# ---------------------------------------------------------
+# EXPORT
+# ---------------------------------------------------------
+#
+
+def export_graph(
+    nodes,
+    edges,
+    logistics_nodes,
 ):
 
     graph = {
-        "schema_version": SCHEMA_VERSION,
-        "segments": [],
-        "nodes": [],
-        "crossings": [],
+
+        "schema_version":
+        SCHEMA_VERSION,
+
+        "trail":
+        trail_root.name,
+
+        "nodes":
+        nodes,
+
+        "edges":
+        edges,
+
+        "logistics":
+        logistics_nodes,
     }
 
-    for _, row in segments.iterrows():
+    output_path = (
+        COMPILED_DIR /
+        "operational_graph.json"
+    )
 
-        graph["segments"].append({
-            "segment_id": row.get("segment_id"),
-            "start_node": row.get("start_node"),
-            "end_node": row.get("end_node"),
-            "distance_miles": row.get("distance_miles"),
-            "gain_ft": row.get("gain_ft"),
-            "loss_ft": row.get("loss_ft"),
-        })
+    with open(
+        output_path,
+        "w",
+    ) as f:
 
-    for _, row in nodes.iterrows():
+        json.dump(
+            graph,
+            f,
+            indent=2,
+        )
 
-        graph["nodes"].append({
-            "node_id": row.get("node_id"),
-            "canonical_name": row.get("canonical_name"),
-            "mile": row.get("mile"),
-            "node_class": row.get("node_class"),
-        })
+    print("")
+    print("[EXPORTING]")
+    print("")
 
-    for _, row in crossings.iterrows():
-
-        graph["crossings"].append({
-            "crossing_id": row.get("crossing_id"),
-            "road_name": row.get("name"),
-            "fclass": row.get("fclass"),
-            "mile": row.get("mile"),
-            "access_score": row.get("access_score"),
-            "vehicle_access": row.get("vehicle_access"),
-            "likely_hitchable": row.get("likely_hitchable"),
-        })
-
-    return graph
+    print(
+        f"[OK] {output_path}"
+    )
 
 
-def export_graph(graph):
-
-    with open(OUTPUT_FILE, "w") as fp:
-        json.dump(graph, fp, indent=2)
-
-    print(f"[OK] {OUTPUT_FILE}")
-
+#
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+#
 
 def main():
 
-    print("\n=== CairnOS Operational Graph Builder ===\n")
+    print("")
+    print(
+        "=== CairnOS Operational Graph Builder ==="
+    )
+    print("")
 
-    segments, crossings, nodes = load_data()
+    #
+    # load
+    #
 
-    print("\n[INFO] Building graph")
-
-    graph = build_graph(
-        segments,
-        crossings,
-        nodes
+    segments_gdf = (
+        load_segments()
     )
 
-    print("\n[EXPORTING]\n")
+    crossings_gdf = (
+        load_crossings()
+    )
 
-    export_graph(graph)
+    logistics_nodes = (
+        load_logistics_nodes()
+    )
 
-    print("\n[DONE]\n")
+    #
+    # build
+    #
+
+    nodes = build_nodes(
+
+        segments_gdf,
+        crossings_gdf,
+    )
+
+    edges = build_edges(
+        segments_gdf
+    )
+
+    #
+    # export
+    #
+
+    export_graph(
+
+        nodes,
+        edges,
+        logistics_nodes,
+    )
+
+    #
+    # summary
+    #
+
+    print("")
+    print("[SUMMARY]")
+    print("")
+
+    print(
+        f"Nodes: {len(nodes)}"
+    )
+
+    print(
+        f"Edges: {len(edges)}"
+    )
+
+    print(
+        f"Logistics nodes: "
+        f"{len(logistics_nodes)}"
+    )
+
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()

@@ -1,1209 +1,4105 @@
 {
-  "schema_version": "0.2-draft",
-  "segments": [
-    {
-      "segment_id": "seg_0000",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 958,
-      "loss_ft": 415
-    },
-    {
-      "segment_id": "seg_0001",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 470,
-      "loss_ft": 1048
-    },
-    {
-      "segment_id": "seg_0002",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 3900,
-      "loss_ft": 2420
-    },
-    {
-      "segment_id": "seg_0003",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1250,
-      "loss_ft": 2089
-    },
-    {
-      "segment_id": "seg_0004",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2198,
-      "loss_ft": 2408
-    },
-    {
-      "segment_id": "seg_0005",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 3665,
-      "loss_ft": 3657
-    },
-    {
-      "segment_id": "seg_0006",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 457,
-      "loss_ft": 757
-    },
-    {
-      "segment_id": "seg_0007",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2,
-      "loss_ft": 744
-    },
-    {
-      "segment_id": "seg_0008",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 492,
-      "loss_ft": 122
-    },
-    {
-      "segment_id": "seg_0009",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 882,
-      "loss_ft": 531
-    },
-    {
-      "segment_id": "seg_0010",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1102,
-      "loss_ft": 1580
-    },
-    {
-      "segment_id": "seg_0011",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2224,
-      "loss_ft": 1939
-    },
-    {
-      "segment_id": "seg_0012",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2338,
-      "loss_ft": 1560
-    },
-    {
-      "segment_id": "seg_0013",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 585,
-      "loss_ft": 900
-    },
-    {
-      "segment_id": "seg_0014",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 373,
-      "loss_ft": 518
-    },
-    {
-      "segment_id": "seg_0015",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1769,
-      "loss_ft": 1285
-    },
-    {
-      "segment_id": "seg_0016",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 759,
-      "loss_ft": 564
-    },
-    {
-      "segment_id": "seg_0017",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1650,
-      "loss_ft": 2219
-    },
-    {
-      "segment_id": "seg_0018",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2355,
-      "loss_ft": 1585
-    },
-    {
-      "segment_id": "seg_0019",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 495,
-      "loss_ft": 248
-    },
-    {
-      "segment_id": "seg_0020",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1764,
-      "loss_ft": 2068
-    },
-    {
-      "segment_id": "seg_0021",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1683,
-      "loss_ft": 1562
-    },
-    {
-      "segment_id": "seg_0022",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2476,
-      "loss_ft": 3581
-    },
-    {
-      "segment_id": "seg_0023",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 519,
-      "loss_ft": 152
-    },
-    {
-      "segment_id": "seg_0024",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1437,
-      "loss_ft": 1193
-    },
-    {
-      "segment_id": "seg_0025",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1534,
-      "loss_ft": 2287
-    },
-    {
-      "segment_id": "seg_0026",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 5115,
-      "loss_ft": 4734
-    },
-    {
-      "segment_id": "seg_0027",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 4029,
-      "loss_ft": 3254
-    },
-    {
-      "segment_id": "seg_0028",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1084,
-      "loss_ft": 1047
-    },
-    {
-      "segment_id": "seg_0029",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 441,
-      "loss_ft": 2179
-    },
-    {
-      "segment_id": "seg_0030",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 3690,
-      "loss_ft": 3391
-    },
-    {
-      "segment_id": "seg_0031",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1556,
-      "loss_ft": 2087
-    },
-    {
-      "segment_id": "seg_0032",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 224,
-      "loss_ft": 114
-    },
-    {
-      "segment_id": "seg_0033",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 2438,
-      "loss_ft": 1263
-    },
-    {
-      "segment_id": "seg_0034",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1755,
-      "loss_ft": 2377
-    },
-    {
-      "segment_id": "seg_0035",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1751,
-      "loss_ft": 1515
-    },
-    {
-      "segment_id": "seg_0036",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 301,
-      "loss_ft": 0
-    },
-    {
-      "segment_id": "seg_0037",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1348,
-      "loss_ft": 1161
-    },
-    {
-      "segment_id": "seg_0038",
-      "start_node": null,
-      "end_node": null,
-      "distance_miles": null,
-      "gain_ft": 1060,
-      "loss_ft": 1566
-    }
-  ],
+  "schema_version": "1.0",
+  "trail": "vermont_long_trail",
   "nodes": [
     {
       "node_id": "node_0000",
-      "canonical_name": "Old Seth Warner Shelter Site",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0000",
+      "start_mile": 0.0,
+      "end_mile": 6.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0001",
-      "canonical_name": "Seth Warner Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0001",
+      "start_mile": 6.0,
+      "end_mile": 12.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0002",
-      "canonical_name": "Congdon Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0002",
+      "start_mile": 12.0,
+      "end_mile": 18.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0003",
-      "canonical_name": "Goddard Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0003",
+      "start_mile": 18.0,
+      "end_mile": 24.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0004",
-      "canonical_name": "Story Spring Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0004",
+      "start_mile": 24.0,
+      "end_mile": 30.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0005",
-      "canonical_name": "Stratton View Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0005",
+      "start_mile": 30.0,
+      "end_mile": 36.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0006",
-      "canonical_name": "Peru Peak Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0006",
+      "start_mile": 36.0,
+      "end_mile": 42.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0007",
-      "canonical_name": "Lost Pond Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0007",
+      "start_mile": 42.0,
+      "end_mile": 48.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0008",
-      "canonical_name": "Big Branch Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0008",
+      "start_mile": 48.0,
+      "end_mile": 54.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0009",
-      "canonical_name": "Little Rock Pond Tenting Area",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0009",
+      "start_mile": 54.0,
+      "end_mile": 60.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0010",
-      "canonical_name": "Greenwall Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0010",
+      "start_mile": 60.0,
+      "end_mile": 66.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0011",
-      "canonical_name": "Minerva Hinchey Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0011",
+      "start_mile": 66.0,
+      "end_mile": 72.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0012",
-      "canonical_name": "Governor Clement Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0012",
+      "start_mile": 72.0,
+      "end_mile": 78.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0013",
-      "canonical_name": "Churchill Scott Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0013",
+      "start_mile": 78.0,
+      "end_mile": 84.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0014",
-      "canonical_name": "Tucker Johnson Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0014",
+      "start_mile": 84.0,
+      "end_mile": 90.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0015",
-      "canonical_name": "Rolston Rest Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0015",
+      "start_mile": 90.0,
+      "end_mile": 96.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0016",
-      "canonical_name": "David Logan Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0016",
+      "start_mile": 96.0,
+      "end_mile": 102.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0017",
-      "canonical_name": "Sunrise Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0017",
+      "start_mile": 102.0,
+      "end_mile": 108.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0018",
-      "canonical_name": "Sucker Brook Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0018",
+      "start_mile": 108.0,
+      "end_mile": 114.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0019",
-      "canonical_name": "Boyce Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0019",
+      "start_mile": 114.0,
+      "end_mile": 120.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0020",
-      "canonical_name": "Skyline Lodge",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0020",
+      "start_mile": 120.0,
+      "end_mile": 126.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0021",
-      "canonical_name": "Cooley Glen Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0021",
+      "start_mile": 126.0,
+      "end_mile": 132.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0022",
-      "canonical_name": "Battell Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0022",
+      "start_mile": 132.0,
+      "end_mile": 138.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0023",
-      "canonical_name": "Birch Glen Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0023",
+      "start_mile": 138.0,
+      "end_mile": 144.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0024",
-      "canonical_name": "Cowles Cove Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0024",
+      "start_mile": 144.0,
+      "end_mile": 150.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0025",
-      "canonical_name": "Montclair Glen Lodge",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0025",
+      "start_mile": 150.0,
+      "end_mile": 156.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0026",
-      "canonical_name": "Bamforth Ridge Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0026",
+      "start_mile": 156.0,
+      "end_mile": 162.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0027",
-      "canonical_name": "Twin Brooks Tenting Area",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0027",
+      "start_mile": 162.0,
+      "end_mile": 168.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0028",
-      "canonical_name": "Sterling Pond Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0028",
+      "start_mile": 168.0,
+      "end_mile": 174.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0029",
-      "canonical_name": "Whiteface Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0029",
+      "start_mile": 174.0,
+      "end_mile": 180.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0030",
-      "canonical_name": "Bear Hollow Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0030",
+      "start_mile": 180.0,
+      "end_mile": 186.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0031",
-      "canonical_name": "Corliss Camp",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0031",
+      "start_mile": 186.0,
+      "end_mile": 192.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0032",
-      "canonical_name": "Spruce Ledge Camp",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0032",
+      "start_mile": 192.0,
+      "end_mile": 198.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0033",
-      "canonical_name": "Babcock Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0033",
+      "start_mile": 198.0,
+      "end_mile": 204.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0034",
-      "canonical_name": "Tillotson Camp",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0034",
+      "start_mile": 204.0,
+      "end_mile": 210.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0035",
-      "canonical_name": "Hazen's Notch Camp",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0035",
+      "start_mile": 210.0,
+      "end_mile": 216.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0036",
-      "canonical_name": "Atlas Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0036",
+      "start_mile": 216.0,
+      "end_mile": 222.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0037",
-      "canonical_name": "Jay Camp",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0037",
+      "start_mile": 222.0,
+      "end_mile": 228.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0038",
-      "canonical_name": "Laura Woodward Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0038",
+      "start_mile": 228.0,
+      "end_mile": 234.0,
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
     },
     {
       "node_id": "node_0039",
-      "canonical_name": "Shooting Star Shelter",
-      "mile": null,
-      "node_class": "overnight"
+      "node_type": "segment",
+      "segment_id": "segment_0039",
+      "start_mile": 234.0,
+      "end_mile": 237.8,
+      "distance": 3.8,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0040",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0000",
+      "name": "nan",
+      "trail_mile": 8.0,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0041",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0001",
+      "name": "Old Rootville Road",
+      "trail_mile": 49.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0042",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0002",
+      "name": "Vermont Route 125",
+      "trail_mile": 137.4,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0043",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0003",
+      "name": "Risky Ranch Road",
+      "trail_mile": 2.6,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0044",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0004",
+      "name": "Stage Coach Road",
+      "trail_mile": 10.6,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0045",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0005",
+      "name": "County Road",
+      "trail_mile": 3.2,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0046",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0006",
+      "name": "Mad Tom Notch Road",
+      "trail_mile": 60.3,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0047",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0007",
+      "name": "nan",
+      "trail_mile": 187.6,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0048",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0008",
+      "name": "Notch Road",
+      "trail_mile": 187.7,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0049",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0009",
+      "name": "Vermont Route 17",
+      "trail_mile": 166.7,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0050",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0010",
+      "name": "nan",
+      "trail_mile": 219.7,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0051",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0011",
+      "name": "nan",
+      "trail_mile": 223.0,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0052",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0012",
+      "name": "nan",
+      "trail_mile": 223.1,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0053",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0013",
+      "name": "Duxbury Road",
+      "trail_mile": 184.3,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0054",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0014",
+      "name": "Mountain View Drive",
+      "trail_mile": 187.5,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0055",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0015",
+      "name": "Belvidere Road",
+      "trail_mile": 244.9,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0056",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0016",
+      "name": "Plot Road",
+      "trail_mile": 228.1,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0057",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0017",
+      "name": "Hog Back Road",
+      "trail_mile": 224.6,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0058",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0018",
+      "name": "Prospect Rock Road",
+      "trail_mile": 225.6,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0059",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0019",
+      "name": "Codding Hollow Road",
+      "trail_mile": 230.6,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0060",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0020",
+      "name": "nan",
+      "trail_mile": 69.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0061",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0021",
+      "name": "Vermont Route 105",
+      "trail_mile": 270.3,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0062",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0022",
+      "name": "Vermont Route 242",
+      "trail_mile": 261.5,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0063",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0023",
+      "name": "Route 58",
+      "trail_mile": 254.5,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0064",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0024",
+      "name": "South Park Road",
+      "trail_mile": 111.4,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0065",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0025",
+      "name": "Forest Road 384",
+      "trail_mile": 36.3,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0066",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0026",
+      "name": "Upper Cold River Road",
+      "trail_mile": 93.7,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0067",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0027",
+      "name": "Seasonal Forestry Road",
+      "trail_mile": 72.6,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0068",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0028",
+      "name": "Sugar Hill Road",
+      "trail_mile": 81.2,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0069",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0029",
+      "name": "Kieffer Road",
+      "trail_mile": 91.6,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0070",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0030",
+      "name": "Lottery Road",
+      "trail_mile": 89.8,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0071",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0031",
+      "name": "Cold River Road",
+      "trail_mile": 92.0,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0072",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0032",
+      "name": "Clement Shelter Road",
+      "trail_mile": 94.5,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0073",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0033",
+      "name": "Dean Trail",
+      "trail_mile": 177.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0074",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0034",
+      "name": "Allis Trail",
+      "trail_mile": 176.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0075",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0035",
+      "name": "Allis Trail",
+      "trail_mile": 177.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0076",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0036",
+      "name": "Forest City Trail",
+      "trail_mile": 176.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0077",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0037",
+      "name": "Alpine Trail",
+      "trail_mile": 179.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0078",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0038",
+      "name": "Alpine Trail",
+      "trail_mile": 178.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0079",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0039",
+      "name": "Stratton Ridge Trail",
+      "trail_mile": 40.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0080",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0040",
+      "name": "Wallace Cutoff",
+      "trail_mile": 203.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0081",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0041",
+      "name": "nan",
+      "trail_mile": 202.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0082",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0042",
+      "name": "nan",
+      "trail_mile": 187.5,
+      "road_type": "motorway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0083",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0043",
+      "name": "nan",
+      "trail_mile": 56.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0084",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0044",
+      "name": "nan",
+      "trail_mile": 163.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0085",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0045",
+      "name": "nan",
+      "trail_mile": 164.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0086",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0046",
+      "name": "nan",
+      "trail_mile": 164.3,
+      "road_type": "track_grade3",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0087",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0047",
+      "name": "nan",
+      "trail_mile": 205.3,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0088",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0048",
+      "name": "nan",
+      "trail_mile": 205.0,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0089",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0049",
+      "name": "Beane Trail",
+      "trail_mile": 169.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0090",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0050",
+      "name": "Hedgehog Brook Trail",
+      "trail_mile": 172.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0091",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0051",
+      "name": "Jerusalem Trail",
+      "trail_mile": 163.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0092",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0052",
+      "name": "nan",
+      "trail_mile": 193.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0093",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0053",
+      "name": "Cliff Trail",
+      "trail_mile": 206.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0094",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0054",
+      "name": "Lake Mansfield Trail",
+      "trail_mile": 200.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0095",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0055",
+      "name": "Hell Brook Trail",
+      "trail_mile": 206.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0096",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0056",
+      "name": "Hell Brook Cut Off",
+      "trail_mile": 207.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0097",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0057",
+      "name": "Connector",
+      "trail_mile": 205.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0098",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0058",
+      "name": "Halfway House Trail",
+      "trail_mile": 205.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0099",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0059",
+      "name": "Forehead Bypass",
+      "trail_mile": 205.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0100",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0060",
+      "name": "Forehead Bypass",
+      "trail_mile": 204.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0101",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0061",
+      "name": "Profanity Trail",
+      "trail_mile": 207.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0102",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0062",
+      "name": "Profanity Trail",
+      "trail_mile": 206.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0103",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0063",
+      "name": "Adams Apple Trail",
+      "trail_mile": 206.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0104",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0064",
+      "name": "nan",
+      "trail_mile": 181.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0105",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0065",
+      "name": "nan",
+      "trail_mile": 205.3,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0106",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0066",
+      "name": "nan",
+      "trail_mile": 205.2,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0107",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0067",
+      "name": "Mountain Road",
+      "trail_mile": 209.1,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0108",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0068",
+      "name": "Barnes Camp Loop",
+      "trail_mile": 210.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0109",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0069",
+      "name": "Forester's Trail",
+      "trail_mile": 247.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0110",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0070",
+      "name": "Journey's End Trail",
+      "trail_mile": 273.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0111",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0071",
+      "name": "nan",
+      "trail_mile": 159.0,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0112",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0072",
+      "name": "nan",
+      "trail_mile": 165.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0113",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0073",
+      "name": "Eddy's Path",
+      "trail_mile": 203.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0114",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0074",
+      "name": "Tear Drop Trail",
+      "trail_mile": 204.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0115",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0075",
+      "name": "Elephant's Head Loop Trail",
+      "trail_mile": 213.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0116",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0076",
+      "name": "Elephant's Head Loop Trail",
+      "trail_mile": 212.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0117",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0077",
+      "name": "Burrows Trail",
+      "trail_mile": 178.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0118",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0078",
+      "name": "Upper Chilcoot",
+      "trail_mile": 215.0,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0119",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0079",
+      "name": "Upper Chilcoot",
+      "trail_mile": 214.6,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0120",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0080",
+      "name": "nan",
+      "trail_mile": 137.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0121",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0081",
+      "name": "Lakeview Trail",
+      "trail_mile": 205.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0122",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0082",
+      "name": "Subway",
+      "trail_mile": 206.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0123",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0083",
+      "name": "Subway",
+      "trail_mile": 206.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0124",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0084",
+      "name": "Maple Ridge Trail",
+      "trail_mile": 204.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0125",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0085",
+      "name": "Lamoille Valley Rail Trail",
+      "trail_mile": 223.2,
+      "road_type": "cycleway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0126",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0086",
+      "name": "Baker Peak Trail",
+      "trail_mile": 67.5,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0127",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0087",
+      "name": "Lake Trail",
+      "trail_mile": 65.7,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0128",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0088",
+      "name": "Sterling Pond Trail",
+      "trail_mile": 212.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0129",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0089",
+      "name": "Monroe Trail",
+      "trail_mile": 178.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0130",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0090",
+      "name": "Chilcoot Pass Trail",
+      "trail_mile": 215.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0131",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0091",
+      "name": "Whiteface Trail",
+      "trail_mile": 216.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0132",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0092",
+      "name": "Harrington's View",
+      "trail_mile": 194.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0133",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0093",
+      "name": "Old Turnpike Road",
+      "trail_mile": 109.5,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0134",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0094",
+      "name": "nan",
+      "trail_mile": 15.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0135",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0095",
+      "name": "Branch Pond Trail",
+      "trail_mile": 48.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0136",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0096",
+      "name": "Forest Highway 71",
+      "trail_mile": 35.0,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0137",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0097",
+      "name": "nan",
+      "trail_mile": 22.8,
+      "road_type": "track_grade5",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0138",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0098",
+      "name": "Appalachian Trail",
+      "trail_mile": 0.0,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0139",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0099",
+      "name": "Griffith Lake Trail",
+      "trail_mile": 65.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0140",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0100",
+      "name": "nan",
+      "trail_mile": 187.5,
+      "road_type": "motorway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0141",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0101",
+      "name": "Notch Road",
+      "trail_mile": 187.5,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0142",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0102",
+      "name": "nan",
+      "trail_mile": 122.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0143",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0103",
+      "name": "Chittenden Brook Trail",
+      "trail_mile": 124.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0144",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0104",
+      "name": "Bucklin Trail",
+      "trail_mile": 99.8,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0145",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0105",
+      "name": "U.S. Route 4",
+      "trail_mile": 106.0,
+      "road_type": "trunk",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0146",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0106",
+      "name": "nan",
+      "trail_mile": 187.2,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0147",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0107",
+      "name": "Theodore Roosevelt Highway",
+      "trail_mile": 187.2,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0148",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0108",
+      "name": "Duxbury Road",
+      "trail_mile": 186.5,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0149",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0109",
+      "name": "North Ridge",
+      "trail_mile": 194.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0150",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0110",
+      "name": "Appalachian Trail",
+      "trail_mile": 107.1,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0151",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0111",
+      "name": "Codding Hollow Road",
+      "trail_mile": 230.6,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0152",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0112",
+      "name": "Sucker Brook Trail",
+      "trail_mile": 133.0,
+      "road_type": "cycleway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0153",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0113",
+      "name": "Lamoille Valley Rail Trail",
+      "trail_mile": 223.7,
+      "road_type": "cycleway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0154",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0114",
+      "name": "nan",
+      "trail_mile": 223.9,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0155",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0115",
+      "name": "Raven's Wind",
+      "trail_mile": 196.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0156",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0116",
+      "name": "Shrewsbury Peak Trail",
+      "trail_mile": 98.0,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0157",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0117",
+      "name": "Catamount Trail",
+      "trail_mile": 95.2,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0158",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0118",
+      "name": "Theodore Roosevelt Highway",
+      "trail_mile": 187.2,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0159",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0119",
+      "name": "Duxbury Road",
+      "trail_mile": 185.2,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0160",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0120",
+      "name": "Duxbury Road",
+      "trail_mile": 186.8,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0161",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0121",
+      "name": "Amherst Trail",
+      "trail_mile": 205.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0162",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0122",
+      "name": "Keewaydin Trail",
+      "trail_mile": 80.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0163",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0123",
+      "name": "Overlook spur",
+      "trail_mile": 79.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0164",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0124",
+      "name": "West Ridge Trail",
+      "trail_mile": 24.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0165",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0125",
+      "name": "Link to Little Pond",
+      "trail_mile": 18.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0166",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0126",
+      "name": "nan",
+      "trail_mile": 33.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0167",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0127",
+      "name": "TH-Basin Road",
+      "trail_mile": 239.0,
+      "road_type": "track_grade4",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0168",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0128",
+      "name": "Big Jay herd path",
+      "trail_mile": 263.5,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0169",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0129",
+      "name": "Jay Loop",
+      "trail_mile": 261.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0170",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0130",
+      "name": "Jay Loop",
+      "trail_mile": 261.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0171",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0131",
+      "name": "nan",
+      "trail_mile": 252.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0172",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0132",
+      "name": "nan",
+      "trail_mile": 242.4,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0173",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0133",
+      "name": "West Settlement Road",
+      "trail_mile": 223.2,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0174",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0134",
+      "name": "nan",
+      "trail_mile": 222.9,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0175",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0135",
+      "name": "nan",
+      "trail_mile": 109.7,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0176",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0136",
+      "name": "Skylight Pond Trail West",
+      "trail_mile": 142.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0177",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0137",
+      "name": "Hill Trail",
+      "trail_mile": 140.0,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0178",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0138",
+      "name": "Clark Brook Trail",
+      "trail_mile": 146.1,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0179",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0139",
+      "name": "Emily Proctor Trail",
+      "trail_mile": 144.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0180",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0140",
+      "name": "Cooley Glen Trail",
+      "trail_mile": 150.2,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0181",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0141",
+      "name": "Cooley Glen Trail",
+      "trail_mile": 150.2,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0182",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0142",
+      "name": "nan",
+      "trail_mile": 187.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0183",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0143",
+      "name": "nan",
+      "trail_mile": 12.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0184",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0144",
+      "name": "nan",
+      "trail_mile": 12.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0185",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0145",
+      "name": "nan",
+      "trail_mile": 115.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0186",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0146",
+      "name": "Babcock Trail Extension",
+      "trail_mile": 245.0,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0187",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0147",
+      "name": "Babcock Trail",
+      "trail_mile": 243.1,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0188",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0148",
+      "name": "nan",
+      "trail_mile": 127.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0189",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0149",
+      "name": "Great Cliff spur",
+      "trail_mile": 128.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0190",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0150",
+      "name": "Vermont Route 11 30",
+      "trail_mile": 54.8,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0191",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0151",
+      "name": "Goat Path",
+      "trail_mile": 194.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0192",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0152",
+      "name": "nan",
+      "trail_mile": 52.8,
+      "road_type": "track_grade5",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0193",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0153",
+      "name": "Spruce Peak Shelter Spur",
+      "trail_mile": 51.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0194",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0154",
+      "name": "nan",
+      "trail_mile": 52.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0195",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0155",
+      "name": "nan",
+      "trail_mile": 243.1,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0196",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0156",
+      "name": "nan",
+      "trail_mile": 170.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0197",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0157",
+      "name": "nan",
+      "trail_mile": 271.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0198",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0158",
+      "name": "Frank Post Trail",
+      "trail_mile": 250.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0199",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0159",
+      "name": "Elephant\u2019s Head Spur",
+      "trail_mile": 211.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0200",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0160",
+      "name": "Barnes Camp Loop",
+      "trail_mile": 209.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0201",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0161",
+      "name": "nan",
+      "trail_mile": 99.6,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0202",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0162",
+      "name": "nan",
+      "trail_mile": 88.9,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0203",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0163",
+      "name": "nan",
+      "trail_mile": 82.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0204",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0164",
+      "name": "Old Job Trail",
+      "trail_mile": 71.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0205",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0165",
+      "name": "nan",
+      "trail_mile": 2.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0206",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0166",
+      "name": "Davis Neighborhood Trail",
+      "trail_mile": 235.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0207",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0167",
+      "name": "nan",
+      "trail_mile": 28.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0208",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0168",
+      "name": "Seasonal Forestry Road",
+      "trail_mile": 72.7,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0209",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0169",
+      "name": "nan",
+      "trail_mile": 74.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0210",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0170",
+      "name": "nan",
+      "trail_mile": 75.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0211",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0171",
+      "name": "nan",
+      "trail_mile": 79.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0212",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0172",
+      "name": "Churchill Scott Shelter Trail",
+      "trail_mile": 104.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0213",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0173",
+      "name": "nan",
+      "trail_mile": 107.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0214",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0174",
+      "name": "New Boston Trail",
+      "trail_mile": 119.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0215",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0175",
+      "name": "nan",
+      "trail_mile": 118.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0216",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0176",
+      "name": "nan",
+      "trail_mile": 118.9,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0217",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0177",
+      "name": "nan",
+      "trail_mile": 122.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0218",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0178",
+      "name": "Corridor 7",
+      "trail_mile": 55.8,
+      "road_type": "track_grade4",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0219",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0179",
+      "name": "nan",
+      "trail_mile": 245.0,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0220",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0180",
+      "name": "nan",
+      "trail_mile": 209.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0221",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0181",
+      "name": "nan",
+      "trail_mile": 137.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0222",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0182",
+      "name": "nan",
+      "trail_mile": 115.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0223",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0183",
+      "name": "nan",
+      "trail_mile": 115.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0224",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0184",
+      "name": "nan",
+      "trail_mile": 264.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0225",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0185",
+      "name": "nan",
+      "trail_mile": 268.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0226",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0186",
+      "name": "nan",
+      "trail_mile": 157.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0227",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0187",
+      "name": "Vermont Route 15 West",
+      "trail_mile": 223.9,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0228",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0188",
+      "name": "Vermont Route 15 West",
+      "trail_mile": 223.8,
+      "road_type": "primary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0229",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0189",
+      "name": "Snuffy's",
+      "trail_mile": 212.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0230",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0190",
+      "name": "nan",
+      "trail_mile": 209.6,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0231",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0191",
+      "name": "Stratton Arlington Road",
+      "trail_mile": 37.1,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0232",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0192",
+      "name": "nan",
+      "trail_mile": 48.9,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0233",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0193",
+      "name": "nan",
+      "trail_mile": 87.8,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0234",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0194",
+      "name": "Cold River Road",
+      "trail_mile": 92.0,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0235",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0195",
+      "name": "Kieffer Road",
+      "trail_mile": 91.7,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0236",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0196",
+      "name": "nan",
+      "trail_mile": 166.8,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0237",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0197",
+      "name": "nan",
+      "trail_mile": 165.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0238",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0198",
+      "name": "nan",
+      "trail_mile": 165.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0239",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0199",
+      "name": "Vermont Route 17",
+      "trail_mile": 166.8,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0240",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0200",
+      "name": "Clara Bow Trail",
+      "trail_mile": 201.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0241",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0201",
+      "name": "Vermont Route 103",
+      "trail_mile": 87.8,
+      "road_type": "trunk",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0242",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0202",
+      "name": "Vermont Route 125",
+      "trail_mile": 137.4,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0243",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0203",
+      "name": "Stratton Pond Trail",
+      "trail_mile": 43.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0244",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0204",
+      "name": "Sherburne Pass Trail",
+      "trail_mile": 102.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0245",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0205",
+      "name": "nan",
+      "trail_mile": 239.3,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0246",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0206",
+      "name": "nan",
+      "trail_mile": 239.1,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0247",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0207",
+      "name": "nan",
+      "trail_mile": 245.0,
+      "road_type": "service",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0248",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0208",
+      "name": "nan",
+      "trail_mile": 57.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0249",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0209",
+      "name": "nan",
+      "trail_mile": 188.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0250",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0210",
+      "name": "nan",
+      "trail_mile": 6.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0251",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0211",
+      "name": "nan",
+      "trail_mile": 9.3,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0252",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0212",
+      "name": "North Brookwood Trail",
+      "trail_mile": 44.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0253",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0213",
+      "name": "nan",
+      "trail_mile": 42.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0254",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0214",
+      "name": "nan",
+      "trail_mile": 48.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0255",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0215",
+      "name": "Battell Trail",
+      "trail_mile": 157.3,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0256",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0216",
+      "name": "nan",
+      "trail_mile": 106.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0257",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0217",
+      "name": "nan",
+      "trail_mile": 95.6,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0258",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0218",
+      "name": "Clement Shelter Road",
+      "trail_mile": 94.4,
+      "road_type": "residential",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0259",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0219",
+      "name": "Catamount Trail",
+      "trail_mile": 95.3,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0260",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0220",
+      "name": "Old Turnpike Road",
+      "trail_mile": 109.5,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0261",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0221",
+      "name": "Little Rock Pond Loop",
+      "trail_mile": 74.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0262",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0222",
+      "name": "nan",
+      "trail_mile": 99.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0263",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0223",
+      "name": "nan",
+      "trail_mile": 25.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0264",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0224",
+      "name": "nan",
+      "trail_mile": 76.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0265",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0225",
+      "name": "nan",
+      "trail_mile": 214.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0266",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0226",
+      "name": "nan",
+      "trail_mile": 213.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0267",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0227",
+      "name": "Snuffy's",
+      "trail_mile": 213.1,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0268",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0228",
+      "name": "nan",
+      "trail_mile": 213.2,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0269",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0229",
+      "name": "nan",
+      "trail_mile": 102.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0270",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0230",
+      "name": "nan",
+      "trail_mile": 104.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0271",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0231",
+      "name": "nan",
+      "trail_mile": 99.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0272",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0232",
+      "name": "nan",
+      "trail_mile": 105.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0273",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0233",
+      "name": "nan",
+      "trail_mile": 104.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0274",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0234",
+      "name": "Breadloaf Spur Trail",
+      "trail_mile": 143.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0275",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0235",
+      "name": "nan",
+      "trail_mile": 145.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0276",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0236",
+      "name": "Skylight Pond Trail East",
+      "trail_mile": 142.7,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0277",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0237",
+      "name": "nan",
+      "trail_mile": 106.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0278",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0238",
+      "name": "Laura Cowles Trail",
+      "trail_mile": 206.4,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0279",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0239",
+      "name": "Taft Lodge",
+      "trail_mile": 207.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0280",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0240",
+      "name": "nan",
+      "trail_mile": 69.4,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0281",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0241",
+      "name": "Orvis Lookout",
+      "trail_mile": 163.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0282",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0242",
+      "name": "Vermont Route 140 East",
+      "trail_mile": 81.3,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0283",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0243",
+      "name": "Nebraska Notch Trail",
+      "trail_mile": 201.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0284",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0244",
+      "name": "nan",
+      "trail_mile": 54.9,
+      "road_type": "track_grade4",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0285",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0245",
+      "name": "Old VAST Trail",
+      "trail_mile": 190.0,
+      "road_type": "track_grade5",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0286",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0246",
+      "name": "Old VAST Trail",
+      "trail_mile": 190.0,
+      "road_type": "track_grade5",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0287",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0247",
+      "name": "nan",
+      "trail_mile": 36.2,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0288",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0248",
+      "name": "nan",
+      "trail_mile": 22.7,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0289",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0249",
+      "name": "nan",
+      "trail_mile": 25.4,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0290",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0250",
+      "name": "Vermont Route 9",
+      "trail_mile": 14.3,
+      "road_type": "trunk",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0291",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0251",
+      "name": "nan",
+      "trail_mile": 36.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0292",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0252",
+      "name": "nan",
+      "trail_mile": 33.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0293",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0253",
+      "name": "Forest Road 383",
+      "trail_mile": 37.1,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0294",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0254",
+      "name": "nan",
+      "trail_mile": 34.6,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0295",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0255",
+      "name": "Old Long Trail",
+      "trail_mile": 192.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0296",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0256",
+      "name": "IP Road",
+      "trail_mile": 42.8,
+      "road_type": "track_grade2",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0297",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0257",
+      "name": "IP Road",
+      "trail_mile": 38.5,
+      "road_type": "track_grade2",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0298",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0258",
+      "name": "nan",
+      "trail_mile": 54.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0299",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0259",
+      "name": "nan",
+      "trail_mile": 54.3,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0300",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0260",
+      "name": "nan",
+      "trail_mile": 48.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0301",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0261",
+      "name": "nan",
+      "trail_mile": 3.1,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0302",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0262",
+      "name": "nan",
+      "trail_mile": 196.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0303",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0263",
+      "name": "Stratton Arlington Road",
+      "trail_mile": 37.0,
+      "road_type": "unclassified",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0304",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0264",
+      "name": "Gap Road",
+      "trail_mile": 127.4,
+      "road_type": "secondary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0305",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0265",
+      "name": "Lincoln Gap Road",
+      "trail_mile": 155.6,
+      "road_type": "tertiary",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0306",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0266",
+      "name": "Catamount Trail",
+      "trail_mile": 170.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0307",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0267",
+      "name": "nan",
+      "trail_mile": 22.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0308",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0268",
+      "name": "nan",
+      "trail_mile": 76.3,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0309",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0269",
+      "name": "nan",
+      "trail_mile": 76.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0310",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0270",
+      "name": "nan",
+      "trail_mile": 85.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0311",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0271",
+      "name": "nan",
+      "trail_mile": 85.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0312",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0272",
+      "name": "nan",
+      "trail_mile": 188.0,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0313",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0273",
+      "name": "nan",
+      "trail_mile": 220.5,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0314",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0274",
+      "name": "Old Fayston Rd/Huntington Gap Road (Class IV)",
+      "trail_mile": 170.8,
+      "road_type": "track",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0315",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0275",
+      "name": "Prospect Rock Spur",
+      "trail_mile": 225.5,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0316",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0276",
+      "name": "nan",
+      "trail_mile": 187.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0317",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0277",
+      "name": "nan",
+      "trail_mile": 160.2,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0318",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0278",
+      "name": "Old Job Trail",
+      "trail_mile": 65.6,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0319",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0279",
+      "name": "Green Mountain Trail",
+      "trail_mile": 75.1,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0320",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0280",
+      "name": "nan",
+      "trail_mile": 57.8,
+      "road_type": "footway",
+      "vehicle_access": true,
+      "schema_version": "1.0"
+    },
+    {
+      "node_id": "node_0321",
+      "node_type": "crossing",
+      "crossing_id": "crossing_0281",
+      "name": "Long Trail Temporary Realignment",
+      "trail_mile": 186.8,
+      "road_type": "path",
+      "vehicle_access": true,
+      "schema_version": "1.0"
     }
   ],
-  "crossings": [
-    {
-      "crossing_id": "crossing_0000",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0001",
-      "road_name": "Old Rootville Road",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0002",
-      "road_name": "Vermont Route 125",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0003",
-      "road_name": "Stage Coach Road",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0004",
-      "road_name": "Mad Tom Notch Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0005",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0006",
-      "road_name": "Notch Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0007",
-      "road_name": "Vermont Route 17",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0008",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0009",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0010",
-      "road_name": "Duxbury Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0011",
-      "road_name": "unknown",
-      "fclass": "motorway",
-      "mile": null,
-      "access_score": 1.0,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0012",
-      "road_name": "Belvidere Road",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0013",
-      "road_name": "Plot Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0014",
-      "road_name": "Hog Back Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0015",
-      "road_name": "Prospect Rock Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0016",
-      "road_name": "Codding Hollow Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0017",
-      "road_name": "Vermont Route 105",
-      "fclass": "primary",
-      "mile": null,
-      "access_score": 0.8,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0018",
-      "road_name": "Vermont Route 242",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0019",
-      "road_name": "Route 58",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0020",
-      "road_name": "South Park Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0021",
-      "road_name": "Forest Road 384",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0022",
-      "road_name": "Seasonal Forestry Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0023",
-      "road_name": "Sugar Hill Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0024",
-      "road_name": "Lottery Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0025",
-      "road_name": "Cold River Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0026",
-      "road_name": "Clement Shelter Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0027",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0028",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0029",
-      "road_name": "Mountain Road",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0030",
-      "road_name": "Upper Chilcoot",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0031",
-      "road_name": "Upper Chilcoot",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0032",
-      "road_name": "Old Turnpike Road",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0033",
-      "road_name": "Notch Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0034",
-      "road_name": "U.S. Route 4",
-      "fclass": "trunk",
-      "mile": null,
-      "access_score": 0.9,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0035",
-      "road_name": "Theodore Roosevelt Highway",
-      "fclass": "primary",
-      "mile": null,
-      "access_score": 0.8,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0036",
-      "road_name": "Duxbury Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0037",
-      "road_name": "Vermont Route 15 West",
-      "fclass": "primary",
-      "mile": null,
-      "access_score": 0.8,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0038",
-      "road_name": "Catamount Trail",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0039",
-      "road_name": "Duxbury Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0040",
-      "road_name": "Duxbury Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0041",
-      "road_name": "Link to Little Pond",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0042",
-      "road_name": "West Settlement Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0043",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0044",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0045",
-      "road_name": "Vermont Route 11 30",
-      "fclass": "primary",
-      "mile": null,
-      "access_score": 0.8,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0046",
-      "road_name": "Seasonal Forestry Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0047",
-      "road_name": "unknown",
-      "fclass": "service",
-      "mile": null,
-      "access_score": 0.4,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0048",
-      "road_name": "Vermont Route 103",
-      "fclass": "trunk",
-      "mile": null,
-      "access_score": 0.9,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0049",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0050",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0051",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0052",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0053",
-      "road_name": "Clement Shelter Road",
-      "fclass": "residential",
-      "mile": null,
-      "access_score": 0.5,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0054",
-      "road_name": "Catamount Trail",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0055",
-      "road_name": "Snuffy's",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0056",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0057",
-      "road_name": "Vermont Route 140 East",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0058",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0059",
-      "road_name": "Vermont Route 9",
-      "fclass": "trunk",
-      "mile": null,
-      "access_score": 0.9,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0060",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0061",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0062",
-      "road_name": "Forest Road 383",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0063",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0064",
-      "road_name": "IP Road",
-      "fclass": "track_grade2",
-      "mile": null,
-      "access_score": 0.2,
-      "vehicle_access": false,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0065",
-      "road_name": "IP Road",
-      "fclass": "track_grade2",
-      "mile": null,
-      "access_score": 0.2,
-      "vehicle_access": false,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0066",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0067",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0068",
-      "road_name": "Gap Road",
-      "fclass": "secondary",
-      "mile": null,
-      "access_score": 0.7,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0069",
-      "road_name": "Lincoln Gap Road",
-      "fclass": "tertiary",
-      "mile": null,
-      "access_score": 0.6,
-      "vehicle_access": true,
-      "likely_hitchable": true
-    },
-    {
-      "crossing_id": "crossing_0070",
-      "road_name": "unknown",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
-    },
-    {
-      "crossing_id": "crossing_0071",
-      "road_name": "Old Fayston Rd/Huntington Gap Road (Class IV)",
-      "fclass": "track",
-      "mile": null,
-      "access_score": 0.3,
-      "vehicle_access": true,
-      "likely_hitchable": false
+  "edges": [
+    {
+      "edge_id": "edge_0000",
+      "from_segment": "segment_0000",
+      "to_segment": "segment_0001",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0001",
+      "from_segment": "segment_0001",
+      "to_segment": "segment_0002",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0002",
+      "from_segment": "segment_0002",
+      "to_segment": "segment_0003",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0003",
+      "from_segment": "segment_0003",
+      "to_segment": "segment_0004",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0004",
+      "from_segment": "segment_0004",
+      "to_segment": "segment_0005",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0005",
+      "from_segment": "segment_0005",
+      "to_segment": "segment_0006",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0006",
+      "from_segment": "segment_0006",
+      "to_segment": "segment_0007",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0007",
+      "from_segment": "segment_0007",
+      "to_segment": "segment_0008",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0008",
+      "from_segment": "segment_0008",
+      "to_segment": "segment_0009",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0009",
+      "from_segment": "segment_0009",
+      "to_segment": "segment_0010",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0010",
+      "from_segment": "segment_0010",
+      "to_segment": "segment_0011",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0011",
+      "from_segment": "segment_0011",
+      "to_segment": "segment_0012",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0012",
+      "from_segment": "segment_0012",
+      "to_segment": "segment_0013",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0013",
+      "from_segment": "segment_0013",
+      "to_segment": "segment_0014",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0014",
+      "from_segment": "segment_0014",
+      "to_segment": "segment_0015",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0015",
+      "from_segment": "segment_0015",
+      "to_segment": "segment_0016",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0016",
+      "from_segment": "segment_0016",
+      "to_segment": "segment_0017",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0017",
+      "from_segment": "segment_0017",
+      "to_segment": "segment_0018",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0018",
+      "from_segment": "segment_0018",
+      "to_segment": "segment_0019",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0019",
+      "from_segment": "segment_0019",
+      "to_segment": "segment_0020",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0020",
+      "from_segment": "segment_0020",
+      "to_segment": "segment_0021",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0021",
+      "from_segment": "segment_0021",
+      "to_segment": "segment_0022",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0022",
+      "from_segment": "segment_0022",
+      "to_segment": "segment_0023",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0023",
+      "from_segment": "segment_0023",
+      "to_segment": "segment_0024",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0024",
+      "from_segment": "segment_0024",
+      "to_segment": "segment_0025",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0025",
+      "from_segment": "segment_0025",
+      "to_segment": "segment_0026",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0026",
+      "from_segment": "segment_0026",
+      "to_segment": "segment_0027",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0027",
+      "from_segment": "segment_0027",
+      "to_segment": "segment_0028",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0028",
+      "from_segment": "segment_0028",
+      "to_segment": "segment_0029",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0029",
+      "from_segment": "segment_0029",
+      "to_segment": "segment_0030",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0030",
+      "from_segment": "segment_0030",
+      "to_segment": "segment_0031",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0031",
+      "from_segment": "segment_0031",
+      "to_segment": "segment_0032",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0032",
+      "from_segment": "segment_0032",
+      "to_segment": "segment_0033",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0033",
+      "from_segment": "segment_0033",
+      "to_segment": "segment_0034",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0034",
+      "from_segment": "segment_0034",
+      "to_segment": "segment_0035",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0035",
+      "from_segment": "segment_0035",
+      "to_segment": "segment_0036",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0036",
+      "from_segment": "segment_0036",
+      "to_segment": "segment_0037",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0037",
+      "from_segment": "segment_0037",
+      "to_segment": "segment_0038",
+      "distance": 6.0,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    },
+    {
+      "edge_id": "edge_0038",
+      "from_segment": "segment_0038",
+      "to_segment": "segment_0039",
+      "distance": 3.8,
+      "elevation_gain_ft": 1553,
+      "difficulty": "moderate",
+      "schema_version": "1.0"
+    }
+  ],
+  "logistics": [
+    {
+      "logistics_id": "logistics_0000",
+      "town": "North Adams MA",
+      "division": 1,
+      "zip": 1247,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0001",
+      "town": "Williamstown MA",
+      "division": 1,
+      "zip": 1267,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0002",
+      "town": "Stamford VT",
+      "division": 1,
+      "zip": 5352,
+      "post_office": false,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0003",
+      "town": "Bennington VT",
+      "division": 1,
+      "zip": 5201,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0004",
+      "town": "East Arlington",
+      "division": 2,
+      "zip": 5252,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0005",
+      "town": "Arlington",
+      "division": 2,
+      "zip": 5250,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0006",
+      "town": "West Wardsboro",
+      "division": 2,
+      "zip": 5360,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0007",
+      "town": "Peru",
+      "division": 3,
+      "zip": 5152,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0008",
+      "town": "Manchester Center",
+      "division": 3,
+      "zip": 5255,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0009",
+      "town": "Manchester",
+      "division": 3,
+      "zip": 5254,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0010",
+      "town": "Danby",
+      "division": 4,
+      "zip": 5739,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0011",
+      "town": "E Wallingford",
+      "division": 4,
+      "zip": 5742,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0012",
+      "town": "Wallingford",
+      "division": 4,
+      "zip": 5773,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0013",
+      "town": "Cuttingsville",
+      "division": 5,
+      "zip": 5738,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0014",
+      "town": "N Clarendon",
+      "division": 5,
+      "zip": 5759,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0015",
+      "town": "Killington",
+      "division": 5,
+      "zip": 5751,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0016",
+      "town": "Rutland",
+      "division": 5,
+      "zip": 5701,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0017",
+      "town": "Chittenden",
+      "division": 6,
+      "zip": 5737,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0018",
+      "town": "Rochester",
+      "division": 6,
+      "zip": 5767,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0019",
+      "town": "Forest Dale",
+      "division": 6,
+      "zip": 5745,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0020",
+      "town": "Brandon",
+      "division": 6,
+      "zip": 5733,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0021",
+      "town": "Hancock",
+      "division": 7,
+      "zip": 5748,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0022",
+      "town": "East Middlebury",
+      "division": 7,
+      "zip": 5740,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0023",
+      "town": "Middlebury",
+      "division": 7,
+      "zip": 5753,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0024",
+      "town": "Granville",
+      "division": 7,
+      "zip": 5747,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0025",
+      "town": "Warren",
+      "division": 8,
+      "zip": 5674,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0026",
+      "town": "Bristol Lincoln",
+      "division": 8,
+      "zip": 5443,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0027",
+      "town": "Waitsfield",
+      "division": 8,
+      "zip": 5673,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0028",
+      "town": "Huntington",
+      "division": 9,
+      "zip": 5462,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0029",
+      "town": "Jonesville",
+      "division": 9,
+      "zip": 5466,
+      "post_office": true,
+      "grocery": false,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0030",
+      "town": "Richmond",
+      "division": 9,
+      "zip": 5477,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0031",
+      "town": "Waterbury",
+      "division": 9,
+      "zip": 5676,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0032",
+      "town": "Underhill Center",
+      "division": 10,
+      "zip": 5490,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0033",
+      "town": "Stowe",
+      "division": 10,
+      "zip": 5672,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0034",
+      "town": "Morrisville",
+      "division": 10,
+      "zip": 5661,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0035",
+      "town": "Johnson",
+      "division": 11,
+      "zip": 5656,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0036",
+      "town": "Waterville",
+      "division": 11,
+      "zip": 5492,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0037",
+      "town": "Eden",
+      "division": 11,
+      "zip": 5652,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0038",
+      "town": "Lowell",
+      "division": 12,
+      "zip": 5847,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0039",
+      "town": "Montgomery Center",
+      "division": 12,
+      "zip": 5847,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0040",
+      "town": "Westfield",
+      "division": 12,
+      "zip": 5847,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0041",
+      "town": "Jay",
+      "division": 12,
+      "zip": 5859,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0042",
+      "town": "North Troy",
+      "division": 12,
+      "zip": 5847,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
+    },
+    {
+      "logistics_id": "logistics_0043",
+      "town": "Richford",
+      "division": 12,
+      "zip": 5847,
+      "post_office": true,
+      "grocery": true,
+      "zero_candidate": false,
+      "nero_candidate": false,
+      "schema_version": "1.0"
     }
   ]
 }

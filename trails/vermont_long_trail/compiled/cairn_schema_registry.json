@@ -1,86 +1,36 @@
 {
-  "schema_version": "0.3-draft",
+  "schema_version": "1.0",
+  "trail": "vermont_long_trail",
   "datasets": {
     "spine": {
-      "description": "Canonical LT spine geometry",
-      "required_fields": [
-        "geometry"
-      ]
-    },
-    "terrain": {
-      "description": "Terrain sampling profile",
-      "required_fields": [
-        "mile",
-        "elevation_ft",
-        "geometry"
-      ]
-    },
-    "nodes": {
-      "description": "Canonical overnight nodes",
-      "required_fields": [
-        "node_id",
-        "canonical_name",
-        "canonical_type",
-        "mile_estimate",
-        "trail_order",
-        "node_class",
-        "geometry"
-      ]
+      "path": "compiled/spine.geojson",
+      "type": "GeoJSON",
+      "description": "Canonical trail spine geometry"
     },
     "segments": {
-      "description": "Operational trail segments",
-      "required_fields": [
-        "segment_id",
-        "from_node",
-        "to_node",
-        "start_mile",
-        "end_mile",
-        "segment_miles",
-        "gain_ft",
-        "loss_ft",
-        "difficulty",
-        "estimated_hours",
-        "geometry"
-      ]
+      "path": "compiled/segments.geojson",
+      "type": "GeoJSON",
+      "description": "Terrain segmentation"
     },
     "crossings": {
-      "description": "Road/trail crossings",
-      "required_fields": [
-        "crossing_id",
-        "name",
-        "road_type",
-        "trail_mile",
-        "vehicle_access",
-        "access_score",
-        "geometry"
-      ]
+      "path": "compiled/crossings.geojson",
+      "type": "GeoJSON",
+      "description": "Road and trail crossings"
+    },
+    "crossings_refined": {
+      "path": "compiled/crossings_refined.geojson",
+      "type": "GeoJSON",
+      "description": "Refined operational crossings"
     },
     "logistics_nodes": {
-      "description": "Resupply and recovery nodes",
-      "required_fields": [
-        "logistics_id",
-        "town",
-        "division",
-        "grocery",
-        "post_office",
-        "zero_candidate",
-        "nero_candidate"
-      ]
+      "path": "compiled/logistics_nodes.json",
+      "type": "JSON",
+      "description": "Operational logistics nodes"
     },
     "operational_graph": {
-      "description": "Unified operational planning graph",
-      "required_fields": [
-        "segments",
-        "nodes",
-        "crossings"
-      ]
-    },
-    "itinerary": {
-      "description": "Generated hiking itinerary",
-      "required_fields": [
-        "summary",
-        "itinerary"
-      ]
+      "path": "compiled/operational_graph.json",
+      "type": "JSON",
+      "description": "Operational traversal graph"
     }
   }
 }

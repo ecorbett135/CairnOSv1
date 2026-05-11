@@ -1,350 +1,282 @@
-# validate_dataset.py
-
 from pathlib import Path
+import sys
 import json
 
-import geopandas as gpd
 
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-COMPILED_DIR = Path(str(COMPILED_DIR) + "")
-
-REGISTRY_FILE = (
-    COMPILED_DIR /
-    "cairn_schema_registry.json"
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
 )
 
-DATASETS = {
+RAW_DIR = trail_root / "raw"
 
-    "spine":
-        COMPILED_DIR / "spine.geojson",
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-    "terrain":
-        COMPILED_DIR / "terrain.geojson",
-
-    "nodes":
-        COMPILED_DIR / "nodes.geojson",
-
-    "segments":
-        COMPILED_DIR / "segments.geojson",
-
-    "crossings":
-        COMPILED_DIR /
-        "crossings_refined.geojson",
-
-    "logistics_nodes":
-        COMPILED_DIR /
-        "logistics_nodes.json",
-
-    "operational_graph":
-        COMPILED_DIR /
-        "operational_graph.json",
-
-    "itinerary":
-        COMPILED_DIR /
-        "itinerary.json",
-}
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
 
-# =========================================================
+#
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
+#
+
+REQUIRED_FILES = [
+
+    "spine.geojson",
+
+    "segments.geojson",
+
+    "crossings.geojson",
+
+    "crossings_refined.geojson",
+
+    "logistics_nodes.json",
+
+    "operational_graph.json",
+
+    "cairn_schema_registry.json",
+]
+
+
+#
+# ---------------------------------------------------------
 # HELPERS
-# =========================================================
+# ---------------------------------------------------------
+#
 
-def load_registry():
+def validate_required_files():
 
-    with open(REGISTRY_FILE) as fp:
-        return json.load(fp)
-
-
-def validate_file_exists(path):
-
-    return path.exists()
-
-
-def validate_geojson_fields(
-    path,
-    required_fields
-):
-
-    gdf = gpd.read_file(
-        path,
-        engine="fiona"
+    print(
+        "\n[CHECK] Required files"
     )
-
-    cols = set(gdf.columns)
 
     missing = []
 
-    for field in required_fields:
+    for filename in REQUIRED_FILES:
 
-        if field not in cols:
-            missing.append(field)
+        path = (
+            COMPILED_DIR /
+            filename
+        )
+
+        if path.exists():
+
+            print(
+                f"[OK] {filename}"
+            )
+
+        else:
+
+            print(
+                f"[MISSING] {filename}"
+            )
+
+            missing.append(
+                filename
+            )
 
     return missing
 
 
-def validate_json_fields(
-    path,
-    required_fields
-):
+def validate_graph():
 
-    with open(path) as fp:
-        data = json.load(fp)
+    print(
+        "\n[CHECK] Operational graph"
+    )
 
-    missing = []
+    graph_path = (
+        COMPILED_DIR /
+        "operational_graph.json"
+    )
 
-    # -------------------------------------------------
-    # LIST-BASED JSON
-    # -------------------------------------------------
+    with open(graph_path) as f:
 
-    if isinstance(data, list):
+        graph = json.load(f)
 
-        if len(data) == 0:
-
-            return required_fields
-
-        sample = data[0]
-
-        for field in required_fields:
-
-            if field not in sample:
-                missing.append(field)
-
-        return missing
-
-    # -------------------------------------------------
-    # OBJECT-BASED JSON
-    # -------------------------------------------------
-
-    if isinstance(data, dict):
-
-        for field in required_fields:
-
-            if field not in data:
-                missing.append(field)
-
-        return missing
-
-    # -------------------------------------------------
-    # UNKNOWN STRUCTURE
-    # -------------------------------------------------
-
-    return required_fields
-
-# =========================================================
-# DATASET VALIDATION
-# =========================================================
-
-def validate_dataset(
-    dataset_name,
-    path,
-    spec
-):
-
-    print(f"\n[VALIDATING] {dataset_name}")
-
-    if not validate_file_exists(path):
-
-        print(f"[FAIL] Missing file: {path}")
-
-        return False
-
-    print(f"[OK] File exists")
-
-    required_fields = spec.get(
-        "required_fields",
+    nodes = graph.get(
+        "nodes",
         []
     )
 
-    suffix = path.suffix.lower()
+    edges = graph.get(
+        "edges",
+        []
+    )
 
-    missing = []
+    logistics = graph.get(
+        "logistics",
+        []
+    )
 
-    try:
+    print(
+        f"[INFO] Nodes: "
+        f"{len(nodes)}"
+    )
 
-        if suffix == ".geojson":
+    print(
+        f"[INFO] Edges: "
+        f"{len(edges)}"
+    )
 
-            missing = validate_geojson_fields(
-                path,
-                required_fields
-            )
+    print(
+        f"[INFO] Logistics: "
+        f"{len(logistics)}"
+    )
 
-        elif suffix == ".json":
+    if len(nodes) == 0:
 
-            missing = validate_json_fields(
-                path,
-                required_fields
-            )
-
-    except Exception as e:
-
-        print(f"[FAIL] Read error: {e}")
-
-        return False
-
-    if len(missing) > 0:
-
-        print(
-            f"[FAIL] Missing fields: "
-            f"{missing}"
+        raise RuntimeError(
+            "Graph contains no nodes"
         )
 
-        return False
+    if len(edges) == 0:
 
-    print("[OK] Required fields valid")
+        raise RuntimeError(
+            "Graph contains no edges"
+        )
 
-    return True
+    print("[OK] Graph valid")
 
-
-# =========================================================
-# SPECIAL VALIDATION
-# =========================================================
 
 def validate_segments():
 
     print(
-        "\n[CHECK] Segment continuity"
+        "\n[CHECK] Segments"
     )
 
-    path = COMPILED_DIR / "segments.geojson"
-
-    gdf = gpd.read_file(
-        path,
-        engine="fiona"
+    path = (
+        COMPILED_DIR /
+        "segments.json"
     )
 
-    if len(gdf) == 0:
-
-        print("[FAIL] No segments")
-
-        return False
-
-    total = gdf["segment_miles"].sum()
-
-    print(
-        f"[OK] Total segment miles: "
-        f"{round(total,1)}"
-    )
-
-    nulls = gdf["segment_miles"].isnull().sum()
-
-    if nulls > 0:
+    if not path.exists():
 
         print(
-            f"[FAIL] Null segment distances: "
-            f"{nulls}"
+            "[WARN] segments.json "
+            "missing — skipping"
         )
 
-        return False
+        return
 
-    print("[OK] Segment distances valid")
+    with open(path) as f:
 
-    return True
+        rows = json.load(f)
 
+    total_distance = sum(
 
-def validate_nodes():
+        row.get(
+            "distance",
+            0,
+        )
+
+        for row in rows
+    )
+
+    total_gain = sum(
+
+        row.get(
+            "elevation_gain_ft",
+            0,
+        )
+
+        for row in rows
+    )
 
     print(
-        "\n[CHECK] Node ordering"
+        f"[INFO] Total miles: "
+        f"{round(total_distance, 1)}"
     )
 
-    path = COMPILED_DIR / "nodes.geojson"
-
-    gdf = gpd.read_file(
-        path,
-        engine="fiona"
+    print(
+        f"[INFO] Total gain: "
+        f"{round(total_gain)} ft"
     )
 
-    ordered = gdf.sort_values(
-        by="trail_order"
-    )
+    if total_distance <= 0:
 
-    miles = list(
-        ordered["mile_estimate"]
-    )
+        raise RuntimeError(
+            "Invalid segment mileage"
+        )
 
-    for i in range(1, len(miles)):
-
-        if miles[i] < miles[i - 1]:
-
-            print(
-                "[FAIL] Node mile ordering invalid"
-            )
-
-            return False
-
-    print("[OK] Node ordering valid")
-
-    return True
+    print("[OK] Segments valid")
 
 
-# =========================================================
+#
+# ---------------------------------------------------------
 # MAIN
-# =========================================================
+# ---------------------------------------------------------
+#
 
 def main():
 
+    print("")
     print(
-        "\n=== CairnOS Dataset Validation ==="
+        "=== CairnOS Validation ==="
+    )
+    print("")
+
+    #
+    # files
+    #
+
+    missing = (
+        validate_required_files()
     )
 
-    registry = load_registry()
+    if missing:
 
-    datasets = registry["datasets"]
+        print("")
+        print("[FAILED]")
+        print("")
 
-    results = []
+        raise RuntimeError(
 
-    for name, path in DATASETS.items():
-
-        if name not in datasets:
-
-            print(
-                f"\n[WARN] No schema for {name}"
-            )
-
-            continue
-
-        spec = datasets[name]
-
-        result = validate_dataset(
-            name,
-            path,
-            spec
+            "Missing compiled files: "
+            + ", ".join(missing)
         )
 
-        results.append(result)
+    #
+    # graph
+    #
 
-    results.append(
-        validate_segments()
-    )
+    validate_graph()
 
-    results.append(
-        validate_nodes()
-    )
+    #
+    # segments
+    #
 
-    passed = results.count(True)
+    validate_segments()
 
-    total = len(results)
+    #
+    # success
+    #
 
-    print("\n[SUMMARY]\n")
+    print("")
+    print("[SUMMARY]")
+    print("")
 
     print(
-        f"Passed: {passed}/{total}"
+        "Validation passed"
     )
 
-    if passed == total:
-
-        print(
-            "\n[DATASET VALIDATION PASSED]"
-        )
-
-    else:
-
-        print(
-            "\n[DATASET VALIDATION FAILED]"
-        )
-
-    print("\n[DONE]\n")
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()

@@ -1,212 +1,310 @@
-# refine_crossings.py
-
 from pathlib import Path
+import sys
 import json
+
 import geopandas as gpd
-import pandas as pd
-from shapely.geometry import Point
 
-COMPILED_DIR = Path(str(COMPILED_DIR) + "")
 
-INPUT_FILE = COMPILED_DIR / "crossings.geojson"
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-OUTPUT_GEOJSON = COMPILED_DIR / "crossings_refined.geojson"
-OUTPUT_JSON = COMPILED_DIR / "crossings_refined.json"
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
+)
 
-SCHEMA_VERSION = "0.2-draft"
+RAW_DIR = trail_root / "raw"
 
-KEEP_FCLASSES = {
-    "motorway",
-    "trunk",
-    "primary",
-    "secondary",
-    "tertiary",
-    "residential",
-    "service",
-    "track",
-    "track_grade1",
-    "track_grade2",
-}
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-ROAD_CLASS_WEIGHTS = {
-    "motorway": 10,
-    "trunk": 9,
-    "primary": 8,
-    "secondary": 7,
-    "tertiary": 6,
-    "residential": 5,
-    "service": 4,
-    "track": 3,
-    "track_grade1": 3,
-    "track_grade2": 2,
-}
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
-CLUSTER_DISTANCE_METERS = 150
+
+#
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
+#
+
+SCHEMA_VERSION = "1.0"
+
+
+#
+# ---------------------------------------------------------
+# HELPERS
+# ---------------------------------------------------------
+#
+
+def load_crossings():
+
+    print("\n[INFO] Loading crossings")
+
+    crossings_path = (
+        COMPILED_DIR /
+        "crossings.geojson"
+    )
+
+    if not crossings_path.exists():
+
+        raise FileNotFoundError(
+            f"Missing crossings: "
+            f"{crossings_path}"
+        )
+
+    gdf = gpd.read_file(
+        crossings_path,
+        engine="fiona",
+    )
+
+    print(
+        f"[INFO] Raw crossings: "
+        f"{len(gdf)}"
+    )
+
+    return gdf
 
 
 def normalize_columns(gdf):
 
-    if "road_type" in gdf.columns:
+    #
+    # normalize road class field
+    #
 
-        gdf["fclass"] = gdf["road_type"]
+    if "fclass" in gdf.columns:
 
-    if "fclass" not in gdf.columns:
-
-        raise RuntimeError(
-            "Missing road classification column"
+        gdf["road_type"] = (
+            gdf["fclass"]
         )
 
-    return gdf
+    elif "road_type" not in gdf.columns:
 
+        gdf["road_type"] = (
+            "unknown"
+        )
 
-def filter_crossings(gdf):
-    return gdf[gdf["fclass"].isin(KEEP_FCLASSES)].copy()
+    #
+    # normalize name
+    #
 
+    if "name" not in gdf.columns:
 
-def score_crossings(gdf):
-    gdf["road_weight"] = gdf["fclass"].map(
-        ROAD_CLASS_WEIGHTS
-    ).fillna(1)
+        gdf["name"] = "unknown"
 
-    gdf["vehicle_access"] = gdf["road_weight"] >= 3
+    #
+    # ensure schema
+    #
 
-    gdf["likely_hitchable"] = gdf["road_weight"] >= 5
-
-    gdf["winter_access"] = gdf["road_weight"] >= 6
-
-    gdf["access_score"] = (
-        gdf["road_weight"] / 10.0
-    ).round(2)
-
-    return gdf
-
-
-def cluster_crossings(gdf):
-    projected = gdf.to_crs(epsg=3857)
-
-    clusters = []
-    used = set()
-
-    rows = list(projected.iterrows())
-
-    for idx, row in rows:
-
-        if idx in used:
-            continue
-
-        geom = row.geometry
-
-        cluster = [idx]
-
-        used.add(idx)
-
-        for idx2, row2 in rows:
-
-            if idx2 in used:
-                continue
-
-            dist = geom.distance(row2.geometry)
-
-            if dist <= CLUSTER_DISTANCE_METERS:
-                cluster.append(idx2)
-                used.add(idx2)
-
-        clusters.append(cluster)
-
-    keep_rows = []
-
-    for cluster in clusters:
-
-        subset = gdf.loc[cluster]
-
-        best = subset.sort_values(
-            by="road_weight",
-            ascending=False
-        ).iloc[0]
-
-        keep_rows.append(best)
-
-    refined = gpd.GeoDataFrame(
-        keep_rows,
-        geometry="geometry",
-        crs=gdf.crs
+    gdf["schema_version"] = (
+        SCHEMA_VERSION
     )
 
-    refined = refined.reset_index(drop=True)
-
-    return refined
+    return gdf
 
 
-def assign_ids(gdf):
+def enrich_crossings(gdf):
 
-    ids = []
+    print(
+        "\n[INFO] Refining crossings"
+    )
 
-    for i in range(len(gdf)):
-        ids.append(f"crossing_{i:04d}")
+    #
+    # future:
+    # trailhead detection
+    # parking semantics
+    # crossing importance
+    # hitchability
+    #
 
-    gdf["crossing_id"] = ids
+    gdf["trailhead"] = True
+
+    gdf["vehicle_access"] = True
+
+    gdf["crossing_class"] = (
+        "road_crossing"
+    )
 
     return gdf
 
+
+#
+# ---------------------------------------------------------
+# EXPORT
+# ---------------------------------------------------------
+#
 
 def export_outputs(gdf):
 
-    gdf.to_file(
-        OUTPUT_GEOJSON,
-        driver="GeoJSON"
+    geojson_path = (
+        COMPILED_DIR /
+        "crossings_refined.geojson"
     )
 
-    records = json.loads(
-        gdf.to_json()
-    )["features"]
+    json_path = (
+        COMPILED_DIR /
+        "crossings_refined.json"
+    )
 
-    simplified = []
+    #
+    # geojson
+    #
 
-    for f in records:
+    gdf.to_file(
 
-        props = f["properties"]
+        geojson_path,
 
-        simplified.append(props)
+        driver="GeoJSON",
+    )
 
-    with open(OUTPUT_JSON, "w") as fp:
-        json.dump(simplified, fp, indent=2)
+    #
+    # json
+    #
 
-    print(f"[OK] {OUTPUT_GEOJSON}")
-    print(f"[OK] {OUTPUT_JSON}")
+    export_rows = []
 
+    for _, row in gdf.iterrows():
+
+        export_rows.append({
+
+            "crossing_id":
+            row.get(
+                "crossing_id"
+            ),
+
+            "name":
+            row.get("name"),
+
+            "road_type":
+            row.get(
+                "road_type"
+            ),
+
+            "trail_mile":
+            row.get(
+                "trail_mile"
+            ),
+
+            "trailhead":
+            bool(
+                row.get(
+                    "trailhead",
+                    False,
+                )
+            ),
+
+            "vehicle_access":
+            bool(
+                row.get(
+                    "vehicle_access",
+                    False,
+                )
+            ),
+
+            "crossing_class":
+            row.get(
+                "crossing_class"
+            ),
+
+            "schema_version":
+            row.get(
+                "schema_version"
+            ),
+        })
+
+    with open(
+        json_path,
+        "w",
+    ) as f:
+
+        json.dump(
+
+            export_rows,
+
+            f,
+            indent=2,
+        )
+
+    print("")
+    print("[EXPORTING]")
+    print("")
+
+    print(
+        f"[OK] {geojson_path}"
+    )
+
+    print(
+        f"[OK] {json_path}"
+    )
+
+
+#
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+#
 
 def main():
 
-    print("\n=== CairnOS Crossing Refinement ===\n")
+    print("")
+    print(
+        "=== CairnOS Crossing Refinement ==="
+    )
+    print("")
 
-    print("[INFO] Loading crossings")
+    #
+    # load
+    #
 
-    gdf = gpd.read_file(INPUT_FILE)
+    gdf = load_crossings()
 
-    print(f"[INFO] Raw crossings: {len(gdf)}")
+    #
+    # normalize
+    #
 
-    gdf = normalize_columns(gdf)
+    gdf = normalize_columns(
+        gdf
+    )
 
-    gdf = filter_crossings(gdf)
+    #
+    # enrich
+    #
 
-    print(f"[INFO] Filtered crossings: {len(gdf)}")
+    gdf = enrich_crossings(
+        gdf
+    )
 
-    gdf = score_crossings(gdf)
-
-    gdf = cluster_crossings(gdf)
-
-    print(f"[INFO] Clustered crossings: {len(gdf)}")
-
-    gdf = assign_ids(gdf)
-
-    gdf["schema_version"] = SCHEMA_VERSION
-
-    print("\n[EXPORTING]\n")
+    #
+    # export
+    #
 
     export_outputs(gdf)
 
-    print("\n[DONE]\n")
+    #
+    # summary
+    #
+
+    print("")
+    print("[SUMMARY]")
+    print("")
+
+    print(
+        f"Refined crossings: "
+        f"{len(gdf)}"
+    )
+
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()

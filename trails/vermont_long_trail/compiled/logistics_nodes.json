@@ -6,11 +6,9 @@
     "zip": 1247,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0001",
@@ -19,11 +17,9 @@
     "zip": 1267,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0002",
@@ -32,11 +28,9 @@
     "zip": 5352,
     "post_office": false,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0003",
@@ -45,11 +39,9 @@
     "zip": 5201,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0004",
@@ -58,11 +50,9 @@
     "zip": 5252,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0005",
@@ -71,11 +61,9 @@
     "zip": 5250,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0006",
@@ -84,11 +72,9 @@
     "zip": 5360,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0007",
@@ -97,11 +83,9 @@
     "zip": 5152,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0008",
@@ -110,11 +94,9 @@
     "zip": 5255,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0009",
@@ -123,11 +105,9 @@
     "zip": 5254,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0010",
@@ -136,11 +116,9 @@
     "zip": 5739,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0011",
@@ -149,11 +127,9 @@
     "zip": 5742,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0012",
@@ -162,11 +138,9 @@
     "zip": 5773,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0013",
@@ -175,11 +149,9 @@
     "zip": 5738,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0014",
@@ -188,11 +160,9 @@
     "zip": 5759,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0015",
@@ -201,11 +171,9 @@
     "zip": 5751,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0016",
@@ -214,11 +182,9 @@
     "zip": 5701,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0017",
@@ -227,11 +193,9 @@
     "zip": 5737,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0018",
@@ -240,11 +204,9 @@
     "zip": 5767,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0019",
@@ -253,11 +215,9 @@
     "zip": 5745,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0020",
@@ -266,11 +226,9 @@
     "zip": 5733,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0021",
@@ -279,11 +237,9 @@
     "zip": 5748,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0022",
@@ -292,11 +248,9 @@
     "zip": 5740,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0023",
@@ -305,11 +259,9 @@
     "zip": 5753,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0024",
@@ -318,11 +270,9 @@
     "zip": 5747,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0025",
@@ -331,11 +281,9 @@
     "zip": 5674,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0026",
@@ -344,11 +292,9 @@
     "zip": 5443,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0027",
@@ -357,11 +303,9 @@
     "zip": 5673,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0028",
@@ -370,11 +314,9 @@
     "zip": 5462,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0029",
@@ -383,11 +325,9 @@
     "zip": 5466,
     "post_office": true,
     "grocery": false,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0030",
@@ -396,11 +336,9 @@
     "zip": 5477,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0031",
@@ -409,11 +347,9 @@
     "zip": 5676,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0032",
@@ -422,11 +358,9 @@
     "zip": 5490,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0033",
@@ -435,11 +369,9 @@
     "zip": 5672,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0034",
@@ -448,11 +380,9 @@
     "zip": 5661,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0035",
@@ -461,11 +391,9 @@
     "zip": 5656,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": true,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0036",
@@ -474,11 +402,9 @@
     "zip": 5492,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0037",
@@ -487,11 +413,9 @@
     "zip": 5652,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0038",
@@ -500,11 +424,9 @@
     "zip": 5847,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0039",
@@ -513,11 +435,9 @@
     "zip": 5847,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0040",
@@ -526,11 +446,9 @@
     "zip": 5847,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0041",
@@ -539,11 +457,9 @@
     "zip": 5859,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0042",
@@ -552,11 +468,9 @@
     "zip": 5847,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   },
   {
     "logistics_id": "logistics_0043",
@@ -565,10 +479,8 @@
     "zip": 5847,
     "post_office": true,
     "grocery": true,
-    "additional_amenities": false,
-    "resupply_access": true,
-    "zero_candidate": true,
-    "nero_candidate": true,
-    "schema_version": "0.1-draft"
+    "zero_candidate": false,
+    "nero_candidate": false,
+    "schema_version": "1.0"
   }
 ]

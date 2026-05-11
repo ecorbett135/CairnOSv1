@@ -1,157 +1,203 @@
-# build_schema_registry.py
-
 from pathlib import Path
+import sys
 import json
 
-OUTPUT = Path(
-    str(COMPILED_DIR) + "/cairn_schema_registry.json"
+
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
+
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
 )
 
-SCHEMA = {
+RAW_DIR = trail_root / "raw"
 
-    "schema_version": "0.3-draft",
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-    "datasets": {
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
-        "spine": {
 
-            "description":
-                "Canonical LT spine geometry",
+#
+# ---------------------------------------------------------
+# CONFIG
+# ---------------------------------------------------------
+#
 
-            "required_fields": [
-                "geometry"
-            ]
+SCHEMA_VERSION = "1.0"
+
+
+#
+# ---------------------------------------------------------
+# SCHEMA REGISTRY
+# ---------------------------------------------------------
+#
+
+def build_registry():
+
+    registry = {
+
+        "schema_version":
+        SCHEMA_VERSION,
+
+        "trail":
+        trail_root.name,
+
+        "datasets": {
+
+            "spine": {
+
+                "path":
+                "compiled/spine.geojson",
+
+                "type":
+                "GeoJSON",
+
+                "description":
+                "Canonical trail spine geometry",
+            },
+
+            "segments": {
+
+                "path":
+                "compiled/segments.geojson",
+
+                "type":
+                "GeoJSON",
+
+                "description":
+                "Terrain segmentation",
+            },
+
+            "crossings": {
+
+                "path":
+                "compiled/crossings.geojson",
+
+                "type":
+                "GeoJSON",
+
+                "description":
+                "Road and trail crossings",
+            },
+
+            "crossings_refined": {
+
+                "path":
+                "compiled/crossings_refined.geojson",
+
+                "type":
+                "GeoJSON",
+
+                "description":
+                "Refined operational crossings",
+            },
+
+            "logistics_nodes": {
+
+                "path":
+                "compiled/logistics_nodes.json",
+
+                "type":
+                "JSON",
+
+                "description":
+                "Operational logistics nodes",
+            },
+
+            "operational_graph": {
+
+                "path":
+                "compiled/operational_graph.json",
+
+                "type":
+                "JSON",
+
+                "description":
+                "Operational traversal graph",
+            },
         },
-
-        "terrain": {
-
-            "description":
-                "Terrain sampling profile",
-
-            "required_fields": [
-                "mile",
-                "elevation_ft",
-                "geometry"
-            ]
-        },
-
-        "nodes": {
-
-            "description":
-                "Canonical overnight nodes",
-
-            "required_fields": [
-                "node_id",
-                "canonical_name",
-                "canonical_type",
-                "mile_estimate",
-                "trail_order",
-                "node_class",
-                "geometry"
-            ]
-        },
-
-        "segments": {
-
-            "description":
-                "Operational trail segments",
-
-            "required_fields": [
-                "segment_id",
-                "from_node",
-                "to_node",
-                "start_mile",
-                "end_mile",
-                "segment_miles",
-                "gain_ft",
-                "loss_ft",
-                "difficulty",
-                "estimated_hours",
-                "geometry"
-            ]
-        },
-
-        "crossings": {
-
-            "description":
-                "Road/trail crossings",
-
-            "required_fields": [
-                "crossing_id",
-                "name",
-                "road_type",
-                "trail_mile",
-                "vehicle_access",
-                "access_score",
-                "geometry"
-            ]
-        },
-
-        "logistics_nodes": {
-
-            "description":
-                "Resupply and recovery nodes",
-
-            "required_fields": [
-                "logistics_id",
-                "town",
-                "division",
-                "grocery",
-                "post_office",
-                "zero_candidate",
-                "nero_candidate"
-            ]
-        },
-
-        "operational_graph": {
-
-            "description":
-                "Unified operational planning graph",
-
-            "required_fields": [
-                "segments",
-                "nodes",
-                "crossings"
-            ]
-        },
-
-        "itinerary": {
-
-            "description":
-                "Generated hiking itinerary",
-
-            "required_fields": [
-                "summary",
-                "itinerary"
-            ]
-        }
     }
-}
 
+    return registry
+
+
+#
+# ---------------------------------------------------------
+# EXPORT
+# ---------------------------------------------------------
+#
+
+def export_registry(registry):
+
+    output_path = (
+        COMPILED_DIR /
+        "cairn_schema_registry.json"
+    )
+
+    with open(
+        output_path,
+        "w",
+    ) as f:
+
+        json.dump(
+
+            registry,
+
+            f,
+            indent=2,
+        )
+
+    print("")
+    print("[EXPORTING]")
+    print("")
+
+    print(
+        f"[OK] {output_path}"
+    )
+
+
+#
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+#
 
 def main():
 
+    print("")
     print(
-        "\n=== CairnOS Schema Registry Builder ===\n"
+        "=== CairnOS Schema Registry Builder ==="
+    )
+    print("")
+
+    registry = build_registry()
+
+    export_registry(registry)
+
+    print("")
+    print("[SUMMARY]")
+    print("")
+
+    print(
+        f"Registered datasets: "
+        f"{len(registry['datasets'])}"
     )
 
-    OUTPUT.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    with open(OUTPUT, "w") as fp:
-
-        json.dump(
-            SCHEMA,
-            fp,
-            indent=2
-        )
-
-    print(f"[OK] {OUTPUT}")
-
-    print("\n[DONE]\n")
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()
