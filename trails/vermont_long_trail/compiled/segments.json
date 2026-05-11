@@ -1,0 +1,402 @@
+[
+  {
+    "segment_id": "segment_0000",
+    "segment_index": 0,
+    "start_mile": 0.0,
+    "end_mile": 6.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0001",
+    "segment_index": 1,
+    "start_mile": 6.0,
+    "end_mile": 12.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0002",
+    "segment_index": 2,
+    "start_mile": 12.0,
+    "end_mile": 18.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0003",
+    "segment_index": 3,
+    "start_mile": 18.0,
+    "end_mile": 24.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0004",
+    "segment_index": 4,
+    "start_mile": 24.0,
+    "end_mile": 30.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0005",
+    "segment_index": 5,
+    "start_mile": 30.0,
+    "end_mile": 36.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0006",
+    "segment_index": 6,
+    "start_mile": 36.0,
+    "end_mile": 42.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0007",
+    "segment_index": 7,
+    "start_mile": 42.0,
+    "end_mile": 48.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0008",
+    "segment_index": 8,
+    "start_mile": 48.0,
+    "end_mile": 54.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0009",
+    "segment_index": 9,
+    "start_mile": 54.0,
+    "end_mile": 60.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0010",
+    "segment_index": 10,
+    "start_mile": 60.0,
+    "end_mile": 66.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0011",
+    "segment_index": 11,
+    "start_mile": 66.0,
+    "end_mile": 72.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0012",
+    "segment_index": 12,
+    "start_mile": 72.0,
+    "end_mile": 78.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0013",
+    "segment_index": 13,
+    "start_mile": 78.0,
+    "end_mile": 84.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0014",
+    "segment_index": 14,
+    "start_mile": 84.0,
+    "end_mile": 90.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0015",
+    "segment_index": 15,
+    "start_mile": 90.0,
+    "end_mile": 96.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0016",
+    "segment_index": 16,
+    "start_mile": 96.0,
+    "end_mile": 102.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0017",
+    "segment_index": 17,
+    "start_mile": 102.0,
+    "end_mile": 108.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0018",
+    "segment_index": 18,
+    "start_mile": 108.0,
+    "end_mile": 114.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0019",
+    "segment_index": 19,
+    "start_mile": 114.0,
+    "end_mile": 120.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0020",
+    "segment_index": 20,
+    "start_mile": 120.0,
+    "end_mile": 126.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0021",
+    "segment_index": 21,
+    "start_mile": 126.0,
+    "end_mile": 132.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0022",
+    "segment_index": 22,
+    "start_mile": 132.0,
+    "end_mile": 138.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0023",
+    "segment_index": 23,
+    "start_mile": 138.0,
+    "end_mile": 144.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0024",
+    "segment_index": 24,
+    "start_mile": 144.0,
+    "end_mile": 150.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0025",
+    "segment_index": 25,
+    "start_mile": 150.0,
+    "end_mile": 156.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0026",
+    "segment_index": 26,
+    "start_mile": 156.0,
+    "end_mile": 162.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0027",
+    "segment_index": 27,
+    "start_mile": 162.0,
+    "end_mile": 168.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0028",
+    "segment_index": 28,
+    "start_mile": 168.0,
+    "end_mile": 174.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0029",
+    "segment_index": 29,
+    "start_mile": 174.0,
+    "end_mile": 180.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0030",
+    "segment_index": 30,
+    "start_mile": 180.0,
+    "end_mile": 186.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0031",
+    "segment_index": 31,
+    "start_mile": 186.0,
+    "end_mile": 192.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0032",
+    "segment_index": 32,
+    "start_mile": 192.0,
+    "end_mile": 198.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0033",
+    "segment_index": 33,
+    "start_mile": 198.0,
+    "end_mile": 204.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0034",
+    "segment_index": 34,
+    "start_mile": 204.0,
+    "end_mile": 210.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0035",
+    "segment_index": 35,
+    "start_mile": 210.0,
+    "end_mile": 216.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0036",
+    "segment_index": 36,
+    "start_mile": 216.0,
+    "end_mile": 222.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0037",
+    "segment_index": 37,
+    "start_mile": 222.0,
+    "end_mile": 228.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0038",
+    "segment_index": 38,
+    "start_mile": 228.0,
+    "end_mile": 234.0,
+    "distance": 6.0,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  },
+  {
+    "segment_id": "segment_0039",
+    "segment_index": 39,
+    "start_mile": 234.0,
+    "end_mile": 237.8,
+    "distance": 3.8,
+    "elevation_gain_ft": 1553,
+    "difficulty": "moderate",
+    "schema_version": "1.0"
+  }
+]

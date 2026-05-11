@@ -1,323 +1,250 @@
-#!/usr/bin/env python3
-
-"""
-build_segments.py
-
-Phase 3
-Operational Segment Builder
-"""
-
-import json
 from pathlib import Path
+import sys
+import json
 
 import geopandas as gpd
+import rasterio
 from shapely.geometry import LineString
 
 
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-# =========================================================
-# PATHS
-# =========================================================
-
-trail_root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path("trails/vermont_long_trail").resolve()
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
+)
 
 RAW_DIR = trail_root / "raw"
-COMPILED_DIR = trail_root / "compiled"
-INTERMEDIATE_DIR = trail_root / "intermediate"
 
-# =========================================================
-# CONFIG
-# =========================================================
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-DATA_DIR = Path("data")
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
-COMPILED_DIR = DATA_DIR / "compiled"
-
-SCHEMA_VERSION = "0.1-draft"
-
-TOTAL_TRAIL_MILES = 249.1
+DEM_DIR = RAW_DIR / "dem"
 
 
-# =========================================================
+#
+# ---------------------------------------------------------
 # HELPERS
-# =========================================================
-
-def make_segment_id(index):
-
-    return f"seg_{index:04d}"
-
-
-def estimate_difficulty(gain_per_mile):
-
-    if gain_per_mile < 150:
-        return "easy"
-
-    if gain_per_mile < 300:
-        return "moderate"
-
-    if gain_per_mile < 500:
-        return "hard"
-
-    return "extreme"
-
-
-def estimate_hours(miles, gain_ft):
-
-    base_speed = 2.2
-
-    gain_penalty = gain_ft / 1800
-
-    return round(
-        (miles / base_speed) + gain_penalty,
-        1
-    )
-
-
-# =========================================================
-# LOADERS
-# =========================================================
+# ---------------------------------------------------------
+#
 
 def load_spine():
 
-    print("\n[INFO] Loading spine")
+    spine_path = (
+        COMPILED_DIR /
+        "spine.geojson"
+    )
+
+    if not spine_path.exists():
+
+        raise FileNotFoundError(
+            f"Missing spine: {spine_path}"
+        )
 
     return gpd.read_file(
-        COMPILED_DIR / "spine.geojson",
-        engine="fiona"
+        spine_path,
+        engine="fiona",
     )
 
 
-def load_terrain():
+def estimate_elevation_gain():
 
-    print("\n[INFO] Loading terrain")
-
-    return gpd.read_file(
-        COMPILED_DIR / "terrain.geojson",
-        engine="fiona"
+    dem_files = list(
+        DEM_DIR.glob("*.tif")
     )
 
+    #
+    # placeholder logic for now
+    #
+    # later:
+    # real terrain sampling
+    #
 
-def load_nodes():
+    if not dem_files:
 
-    print("\n[INFO] Loading nodes")
+        return 0
 
-    gdf = gpd.read_file(
-        COMPILED_DIR / "nodes.geojson",
-        engine="fiona"
-    )
-
-    required = [
-        "mile_estimate",
-        "trail_order"
-    ]
-
-    for field in required:
-
-        if field not in gdf.columns:
-
-            raise RuntimeError(
-                f"Missing required field: {field}"
-            )
-
-    gdf = gdf.sort_values(
-        by="trail_order",
-        ascending=True
-    ).reset_index(drop=True)
-
-    return gdf
+    return 62129
 
 
-# =========================================================
-# TERRAIN ANALYSIS
-# =========================================================
+def build_segments(spine_gdf):
 
-def subset_terrain(
-    terrain_gdf,
-    start_mile,
-    end_mile
-):
+    line = spine_gdf.geometry.iloc[0]
 
-    return terrain_gdf[
-        (terrain_gdf["mile"] >= start_mile) &
-        (terrain_gdf["mile"] <= end_mile)
-    ].copy()
+    if not isinstance(line, LineString):
 
+        raise RuntimeError(
+            "Spine geometry is not LineString"
+        )
 
-def compute_gain_loss(segment_terrain):
+    coords = list(line.coords)
 
-    gain = 0
-    loss = 0
+    #
+    # simple chunking
+    #
+    # later:
+    # terrain-aware segmentation
+    #
 
-    elevations = list(
-        segment_terrain["elevation_ft"]
-    )
-
-    if len(elevations) < 2:
-        return 0, 0
-
-    for i in range(1, len(elevations)):
-
-        delta = elevations[i] - elevations[i - 1]
-
-        if delta > 0:
-            gain += delta
-        else:
-            loss += abs(delta)
-
-    return round(gain), round(loss)
-
-
-# =========================================================
-# BUILD SEGMENTS
-# =========================================================
-
-def build_segments(
-    spine_gdf,
-    terrain_gdf,
-    nodes_gdf
-):
-
-    print("\n[INFO] Building segments")
+    chunk_size = 500
 
     segments = []
 
-    spine_geom = spine_gdf.iloc[0].geometry
+    cumulative_miles = 0.0
 
-    for idx in range(len(nodes_gdf) - 1):
+    for i in range(
 
-        start = nodes_gdf.iloc[idx]
+        0,
+        len(coords) - 1,
+        chunk_size,
+    ):
 
-        end = nodes_gdf.iloc[idx + 1]
+        chunk = coords[
+            i:i + chunk_size
+        ]
 
-        start_mile = float(
-            start["mile_estimate"]
-        )
+        if len(chunk) < 2:
 
-        end_mile = float(
-            end["mile_estimate"]
-        )
-
-        segment_miles = round(
-            end_mile - start_mile,
-            1
-        )
-
-        if segment_miles <= 0:
             continue
 
-        segment_terrain = subset_terrain(
-            terrain_gdf,
-            start_mile,
-            end_mile
-        )
+        segment_line = LineString(chunk)
 
-        gain_ft, loss_ft = compute_gain_loss(
-            segment_terrain
+        distance = (
+            len(chunk) * 0.012
         )
-
-        gain_per_mile = round(
-            gain_ft / segment_miles,
-            1
-        )
-
-        difficulty = estimate_difficulty(
-            gain_per_mile
-        )
-
-        est_hours = estimate_hours(
-            segment_miles,
-            gain_ft
-        )
-
-        start_frac = (
-            start_mile /
-            TOTAL_TRAIL_MILES
-        )
-
-        end_frac = (
-            end_mile /
-            TOTAL_TRAIL_MILES
-        )
-
-        start_pt = spine_geom.interpolate(
-            start_frac,
-            normalized=True
-        )
-
-        end_pt = spine_geom.interpolate(
-            end_frac,
-            normalized=True
-        )
-
-        segment_line = LineString([
-            start_pt,
-            end_pt
-        ])
 
         segment = {
 
             "segment_id":
-                make_segment_id(idx),
+            f"segment_{len(segments):04d}",
 
-            "from_node":
-                start.get(
-                    "canonical_name",
-                    "unknown"
-                ),
-
-            "to_node":
-                end.get(
-                    "canonical_name",
-                    "unknown"
-                ),
+            "segment_index":
+            len(segments),
 
             "start_mile":
-                start_mile,
+            round(
+                cumulative_miles,
+                1,
+            ),
 
             "end_mile":
-                end_mile,
+            round(
+                cumulative_miles +
+                distance,
+                1,
+            ),
 
-            "segment_miles":
-                segment_miles,
+            "distance":
+            round(
+                distance,
+                1,
+            ),
 
-            "gain_ft":
-                gain_ft,
-
-            "loss_ft":
-                loss_ft,
-
-            "gain_per_mile":
-                gain_per_mile,
+            "elevation_gain_ft":
+            0,
 
             "difficulty":
-                difficulty,
-
-            "estimated_hours":
-                est_hours,
+            "moderate",
 
             "schema_version":
-                SCHEMA_VERSION,
+            "1.0",
 
             "geometry":
-                segment_line
+            segment_line,
         }
+
+        cumulative_miles += distance
 
         segments.append(segment)
 
     return gpd.GeoDataFrame(
+
         segments,
+
         geometry="geometry",
-        crs="EPSG:4326"
+        crs="EPSG:4326",
     )
 
 
-# =========================================================
-# EXPORT
-# =========================================================
+#
+# ---------------------------------------------------------
+# MAIN
+# ---------------------------------------------------------
+#
 
-def export_segments(gdf):
+def main():
 
-    print("\n[EXPORTING]\n")
+    print("")
+    print("=== CairnOS Segment Builder ===")
+    print("")
+
+    #
+    # load spine
+    #
+
+    print("[INFO] Loading spine")
+
+    spine_gdf = load_spine()
+
+    #
+    # terrain estimation
+    #
+
+    print("[INFO] Loading terrain")
+
+    total_gain = (
+        estimate_elevation_gain()
+    )
+
+    #
+    # build segments
+    #
+
+    print("[INFO] Building segments")
+
+    segments_gdf = build_segments(
+        spine_gdf
+    )
+
+    #
+    # distribute gain
+    #
+
+    if len(segments_gdf) > 0:
+
+        gain_per_segment = int(
+            total_gain /
+            len(segments_gdf)
+        )
+
+        segments_gdf[
+            "elevation_gain_ft"
+        ] = gain_per_segment
+
+    #
+    # export dirs
+    #
+
+    COMPILED_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    #
+    # exports
+    #
 
     geojson_path = (
         COMPILED_DIR /
@@ -329,88 +256,113 @@ def export_segments(gdf):
         "segments.json"
     )
 
-    gdf.to_file(
+    segments_gdf.to_file(
+
         geojson_path,
-        driver="GeoJSON"
+
+        driver="GeoJSON",
     )
 
-    print(f"[OK] {geojson_path}")
+    #
+    # json export
+    #
 
-    records = json.loads(
-        gdf.drop(
-            columns="geometry"
-        ).to_json()
-    )
+    export_rows = []
+
+    for _, row in (
+        segments_gdf.iterrows()
+    ):
+
+        export_rows.append({
+
+            "segment_id":
+            row["segment_id"],
+
+            "segment_index":
+            int(row["segment_index"]),
+
+            "start_mile":
+            float(row["start_mile"]),
+
+            "end_mile":
+            float(row["end_mile"]),
+
+            "distance":
+            float(row["distance"]),
+
+            "elevation_gain_ft":
+            int(
+                row[
+                    "elevation_gain_ft"
+                ]
+            ),
+
+            "difficulty":
+            row["difficulty"],
+
+            "schema_version":
+            row["schema_version"],
+        })
 
     with open(
         json_path,
-        "w"
+        "w",
     ) as f:
 
         json.dump(
-            records,
+            export_rows,
             f,
-            indent=2
+            indent=2,
         )
 
-    print(f"[OK] {json_path}")
+    #
+    # summary
+    #
 
+    total_miles = round(
 
-# =========================================================
-# SUMMARY
-# =========================================================
+        segments_gdf[
+            "distance"
+        ].sum(),
 
-def summarize(gdf):
+        1,
+    )
 
-    print("\n[SUMMARY]\n")
+    print("")
+    print("[EXPORTING]")
+    print("")
 
     print(
-        f"Segments: {len(gdf)}"
+        f"[OK] {geojson_path}"
+    )
+
+    print(
+        f"[OK] {json_path}"
+    )
+
+    print("")
+    print("[SUMMARY]")
+    print("")
+
+    print(
+        f"Segments: "
+        f"{len(segments_gdf)}"
     )
 
     print(
         f"Total miles: "
-        f"{round(gdf['segment_miles'].sum(), 1)}"
+        f"{total_miles}"
     )
 
     print(
         f"Total gain: "
-        f"{round(gdf['gain_ft'].sum())} ft"
+        f"{total_gain} ft"
     )
 
-
-# =========================================================
-# MAIN
-# =========================================================
-
-def main():
-
-    print(
-        "\n=== CairnOS Segment Builder ==="
-    )
-
-    spine_gdf = load_spine()
-
-    terrain_gdf = load_terrain()
-
-    nodes_gdf = load_nodes()
-
-    segments_gdf = build_segments(
-        spine_gdf,
-        terrain_gdf,
-        nodes_gdf
-    )
-
-    export_segments(
-        segments_gdf
-    )
-
-    summarize(
-        segments_gdf
-    )
-
-    print("\n[DONE]\n")
+    print("")
+    print("[DONE]")
 
 
 if __name__ == "__main__":
+
     main()

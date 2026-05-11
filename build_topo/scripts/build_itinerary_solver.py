@@ -7,19 +7,32 @@ Phase 4
 CairnOS Itinerary Solver
 """
 
+import sys
 from pathlib import Path
-import json
 
-COMPILED_DIR = Path("data/compiled")
+#
+# ---------------------------------------------------------
+# TRAIL ROOT
+# ---------------------------------------------------------
+#
 
-GRAPH_FILE = COMPILED_DIR / "operational_graph.json"
+trail_root = (
+    Path(sys.argv[1]).resolve()
+    if len(sys.argv) > 1
+    else Path(
+        "trails/vermont_long_trail"
+    ).resolve()
+)
 
-OUTPUT_FILE = COMPILED_DIR / "itinerary.json"
+RAW_DIR = trail_root / "raw"
 
-TARGET_DAILY_MILES = 15
+COMPILED_DIR = (
+    trail_root / "compiled"
+)
 
-SCHEMA_VERSION = "0.2-draft"
-
+INTERMEDIATE_DIR = (
+    trail_root / "intermediate"
+)
 
 # =========================================================
 # LOAD GRAPH
