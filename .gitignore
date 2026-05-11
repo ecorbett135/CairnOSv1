@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# virtualenv
+venv/
+
+# pytest
+.pytest_cache/
+
+# dev agent artifacts
+dev_agent/generated_patches/
+
+# build artifacts
+*.zip
