@@ -1,0 +1,1209 @@
+{
+  "schema_version": "0.2-draft",
+  "segments": [
+    {
+      "segment_id": "seg_0000",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 958,
+      "loss_ft": 415
+    },
+    {
+      "segment_id": "seg_0001",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 470,
+      "loss_ft": 1048
+    },
+    {
+      "segment_id": "seg_0002",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 3900,
+      "loss_ft": 2420
+    },
+    {
+      "segment_id": "seg_0003",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1250,
+      "loss_ft": 2089
+    },
+    {
+      "segment_id": "seg_0004",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2198,
+      "loss_ft": 2408
+    },
+    {
+      "segment_id": "seg_0005",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 3665,
+      "loss_ft": 3657
+    },
+    {
+      "segment_id": "seg_0006",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 457,
+      "loss_ft": 757
+    },
+    {
+      "segment_id": "seg_0007",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2,
+      "loss_ft": 744
+    },
+    {
+      "segment_id": "seg_0008",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 492,
+      "loss_ft": 122
+    },
+    {
+      "segment_id": "seg_0009",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 882,
+      "loss_ft": 531
+    },
+    {
+      "segment_id": "seg_0010",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1102,
+      "loss_ft": 1580
+    },
+    {
+      "segment_id": "seg_0011",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2224,
+      "loss_ft": 1939
+    },
+    {
+      "segment_id": "seg_0012",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2338,
+      "loss_ft": 1560
+    },
+    {
+      "segment_id": "seg_0013",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 585,
+      "loss_ft": 900
+    },
+    {
+      "segment_id": "seg_0014",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 373,
+      "loss_ft": 518
+    },
+    {
+      "segment_id": "seg_0015",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1769,
+      "loss_ft": 1285
+    },
+    {
+      "segment_id": "seg_0016",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 759,
+      "loss_ft": 564
+    },
+    {
+      "segment_id": "seg_0017",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1650,
+      "loss_ft": 2219
+    },
+    {
+      "segment_id": "seg_0018",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2355,
+      "loss_ft": 1585
+    },
+    {
+      "segment_id": "seg_0019",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 495,
+      "loss_ft": 248
+    },
+    {
+      "segment_id": "seg_0020",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1764,
+      "loss_ft": 2068
+    },
+    {
+      "segment_id": "seg_0021",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1683,
+      "loss_ft": 1562
+    },
+    {
+      "segment_id": "seg_0022",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2476,
+      "loss_ft": 3581
+    },
+    {
+      "segment_id": "seg_0023",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 519,
+      "loss_ft": 152
+    },
+    {
+      "segment_id": "seg_0024",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1437,
+      "loss_ft": 1193
+    },
+    {
+      "segment_id": "seg_0025",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1534,
+      "loss_ft": 2287
+    },
+    {
+      "segment_id": "seg_0026",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 5115,
+      "loss_ft": 4734
+    },
+    {
+      "segment_id": "seg_0027",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 4029,
+      "loss_ft": 3254
+    },
+    {
+      "segment_id": "seg_0028",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1084,
+      "loss_ft": 1047
+    },
+    {
+      "segment_id": "seg_0029",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 441,
+      "loss_ft": 2179
+    },
+    {
+      "segment_id": "seg_0030",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 3690,
+      "loss_ft": 3391
+    },
+    {
+      "segment_id": "seg_0031",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1556,
+      "loss_ft": 2087
+    },
+    {
+      "segment_id": "seg_0032",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 224,
+      "loss_ft": 114
+    },
+    {
+      "segment_id": "seg_0033",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 2438,
+      "loss_ft": 1263
+    },
+    {
+      "segment_id": "seg_0034",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1755,
+      "loss_ft": 2377
+    },
+    {
+      "segment_id": "seg_0035",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1751,
+      "loss_ft": 1515
+    },
+    {
+      "segment_id": "seg_0036",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 301,
+      "loss_ft": 0
+    },
+    {
+      "segment_id": "seg_0037",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1348,
+      "loss_ft": 1161
+    },
+    {
+      "segment_id": "seg_0038",
+      "start_node": null,
+      "end_node": null,
+      "distance_miles": null,
+      "gain_ft": 1060,
+      "loss_ft": 1566
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "node_0000",
+      "canonical_name": "Old Seth Warner Shelter Site",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0001",
+      "canonical_name": "Seth Warner Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0002",
+      "canonical_name": "Congdon Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0003",
+      "canonical_name": "Goddard Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0004",
+      "canonical_name": "Story Spring Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0005",
+      "canonical_name": "Stratton View Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0006",
+      "canonical_name": "Peru Peak Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0007",
+      "canonical_name": "Lost Pond Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0008",
+      "canonical_name": "Big Branch Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0009",
+      "canonical_name": "Little Rock Pond Tenting Area",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0010",
+      "canonical_name": "Greenwall Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0011",
+      "canonical_name": "Minerva Hinchey Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0012",
+      "canonical_name": "Governor Clement Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0013",
+      "canonical_name": "Churchill Scott Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0014",
+      "canonical_name": "Tucker Johnson Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0015",
+      "canonical_name": "Rolston Rest Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0016",
+      "canonical_name": "David Logan Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0017",
+      "canonical_name": "Sunrise Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0018",
+      "canonical_name": "Sucker Brook Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0019",
+      "canonical_name": "Boyce Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0020",
+      "canonical_name": "Skyline Lodge",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0021",
+      "canonical_name": "Cooley Glen Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0022",
+      "canonical_name": "Battell Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0023",
+      "canonical_name": "Birch Glen Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0024",
+      "canonical_name": "Cowles Cove Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0025",
+      "canonical_name": "Montclair Glen Lodge",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0026",
+      "canonical_name": "Bamforth Ridge Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0027",
+      "canonical_name": "Twin Brooks Tenting Area",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0028",
+      "canonical_name": "Sterling Pond Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0029",
+      "canonical_name": "Whiteface Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0030",
+      "canonical_name": "Bear Hollow Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0031",
+      "canonical_name": "Corliss Camp",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0032",
+      "canonical_name": "Spruce Ledge Camp",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0033",
+      "canonical_name": "Babcock Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0034",
+      "canonical_name": "Tillotson Camp",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0035",
+      "canonical_name": "Hazen's Notch Camp",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0036",
+      "canonical_name": "Atlas Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0037",
+      "canonical_name": "Jay Camp",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0038",
+      "canonical_name": "Laura Woodward Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    },
+    {
+      "node_id": "node_0039",
+      "canonical_name": "Shooting Star Shelter",
+      "mile": null,
+      "node_class": "overnight"
+    }
+  ],
+  "crossings": [
+    {
+      "crossing_id": "crossing_0000",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0001",
+      "road_name": "Old Rootville Road",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0002",
+      "road_name": "Vermont Route 125",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0003",
+      "road_name": "Stage Coach Road",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0004",
+      "road_name": "Mad Tom Notch Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0005",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0006",
+      "road_name": "Notch Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0007",
+      "road_name": "Vermont Route 17",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0008",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0009",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0010",
+      "road_name": "Duxbury Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0011",
+      "road_name": "unknown",
+      "fclass": "motorway",
+      "mile": null,
+      "access_score": 1.0,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0012",
+      "road_name": "Belvidere Road",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0013",
+      "road_name": "Plot Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0014",
+      "road_name": "Hog Back Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0015",
+      "road_name": "Prospect Rock Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0016",
+      "road_name": "Codding Hollow Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0017",
+      "road_name": "Vermont Route 105",
+      "fclass": "primary",
+      "mile": null,
+      "access_score": 0.8,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0018",
+      "road_name": "Vermont Route 242",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0019",
+      "road_name": "Route 58",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0020",
+      "road_name": "South Park Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0021",
+      "road_name": "Forest Road 384",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0022",
+      "road_name": "Seasonal Forestry Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0023",
+      "road_name": "Sugar Hill Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0024",
+      "road_name": "Lottery Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0025",
+      "road_name": "Cold River Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0026",
+      "road_name": "Clement Shelter Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0027",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0028",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0029",
+      "road_name": "Mountain Road",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0030",
+      "road_name": "Upper Chilcoot",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0031",
+      "road_name": "Upper Chilcoot",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0032",
+      "road_name": "Old Turnpike Road",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0033",
+      "road_name": "Notch Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0034",
+      "road_name": "U.S. Route 4",
+      "fclass": "trunk",
+      "mile": null,
+      "access_score": 0.9,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0035",
+      "road_name": "Theodore Roosevelt Highway",
+      "fclass": "primary",
+      "mile": null,
+      "access_score": 0.8,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0036",
+      "road_name": "Duxbury Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0037",
+      "road_name": "Vermont Route 15 West",
+      "fclass": "primary",
+      "mile": null,
+      "access_score": 0.8,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0038",
+      "road_name": "Catamount Trail",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0039",
+      "road_name": "Duxbury Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0040",
+      "road_name": "Duxbury Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0041",
+      "road_name": "Link to Little Pond",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0042",
+      "road_name": "West Settlement Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0043",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0044",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0045",
+      "road_name": "Vermont Route 11 30",
+      "fclass": "primary",
+      "mile": null,
+      "access_score": 0.8,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0046",
+      "road_name": "Seasonal Forestry Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0047",
+      "road_name": "unknown",
+      "fclass": "service",
+      "mile": null,
+      "access_score": 0.4,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0048",
+      "road_name": "Vermont Route 103",
+      "fclass": "trunk",
+      "mile": null,
+      "access_score": 0.9,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0049",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0050",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0051",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0052",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0053",
+      "road_name": "Clement Shelter Road",
+      "fclass": "residential",
+      "mile": null,
+      "access_score": 0.5,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0054",
+      "road_name": "Catamount Trail",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0055",
+      "road_name": "Snuffy's",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0056",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0057",
+      "road_name": "Vermont Route 140 East",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0058",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0059",
+      "road_name": "Vermont Route 9",
+      "fclass": "trunk",
+      "mile": null,
+      "access_score": 0.9,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0060",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0061",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0062",
+      "road_name": "Forest Road 383",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0063",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0064",
+      "road_name": "IP Road",
+      "fclass": "track_grade2",
+      "mile": null,
+      "access_score": 0.2,
+      "vehicle_access": false,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0065",
+      "road_name": "IP Road",
+      "fclass": "track_grade2",
+      "mile": null,
+      "access_score": 0.2,
+      "vehicle_access": false,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0066",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0067",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0068",
+      "road_name": "Gap Road",
+      "fclass": "secondary",
+      "mile": null,
+      "access_score": 0.7,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0069",
+      "road_name": "Lincoln Gap Road",
+      "fclass": "tertiary",
+      "mile": null,
+      "access_score": 0.6,
+      "vehicle_access": true,
+      "likely_hitchable": true
+    },
+    {
+      "crossing_id": "crossing_0070",
+      "road_name": "unknown",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    },
+    {
+      "crossing_id": "crossing_0071",
+      "road_name": "Old Fayston Rd/Huntington Gap Road (Class IV)",
+      "fclass": "track",
+      "mile": null,
+      "access_score": 0.3,
+      "vehicle_access": true,
+      "likely_hitchable": false
+    }
+  ]
+}

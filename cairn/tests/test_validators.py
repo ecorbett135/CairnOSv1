@@ -1,0 +1,43 @@
+from dev_agent.validators.itinerary_validator import (
+    validate_plan,
+)
+
+
+def test_peak_violation():
+
+    result = {
+        "days": [
+            {
+                "overnight_type":
+                    "peak",
+                "distance":
+                    12,
+            }
+        ]
+    }
+
+    violations = validate_plan(
+        result
+    )
+
+    assert len(violations) > 0
+
+
+def test_valid_plan():
+
+    result = {
+        "days": [
+            {
+                "overnight_type":
+                    "shelter",
+                "distance":
+                    12,
+            }
+        ]
+    }
+
+    violations = validate_plan(
+        result
+    )
+
+    assert len(violations) == 0

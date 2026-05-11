@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1-draft",
+  "topology_version": "phase2",
+  "generated_products": [
+    "spine.geojson",
+    "terrain.geojson",
+    "nodes.geojson",
+    "resupply_nodes.json",
+    "topology.json",
+    "metadata.json"
+  ]
+}

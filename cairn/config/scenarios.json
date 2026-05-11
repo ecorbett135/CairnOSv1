@@ -1,0 +1,12 @@
+{
+  "short_trip": {
+    "min_miles": 8,
+    "max_miles": 14,
+    "max_elevation": 5000
+  },
+  "aggressive": {
+    "min_miles": 15,
+    "max_miles": 22,
+    "max_elevation": 8000
+  }
+}

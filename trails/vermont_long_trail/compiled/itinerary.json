@@ -1,0 +1,330 @@
+{
+  "summary": {
+    "schema_version": "0.2-draft",
+    "days": 1,
+    "total_miles": 0.0,
+    "total_gain_ft": 62129,
+    "daily_target": 15
+  },
+  "itinerary": [
+    {
+      "day": 1,
+      "segments": [
+        {
+          "segment_id": "seg_0000",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 958,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0001",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 470,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0002",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 3900,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0003",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1250,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0004",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2198,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0005",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 3665,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0006",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 457,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0007",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0008",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 492,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0009",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 882,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0010",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1102,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0011",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2224,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0012",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2338,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0013",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 585,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0014",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 373,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0015",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1769,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0016",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 759,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0017",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1650,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0018",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2355,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0019",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 495,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0020",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1764,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0021",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1683,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0022",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2476,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0023",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 519,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0024",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1437,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0025",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1534,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0026",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 5115,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0027",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 4029,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0028",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1084,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0029",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 441,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0030",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 3690,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0031",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1556,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0032",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 224,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0033",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 2438,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0034",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1755,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0035",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1751,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0036",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 301,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0037",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1348,
+          "difficulty": null
+        },
+        {
+          "segment_id": "seg_0038",
+          "from_node": null,
+          "to_node": null,
+          "miles": 0,
+          "gain_ft": 1060,
+          "difficulty": null
+        }
+      ],
+      "total_miles": 0.0,
+      "total_gain_ft": 62129
+    }
+  ]
+}
