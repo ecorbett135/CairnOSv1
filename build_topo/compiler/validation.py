@@ -6,7 +6,7 @@ import json
 import geopandas as gpd
 
 
-COMPILED_DIR = Path("data/compiled")
+COMPILED_DIR = Path(str(COMPILED_DIR) + "")
 
 REGISTRY_FILE = (
     COMPILED_DIR /

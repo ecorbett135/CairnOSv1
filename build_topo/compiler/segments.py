@@ -14,6 +14,17 @@ import geopandas as gpd
 from shapely.geometry import LineString
 
 
+
+# =========================================================
+# PATHS
+# =========================================================
+
+trail_root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path("trails/vermont_long_trail").resolve()
+
+RAW_DIR = trail_root / "raw"
+COMPILED_DIR = trail_root / "compiled"
+INTERMEDIATE_DIR = trail_root / "intermediate"
+
 # =========================================================
 # CONFIG
 # =========================================================

@@ -6,7 +6,7 @@ import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
 
-COMPILED_DIR = Path("data/compiled")
+COMPILED_DIR = Path(str(COMPILED_DIR) + "")
 
 INPUT_FILE = COMPILED_DIR / "crossings.geojson"
 

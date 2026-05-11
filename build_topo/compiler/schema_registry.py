@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 
 OUTPUT = Path(
-    "data/compiled/cairn_schema_registry.json"
+    str(COMPILED_DIR) + "/cairn_schema_registry.json"
 )
 
 SCHEMA = {

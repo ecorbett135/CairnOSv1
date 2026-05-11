@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 import geopandas as gpd
 
-COMPILED_DIR = Path("data/compiled")
+COMPILED_DIR = Path(str(COMPILED_DIR) + "")
 
 SEGMENTS_FILE = COMPILED_DIR / "segments.geojson"
 CROSSINGS_FILE = COMPILED_DIR / "crossings_refined.geojson"
