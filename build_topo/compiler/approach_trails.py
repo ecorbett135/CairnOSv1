@@ -63,6 +63,17 @@ def load_approach_rows():
             rows.append(
                 {
                     "route": row.get("route", "").strip(),
+
+                    "approach_id": row.get(
+                        "approach_id",
+                        ""
+                    ).strip(),
+
+                    "approach_name": row.get(
+                        "approach_name",
+                        ""
+                    ).strip(),
+
                     "direction": row.get("direction", "").strip(),
                     "connected_terminus": row.get(
                         "connected_terminus",
@@ -83,6 +94,35 @@ def load_approach_rows():
                     ).strip(),
                     "end_location": row.get(
                         "end_location",
+                        ""
+                    ).strip(),
+                    "route_name": row.get(
+                        "route_name",
+                        ""
+                    ).strip(),
+                    "sequence": int(
+                        row.get("sequence", 0)
+                    ),
+                    "cumulative_to_trail_mi": float(
+                        row.get(
+                            "cumulative_to_trail_mi",
+                            0
+                        )
+                    ),
+                    "node_class": row.get(
+                        "node_class",
+                        ""
+                    ).strip(),
+                    "overnight": row.get(
+                        "overnight",
+                        ""
+                    ).strip(),
+                    "camping": row.get(
+                        "camping",
+                        ""
+                    ).strip(),
+                    "road_access": row.get(
+                        "road_access",
                         ""
                     ).strip(),
                     "notes": row.get(

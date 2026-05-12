@@ -149,6 +149,88 @@ def load_logistics_nodes():
     return rows
 
 
+# ---------------------------------------------------------
+# ROUTE OVERLAY & APPROACH TRAILS LOADERS
+# ---------------------------------------------------------
+
+def load_route_overlay():
+
+    print(
+        "\n[INFO] Loading route overlay"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "route_overlay.json"
+    )
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing route overlay: {path}"
+        )
+
+    with open(path) as f:
+
+        payload = json.load(f)
+
+    overlay_nodes = payload.get(
+        "overlay_nodes",
+        []
+    )
+
+    operational_segments = payload.get(
+        "operational_segments",
+        []
+    )
+
+    print(
+        f"[INFO] Overlay nodes: "
+        f"{len(overlay_nodes)}"
+    )
+
+    print(
+        f"[INFO] Overlay segments: "
+        f"{len(operational_segments)}"
+    )
+
+    return payload
+
+
+def load_approach_trails():
+
+    print(
+        "\n[INFO] Loading approach trails"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "approach_trails.json"
+    )
+
+    if not path.exists():
+
+        raise FileNotFoundError(
+            f"Missing approach trails: {path}"
+        )
+
+    with open(path) as f:
+
+        payload = json.load(f)
+
+    trails = payload.get(
+        "approach_trails",
+        []
+    )
+
+    print(
+        f"[INFO] Approach trail nodes: "
+        f"{len(trails)}"
+    )
+
+    return payload
+
+
 #
 # ---------------------------------------------------------
 # GRAPH BUILD
@@ -158,6 +240,8 @@ def load_logistics_nodes():
 def build_nodes(
     segments_gdf,
     crossings_gdf,
+    route_overlay,
+    approach_trails,
 ):
 
     print("\n[INFO] Building nodes")
@@ -263,6 +347,127 @@ def build_nodes(
 
         idx += 1
 
+    #
+    # route overlay nodes
+    #
+
+    for row in route_overlay.get(
+        "overlay_nodes",
+        []
+    ):
+
+        nodes.append({
+
+            "node_id":
+            make_node_id(idx),
+
+            "node_type":
+            "overlay",
+
+            "overlay_id":
+            row.get(
+                "overlay_id"
+            ),
+
+            "canonical_name":
+            row.get(
+                "canonical_name"
+            ),
+
+            "trail_mile":
+            row.get(
+                "trail_mile"
+            ),
+
+            "node_class":
+            row.get(
+                "node_class"
+            ),
+
+            "approach_trail":
+            row.get(
+                "approach_trail"
+            ),
+
+            "logistics":
+            row.get(
+                "logistics"
+            ),
+
+            "overnight":
+            row.get(
+                "overnight"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    #
+    # approach trail nodes
+    #
+
+    for row in approach_trails.get(
+        "approach_trails",
+        []
+    ):
+
+        nodes.append({
+
+            "node_id":
+            make_node_id(idx),
+
+            "node_type":
+            "approach",
+
+            "approach_id":
+            row.get(
+                "approach_id"
+            ),
+
+            "approach_name":
+            row.get(
+                "approach_name"
+            ),
+
+            "direction":
+            row.get(
+                "direction"
+            ),
+
+            "terminus":
+            row.get(
+                "terminus"
+            ),
+
+            "location":
+            row.get(
+                "location"
+            ),
+
+            "cumulative_to_trail_mi":
+            row.get(
+                "cumulative_to_trail_mi"
+            ),
+
+            "node_class":
+            row.get(
+                "node_class"
+            ),
+
+            "road_access":
+            row.get(
+                "road_access"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
     print(
         f"[INFO] Nodes built: "
         f"{len(nodes)}"
@@ -272,7 +477,9 @@ def build_nodes(
 
 
 def build_edges(
-    segments_gdf
+    segments_gdf,
+    route_overlay,
+    approach_trails,
 ):
 
     print("\n[INFO] Building edges")
@@ -280,6 +487,10 @@ def build_edges(
     edges = []
 
     idx = 0
+
+    #
+    # terrain continuity edges
+    #
 
     segment_rows = list(
         segments_gdf.iterrows()
@@ -301,6 +512,9 @@ def build_edges(
 
             "edge_id":
             make_edge_id(idx),
+
+            "edge_type":
+            "terrain_continuity",
 
             "from_segment":
             current.get(
@@ -325,6 +539,130 @@ def build_edges(
             "difficulty":
             nxt.get(
                 "difficulty"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    #
+    # overlay traversal edges
+    #
+
+    for segment in route_overlay.get(
+        "operational_segments",
+        []
+    ):
+
+        edges.append({
+
+            "edge_id":
+            make_edge_id(idx),
+
+            "edge_type":
+            "operational_progression",
+
+            "from_overlay":
+            segment.get(
+                "start_node"
+            ),
+
+            "to_overlay":
+            segment.get(
+                "end_node"
+            ),
+
+            "distance":
+            segment.get(
+                "distance"
+            ),
+
+            "start_name":
+            segment.get(
+                "start_name"
+            ),
+
+            "end_name":
+            segment.get(
+                "end_name"
+            ),
+
+            "schema_version":
+            SCHEMA_VERSION,
+        })
+
+        idx += 1
+
+    #
+    # approach traversal edges
+    #
+
+    trails = sorted(
+        approach_trails.get(
+            "approach_trails",
+            []
+        ),
+        key=lambda x: (
+            x.get(
+                "approach_id"
+            ),
+            x.get(
+                "sequence",
+                0,
+            ),
+        ),
+    )
+
+    for i in range(
+        len(trails) - 1
+    ):
+
+        current = trails[i]
+        nxt = trails[i + 1]
+
+        if (
+            current.get(
+                "approach_id"
+            )
+            != nxt.get(
+                "approach_id"
+            )
+        ):
+            continue
+
+        edges.append({
+
+            "edge_id":
+            make_edge_id(idx),
+
+            "edge_type":
+            "approach_transition",
+
+            "approach_id":
+            current.get(
+                "approach_id"
+            ),
+
+            "from_location":
+            current.get(
+                "location"
+            ),
+
+            "to_location":
+            nxt.get(
+                "location"
+            ),
+
+            "distance_to_terminus_mi":
+            nxt.get(
+                "distance_to_terminus_mi"
+            ),
+
+            "direction":
+            current.get(
+                "direction"
             ),
 
             "schema_version":
@@ -426,6 +764,14 @@ def main():
         load_logistics_nodes()
     )
 
+    route_overlay = (
+        load_route_overlay()
+    )
+
+    approach_trails = (
+        load_approach_trails()
+    )
+
     #
     # build
     #
@@ -434,10 +780,15 @@ def main():
 
         segments_gdf,
         crossings_gdf,
+        route_overlay,
+        approach_trails,
     )
 
     edges = build_edges(
-        segments_gdf
+
+        segments_gdf,
+        route_overlay,
+        approach_trails,
     )
 
     #

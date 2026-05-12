@@ -141,6 +141,26 @@ def validate_graph():
         f"{len(logistics)}"
     )
 
+    overlay_nodes = [
+        n for n in nodes
+        if n.get("node_type") == "overlay"
+    ]
+
+    approach_nodes = [
+        n for n in nodes
+        if n.get("node_type") == "approach"
+    ]
+
+    print(
+        f"[INFO] Overlay nodes: "
+        f"{len(overlay_nodes)}"
+    )
+
+    print(
+        f"[INFO] Approach nodes: "
+        f"{len(approach_nodes)}"
+    )
+
     if len(nodes) == 0:
 
         raise RuntimeError(
@@ -151,6 +171,18 @@ def validate_graph():
 
         raise RuntimeError(
             "Graph contains no edges"
+        )
+
+    if len(overlay_nodes) == 0:
+
+        raise RuntimeError(
+            "Operational graph missing overlay nodes"
+        )
+
+    if len(approach_nodes) == 0:
+
+        raise RuntimeError(
+            "Operational graph missing approach nodes"
         )
 
     print("[OK] Graph valid")
