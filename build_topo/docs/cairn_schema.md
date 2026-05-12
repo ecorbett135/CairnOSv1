@@ -38,6 +38,22 @@ Segment Engine	progression intervals
 Cadence Engine	feasibility reasoning
 Planner	itinerary generation
 
+Additional Operational Layers
+
+Layer	Responsibility
+Route Overlay	ground-truth operational traversal semantics
+Approach Trails	ingress / egress traversal branches
+Operational Graph	expedition traversal runtime substrate
+
+Important Principle
+
+CairnOS distinguishes between:
+
+* topology
+* operational semantics
+
+A GPX line alone is not considered sufficient operational truth.
+
 ⸻
 
 Canonical Data Products
@@ -107,6 +123,90 @@ Examples:
 * trailheads
 * road crossings
 * resupply access points
+
+⸻
+
+4. Route Overlay
+
+Ground-truth operational traversal semantics.
+
+Generated From:
+
+* route_master.csv
+* topology reconciliation
+* terrain segmentation
+
+Outputs:
+
+* route_overlay.json
+
+Authority:
+
+* cumulative operational mileage
+* shelter ordering
+* operational progression continuity
+* logistics semantics
+* operational segment ordering
+
+The route overlay is considered one of the highest-value ontology layers in CairnOS.
+
+⸻
+
+5. Approach Trails
+
+Operational ingress and egress traversal branches.
+
+Generated From:
+
+* approach_trails.csv
+
+Outputs:
+
+* approach_trails.json
+
+Examples:
+
+* Appalachian Trail southern ingress
+* Williamstown approach variants
+* Journey's End northern egress
+
+Authority:
+
+* directional ingress semantics
+* directional egress semantics
+* expedition start logic
+* expedition completion logic
+
+Approach trails are modeled as:
+
+* operational traversal branches
+
+rather than metadata.
+
+⸻
+
+6. Operational Graph
+
+Unified expedition traversal substrate.
+
+Generated From:
+
+* segments
+* crossings
+* logistics nodes
+* route overlay semantics
+* approach trail semantics
+
+Outputs:
+
+* operational_graph.json
+
+Authority:
+
+* traversal continuity
+* operational graph transitions
+* traversal costs
+* future planner runtime substrate
 
 ⸻
 
@@ -186,6 +286,10 @@ Node Types
 * resupply
 * bailout
 * junction
+* ingress
+* egress
+* approach_junction
+* terminus
 
 Fields
 
@@ -237,6 +341,37 @@ Invariants
 * segments cannot improperly overlap
 * start/end nodes must exist
 * segment metrics must be reproducible
+
+⸻
+
+Entity: OperationalOverlayNode
+
+Meaning
+
+Curated operational traversal anchor derived from route overlay semantics.
+
+These nodes represent:
+
+* curated shelter ordering
+* operational progression anchors
+* cumulative traversal semantics
+* real-world expedition progression
+
+Fields
+
+Field	Type	Notes
+overlay_id	string	immutable identifier
+canonical_name	string	normalized operational name
+mile	float	curated cumulative mileage
+division	string	operational subdivision
+connected_to	list	adjacent overlay nodes
+route_type	enum	main trail / ingress / egress
+
+Invariants
+
+* overlay ordering must remain stable
+* cumulative mileage must increase monotonically
+* operational continuity must remain reproducible
 
 ⸻
 
@@ -422,25 +557,29 @@ Terrain products must include:
 
 Current Known Limitations
 
-* LT spine currently measures 249.1 miles
-* official LT mileage differs (~272 mi)
-* overnight node reconciliation remains incomplete
-* effort scoring remains experimental
-* terrain classification remains undefined
+* operational graph edge modeling remains preliminary
+* planner_v2 has not yet been implemented
+* cadence reasoning remains experimental
+* fatigue propagation remains undefined
+* terrain classification remains incomplete
+* route overlay reconciliation will continue evolving
+* multi-trail operational federation is not yet implemented
 
 ⸻
 
 Future Systems
 
-Planned future engines include:
-
-* segment generation engine
-* cadence feasibility engine
+* planner_v2
+* expedition cadence engine
+* fatigue propagation engine
 * recovery modeling
-* itinerary synthesis
 * terrain burden analytics
-* resupply accessibility modeling
-* fatigue propagation modeling
+* operational traversal cost modeling
+* logistics accessibility modeling
+* multi-trail federation
+* weather-aware traversal reasoning
+* seasonal traversal semantics
+* resupply optimization
 
 ⸻
 
@@ -451,3 +590,26 @@ CairnOS is fundamentally an operational reasoning system.
 The goal is not perfect GIS representation.
 
 The goal is stable, explainable, terrain-aware traversal planning.
+
+⸻
+
+Current Operational Status
+
+The current CairnOSv1 compiler now supports:
+
+* generic multi-trail directory structures
+* terrain segmentation
+* logistics extraction
+* crossing refinement
+* route overlay operational semantics
+* approach trail operational semantics
+* operational graph generation
+* validation pipeline execution
+
+The Vermont Long Trail currently serves as:
+
+* the reference topology dataset
+* the reference operational ontology
+* the primary compiler validation target
+
+Future planner systems will build on this operational substrate rather than attempting to infer operational truth dynamically.
