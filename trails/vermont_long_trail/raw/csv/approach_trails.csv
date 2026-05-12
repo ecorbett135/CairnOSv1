@@ -1,0 +1,14 @@
+approach_id,approach_name,direction,terminus,access_town,route_name,sequence,location,distance_to_terminus_mi,cumulative_to_trail_mi,node_class,overnight,camping,road_access
+approach_williamstown,Williamstown Approach,NOBO,southern,Williamstown,Pine Cobble and Appalachian Trails,0,Pine Cobble Road in Williamstown,3.3,-3.3,trailhead,False,False,True
+approach_williamstown,Williamstown Approach,NOBO,southern,Williamstown,Pine Cobble and Appalachian Trails,1,Summit of Pine Cobble,1.8,-1.8,viewpoint,False,False,False
+approach_williamstown,Williamstown Approach,NOBO,southern,Williamstown,Pine Cobble and Appalachian Trails,2,Appalachian Trail to Mass. 2,1.2,-1.2,junction,False,False,False
+approach_williamstown,Williamstown Approach,NOBO,southern,Williamstown,Pine Cobble and Appalachian Trails,3,Eph's Lookout,0.8,-0.8,viewpoint,False,False,False
+approach_williamstown,Williamstown Approach,NOBO,southern,Williamstown,Pine Cobble and Appalachian Trails,4,Massachusetts-Vermont State Line Southern Terminus,0.0,0.0,terminus,False,False,False
+approach_north_adams,North Adams Approach,NOBO,southern,North Adams,Appalachian Trail,0,Mass. 2 in North Adams,3.8,-3.8,trailhead,False,False,True
+approach_north_adams,North Adams Approach,NOBO,southern,North Adams,Appalachian Trail,1,Pete's Spring Sherman Brook Primitive Campsite,2.4,-2.4,camp,True,True,False
+approach_north_adams,North Adams Approach,NOBO,southern,North Adams,Appalachian Trail,2,Pine Cobble Trail to Pine Cobble Road,1.2,-1.2,junction,False,False,False
+approach_north_adams,North Adams Approach,NOBO,southern,North Adams,Appalachian Trail,3,Eph's Lookout,0.8,-0.8,viewpoint,False,False,False
+approach_north_adams,North Adams Approach,NOBO,southern,North Adams,Appalachian Trail,4,Southern Terminus of Long Trail,0.0,0.0,terminus,False,False,False
+egress_journeys_end,Journey's End Trail,NOBO,northern,Journey's End Trail Parking,Journey's End Trail,0,Northern Terminus of Long Trail,0.0,272.0,terminus,False,False,False
+egress_journeys_end,Journey's End Trail,NOBO,northern,Journey's End Trail Parking,Journey's End Trail,1,Journey's End Camp,0.5,272.5,camp,True,True,False
+egress_journeys_end,Journey's End Trail,NOBO,northern,Journey's End Trail Parking,Journey's End Trail,2,Journey's End Trail Parking,1.3,273.3,trailhead,False,False,True

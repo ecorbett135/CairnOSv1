@@ -46,6 +46,10 @@ REQUIRED_FILES = [
 
     "logistics_nodes.json",
 
+    "route_overlay.json",
+
+    "approach_trails.json",
+
     "operational_graph.json",
 
     "cairn_schema_registry.json",
@@ -215,6 +219,129 @@ def validate_segments():
     print("[OK] Segments valid")
 
 
+def validate_route_overlay():
+
+    print(
+        "\n[CHECK] Route overlay"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "route_overlay.json"
+    )
+
+    with open(path) as f:
+
+        overlay = json.load(f)
+
+    overlay_nodes = overlay.get(
+        "overlay_nodes",
+        []
+    )
+
+    operational_segments = overlay.get(
+        "operational_segments",
+        []
+    )
+
+    print(
+        f"[INFO] Overlay nodes: "
+        f"{len(overlay_nodes)}"
+    )
+
+    print(
+        f"[INFO] Operational segments: "
+        f"{len(operational_segments)}"
+    )
+
+    if len(overlay_nodes) == 0:
+
+        raise RuntimeError(
+            "Overlay contains no nodes"
+        )
+
+    if len(operational_segments) == 0:
+
+        raise RuntimeError(
+            "Overlay contains no operational segments"
+        )
+
+    previous = None
+
+    for node in overlay_nodes:
+
+        mile = node.get(
+            "trail_mile"
+        )
+
+        if mile is None:
+            continue
+
+        if (
+            previous is not None
+            and mile < previous
+        ):
+
+            raise RuntimeError(
+                "Overlay mileage ordering invalid"
+            )
+
+        previous = mile
+
+    print("[OK] Route overlay valid")
+
+
+def validate_approach_trails():
+
+    print(
+        "\n[CHECK] Approach trails"
+    )
+
+    path = (
+        COMPILED_DIR /
+        "approach_trails.json"
+    )
+
+    with open(path) as f:
+
+        payload = json.load(f)
+
+    trails = payload.get(
+        "approach_trails",
+        []
+    )
+
+    print(
+        f"[INFO] Approach trails: "
+        f"{len(trails)}"
+    )
+
+    if len(trails) == 0:
+
+        raise RuntimeError(
+            "No approach trails found"
+        )
+
+    required_fields = [
+        "route",
+        "direction",
+        "trail_miles",
+        "connected_terminus",
+    ]
+
+    for trail in trails:
+
+        for field in required_fields:
+
+            if field not in trail:
+
+                raise RuntimeError(
+                    f"Approach trail missing field: {field}"
+                )
+
+    print("[OK] Approach trails valid")
+
+
 #
 # ---------------------------------------------------------
 # MAIN
@@ -260,6 +387,10 @@ def main():
     #
 
     validate_segments()
+
+    validate_route_overlay()
+
+    validate_approach_trails()
 
     #
     # success

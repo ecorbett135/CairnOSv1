@@ -97,6 +97,16 @@ def main():
         ),
 
         (
+            "Route Overlay",
+            "build_topo.compiler.route_overlay",
+        ),
+
+        (
+            "Approach Trails",
+            "build_topo.compiler.approach_trails",
+        ),
+
+        (
             "Operational Graph",
             "build_topo.compiler.graph",
         ),
