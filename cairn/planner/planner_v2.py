@@ -420,6 +420,83 @@ class PlannerV2:
             "average_daily_elevation": average_daily_elevation,
         }
 
+    def _resolve_ingress_node(self):
+        """
+        Resolve the ingress node for the selected ingress route.
+        
+        Honors approach trail semantics:
+        - Uses runtime.get_approach_nodes() instead of hardcoded searches
+        - Filters by approach_name matching ingress_route
+        - Returns appropriate endpoint based on direction
+        - Preserves negative mileage semantics
+        
+        Returns:
+            dict with keys:
+            - node: the resolved approach node
+            - location_type: trailhead or terminus
+            - mile: the cumulative_to_trail_mi value
+            - location_name: canonical name for the location
+            OR None if ingress route is main terminus
+        """
+        
+        if not self.ingress_route:
+            return None
+
+        approach_nodes = (
+            self.runtime
+            .get_approach_nodes()
+        )
+
+        filtered_nodes = [
+            n for n in approach_nodes
+            if n.get("approach_name", "").strip().lower() == (
+                self.ingress_route.strip().lower()
+            )
+        ]
+
+        if not filtered_nodes:
+            return None
+
+        sorted_nodes = sorted(
+            filtered_nodes,
+            key=lambda n: n.get(
+                "cumulative_to_trail_mi",
+                0,
+            )
+        )
+
+        if self.direction == "NOBO":
+            entry_node = sorted_nodes[0]
+        elif self.direction == "SOBO":
+            entry_node = sorted_nodes[-1]
+        else:
+            entry_node = sorted_nodes[0]
+
+        ingress_mile = round(
+            entry_node.get(
+                "cumulative_to_trail_mi",
+                0,
+            ),
+            1,
+        )
+
+        approach_name = entry_node.get(
+            "approach_name",
+            "Approach Trail"
+        )
+
+        node_class = entry_node.get(
+            "node_class",
+            "trailhead"
+        )
+
+        return {
+            "node": entry_node,
+            "location_type": node_class,
+            "mile": ingress_mile,
+            "location_name": approach_name,
+        }
+
     def get_directional_access(
         self,
     ):
@@ -630,89 +707,40 @@ class PlannerV2:
         current_location_type = "terminus"
         current_division = "division1"
 
-        if self.direction == "NOBO":
+        ingress_resolved = (
+            self._resolve_ingress_node()
+        )
 
-            if self.ingress_route == "North Adams Approach":
+        if ingress_resolved:
 
-                ingress_node = next(
-                    (
-                        n for n in overlay_nodes
-                        if round(
-                            n.get(
-                                "trail_mile",
-                                0,
-                            ),
-                            1,
-                        ) == -3.8
-                    ),
-                    None,
-                )
-
-                ingress_location_type = "trailhead"
-
-            elif self.ingress_route == "Williamstown Approach":
-
-                ingress_node = next(
-                    (
-                        n for n in overlay_nodes
-                        if round(
-                            n.get(
-                                "trail_mile",
-                                0,
-                            ),
-                            1,
-                        ) == -3.3
-                    ),
-                    None,
-                )
-
-                ingress_location_type = "trailhead"
-
-            else:
-
-                ingress_node = None
-                ingress_location_type = "terminus"
-
-        elif self.direction == "SOBO":
-
-            ingress_node = next(
-                (
-                    n for n in overlay_nodes
-                    if "Journey" in n.get(
-                        "canonical_name",
-                        "",
-                    )
-                ),
-                None,
+            ingress_mile = (
+                ingress_resolved["mile"]
             )
 
-            ingress_location_type = "trailhead"
-
-        else:
-
-            ingress_node = None
-            ingress_location_type = "terminus"
-
-        if ingress_node:
-
-            current_mile = round(
-                ingress_node.get(
-                    "trail_mile",
-                    0,
-                ),
-                1,
+            ingress_location_name = (
+                ingress_resolved["location_name"]
             )
 
-            current_location = ingress_node.get(
-                "canonical_name",
-                current_location,
+            ingress_location_type = (
+                ingress_resolved["location_type"]
+            )
+
+            current_mile = ingress_mile
+
+            current_location = ingress_location_name
+
+            current_location_type = (
+                ingress_location_type
+            )
+
+            ingress_node = (
+                ingress_resolved["node"]
             )
 
             current_division = ingress_node.get(
                 "division",
                 current_division,
             )
-            current_location_type = ingress_location_type
 
         for day in range(1, completion_days + 1):
 
