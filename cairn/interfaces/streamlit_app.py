@@ -1,284 +1,358 @@
-import sys
 from pathlib import Path
+import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-
-sys.path.append(str(PROJECT_ROOT))
-
-import pandas as pd
-import streamlit as st
-
-from app.core.planner import (
-    load_route,
-    prepare_route,
-    build_location_options,
-    run_planner,
+PROJECT_ROOT = (
+    Path(__file__)
+    .resolve()
+    .parents[2]
 )
 
-#
-# ------------------------------------------------------------
-# PAGE CONFIG
-# ------------------------------------------------------------
-#
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(
+        0,
+        str(PROJECT_ROOT),
+    )
+
+import streamlit as st
+
+from cairn.planner.planner_v2 import (
+    PlannerV2,
+)
+
 
 st.set_page_config(
-    page_title="CairnOS",
+    page_title="CairnOSv1",
     layout="wide",
 )
 
-st.title("🥾 CairnOS Planner Demo")
+TRAILS_ROOT = PROJECT_ROOT / "trails"
 
-st.markdown(
-    """
-AI-assisted backpacking itinerary planner.
-"""
+AVAILABLE_TRAILS = sorted([
+    p.name
+    for p in TRAILS_ROOT.iterdir()
+    if p.is_dir()
+])
+
+st.title("🥾 CairnOSv1")
+st.subheader(
+    "Operational Expedition Planning"
 )
 
-#
-# ------------------------------------------------------------
-# LOAD OPERATIONAL GRAPH
-# ------------------------------------------------------------
-#
+with st.sidebar:
 
-route_df = load_route()
+    st.header("Planner Configuration")
 
-#
-# ------------------------------------------------------------
-# DIRECTION + TRIP TYPE
-# ------------------------------------------------------------
-#
-
-col1, col2 = st.columns(2)
-
-with col1:
+    selected_trail = st.selectbox(
+        "Trail",
+        AVAILABLE_TRAILS,
+    )
 
     direction = st.selectbox(
-        "Direction",
+        "Trip Type",
         [
             "NOBO",
             "SOBO",
-        ],
-    )
-
-with col2:
-
-    trip_type = st.selectbox(
-        "Trip Type",
-        [
-            "THRU",
             "SECTION",
         ],
     )
 
-#
-# ------------------------------------------------------------
-# PREPARE ROUTE
-# ------------------------------------------------------------
-#
+    if direction == "NOBO":
 
-prepared_df = prepare_route(
-    route_df,
-    direction=direction,
-)
-
-location_options = (
-    build_location_options(
-        prepared_df
-    )
-)
-
-#
-# ------------------------------------------------------------
-# START / END
-# ------------------------------------------------------------
-#
-
-col3, col4 = st.columns(2)
-
-with col3:
-
-    selected_start = st.selectbox(
-        "Start Location",
-        options=location_options,
-        format_func=lambda o: o["label"],
-        index=0,
-    )
-
-    start_location = selected_start["value"]
-
-with col4:
-
-    end_location = None
-
-    if trip_type == "SECTION":
-
-        selected_end = st.selectbox(
-            "End Location",
-            options=location_options,
-            format_func=lambda o: o["label"],
-            index=min(
-                25,
-                len(location_options) - 1,
-            ),
+        ingress_help = (
+            "Southern access approaches toward the southern terminus"
         )
 
-        end_location = selected_end["value"]
-
-#
-# ------------------------------------------------------------
-# OPTIONS
-# ------------------------------------------------------------
-#
-
-col5, col6, col7, col8 = st.columns(4)
-
-with col5:
-
-    min_miles = st.slider(
-        "Min Miles",
-        5,
-        20,
-        8,
-    )
-
-with col6:
-
-    max_miles = st.slider(
-        "Max Miles",
-        8,
-        30,
-        15,
-    )
-
-with col7:
-
-    max_elevation_gain = st.slider(
-        "Max Elevation Gain",
-        1000,
-        10000,
-        5000,
-    )
-
-with col8:
-
-    resupply_days = st.slider(
-        "Resupply Window (days)",
-        1,
-        7,
-        4,
-    )
-
-#
-# ------------------------------------------------------------
-# APPROACH TRAIL
-# ------------------------------------------------------------
-#
-
-approach_trail = st.checkbox(
-    "Include Approach Trail (Division 0)",
-    value=False,
-)
-
-#
-# ------------------------------------------------------------
-# GENERATE
-# ------------------------------------------------------------
-#
-
-if st.button("Generate Plan"):
-
-    try:
-
-        result = run_planner(
-            direction=direction,
-            trip_type=trip_type,
-            start_location=start_location,
-            end_location=end_location,
-            min_miles=min_miles,
-            max_miles=max_miles,
-            max_elevation_gain=max_elevation_gain,
-            resupply_days=resupply_days,
-            approach_trail=approach_trail,
+        egress_help = (
+            "Northern exit approaches away from the northern terminus"
         )
+
+    elif direction == "SOBO":
+
+        ingress_help = (
+            "Northern access approaches toward the northern terminus"
+        )
+
+        egress_help = (
+            "Southern exit approaches away from the southern terminus"
+        )
+
+    else:
+
+        ingress_help = (
+            "Section hike ingress selection"
+        )
+
+        egress_help = (
+            "Section hike egress selection"
+        )
+
+    st.subheader(
+        "Directional Access"
+    )
+
+    if direction == "NOBO":
+
+        ingress_route = st.selectbox(
+            "Ingress Route",
+            [
+                "Williamstown Approach",
+                "North Adams Approach",
+            ],
+            help=ingress_help,
+        )
+
+        egress_route = st.selectbox(
+            "Egress Route",
+            [
+                "Journey's End Trail",
+            ],
+            help=egress_help,
+        )
+
+    elif direction == "SOBO":
+
+        ingress_route = st.selectbox(
+            "Ingress Route",
+            [
+                "Journey's End Trail",
+            ],
+            help=ingress_help,
+        )
+
+        egress_route = st.selectbox(
+            "Egress Route",
+            [
+                "Williamstown Approach",
+                "North Adams Approach",
+            ],
+            help=egress_help,
+        )
+
+    else:
+
+        ingress_route = st.selectbox(
+            "Ingress Route",
+            [
+                "Williamstown Approach",
+                "North Adams Approach",
+                "Journey's End Trail",
+            ],
+            help=ingress_help,
+        )
+
+        egress_route = st.selectbox(
+            "Egress Route",
+            [
+                "Williamstown Approach",
+                "North Adams Approach",
+                "Journey's End Trail",
+            ],
+            help=egress_help,
+        )
+
+    desired_days = st.slider(
+        "Desired Completion Days",
+        min_value=3,
+        max_value=60,
+        value=21,
+    )
+
+    min_daily_miles = st.slider(
+        "Minimum Daily Miles",
+        min_value=4,
+        max_value=25,
+        value=8,
+    )
+
+    max_daily_miles = st.slider(
+        "Maximum Daily Miles",
+        min_value=8,
+        max_value=40,
+        value=16,
+    )
+
+    max_daily_elevation = st.slider(
+        "Maximum Daily Elevation Gain",
+        min_value=1000,
+        max_value=10000,
+        value=3500,
+        step=250,
+    )
+
+    resupply_cadence = st.slider(
+        "Preferred Resupply / Zero Cadence (days)",
+        min_value=2,
+        max_value=10,
+        value=5,
+    )
+
+    run_planner = st.button(
+        "Run PlannerV2"
+    )
+
+if run_planner:
+
+    trail_root = (
+        TRAILS_ROOT /
+        selected_trail
+    )
+
+    planner = PlannerV2(
+        trail_root=trail_root,
+        user_profile={
+            "min_daily_miles": min_daily_miles,
+            "max_daily_miles": max_daily_miles,
+            "max_daily_elevation": max_daily_elevation,
+            "resupply_cadence": resupply_cadence,
+            "direction": direction,
+            "ingress_route": ingress_route,
+            "egress_route": egress_route,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=desired_days
+    )
+
+    completion = itinerary[
+        "completion_analysis"
+    ]
+
+    evaluation = completion[
+        "evaluation"
+    ]
+
+    st.header("Expedition Summary")
+
+    summary = itinerary[
+        "expedition_summary"
+    ]
+
+    summary_col1, summary_col2, summary_col3, summary_col4 = st.columns(4)
+
+    summary_col1.metric(
+        "Total Trail Miles",
+        summary[
+            "total_miles"
+        ],
+    )
+
+    summary_col2.metric(
+        "Completion Time",
+        summary[
+            "completion_days"
+        ],
+    )
+
+    summary_col3.metric(
+        "Average Daily Miles",
+        summary[
+            "average_daily_miles"
+        ],
+    )
+
+    summary_col4.metric(
+        "Average Daily Elevation",
+        summary[
+            "average_daily_elevation"
+        ],
+    )
+
+    st.header("Operational Feasibility")
+
+    evaluation = completion[
+        "evaluation"
+    ]
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        "Classification",
+        evaluation[
+            "classification"
+        ].title(),
+    )
+
+    col2.metric(
+        "Requested Days",
+        desired_days,
+    )
+
+    recommended_days = completion.get(
+        "recommended_days",
+        desired_days,
+    )
+
+    col3.metric(
+        "Recommended Days",
+        recommended_days,
+    )
+
+    if completion["accepted"]:
 
         st.success(
-            "Plan generated successfully"
+            completion[
+                "recommendation"
+            ]
         )
 
-        #
-        # itinerary dataframe
-        #
+    else:
 
-        df = pd.DataFrame(
-            result.get("days", [])
+        st.warning(
+            completion[
+                "recommendation"
+            ]
         )
 
-        desired_columns = [
+        st.info(
+            "An alternative operationally sustainable itinerary was generated."
+        )
 
-            "start_mile",
-            "start",
+    st.header("Resupply Strategy")
 
-            "end_mile",
-            "end",
+    resupply_rows = itinerary[
+        "resupply_plan"
+    ]
 
-            "distance",
-            "elevation_gain_ft",
+    if resupply_rows:
 
-            "overnight_type",
-            "difficulty",
-        ]
+        st.dataframe(
+            resupply_rows,
+            width="stretch",
+        )
 
-        existing_columns = [
-            c for c in desired_columns
-            if c in df.columns
-        ]
+    st.header("Operational Itinerary")
 
-        if existing_columns:
+    itinerary_rows = itinerary[
+        "daily_plan"
+    ]
 
-            df = df[existing_columns]
+    st.caption(
+        "Daily operational traversal plan using overlay semantics, shelters, logistics nodes, and ingress-aware progression."
+    )
 
-            st.dataframe(
-                df,
-                use_container_width=True,
-                hide_index=True,
-            )
+    st.dataframe(
+        itinerary_rows,
+        width="stretch",
+        hide_index=True,
+        column_order=[
+            "day",
+            "division",
+            "daily_start_mile",
+            "daily_start_location",
+            "daily_start_location_type",
+            "daily_stop_mile",
+            "daily_stop_location",
+            "daily_stop_location_type",
+            "daily_miles",
+            "daily_elevation_gain",
+            "notes",
+        ],
+    )
 
-        #
-        # metrics
-        #
 
-        metric1, metric2 = st.columns(2)
+else:
 
-        with metric1:
-
-            st.metric(
-                "Total Days",
-                result.get("total_days", 0),
-            )
-
-        with metric2:
-
-            st.metric(
-                "Total Distance",
-                round(
-                    result.get(
-                        "total_distance",
-                        0,
-                    ),
-                    1,
-                ),
-            )
-
-        #
-        # raw output debug
-        #
-
-        with st.expander(
-            "Planner Output"
-        ):
-
-            st.json(result)
-
-    except Exception as e:
-
-        st.error(str(e))
+    st.info(
+        "Configure expedition goals and generate an operational itinerary."
+    )

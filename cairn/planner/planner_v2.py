@@ -1,5 +1,3 @@
-
-
 from statistics import mean
 
 from cairn.runtime.graph_runtime import (
@@ -56,6 +54,160 @@ class PlannerV2:
             user_profile or {}
         )
 
+        self.min_daily_miles = (
+            self.user_profile.get(
+                "min_daily_miles",
+                8,
+            )
+        )
+
+        self.max_daily_miles = (
+            self.user_profile.get(
+                "max_daily_miles",
+                16,
+            )
+        )
+
+        self.max_daily_elevation = (
+            self.user_profile.get(
+                "max_daily_elevation",
+                3500,
+            )
+        )
+
+        self.resupply_cadence = (
+            self.user_profile.get(
+                "resupply_cadence",
+                5,
+            )
+        )
+
+        self.direction = (
+            self.user_profile.get(
+                "direction",
+                "NOBO",
+            )
+        )
+
+        self.ingress_route = (
+            self.user_profile.get(
+                "ingress_route",
+                None,
+            )
+        )
+
+        self.egress_route = (
+            self.user_profile.get(
+                "egress_route",
+                None,
+            )
+        )
+
+        self.section_start = (
+            self.user_profile.get(
+                "section_start",
+                None,
+            )
+        )
+
+        self.section_end = (
+            self.user_profile.get(
+                "section_end",
+                None,
+            )
+        )
+
+
+    def calculate_terrain_adjusted_target(
+        self,
+        base_daily_target,
+        day,
+    ):
+
+        fatigue_penalty = (
+            (day - 1) * 0.015
+        )
+
+        terrain_cycle = [
+            0.92,
+            1.05,
+            0.88,
+            1.08,
+            0.95,
+        ]
+
+        terrain_multiplier = (
+            terrain_cycle[
+                (day - 1) % len(terrain_cycle)
+            ]
+        )
+
+        adjusted_target = (
+            base_daily_target *
+            terrain_multiplier *
+            (1.0 - fatigue_penalty)
+        )
+
+        adjusted_target = max(
+            self.min_daily_miles,
+            min(
+                self.max_daily_miles,
+                adjusted_target,
+            )
+        )
+
+        return round(
+            adjusted_target,
+            1,
+        )
+
+    def calculate_daily_elevation(
+        self,
+        daily_miles,
+        day,
+    ):
+
+        terrain_bias = [
+            1.0,
+            1.25,
+            0.85,
+            1.4,
+            0.95,
+        ]
+
+        multiplier = terrain_bias[
+            (day - 1) % len(terrain_bias)
+        ]
+
+        elevation = (
+            daily_miles *
+            240 *
+            multiplier
+        )
+
+        elevation = min(
+            elevation,
+            self.max_daily_elevation,
+        )
+
+        return round(
+            elevation,
+            0,
+        )
+
+    def should_insert_recovery_day(
+        self,
+        day,
+    ):
+
+        cadence_window = [
+            self.resupply_cadence - 1,
+            self.resupply_cadence,
+            self.resupply_cadence + 1,
+        ]
+
+        return day in cadence_window
+
     def build_effort_model(self):
 
         profiles = (
@@ -105,8 +257,7 @@ class PlannerV2:
         )
 
         sustainable_capacity = (
-            self.state_engine
-            .base_capacity
+            self.max_daily_miles
         )
 
         ratio = (
@@ -173,8 +324,7 @@ class PlannerV2:
         )
 
         sustainable_capacity = (
-            self.state_engine
-            .base_capacity
+            self.max_daily_miles
         )
 
         recommended_days = round(
@@ -238,6 +388,504 @@ class PlannerV2:
             ),
         }
 
+    def build_expedition_summary(
+        self,
+        completion_days,
+    ):
+
+        effort_model = (
+            self.build_effort_model()
+        )
+
+        total_miles = 272.0
+
+        average_daily_miles = round(
+            total_miles /
+            completion_days,
+            1,
+        )
+
+        total_elevation_gain = 62129
+
+        average_daily_elevation = round(
+            total_elevation_gain /
+            completion_days,
+            0,
+        )
+
+        return {
+            "total_miles": total_miles,
+            "completion_days": completion_days,
+            "average_daily_miles": average_daily_miles,
+            "average_daily_elevation": average_daily_elevation,
+        }
+
+    def get_directional_access(
+        self,
+    ):
+
+        approach_nodes = (
+            self.runtime
+            .get_approach_nodes()
+        )
+
+        grouped = {}
+
+        for node in approach_nodes:
+
+            approach_id = node.get(
+                "approach_id",
+                "unknown"
+            )
+
+            if approach_id not in grouped:
+                grouped[approach_id] = []
+
+            grouped[approach_id].append(node)
+
+        ingress = []
+        egress = []
+
+        for _, nodes in grouped.items():
+
+            sorted_nodes = sorted(
+                nodes,
+                key=lambda n: n.get(
+                    "cumulative_to_trail_mi",
+                    0,
+                )
+            )
+
+            first_node = sorted_nodes[0]
+            last_node = sorted_nodes[-1]
+
+            approach_name = first_node.get(
+                "approach_name",
+                "Unknown"
+            )
+
+            if self.direction == "NOBO":
+
+                if "journey" in approach_name.lower():
+                    egress.append(first_node)
+                else:
+                    ingress.append(first_node)
+
+            elif self.direction == "SOBO":
+
+                if "journey" in approach_name.lower():
+                    ingress.append(first_node)
+                else:
+                    egress.append(first_node)
+
+        return {
+            "ingress": ingress,
+            "egress": egress,
+        }
+
+    def build_resupply_plan(self):
+
+        logistics_nodes = (
+            self.queries
+            .get_logistics_access_nodes()
+        )
+
+        rows = []
+
+        cadence = max(
+            2,
+            self.resupply_cadence,
+        )
+
+        for idx, node in enumerate(logistics_nodes):
+
+            if idx == 0:
+                continue
+
+            if idx % cadence != 0:
+                continue
+
+            rows.append({
+                "location": node.get(
+                    "canonical_name",
+                    node.get(
+                        "location",
+                        "Unknown"
+                    )
+                ),
+                "mile": node.get(
+                    "mile",
+                    "N/A"
+                ),
+                "access_type": node.get(
+                    "node_class",
+                    "logistics"
+                ),
+                "notes": (
+                    "Recommended resupply / recovery opportunity"
+                ),
+            })
+
+        return rows[:10]
+
+    def select_operational_stop(
+        self,
+        target_mile,
+        overnight_nodes,
+        logistics_nodes,
+    ):
+
+        candidate_nodes = []
+
+        for node in overnight_nodes:
+
+            mile = node.get(
+                "mile",
+                0,
+            )
+
+            delta = abs(
+                mile - target_mile
+            )
+
+            if delta <= 4:
+
+                candidate_nodes.append({
+                    "node": node,
+                    "priority": 1,
+                    "delta": delta,
+                })
+
+        for node in logistics_nodes:
+
+            mile = node.get(
+                "mile",
+                0,
+            )
+
+            delta = abs(
+                mile - target_mile
+            )
+
+            if delta <= 4:
+
+                candidate_nodes.append({
+                    "node": node,
+                    "priority": 2,
+                    "delta": delta,
+                })
+
+        if not candidate_nodes:
+            return None
+
+        candidate_nodes = sorted(
+            candidate_nodes,
+            key=lambda x: (
+                x["priority"],
+                x["delta"],
+            )
+        )
+
+        return candidate_nodes[0]["node"]
+
+    def build_daily_itinerary(
+        self,
+        completion_days,
+    ):
+
+        overlay_nodes = sorted(
+            self.queries
+            .list_overlay_progression(),
+            key=lambda x: x.get(
+                "trail_mile",
+                0,
+            )
+        )
+
+        logistics_nodes = (
+            self.queries
+            .get_logistics_access_nodes()
+        )
+
+        overnight_nodes = sorted(
+            self.queries
+            .get_overnight_nodes(),
+            key=lambda x: x.get(
+                "mile",
+                0,
+            )
+        )
+
+        rows = []
+
+        total_miles = 272.0
+
+        base_daily_target = (
+            total_miles /
+            completion_days
+        )
+
+        current_mile = 0.0
+        current_location = "Southern Terminus"
+        current_location_type = "terminus"
+        current_division = "division1"
+
+        if self.direction == "NOBO":
+
+            if self.ingress_route == "North Adams Approach":
+
+                ingress_node = next(
+                    (
+                        n for n in overlay_nodes
+                        if round(
+                            n.get(
+                                "trail_mile",
+                                0,
+                            ),
+                            1,
+                        ) == -3.8
+                    ),
+                    None,
+                )
+
+                ingress_location_type = "trailhead"
+
+            elif self.ingress_route == "Williamstown Approach":
+
+                ingress_node = next(
+                    (
+                        n for n in overlay_nodes
+                        if round(
+                            n.get(
+                                "trail_mile",
+                                0,
+                            ),
+                            1,
+                        ) == -3.3
+                    ),
+                    None,
+                )
+
+                ingress_location_type = "trailhead"
+
+            else:
+
+                ingress_node = None
+                ingress_location_type = "terminus"
+
+        elif self.direction == "SOBO":
+
+            ingress_node = next(
+                (
+                    n for n in overlay_nodes
+                    if "Journey" in n.get(
+                        "canonical_name",
+                        "",
+                    )
+                ),
+                None,
+            )
+
+            ingress_location_type = "trailhead"
+
+        else:
+
+            ingress_node = None
+            ingress_location_type = "terminus"
+
+        if ingress_node:
+
+            current_mile = round(
+                ingress_node.get(
+                    "trail_mile",
+                    0,
+                ),
+                1,
+            )
+
+            current_location = ingress_node.get(
+                "canonical_name",
+                current_location,
+            )
+
+            current_division = ingress_node.get(
+                "division",
+                current_division,
+            )
+            current_location_type = ingress_location_type
+
+        for day in range(1, completion_days + 1):
+
+            daily_target = (
+                self.calculate_terrain_adjusted_target(
+                    base_daily_target,
+                    day,
+                )
+            )
+
+            target_mile = round(
+                min(
+                    total_miles,
+                    current_mile + daily_target,
+                ),
+                1,
+            )
+
+            selected_stop = (
+                self.select_operational_stop(
+                    target_mile,
+                    overnight_nodes,
+                    logistics_nodes,
+                )
+            )
+
+            if selected_stop:
+
+                next_mile = round(
+                    selected_stop.get(
+                        "mile",
+                        target_mile,
+                    ),
+                    1,
+                )
+
+                matching_overlay = next(
+                    (
+                        node
+                        for node in overlay_nodes
+                        if abs(
+                            node.get(
+                                "trail_mile",
+                                0,
+                            ) - next_mile
+                        ) <= 1.0
+                    ),
+                    None,
+                )
+
+                if matching_overlay:
+
+                    stop_location = matching_overlay.get(
+                        "canonical_name",
+                        "Operational Stop",
+                    )
+
+                    stop_location_type = (
+                        matching_overlay.get(
+                            "node_class",
+                            "overnight",
+                        )
+                    )
+
+                    stop_division = (
+                        matching_overlay.get(
+                            "division",
+                            current_division,
+                        )
+                    )
+
+                else:
+
+                    stop_location = selected_stop.get(
+                        "canonical_name",
+                        selected_stop.get(
+                            "location",
+                            "Operational Stop",
+                        )
+                    )
+
+                    stop_location_type = (
+                        selected_stop.get(
+                            "node_class",
+                            "overnight",
+                        )
+                    )
+
+                    stop_division = current_division
+
+            else:
+
+                next_mile = target_mile
+                stop_location = "Backcountry Camp"
+                stop_location_type = "camp"
+                stop_division = current_division
+
+            if day == 1 and current_mile < 0:
+
+                daily_distance = round(
+                    abs(current_mile) + next_mile,
+                    1,
+                )
+
+            else:
+
+                daily_distance = round(
+                    next_mile - current_mile,
+                    1,
+                )
+
+            elevation_variation = (
+                self.calculate_daily_elevation(
+                    daily_distance,
+                    day,
+                )
+            )
+
+            notes = ""
+
+            if stop_location_type in [
+                "trailhead",
+                "crossing",
+                "road_crossing",
+                "logistics",
+            ]:
+
+                notes = "resupply"
+
+            if self.should_insert_recovery_day(day):
+
+                if notes == "resupply":
+                    notes = "resupply / zero"
+
+            rows.append({
+                "day": day,
+                "division": stop_division,
+                "daily_start_mile": round(
+                    current_mile,
+                    1,
+                ),
+                "daily_start_location": (
+                    current_location
+                ),
+                "daily_start_location_type": (
+                    current_location_type
+                ),
+                "daily_stop_mile": next_mile,
+                "daily_stop_location": (
+                    stop_location
+                ),
+                "daily_stop_location_type": (
+                    stop_location_type
+                ),
+                "daily_miles": daily_distance,
+                "daily_elevation_gain": (
+                    elevation_variation
+                ),
+                "notes": notes,
+            })
+
+            current_mile = next_mile
+            current_location = stop_location
+            current_location_type = (
+                stop_location_type
+            )
+            current_division = stop_division
+
+            if current_mile >= total_miles:
+                break
+
+        return rows
+
     def synthesize_itinerary(
         self,
         desired_days,
@@ -268,21 +916,47 @@ class PlannerV2:
             .get_logistics_access_nodes()
         )
 
+        recommended_days = (
+            negotiation.get(
+                "recommended_days",
+                desired_days,
+            )
+        )
+
+        expedition_summary = (
+            self.build_expedition_summary(
+                recommended_days
+            )
+        )
+
+        resupply_plan = (
+            self.build_resupply_plan()
+        )
+
+        directional_access = (
+            self.get_directional_access()
+        )
+
+        daily_plan = (
+            self.build_daily_itinerary(
+                recommended_days
+            )
+        )
+
         return {
-            "runtime_summary": (
-                self.runtime.summary()
-            ),
             "completion_analysis": (
                 negotiation
             ),
-            "forecast": forecast,
-            "overlay_nodes": len(
-                overlay_progression
+            "expedition_summary": (
+                expedition_summary
             ),
-            "overnight_nodes": len(
-                overnight_nodes
+            "resupply_plan": (
+                resupply_plan
             ),
-            "logistics_nodes": len(
-                logistics_nodes
+            "directional_access": (
+                directional_access
+            ),
+            "daily_plan": (
+                daily_plan
             ),
         }
