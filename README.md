@@ -2,6 +2,8 @@
 
 CairnOSv1 is an operational expedition planning system for long-distance trail networks. It is designed to move beyond abstract mileage partitioning and toward realistic, logistics-aware itinerary synthesis using trail-level operational semantics.
 
+![CairnOSv1 Streamlit UI](docs/images/CairnOSv1-streamlit-ui.png)
+
 ## What it does today
 
 - Builds a trail topology and operational graph from compiled trail data.
@@ -33,11 +35,33 @@ CairnOSv1 is evolving toward:
 - `trails/vermont_long_trail/` — sample trail dataset and compiled outputs
 - `cairn/tests/` — automated tests for planner and runtime behavior
 
+## Streamlit UI
+
+The Streamlit app provides a user-facing interface for requesting expedition plans and viewing the planner's response.
+
+Typical input parameters include:
+
+- direction and route selection (NOBO / SOBO)
+- ingress / egress approaches
+- start and end points
+- daily cadence or target mileage preferences
+- operational constraints such as shelter/campsite preferences
+
+The output includes:
+
+- a synthesized daily itinerary
+- descriptive stop names and operational locations
+- alternate realistic plans when the requested itinerary is infeasible
+- validation feedback when a user request is invalid or cannot be satisfied as requested
+
+In the example screenshot, the user requested a plan that was not realistic for the selected route, and the app instead returned a feasible alternate itinerary with operationally valid stops.
+
 ## Data handling
 
 - Compiled outputs are stored under `trails/vermont_long_trail/compiled/` and `trails/vermont_long_trail/intermediate/`.
 - Raw DEM files are managed outside normal Git history using Git LFS to avoid repository bloat.
 - `.gitattributes` already tracks `trails/vermont_long_trail/raw/dem/*.tif` with Git LFS.
+- Readme images and documentation assets are kept under `docs/images/` to avoid top-level directory pollution.
 
 ## Getting started
 
