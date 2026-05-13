@@ -1,5 +1,3 @@
-
-
 # CURRENT SESSION — PlannerV2 Operational Stabilization
 
 ## Current Focus
@@ -19,7 +17,7 @@ several important traversal semantics bugs still remain unresolved.
 
 ---
 
-# Current Architectural State
+## Current Architectural State
 
 PlannerV2 now supports:
 
@@ -47,7 +45,7 @@ and toward:
 
 ---
 
-# Current Critical Problems
+## Current Critical Problems
 
 ## 1. Ingress Initialization Regression
 
@@ -67,6 +65,7 @@ NOBO + North Adams Approach should:
 Instead:
 
 planner sometimes silently resets traversal to:
+
 - mile 0 semantics
 
 This is currently the most important operational bug.
@@ -142,7 +141,7 @@ Future resupply reasoning should include:
 
 ---
 
-# Current UI Semantics
+## Current UI Semantics
 
 The Streamlit UI currently supports:
 
@@ -169,7 +168,7 @@ NOT:
 
 ---
 
-# Current Desired Itinerary Semantics
+## Current Desired Itinerary Semantics
 
 Operational itinerary rows should communicate:
 
@@ -184,7 +183,7 @@ Operational itinerary rows should communicate:
 Example desired row:
 
 | Field | Example |
-|---|---|
+| --- | --- |
 | day | 1 |
 | daily_start_mile | -3.8 |
 | daily_start_location | Mass. 2 in North Adams |
@@ -201,9 +200,7 @@ Day-1 mileage semantics differ when ingress begins on negative-mile approach tra
 
 Example:
 
--3.8 → 5.5
-=
-9.3 miles
+-3.8 → 5.5 = 9.3 miles
 
 Subsequent days return to:
 
@@ -213,7 +210,7 @@ semantics.
 
 ---
 
-# Current Important Files
+## Current Important Files
 
 ## Planner
 
@@ -237,7 +234,7 @@ semantics.
 
 ---
 
-# Current Architectural Priorities
+## Current Architectural Priorities
 
 Priority order:
 
@@ -254,7 +251,7 @@ Priority order:
 
 ---
 
-# Current Important Operational Principles
+## Current Important Operational Principles
 
 Operational truth overrides ontology elegance.
 
@@ -282,7 +279,7 @@ The itinerary is a traversal narrative.
 
 ---
 
-# Immediate Next Objective
+## Immediate Next Objective
 
 Fully stabilize:
 
@@ -297,7 +294,7 @@ before beginning:
 
 ---
 
-# Current Execution Environment
+## Current Execution Environment
 
 Primary implementation workflow is transitioning toward:
 

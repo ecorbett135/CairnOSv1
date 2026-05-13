@@ -73,6 +73,63 @@ class OperationalQueries:
             if n.get("overnight")
         ]
 
+    def get_shelter_nodes(self):
+        """
+        Get all shelter nodes from the overlay.
+        
+        Shelters are operational overnight facilities that should be
+        preferred over synthetic camping locations.
+        """
+        return [
+            n for n in (
+                self.runtime
+                .get_overlay_nodes()
+            )
+            if n.get("shelter")
+        ]
+
+    def get_operational_overnight_nodes(self):
+        """
+        Get all operational overnight nodes including shelters and camps.
+        
+        Priority order for overnight selection:
+        1. Shelters (node_class: "shelter")
+        2. Designated campsites (node_class: "camp") 
+        3. Other overnight nodes (overnight: true)
+        """
+        overlay_nodes = self.runtime.get_overlay_nodes()
+        
+        operational_overnight = []
+        
+        # Add shelters first (highest priority)
+        for node in overlay_nodes:
+            if node.get("shelter"):
+                operational_overnight.append({
+                    "node": node,
+                    "priority": 1,  # Highest priority
+                    "type": "shelter"
+                })
+        
+        # Add designated campsites
+        for node in overlay_nodes:
+            if node.get("camping") and not node.get("shelter"):
+                operational_overnight.append({
+                    "node": node,
+                    "priority": 2,  # Medium priority
+                    "type": "camp"
+                })
+        
+        # Add other overnight nodes
+        for node in overlay_nodes:
+            if node.get("overnight") and not node.get("shelter") and not node.get("camping"):
+                operational_overnight.append({
+                    "node": node,
+                    "priority": 3,  # Lower priority
+                    "type": "overnight"
+                })
+        
+        return operational_overnight
+
     def get_logistics_access_nodes(self):
 
         return [

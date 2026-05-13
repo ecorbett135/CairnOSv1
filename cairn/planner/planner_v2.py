@@ -608,59 +608,59 @@ class PlannerV2:
     def select_operational_stop(
         self,
         target_mile,
-        overnight_nodes,
+        operational_overnight_nodes,
         logistics_nodes,
     ):
+        """
+        Select the best operational stop near target_mile.
+        
+        Priority order:
+        1. Shelters (highest priority for operational realism)
+        2. Designated campsites
+        3. Logistics nodes (town access, resupply)
+        4. Other overnight nodes
+        
+        Only falls back to synthetic camping if no operational nodes exist nearby.
+        """
 
         candidate_nodes = []
 
-        for node in overnight_nodes:
-
-            mile = node.get(
-                "mile",
-                0,
-            )
-
-            delta = abs(
-                mile - target_mile
-            )
-
-            if delta <= 4:
-
+        # Add operational overnight nodes (shelters, camps, etc.)
+        for item in operational_overnight_nodes:
+            node = item["node"]
+            priority = item["priority"]
+            
+            mile = node.get("trail_mile", 0)
+            delta = abs(mile - target_mile)
+            
+            if delta <= 4:  # Within 4 miles of target
                 candidate_nodes.append({
                     "node": node,
-                    "priority": 1,
+                    "priority": priority,
                     "delta": delta,
+                    "type": item["type"]
                 })
 
+        # Add logistics nodes (lower priority than shelters)
         for node in logistics_nodes:
-
-            mile = node.get(
-                "mile",
-                0,
-            )
-
-            delta = abs(
-                mile - target_mile
-            )
-
+            mile = node.get("trail_mile", 0)
+            delta = abs(mile - target_mile)
+            
             if delta <= 4:
-
                 candidate_nodes.append({
                     "node": node,
-                    "priority": 2,
+                    "priority": 4,  # Lower than operational overnight
                     "delta": delta,
+                    "type": "logistics"
                 })
 
         if not candidate_nodes:
             return None
 
+        # Sort by priority (lower number = higher priority), then by delta
         candidate_nodes = sorted(
             candidate_nodes,
-            key=lambda x: (
-                x["priority"],
-                x["delta"],
-            )
+            key=lambda x: (x["priority"], x["delta"])
         )
 
         return candidate_nodes[0]["node"]
@@ -684,13 +684,9 @@ class PlannerV2:
             .get_logistics_access_nodes()
         )
 
-        overnight_nodes = sorted(
+        operational_overnight_nodes = (
             self.queries
-            .get_overnight_nodes(),
-            key=lambda x: x.get(
-                "mile",
-                0,
-            )
+            .get_operational_overnight_nodes()
         )
 
         rows = []
@@ -762,7 +758,7 @@ class PlannerV2:
             selected_stop = (
                 self.select_operational_stop(
                     target_mile,
-                    overnight_nodes,
+                    operational_overnight_nodes,
                     logistics_nodes,
                 )
             )
@@ -934,9 +930,9 @@ class PlannerV2:
             .list_overlay_progression()
         )
 
-        overnight_nodes = (
+        operational_overnight_nodes = (
             self.queries
-            .get_overnight_nodes()
+            .get_operational_overnight_nodes()
         )
 
         logistics_nodes = (

@@ -1,33 +1,24 @@
-from app.core.planner import (
-    classify_location_type,
-)
+
+def test_shelter_nodes_exist(shelter_nodes):
+    assert len(shelter_nodes) > 0
+
+    for shelter in shelter_nodes:
+        assert shelter.get("shelter") is True
 
 
-def test_peak_detection():
+def test_canonical_names_for_shelters(shelter_nodes):
 
-    assert (
-        classify_location_type(
-            "Camel's Hump Summit"
-        )
-        == "peak"
-    )
+    for shelter in shelter_nodes:
+        name = shelter.get("canonical_name", "")
+        assert name != ""
+        assert "Shelter" in name or "shelter" in name.lower()
 
 
-def test_shelter_detection():
+def test_shelter_names_in_itinerary(planner):
+    itinerary = planner.synthesize_itinerary(desired_days=5)
+    daily_plan = itinerary["daily_plan"]
 
-    assert (
-        classify_location_type(
-            "Cooper Lodge Shelter"
-        )
-        == "shelter"
-    )
+    stop_locations = [day["daily_stop_location"] for day in daily_plan]
+    shelter_count = sum(1 for stop in stop_locations if "Shelter" in stop)
 
-
-def test_lookout_detection():
-
-    assert (
-        classify_location_type(
-            "Porcupine Lookout"
-        )
-        == "viewpoint"
-    )
+    assert shelter_count > 0

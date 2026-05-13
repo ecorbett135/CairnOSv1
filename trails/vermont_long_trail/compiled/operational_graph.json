@@ -3272,7 +3272,11 @@
       "approach_trail": true,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0323",
@@ -3284,7 +3288,11 @@
       "approach_trail": true,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0324",
@@ -3296,7 +3304,11 @@
       "approach_trail": true,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0325",
@@ -3308,7 +3320,11 @@
       "approach_trail": true,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0326",
@@ -3320,7 +3336,11 @@
       "approach_trail": true,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0327",
@@ -3332,7 +3352,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0328",
@@ -3344,7 +3368,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0329",
@@ -3356,7 +3384,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0330",
@@ -3368,7 +3400,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0331",
@@ -3380,7 +3416,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0332",
@@ -3392,7 +3432,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0333",
@@ -3404,7 +3448,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0334",
@@ -3416,7 +3464,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0335",
@@ -3428,7 +3480,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0336",
@@ -3440,7 +3496,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0337",
@@ -3452,7 +3512,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0338",
@@ -3464,7 +3528,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0339",
@@ -3476,7 +3544,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0340",
@@ -3488,7 +3560,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0341",
@@ -3500,7 +3576,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0342",
@@ -3512,7 +3592,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0343",
@@ -3524,7 +3608,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0344",
@@ -3536,7 +3624,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0345",
@@ -3548,7 +3640,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0346",
@@ -3560,7 +3656,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0347",
@@ -3572,7 +3672,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0348",
@@ -3584,7 +3688,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0349",
@@ -3596,7 +3704,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0350",
@@ -3608,7 +3720,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0351",
@@ -3620,7 +3736,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0352",
@@ -3632,7 +3752,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0353",
@@ -3644,7 +3768,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0354",
@@ -3656,7 +3784,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0355",
@@ -3668,7 +3800,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0356",
@@ -3680,7 +3816,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0357",
@@ -3692,7 +3832,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0358",
@@ -3704,7 +3848,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0359",
@@ -3716,7 +3864,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0360",
@@ -3728,7 +3880,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0361",
@@ -3740,7 +3896,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0362",
@@ -3752,7 +3912,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0363",
@@ -3764,7 +3928,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0364",
@@ -3776,7 +3944,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0365",
@@ -3788,7 +3960,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0366",
@@ -3800,7 +3976,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0367",
@@ -3812,7 +3992,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0368",
@@ -3824,7 +4008,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0369",
@@ -3836,7 +4024,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0370",
@@ -3848,7 +4040,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0371",
@@ -3860,7 +4056,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0372",
@@ -3872,7 +4072,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0373",
@@ -3884,7 +4088,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0374",
@@ -3896,7 +4104,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0375",
@@ -3908,7 +4120,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0376",
@@ -3920,7 +4136,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0377",
@@ -3932,7 +4152,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0378",
@@ -3944,7 +4168,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0379",
@@ -3956,7 +4184,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0380",
@@ -3968,7 +4200,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0381",
@@ -3980,7 +4216,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0382",
@@ -3992,7 +4232,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0383",
@@ -4004,7 +4248,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0384",
@@ -4016,7 +4264,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0385",
@@ -4028,7 +4280,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0386",
@@ -4040,7 +4296,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0387",
@@ -4052,7 +4312,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0388",
@@ -4064,7 +4328,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0389",
@@ -4076,7 +4344,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0390",
@@ -4088,7 +4360,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0391",
@@ -4100,7 +4376,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0392",
@@ -4112,7 +4392,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0393",
@@ -4124,7 +4408,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0394",
@@ -4136,7 +4424,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0395",
@@ -4148,7 +4440,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0396",
@@ -4160,7 +4456,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0397",
@@ -4172,7 +4472,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0398",
@@ -4184,7 +4488,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0399",
@@ -4196,7 +4504,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0400",
@@ -4208,7 +4520,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0401",
@@ -4220,7 +4536,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0402",
@@ -4232,7 +4552,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0403",
@@ -4244,7 +4568,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0404",
@@ -4256,7 +4584,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0405",
@@ -4268,7 +4600,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0406",
@@ -4280,7 +4616,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0407",
@@ -4292,7 +4632,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0408",
@@ -4304,7 +4648,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0409",
@@ -4316,7 +4664,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0410",
@@ -4328,7 +4680,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0411",
@@ -4340,7 +4696,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0412",
@@ -4352,7 +4712,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0413",
@@ -4364,7 +4728,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0414",
@@ -4376,7 +4744,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0415",
@@ -4388,7 +4760,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0416",
@@ -4400,7 +4776,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0417",
@@ -4412,7 +4792,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0418",
@@ -4424,7 +4808,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0419",
@@ -4436,7 +4824,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0420",
@@ -4448,7 +4840,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0421",
@@ -4460,7 +4856,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0422",
@@ -4472,7 +4872,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0423",
@@ -4484,7 +4888,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0424",
@@ -4496,7 +4904,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0425",
@@ -4508,7 +4920,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0426",
@@ -4520,7 +4936,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0427",
@@ -4532,7 +4952,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0428",
@@ -4544,7 +4968,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0429",
@@ -4556,7 +4984,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0430",
@@ -4568,7 +5000,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0431",
@@ -4580,7 +5016,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0432",
@@ -4592,7 +5032,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0433",
@@ -4604,7 +5048,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0434",
@@ -4616,7 +5064,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0435",
@@ -4628,7 +5080,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0436",
@@ -4640,7 +5096,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0437",
@@ -4652,7 +5112,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0438",
@@ -4664,7 +5128,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0439",
@@ -4676,7 +5144,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0440",
@@ -4688,7 +5160,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0441",
@@ -4700,7 +5176,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0442",
@@ -4712,7 +5192,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0443",
@@ -4724,7 +5208,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0444",
@@ -4736,7 +5224,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0445",
@@ -4748,7 +5240,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0446",
@@ -4760,7 +5256,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0447",
@@ -4772,7 +5272,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0448",
@@ -4784,7 +5288,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0449",
@@ -4796,7 +5304,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0450",
@@ -4808,7 +5320,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0451",
@@ -4820,7 +5336,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0452",
@@ -4832,7 +5352,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0453",
@@ -4844,7 +5368,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0454",
@@ -4856,7 +5384,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0455",
@@ -4868,7 +5400,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0456",
@@ -4880,7 +5416,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0457",
@@ -4892,7 +5432,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0458",
@@ -4904,7 +5448,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0459",
@@ -4916,7 +5464,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0460",
@@ -4928,7 +5480,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0461",
@@ -4940,7 +5496,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0462",
@@ -4952,7 +5512,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0463",
@@ -4964,7 +5528,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0464",
@@ -4976,7 +5544,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0465",
@@ -4988,7 +5560,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0466",
@@ -5000,7 +5576,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0467",
@@ -5012,7 +5592,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0468",
@@ -5024,7 +5608,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0469",
@@ -5036,7 +5624,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0470",
@@ -5048,7 +5640,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0471",
@@ -5060,7 +5656,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0472",
@@ -5072,7 +5672,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0473",
@@ -5084,7 +5688,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0474",
@@ -5096,7 +5704,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0475",
@@ -5108,7 +5720,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0476",
@@ -5120,7 +5736,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0477",
@@ -5132,7 +5752,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0478",
@@ -5144,7 +5768,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0479",
@@ -5156,7 +5784,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0480",
@@ -5168,7 +5800,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0481",
@@ -5180,7 +5816,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0482",
@@ -5192,7 +5832,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0483",
@@ -5204,7 +5848,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0484",
@@ -5216,7 +5864,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0485",
@@ -5228,7 +5880,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0486",
@@ -5240,7 +5896,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0487",
@@ -5252,7 +5912,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0488",
@@ -5264,7 +5928,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0489",
@@ -5276,7 +5944,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0490",
@@ -5288,7 +5960,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0491",
@@ -5300,7 +5976,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0492",
@@ -5312,7 +5992,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0493",
@@ -5324,7 +6008,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0494",
@@ -5336,7 +6024,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0495",
@@ -5348,7 +6040,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0496",
@@ -5360,7 +6056,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0497",
@@ -5372,7 +6072,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0498",
@@ -5384,7 +6088,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0499",
@@ -5396,7 +6104,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0500",
@@ -5408,7 +6120,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0501",
@@ -5420,7 +6136,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0502",
@@ -5432,7 +6152,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0503",
@@ -5444,7 +6168,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0504",
@@ -5456,7 +6184,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0505",
@@ -5468,7 +6200,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0506",
@@ -5480,7 +6216,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0507",
@@ -5492,7 +6232,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0508",
@@ -5504,7 +6248,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0509",
@@ -5516,7 +6264,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0510",
@@ -5528,7 +6280,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0511",
@@ -5540,7 +6296,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0512",
@@ -5552,7 +6312,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0513",
@@ -5564,7 +6328,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0514",
@@ -5576,7 +6344,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0515",
@@ -5588,7 +6360,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0516",
@@ -5600,7 +6376,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0517",
@@ -5612,7 +6392,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0518",
@@ -5624,7 +6408,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0519",
@@ -5636,7 +6424,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0520",
@@ -5648,7 +6440,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0521",
@@ -5660,7 +6456,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0522",
@@ -5672,7 +6472,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0523",
@@ -5684,7 +6488,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0524",
@@ -5696,7 +6504,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0525",
@@ -5708,7 +6520,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0526",
@@ -5720,7 +6536,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0527",
@@ -5732,7 +6552,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0528",
@@ -5744,7 +6568,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0529",
@@ -5756,7 +6584,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0530",
@@ -5768,7 +6600,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0531",
@@ -5780,7 +6616,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0532",
@@ -5792,7 +6632,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0533",
@@ -5804,7 +6648,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0534",
@@ -5816,7 +6664,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0535",
@@ -5828,7 +6680,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0536",
@@ -5840,7 +6696,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0537",
@@ -5852,7 +6712,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0538",
@@ -5864,7 +6728,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0539",
@@ -5876,7 +6744,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0540",
@@ -5888,7 +6760,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0541",
@@ -5900,7 +6776,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0542",
@@ -5912,7 +6792,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0543",
@@ -5924,7 +6808,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0544",
@@ -5936,7 +6824,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0545",
@@ -5948,7 +6840,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0546",
@@ -5960,7 +6856,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0547",
@@ -5972,7 +6872,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0548",
@@ -5984,7 +6888,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0549",
@@ -5996,7 +6904,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0550",
@@ -6008,7 +6920,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0551",
@@ -6020,7 +6936,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0552",
@@ -6032,7 +6952,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0553",
@@ -6044,7 +6968,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0554",
@@ -6056,7 +6984,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0555",
@@ -6068,7 +7000,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0556",
@@ -6080,7 +7016,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0557",
@@ -6092,7 +7032,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0558",
@@ -6104,7 +7048,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0559",
@@ -6116,7 +7064,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": true,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0560",
@@ -6128,7 +7080,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0561",
@@ -6140,7 +7096,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0562",
@@ -6152,7 +7112,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0563",
@@ -6164,7 +7128,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0564",
@@ -6176,7 +7144,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0565",
@@ -6188,7 +7160,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0566",
@@ -6200,7 +7176,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0567",
@@ -6212,7 +7192,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0568",
@@ -6224,7 +7208,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0569",
@@ -6236,7 +7224,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0570",
@@ -6248,7 +7240,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0571",
@@ -6260,7 +7256,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0572",
@@ -6272,7 +7272,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": true,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0573",
@@ -6284,7 +7288,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0574",
@@ -6296,7 +7304,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0575",
@@ -6308,7 +7320,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0576",
@@ -6320,7 +7336,11 @@
       "approach_trail": false,
       "logistics": false,
       "overnight": false,
-      "schema_version": "1.0"
+      "schema_version": "1.0",
+      "shelter": false,
+      "camping": false,
+      "water": false,
+      "resupply": false
     },
     {
       "node_id": "node_0577",

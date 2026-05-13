@@ -1,49 +1,33 @@
-from app.core.planner import (
-    score_candidate,
-)
+def test_shelter_nodes_available(shelter_nodes):
+    """Test that shelter nodes are loaded from the operational graph."""
+    assert len(shelter_nodes) > 0
+
+    for shelter in shelter_nodes:
+        assert "canonical_name" in shelter
+        assert "trail_mile" in shelter
+        assert shelter.get("shelter") is True
 
 
-def test_score_prefers_target_distance():
+def test_shelter_prioritization(planner):
+    """Test that shelters have priority 1 in operational overnight nodes."""
+    operational_nodes = planner.queries.get_operational_overnight_nodes()
+    shelters = [n for n in operational_nodes if n["type"] == "shelter"]
 
-    near_target = score_candidate(
-        distance=12,
-        elevation_gain=2000,
-        location_type="shelter",
-        target_min=10,
-        target_max=14,
-        max_elevation_gain=5000,
+    for shelter in shelters:
+        assert shelter["priority"] == 1
+
+
+def test_operational_stop_selection_near_target(planner):
+    """Test that select_operational_stop finds nodes near target mile."""
+    operational_nodes = planner.queries.get_operational_overnight_nodes()
+    logistics_nodes = planner.queries.get_logistics_access_nodes()
+
+    selected_stop = planner.select_operational_stop(
+        target_mile=10.0,
+        operational_overnight_nodes=operational_nodes,
+        logistics_nodes=logistics_nodes,
     )
 
-    far_target = score_candidate(
-        distance=25,
-        elevation_gain=2000,
-        location_type="shelter",
-        target_min=10,
-        target_max=14,
-        max_elevation_gain=5000,
-    )
-
-    assert near_target > far_target
-
-
-def test_elevation_penalty():
-
-    low = score_candidate(
-        distance=12,
-        elevation_gain=2000,
-        location_type="shelter",
-        target_min=10,
-        target_max=14,
-        max_elevation_gain=5000,
-    )
-
-    high = score_candidate(
-        distance=12,
-        elevation_gain=9000,
-        location_type="shelter",
-        target_min=10,
-        target_max=14,
-        max_elevation_gain=5000,
-    )
-
-    assert low > high
+    assert selected_stop is not None
+    stop_mile = selected_stop.get("trail_mile", 0)
+    assert abs(stop_mile - 10.0) <= 4.0

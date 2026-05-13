@@ -2,8 +2,7 @@ from pathlib import Path
 import sys
 import json
 
-import geopandas as gpd
-import pandas as pd
+import geopandas as gpd  # type: ignore[import]
 
 
 #
@@ -397,6 +396,26 @@ def build_nodes(
             "overnight":
             row.get(
                 "overnight"
+            ),
+
+            "shelter":
+            row.get(
+                "shelter"
+            ),
+
+            "camping":
+            row.get(
+                "camping"
+            ),
+
+            "water":
+            row.get(
+                "water"
+            ),
+
+            "resupply":
+            row.get(
+                "resupply"
             ),
 
             "schema_version":
