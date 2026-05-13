@@ -16,3 +16,6 @@ dev_agent/generated_patches/
 
 # build artifacts
 *.zip
+
+# ignore raw DEM terrain files
+trails/vermont_long_trail/raw/dem/*.tif
