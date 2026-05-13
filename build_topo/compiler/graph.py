@@ -2,7 +2,7 @@ from pathlib import Path
 import sys
 import json
 
-import geopandas as gpd  # type: ignore[import]
+import geopandas as gpd  
 
 
 #
