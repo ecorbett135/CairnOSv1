@@ -31,3 +31,28 @@ def test_operational_stop_selection_near_target(planner):
     assert selected_stop is not None
     stop_mile = selected_stop.get("trail_mile", 0)
     assert abs(stop_mile - 10.0) <= 4.0
+
+
+def test_operational_stop_selection_expands_after_primary_miss(planner):
+    """Test that stop selection expands to eight miles when needed."""
+    operational_nodes = [
+        {
+            "node": {
+                "canonical_name": "Far Shelter",
+                "trail_mile": 106.2,
+                "shelter": True,
+            },
+            "priority": 1,
+            "type": "shelter",
+        }
+    ]
+
+    selected_stop = planner.select_operational_stop(
+        target_mile=100.0,
+        operational_overnight_nodes=operational_nodes,
+        logistics_nodes=[],
+    )
+
+    assert selected_stop is not None
+    assert selected_stop["canonical_name"] == "Far Shelter"
+    assert 4.0 < abs(selected_stop["trail_mile"] - 100.0) <= 8.0

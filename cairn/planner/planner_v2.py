@@ -623,36 +623,63 @@ class PlannerV2:
         Only falls back to synthetic camping if no operational nodes exist nearby.
         """
 
-        candidate_nodes = []
+        def collect_candidates(search_radius):
 
-        # Add operational overnight nodes (shelters, camps, etc.)
-        for item in operational_overnight_nodes:
-            node = item["node"]
-            priority = item["priority"]
-            
-            mile = node.get("trail_mile", 0)
-            delta = abs(mile - target_mile)
-            
-            if delta <= 4:  # Within 4 miles of target
-                candidate_nodes.append({
-                    "node": node,
-                    "priority": priority,
-                    "delta": delta,
-                    "type": item["type"]
-                })
+            candidate_nodes = []
 
-        # Add logistics nodes (lower priority than shelters)
-        for node in logistics_nodes:
-            mile = node.get("trail_mile", 0)
-            delta = abs(mile - target_mile)
-            
-            if delta <= 4:
-                candidate_nodes.append({
-                    "node": node,
-                    "priority": 4,  # Lower than operational overnight
-                    "delta": delta,
-                    "type": "logistics"
-                })
+            # Add operational overnight nodes (shelters, camps, etc.)
+            for item in operational_overnight_nodes:
+                node = item["node"]
+                priority = item["priority"]
+
+                mile = node.get(
+                    "trail_mile",
+                    node.get("mile"),
+                )
+
+                if mile is None:
+                    continue
+
+                delta = abs(
+                    mile - target_mile
+                )
+
+                if delta <= search_radius:
+                    candidate_nodes.append({
+                        "node": node,
+                        "priority": priority,
+                        "delta": delta,
+                        "type": item["type"],
+                    })
+
+            # Add logistics nodes (lower priority than shelters)
+            for node in logistics_nodes:
+                mile = node.get(
+                    "trail_mile",
+                    node.get("mile"),
+                )
+
+                if mile is None:
+                    continue
+
+                delta = abs(
+                    mile - target_mile
+                )
+
+                if delta <= search_radius:
+                    candidate_nodes.append({
+                        "node": node,
+                        "priority": 4,
+                        "delta": delta,
+                        "type": "logistics",
+                    })
+
+            return candidate_nodes
+
+        candidate_nodes = collect_candidates(4)
+
+        if not candidate_nodes:
+            candidate_nodes = collect_candidates(8)
 
         if not candidate_nodes:
             return None
