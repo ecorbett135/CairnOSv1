@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 import csv
 import json
 import math

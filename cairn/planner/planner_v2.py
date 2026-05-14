@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 from statistics import mean
 
 from cairn.runtime.graph_runtime import (

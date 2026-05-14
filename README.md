@@ -36,6 +36,8 @@ CairnOSv1 is evolving toward:
 - `cairn/runtime/` — runtime graph loading, traversal semantics, operational queries
 - `cairn/planner/` — planner core and itinerary synthesis logic
 - `cairn/interfaces/` — UI and interface surfaces (Streamlit)
+- `data/` — forward-looking raw/derived/manual/generated data separation structure
+- `docs/` — documentation assets and provenance/licensing notes
 - `trails/vermont_long_trail/` — sample trail dataset and compiled outputs
 - `cairn/tests/` — automated tests for planner and runtime behavior
 
@@ -116,11 +118,19 @@ This enrichment layer preserves Gaia waypoint names, coordinates, icons, marker 
 
 ## Data handling
 
+- Project code is licensed under Apache 2.0, but datasets may have separate
+  licenses and obligations.
 - Compiled outputs are stored under `trails/vermont_long_trail/compiled/` and `trails/vermont_long_trail/intermediate/`.
 - Curated resupply access metadata is stored in `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`.
 - Optional Gaia reference waypoint data is stored in `trails/vermont_long_trail/raw/geojson/gaia_reference.geojson`.
+- New data work should use the `data/` layout:
+  - `data/raw/` for untouched source data
+  - `data/derived/` for transformed datasets
+  - `data/manual/` for manually curated Cairn datasets
+  - `data/generated/` for reports, exports, cache files, and temporary outputs
 - Raw DEM files are managed outside normal Git history using Git LFS to avoid repository bloat.
 - `.gitattributes` already tracks `trails/vermont_long_trail/raw/dem/*.tif` with Git LFS.
+- Dataset provenance is tracked in `data/DATASETS.md`; guidance lives in `docs/DATA_PROVENANCE.md`.
 - Readme images and documentation assets are kept under `docs/images/` to avoid top-level directory pollution.
 
 ## Getting started
@@ -150,7 +160,17 @@ streamlit run cairn/interfaces/streamlit_app.py
 - The overlay (`route_overlay.json`) is the authoritative source for canonical stop names, shelter semantics, and progression ordering.
 - Resupply behavior should stay tied to real logistics/access nodes and curated access data, not arbitrary day numbers.
 - Gaia reference data is enrichment only; do not treat Gaia waypoint exports as planner traversal authority.
+- Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
 - The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
+
+## License
+
+CairnOSv1 project code is licensed under the Apache License 2.0. See `LICENSE`.
+
+Data files are not automatically Apache licensed. Trail datasets, OSM-derived
+layers, Gaia exports, DEMs, screenshots, generated reports, and manually
+curated data may carry separate provenance and license obligations. See
+`docs/DATA_PROVENANCE.md` and `data/DATASETS.md` before reusing datasets.
 
 ## Current repository goals
 

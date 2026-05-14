@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 def test_shelter_nodes_available(shelter_nodes):
     """Test that shelter nodes are loaded from the operational graph."""
     assert len(shelter_nodes) > 0

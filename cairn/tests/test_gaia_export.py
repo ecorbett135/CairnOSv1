@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 from cairn.export.gaia_geojson import (
     export_itinerary_to_gaia_geojson,
     load_resupply_access_reference,

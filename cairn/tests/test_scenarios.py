@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 
 def test_itinerary_generation_nobo(planner):
     itinerary = planner.synthesize_itinerary(desired_days=3)
