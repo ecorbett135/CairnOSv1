@@ -383,9 +383,39 @@ def build_nodes(
                 "node_class"
             ),
 
+            "division":
+            row.get(
+                "division"
+            ),
+
             "approach_trail":
             row.get(
                 "approach_trail"
+            ),
+
+            "town_access":
+            row.get(
+                "town_access"
+            ),
+
+            "access_notes":
+            row.get(
+                "access_notes"
+            ),
+
+            "resupply_services":
+            row.get(
+                "resupply_services"
+            ),
+
+            "resupply_source":
+            row.get(
+                "resupply_source"
+            ),
+
+            "resupply_source_url":
+            row.get(
+                "resupply_source_url"
             ),
 
             "logistics":
@@ -416,6 +446,11 @@ def build_nodes(
             "resupply":
             row.get(
                 "resupply"
+            ),
+
+            "zero_candidate":
+            row.get(
+                "zero_candidate"
             ),
 
             "schema_version":

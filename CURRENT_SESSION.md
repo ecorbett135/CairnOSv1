@@ -126,11 +126,14 @@ Future terrain semantics should influence:
 
 ---
 
-## 5. Resupply Semantics Still Simplistic
+## 5. Resupply Semantics Now Have An Incremental Access Layer
 
-Current resupply insertion remains mostly:
+Current resupply behavior now:
 
-- cadence interval based
+- uses overlay-marked logistics / resupply / town-access nodes
+- incorporates curated Long Trail trail-town amenity data
+- treats cadence as a soft target instead of a hard interval
+- annotates itinerary days only when a meaningful access node is traversed
 
 Future resupply reasoning should include:
 

@@ -25,6 +25,7 @@ trails/
     ├── raw/
     │   ├── csv/
     │   ├── dem/
+    │   ├── geojson/
     │   ├── gpx/
     │   └── shp/
     ├── compiled/
@@ -209,6 +210,72 @@ trail_miles
 start_location
 end_location
 ```
+
+## 6. resupply_amenities.csv
+
+Directory:
+
+```text
+raw/csv/
+```
+
+Purpose:
+
+Provides curated town-access and service metadata that can be attached to
+real route overlay nodes.
+
+Expected semantics include:
+
+- trail mile of access point
+- nearby town access
+- optional latitude / longitude for a known road or trailhead access point
+- grocery / post office / outfitter / lodging / restaurant availability
+- zero-day suitability
+- source provenance
+
+This layer allows the planner to treat resupply cadence as a soft target
+around real operational access points instead of fixed day intervals.
+When latitude and longitude are present, export layers may use them as
+curated access-point coordinates for Gaia markers. Missing coordinates do
+not make a resupply row invalid; they simply require downstream exporters to
+fall back to compiled crossing geometry or trail-spine interpolation.
+The Gaia export uses the resupply rows selected by the planner strategy to
+emit red `gaia-car` road-access markers at the listed coordinates.
+
+---
+
+## 7. gaia_reference.geojson
+
+Directory:
+
+```text
+raw/geojson/
+```
+
+Purpose:
+
+Provides optional Gaia-exported waypoint and track reference data.
+
+This source is enrichment data, NOT operational truth. It may contain useful
+waypoint coordinates, Gaia marker metadata, shelter/campsite icons, and
+approach reference tracks, but it must be reconciled against
+`route_overlay.json` before it can influence any compiled operational layer.
+
+The standalone Gaia reference compiler produces:
+
+```text
+compiled/waypoint_reference.json
+```
+
+Expected semantics include:
+
+- point waypoint title / name
+- coordinates
+- Gaia icon and marker fields
+- likely waypoint class
+- fuzzy match status against route overlay canonical names
+- matched and unmatched waypoint records
+- summary counts for shelters, campsites, and approach references
 
 ---
 

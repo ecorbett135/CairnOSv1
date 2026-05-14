@@ -366,12 +366,21 @@ mile	float	curated cumulative mileage
 division	string	operational subdivision
 connected_to	list	adjacent overlay nodes
 route_type	enum	main trail / ingress / egress
+node_class	enum	shelter / camp / crossing / trailhead / logistics / access
+resupply	bool	true when the node supports realistic resupply
+logistics	bool	true when the node has operational logistics significance
+town_access	string	nearby town or town group reachable from this node
+access_notes	string	human-readable access distance / direction summary
+resupply_services	list	grocery / post office / outfitter / lodging / restaurants
+zero_candidate	bool	true when services make recovery-day planning plausible
+resupply_source	string	source used for town-access enrichment
 
 Invariants
 
 * overlay ordering must remain stable
 * cumulative mileage must increase monotonically
 * operational continuity must remain reproducible
+* resupply/logistics annotations must attach to real overlay nodes rather than floating mileage markers
 
 ⸻
 
