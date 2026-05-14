@@ -14,5 +14,11 @@ venv/
 # dev agent artifacts
 dev_agent/generated_patches/
 
+# generated outputs and scratch artifacts
+data/generated/*
+!data/generated/.gitkeep
+outputs/*
+*.tmp
+
 # build artifacts
 *.zip

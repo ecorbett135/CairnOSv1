@@ -1,7 +1,9 @@
 #!/bin/bash
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 
-mkdir -p data/dem
-cd data/dem || exit 1
+mkdir -p data/raw/dem
+cd data/raw/dem || exit 1
 
 urls=(
 "https://prd-tnm.s3.amazonaws.com/StagedProducts/Elevation/13/TIFF/historical/n43w072/USGS_13_n43w072_20260323.tif"

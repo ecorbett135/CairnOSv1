@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 from difflib import SequenceMatcher
 from pathlib import Path
 import json
