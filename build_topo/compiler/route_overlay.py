@@ -29,6 +29,12 @@ INTERMEDIATE_DIR = (
     trail_root / "intermediate"
 )
 
+RESUPPLY_AMENITIES_PATH = (
+    RAW_DIR /
+    "csv" /
+    "resupply_amenities.csv"
+)
+
 
 #
 # ---------------------------------------------------------
@@ -93,6 +99,20 @@ def normalize_text(value):
     return value
 
 
+def split_hints(value):
+
+    text = normalize_text(value)
+
+    if not text:
+        return []
+
+    return [
+        item.strip().lower()
+        for item in text.split("|")
+        if item.strip()
+    ]
+
+
 #
 # ---------------------------------------------------------
 # LOADERS
@@ -149,6 +169,96 @@ def load_segments():
 
     print(
         f"[INFO] Segments: "
+        f"{len(rows)}"
+    )
+
+    return rows
+
+
+def load_resupply_amenities():
+
+    print("\n[INFO] Loading resupply amenities")
+
+    if not RESUPPLY_AMENITIES_PATH.exists():
+
+        print(
+            "[INFO] No resupply_amenities.csv found"
+        )
+
+        return []
+
+    df = pd.read_csv(
+        RESUPPLY_AMENITIES_PATH
+    )
+
+    rows = []
+
+    for _, row in df.iterrows():
+
+        rows.append({
+            "trail_mile":
+            normalize_float(
+                row.get("trail_mile")
+            ),
+
+            "town_access":
+            normalize_text(
+                row.get("town_access")
+            ),
+
+            "canonical_hints":
+            split_hints(
+                row.get("canonical_hint")
+            ),
+
+            "access_notes":
+            normalize_text(
+                row.get("access_notes")
+            ),
+
+            "grocery":
+            normalize_bool(
+                row.get("grocery")
+            ),
+
+            "post_office":
+            normalize_bool(
+                row.get("post_office")
+            ),
+
+            "outfitter":
+            normalize_bool(
+                row.get("outfitter")
+            ),
+
+            "lodging":
+            normalize_bool(
+                row.get("lodging")
+            ),
+
+            "restaurants":
+            normalize_bool(
+                row.get("restaurants")
+            ),
+
+            "zero_candidate":
+            normalize_bool(
+                row.get("zero_candidate")
+            ),
+
+            "source_name":
+            normalize_text(
+                row.get("source_name")
+            ),
+
+            "source_url":
+            normalize_text(
+                row.get("source_url")
+            ),
+        })
+
+    print(
+        f"[INFO] Resupply amenities: "
         f"{len(rows)}"
     )
 
@@ -318,6 +428,170 @@ def build_overlay_nodes(df):
     return nodes
 
 
+def service_list(row):
+
+    services = []
+
+    for field in [
+        "grocery",
+        "post_office",
+        "outfitter",
+        "lodging",
+        "restaurants",
+    ]:
+
+        if row.get(field):
+            services.append(field)
+
+    return services
+
+
+def attach_resupply_amenities(
+    overlay_nodes,
+    amenities,
+):
+
+    if not amenities:
+        return overlay_nodes
+
+    print(
+        "\n[INFO] Attaching resupply amenities"
+    )
+
+    access_classes = {
+        "crossing": 0,
+        "trailhead": 1,
+        "operational_node": 2,
+        "camp": 3,
+        "shelter": 4,
+    }
+
+    attached = 0
+
+    for amenity in amenities:
+
+        marker = amenity.get(
+            "trail_mile"
+        )
+
+        if marker is None:
+            continue
+
+        candidates = [
+            node for node in overlay_nodes
+            if (
+                node.get("trail_mile") is not None
+                and abs(
+                    node["trail_mile"] - marker
+                ) <= 1.0
+            )
+        ]
+
+        if not candidates:
+            continue
+
+        hints = amenity.get(
+            "canonical_hints",
+            [],
+        )
+
+        def score(node):
+
+            name = (
+                node.get("canonical_name")
+                or ""
+            ).lower()
+
+            hint_score = 1
+
+            if not hints:
+                hint_score = 0
+            elif any(
+                hint in name
+                for hint in hints
+            ):
+                hint_score = 0
+
+            class_score = access_classes.get(
+                node.get("node_class"),
+                5,
+            )
+
+            distance_score = abs(
+                node["trail_mile"] - marker
+            )
+
+            return (
+                hint_score,
+                class_score,
+                distance_score,
+            )
+
+        node = sorted(
+            candidates,
+            key=score,
+        )[0]
+
+        node["town_access"] = (
+            amenity.get("town_access")
+        )
+
+        node["access_notes"] = (
+            amenity.get("access_notes")
+        )
+
+        node["resupply_services"] = (
+            service_list(amenity)
+        )
+
+        node["resupply_source"] = (
+            amenity.get("source_name")
+        )
+
+        node["resupply_source_url"] = (
+            amenity.get("source_url")
+        )
+
+        node["resupply"] = (
+            amenity.get("grocery")
+            or amenity.get("post_office")
+        )
+
+        node["logistics"] = True
+
+        node["zero_candidate"] = (
+            amenity.get("zero_candidate")
+        )
+
+        if node.get("node_class") not in [
+            "crossing",
+            "trailhead",
+            "logistics",
+            "access",
+            "road_crossing",
+        ]:
+
+            node["node_class"] = "logistics"
+
+        if node.get("node_class") in [
+            "logistics",
+            "access",
+            "road_crossing",
+        ]:
+
+            node["overnight"] = False
+            node["camping"] = False
+
+        attached += 1
+
+    print(
+        f"[INFO] Resupply nodes attached: "
+        f"{attached}"
+    )
+
+    return overlay_nodes
+
+
 def build_operational_segments(
     overlay_nodes
 ):
@@ -476,6 +750,10 @@ def main():
         load_route_master()
     )
 
+    resupply_amenities = (
+        load_resupply_amenities()
+    )
+
     load_segments()
 
     #
@@ -485,6 +763,13 @@ def main():
     overlay_nodes = (
         build_overlay_nodes(
             route_master_df
+        )
+    )
+
+    overlay_nodes = (
+        attach_resupply_amenities(
+            overlay_nodes,
+            resupply_amenities,
         )
     )
 

@@ -346,6 +346,9 @@ if run_planner:
             "daily_stop_location_type",
             "daily_miles",
             "daily_elevation_gain",
+            "resupply_location",
+            "resupply_mile",
+            "town_access",
             "notes",
         ],
     )

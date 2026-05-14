@@ -405,13 +405,20 @@ Eventually terrain should materially influence:
 
 ---
 
-## Resupply Semantics Still Simplistic
+## Resupply Semantics Now Incrementally Overlay-Aware
 
-Current resupply logic remains mostly:
+Current resupply behavior now identifies candidate access nodes from:
 
-- cadence interval based
+- route overlay resupply / logistics flags
+- route overlay town access metadata
+- crossing / trailhead / logistics node classes
+- curated Long Trail trail-town amenities
 
-Future semantics should reason about:
+PlannerV2 uses the user cadence as a soft target and only annotates a
+resupply when the itinerary actually traverses a meaningful access node near
+that cadence window.
+
+Future semantics should still reason more deeply about:
 
 - actual town access
 - realistic recovery opportunities

@@ -26,20 +26,54 @@ class OperationalQueries:
 
         return [
             {
+                "node_id": n.get(
+                    "node_id"
+                ),
+                "overlay_id": n.get(
+                    "overlay_id"
+                ),
+                "canonical_name": n.get(
+                    "canonical_name"
+                ),
                 "name": n.get(
                     "canonical_name"
+                ),
+                "trail_mile": n.get(
+                    "trail_mile"
                 ),
                 "mile": n.get(
                     "trail_mile"
                 ),
+                "node_class": n.get(
+                    "node_class"
+                ),
                 "class": n.get(
                     "node_class"
+                ),
+                "division": n.get(
+                    "division"
                 ),
                 "overnight": n.get(
                     "overnight"
                 ),
+                "resupply": n.get(
+                    "resupply"
+                ),
                 "logistics": n.get(
                     "logistics"
+                ),
+                "town_access": n.get(
+                    "town_access"
+                ),
+                "access_notes": n.get(
+                    "access_notes"
+                ),
+                "resupply_services": n.get(
+                    "resupply_services",
+                    []
+                ),
+                "zero_candidate": n.get(
+                    "zero_candidate"
                 ),
             }
             for n in nodes
@@ -130,15 +164,48 @@ class OperationalQueries:
         
         return operational_overnight
 
+    def get_resupply_access_nodes(self):
+
+        access_classes = {
+            "crossing",
+            "logistics",
+            "trailhead",
+            "access",
+            "road_crossing",
+        }
+
+        rows = []
+
+        for node in (
+            self.runtime
+            .get_overlay_nodes()
+        ):
+
+            has_resupply_signal = (
+                node.get("resupply")
+                or node.get("logistics")
+                or node.get("town_access")
+            )
+
+            if not has_resupply_signal:
+                continue
+
+            if node.get("node_class") not in access_classes:
+                continue
+
+            rows.append(node)
+
+        return sorted(
+            rows,
+            key=lambda x: (
+                x.get("trail_mile", 0)
+                or 0
+            ),
+        )
+
     def get_logistics_access_nodes(self):
 
-        return [
-            n for n in (
-                self.runtime
-                .get_overlay_nodes()
-            )
-            if n.get("logistics")
-        ]
+        return self.get_resupply_access_nodes()
 
     def get_operational_progression_edges(self):
 

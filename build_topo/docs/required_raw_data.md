@@ -210,6 +210,30 @@ start_location
 end_location
 ```
 
+## 6. resupply_amenities.csv
+
+Directory:
+
+```text
+raw/csv/
+```
+
+Purpose:
+
+Provides curated town-access and service metadata that can be attached to
+real route overlay nodes.
+
+Expected semantics include:
+
+- trail mile of access point
+- nearby town access
+- grocery / post office / outfitter / lodging / restaurant availability
+- zero-day suitability
+- source provenance
+
+This layer allows the planner to treat resupply cadence as a soft target
+around real operational access points instead of fixed day intervals.
+
 ---
 
 # Optional Raw Layers

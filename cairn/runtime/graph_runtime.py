@@ -35,7 +35,10 @@ class OperationalGraphRuntime:
 
         self.logistics = self.graph.get(
             "logistics_nodes",
-            []
+            self.graph.get(
+                "logistics",
+                []
+            ),
         )
 
         self.node_index = {
