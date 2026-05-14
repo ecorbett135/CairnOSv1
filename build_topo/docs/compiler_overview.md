@@ -26,13 +26,19 @@ The compiler architecture is modular and layered, designed to separate concerns 
 6. **Approach Trails**  
    Approach trails leading into significant nodes or regions are constructed to support ingress and egress operations.
 
-7. **Operational Graph**  
+7. **Gaia Reference Overlay (optional)**
+   Gaia-exported waypoint data may be parsed into `waypoint_reference.json`
+   for future enrichment of shelter, campsite, lodge, trailhead, and marker
+   metadata. This layer is explicitly reference data, not operational truth,
+   and is not currently wired into PlannerV2.
+
+8. **Operational Graph**
    The operational graph is generated, representing the executable routing and logistics network derived from the topology.
 
-8. **Schema Registry**  
+9. **Schema Registry**
    Throughout the compilation, a schema registry maintains structural definitions and constraints to ensure consistency.
 
-9. **Validation**  
+10. **Validation**
    Final validation checks are performed to verify the integrity and correctness of the compiled graph.
 
 ## Core Architectural Principle

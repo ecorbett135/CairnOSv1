@@ -19,6 +19,11 @@ from cairn.planner.planner_v2 import (
     PlannerV2,
 )
 
+from cairn.export.gaia_geojson import (
+    dumps_geojson,
+    export_itinerary_to_gaia_geojson,
+)
+
 
 st.set_page_config(
     page_title="CairnOSv1",
@@ -32,6 +37,9 @@ AVAILABLE_TRAILS = sorted([
     for p in TRAILS_ROOT.iterdir()
     if p.is_dir()
 ])
+
+if "planner_result" not in st.session_state:
+    st.session_state["planner_result"] = None
 
 st.title("🥾 CairnOSv1")
 st.subheader(
@@ -186,8 +194,14 @@ with st.sidebar:
         value=5,
     )
 
+    planner_button_label = (
+        "Regenerate Plan"
+        if st.session_state["planner_result"]
+        else "Generate Plan"
+    )
+
     run_planner = st.button(
-        "Run PlannerV2"
+        planner_button_label
     )
 
 if run_planner:
@@ -196,6 +210,19 @@ if run_planner:
         TRAILS_ROOT /
         selected_trail
     )
+
+    planner_config = {
+        "selected_trail": selected_trail,
+        "trail_root": str(trail_root),
+        "desired_days": desired_days,
+        "direction": direction,
+        "min_daily_miles": min_daily_miles,
+        "max_daily_miles": max_daily_miles,
+        "max_daily_elevation": max_daily_elevation,
+        "resupply_cadence": resupply_cadence,
+        "ingress_route": ingress_route,
+        "egress_route": egress_route,
+    }
 
     planner = PlannerV2(
         trail_root=trail_root,
@@ -213,6 +240,43 @@ if run_planner:
     itinerary = planner.synthesize_itinerary(
         desired_days=desired_days
     )
+
+    st.session_state["planner_result"] = {
+        "config": planner_config,
+        "itinerary": itinerary,
+    }
+
+    st.rerun()
+
+planner_result = st.session_state.get(
+    "planner_result"
+)
+
+if planner_result:
+
+    planner_config = planner_result[
+        "config"
+    ]
+
+    itinerary = planner_result[
+        "itinerary"
+    ]
+
+    trail_root = Path(
+        planner_config["trail_root"]
+    )
+
+    desired_days_for_result = planner_config[
+        "desired_days"
+    ]
+
+    selected_trail_for_result = planner_config[
+        "selected_trail"
+    ]
+
+    direction_for_result = planner_config[
+        "direction"
+    ]
 
     completion = itinerary[
         "completion_analysis"
@@ -275,12 +339,12 @@ if run_planner:
 
     col2.metric(
         "Requested Days",
-        desired_days,
+        desired_days_for_result,
     )
 
     recommended_days = completion.get(
         "recommended_days",
-        desired_days,
+        desired_days_for_result,
     )
 
     col3.metric(
@@ -351,6 +415,44 @@ if run_planner:
             "town_access",
             "notes",
         ],
+    )
+
+    gaia_export = export_itinerary_to_gaia_geojson(
+        itinerary_rows,
+        trail_root,
+        resupply_rows,
+    )
+
+    gaia_warnings = gaia_export[
+        "warnings"
+    ]
+
+    if gaia_warnings:
+
+        st.warning(
+            (
+                "Some itinerary stops could not be "
+                "included in the Gaia GeoJSON export."
+            )
+        )
+
+        st.dataframe(
+            gaia_warnings,
+            width="stretch",
+            hide_index=True,
+        )
+
+    st.download_button(
+        "Download Gaia GeoJSON",
+        data=dumps_geojson(
+            gaia_export["geojson"]
+        ),
+        file_name=(
+            f"{selected_trail_for_result}_"
+            f"{direction_for_result.lower()}_gaia.geojson"
+        ),
+        mime="application/geo+json",
+        key="gaia_geojson_download",
     )
 
 
