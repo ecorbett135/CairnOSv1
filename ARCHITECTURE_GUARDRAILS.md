@@ -184,6 +184,37 @@ Ingress / egress selection is:
 
 ---
 
+## NOBO / SOBO Direction Parity Is Mandatory
+
+NOBO and SOBO are traversal directions over the same northbound-reference
+guidebook miles. They are not separate mile systems.
+
+The planner MUST preserve:
+
+- equivalent feature support for NOBO and SOBO THRU plans
+- selected ingress and egress route semantics in both directions
+- northbound-reference guidebook mile values
+- positive daily traversal mileage in either direction
+- direction-aware resupply and recovery planning
+- direction-aware Gaia export coordinates and marker semantics
+
+For SOBO traversal:
+
+- operational progression descends through northbound-reference miles
+- daily mainline mileage is calculated from previous mile to next mile in the
+  southbound direction
+- Journey's End Trail is northern ingress, not a terminal one-row itinerary
+- southern approach trails remain valid egress branches
+
+DO NOT:
+
+- invent SOBO mile markers
+- treat SOBO as a special-case truncation of NOBO
+- drop egress branches when reversing direction
+- allow negative daily mileage except for valid signed mile references
+
+---
+
 ## Negative Mileage Semantics Must Be Preserved
 
 Approach trails may legitimately exist at:
@@ -266,7 +297,9 @@ Synthetic fallback labels should ONLY appear:
 The itinerary notes field should ONLY contain:
 
 - resupply
+- nero
 - zero
+- resupply / nero
 - resupply / zero
 - future operationally exceptional conditions
 
@@ -348,7 +381,16 @@ DO NOT:
 
 ## Resupply Must Become Operationally Realistic
 
-Resupply planning should eventually reason about:
+Resupply planning MUST distinguish:
+
+- food-carry resupply cadence
+- recovery zero/nero cadence
+- optional resupply-only access stops
+
+These concepts may overlap at the same access point, but they are not the same
+planner decision.
+
+Resupply planning should continue to reason about:
 
 - actual town access
 - realistic recovery opportunities
@@ -361,7 +403,16 @@ DO NOT permanently rely on:
 - fixed cadence intervals
 - arbitrary node counting
 
-Current cadence logic is transitional.
+Resupply strategy output should remain operationally useful:
+
+- include the trip start as the first carry segment anchor
+- report days until the next resupply segment
+- avoid terminal-day resupply stops that do not help the hiker
+- use sparse operational notes such as `resupply`, `nero`, `zero`,
+  `resupply / nero`, and `resupply / zero`
+
+Current cadence logic is incremental and should keep moving toward richer
+food-weight, terrain, and recovery modeling.
 
 ---
 

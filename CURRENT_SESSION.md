@@ -1,19 +1,16 @@
-# CURRENT SESSION — PlannerV2 Operational Stabilization
+# CURRENT SESSION — PlannerV2 Direction And Cadence Stabilization
 
 ## Current Focus
 
-Stabilizing PlannerV2 operational itinerary synthesis before transitioning primary implementation workflow to ChatGPT Codex inside VSCode.
+This session stabilized the PlannerV2 THRU workflow around three related areas:
 
-The architecture is now considered:
+- NOBO / SOBO direction parity
+- separate resupply and zero/nero recovery cadence semantics
+- Gaia-compatible export behavior for itinerary and resupply markers
 
-- directionally correct
-- operationally coherent
-- ontology-aware
-- overlay-aware
-
-However:
-
-several important traversal semantics bugs still remain unresolved.
+The current implementation is intentionally incremental. PlannerV2 is still
+not a full overlay traversal engine, but the primary THRU workflow now behaves
+like an operational expedition plan instead of a one-direction mileage slicer.
 
 ---
 
@@ -22,18 +19,20 @@ several important traversal semantics bugs still remain unresolved.
 PlannerV2 now supports:
 
 - operational runtime substrate
-- cadence negotiation
 - feasibility evaluation
 - fatigue semantics
-- recovery semantics
-- operational itinerary synthesis
 - ingress / egress semantics
-- overlay-aware traversal
+- NOBO and SOBO THRU traversal over northbound-reference guidebook miles
 - shelter-aware overnight selection
 - logistics-aware stop synthesis
+- separate resupply and recovery cadence inputs
+- zero and nero annotations for recovery planning
+- resupply strategy output tied to amenity-backed access points
+- Gaia GeoJSON export with itinerary points, resupply road-access markers, and
+  trail spine geometry
 - Streamlit operational UI integration
 
-The system has successfully transitioned away from:
+The system has successfully moved away from:
 
 - simple mileage partitioning
 - synthetic graph traversal
@@ -45,102 +44,56 @@ and toward:
 
 ---
 
-## Current Critical Problems
+## Direction Semantics
 
-## 1. Ingress Initialization Regression
+The UI now separates:
 
-The planner still sometimes fails to correctly initialize traversal from selected approach trails.
+- Trip Type: `THRU` / `SECTION`
+- Direction: `NOBO` / `SOBO`
 
-Example:
+Current THRU semantics:
 
-NOBO + North Adams Approach should:
+- NOBO starts from the selected southern ingress and progresses north
+- SOBO starts from the selected northern ingress and progresses south
+- guidebook/trail miles remain northbound-reference miles in both directions
+- SOBO daily mileage is calculated as positive travel distance while mile
+  values descend
+- Journey's End Trail is northern ingress/egress depending on direction
+- Williamstown and North Adams approaches are southern ingress/egress branches
 
-- begin at:
-  -3.8 miles
-- start location:
-  Mass. 2 in North Adams
-- start type:
-  trailhead
-
-Instead:
-
-planner sometimes silently resets traversal to:
-
-- mile 0 semantics
-
-This is currently the most important operational bug.
+NOBO and SOBO should maintain feature parity for itinerary generation,
+resupply strategy output, recovery notes, and Gaia export.
 
 ---
 
-## 2. Overlay Progression Still Not Fully Authoritative
+## Resupply And Recovery Semantics
 
-Current planner behavior still operates primarily as:
+PlannerV2 now separates:
 
-- mileage targeting
-- nearby node searching
+- resupply cadence: food-carry management
+- zero/nero cadence: recovery management
+- optional extra resupply-only stops
 
-instead of:
+These can overlap at the same access point, but they are not the same planner
+decision.
 
-- direct overlay progression traversal.
+Current note values should stay sparse:
 
-Target architecture:
+- `resupply`
+- `nero`
+- `zero`
+- `resupply / nero`
+- `resupply / zero`
 
-overlay progression becomes the actual traversal substrate.
+The resupply strategy table now includes:
 
----
+- a day-1 trip-start carry segment anchor
+- planned resupply access points
+- town access metadata
+- days until the next resupply segment or finish
 
-## 3. Overnight Selection Still Too Synthetic
-
-Current overnight logic still sometimes falls back to:
-
-- Backcountry Camp
-- Operational Stop
-
-when better operational nodes exist.
-
-Operational naming should always prefer:
-
-- shelters
-- campsites
-- crossings
-- logistics nodes
-- overlay canonical names
-
-Synthetic fallback labels should become rare.
-
----
-
-## 4. Terrain Semantics Still Weak
-
-Terrain currently behaves mostly as:
-
-- lightweight effort scaling
-
-Future terrain semantics should influence:
-
-- mileage collapse
-- overnight selection
-- cadence degradation
-- recovery insertion
-- operational feasibility
-
----
-
-## 5. Resupply Semantics Now Have An Incremental Access Layer
-
-Current resupply behavior now:
-
-- uses overlay-marked logistics / resupply / town-access nodes
-- incorporates curated Long Trail trail-town amenity data
-- treats cadence as a soft target instead of a hard interval
-- annotates itinerary days only when a meaningful access node is traversed
-
-Future resupply reasoning should include:
-
-- actual town access
-- terrain reset points
-- realistic recovery opportunities
-- expedition sustainability
+Terminal-day resupply is suppressed because it does not reduce a future food
+carry.
 
 ---
 
@@ -149,25 +102,23 @@ Future resupply reasoning should include:
 The Streamlit UI currently supports:
 
 - trail selection
-- NOBO / SOBO / SECTION selection
+- trip type selection
+- direction selection
 - ingress route selection
 - egress route selection
 - desired completion days
 - min daily mileage
 - max daily mileage
 - max elevation gain
-- resupply / zero cadence
+- preferred resupply cadence
+- preferred zero/nero recovery cadence
+- optional extra resupply-only stops
+- explicit plan regeneration
+- Gaia GeoJSON download
 
-The UI should prioritize:
-
-- operational clarity
-- human-readable itineraries
-- expedition realism
-- operational summaries
-
-NOT:
-
-- internal planner implementation details.
+Planner output should stay visible until the user regenerates the plan. Slider,
+selector, and download interactions should not implicitly wipe the displayed
+plan.
 
 ---
 
@@ -183,7 +134,7 @@ Operational itinerary rows should communicate:
 - logistics significance
 - division continuity
 
-Example desired row:
+NOBO example:
 
 | Field | Example |
 | --- | --- |
@@ -197,19 +148,29 @@ Example desired row:
 | daily_miles | 9.3 |
 | notes | *(blank)* |
 
-Important:
+SOBO example semantics:
 
-Day-1 mileage semantics differ when ingress begins on negative-mile approach trails.
+- day 1 may begin at Journey's End Trail
+- mainline mile values descend
+- daily travel mileage remains positive
+- the itinerary should continue toward the selected southern egress
 
-Example:
+---
 
--3.8 → 5.5 = 9.3 miles
+## Remaining Gaps
 
-Subsequent days return to:
+PlannerV2 still needs improvement in these areas:
 
-- stop_mile - previous_stop_mile
-
-semantics.
+- overlay progression should become the primary traversal substrate instead of
+  target-mile search plus nearby node selection
+- section hiking remains incomplete
+- terrain semantics are still lightweight
+- food-carry weight is tracked only as backend planning context, not as an
+  effort multiplier yet
+- synthetic fallback labels should become increasingly rare as compiled
+  operational data improves
+- resupply and recovery scoring should continue to mature around real service
+  quality, town friction, terrain, and fatigue
 
 ---
 
@@ -229,27 +190,32 @@ semantics.
 
 - cairn/interfaces/streamlit_app.py
 
+## Export
+
+- cairn/export/gaia_geojson.py
+
 ## Operational Data
 
 - trails/vermont_long_trail/compiled/route_overlay.json
 - trails/vermont_long_trail/compiled/approach_trails.json
 - trails/vermont_long_trail/compiled/operational_graph.json
+- trails/vermont_long_trail/raw/csv/resupply_amenities.csv
 
 ---
 
-## Current Architectural Priorities
+## Current Priorities
 
 Priority order:
 
-1. fully fix ingress initialization semantics
-2. make overlay traversal authoritative
-3. improve shelter-aware overnight synthesis
-4. remove remaining synthetic stop generation
-5. improve logistics-aware resupply insertion
-6. improve terrain-aware traversal realism
-7. implement section traversal substrate
-8. stabilize itinerary semantics
-9. rewrite planner validation layer
+1. make overlay traversal authoritative
+2. improve shelter-aware overnight synthesis
+3. mature logistics-aware resupply and recovery scoring
+4. improve terrain-aware progression realism
+5. implement section traversal substrate
+6. reduce remaining synthetic stop generation
+7. add food-weight effort modeling
+8. rewrite planner validation layer
+9. harden Gaia export regression coverage
 10. reintegrate dev_agent against stabilized runtime APIs
 
 ---
@@ -265,6 +231,7 @@ The planner should model:
 - operational realism
 - human pacing
 - cadence sustainability
+- direction parity
 
 NOT:
 
@@ -280,33 +247,4 @@ Approach trails are operational traversal branches.
 
 The itinerary is a traversal narrative.
 
----
-
-## Immediate Next Objective
-
-Fully stabilize:
-
-- ingress-aware operational itinerary synthesis
-
-before beginning:
-
-- deeper terrain reasoning
-- advanced cadence modeling
-- section traversal implementation
-- planner validation rewrite
-
----
-
-## Current Execution Environment
-
-Primary implementation workflow is transitioning toward:
-
-- ChatGPT Codex + VSCode
-
-while using ChatGPT project conversations for:
-
-- architectural reasoning
-- ontology validation
-- operational semantics review
-- planner philosophy
-- semantic regression prevention
+Resupply and recovery are related but distinct logistics concepts.

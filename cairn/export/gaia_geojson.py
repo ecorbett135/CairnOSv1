@@ -1146,6 +1146,11 @@ def resupply_rows_from_plan(
 
     for row in resupply_plan or []:
 
+        if "resupply" not in str(
+            row.get("notes", "")
+        ):
+            continue
+
         rows.append({
             "day": row.get("day"),
             "division": row.get("division"),
@@ -1377,17 +1382,6 @@ def export_itinerary_to_gaia_geojson(
     if spine_feature:
         features.append(spine_feature)
 
-    daily_access_keys = {
-        (
-            day.get("day"),
-            normalize_name(
-                day.get("daily_stop_location")
-            ),
-        )
-        for day in daily_plan
-        if is_access_stop(day)
-    }
-
     for day in daily_plan:
 
         coordinates, _, waypoint = resolve_day_coordinates(
@@ -1438,16 +1432,6 @@ def export_itinerary_to_gaia_geojson(
         daily_plan,
         resupply_plan,
     ):
-
-        key = (
-            row.get("day"),
-            normalize_name(
-                row.get("resupply_location")
-            ),
-        )
-
-        if key in daily_access_keys:
-            continue
 
         access_reference = find_access_reference(
             row.get("resupply_location"),

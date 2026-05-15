@@ -120,7 +120,9 @@ def test_nobo_itinerary_resupply_notes_use_access_nodes(planner_factory):
 
     allowed_notes = {
         "resupply",
+        "nero",
         "zero",
+        "resupply / nero",
         "resupply / zero",
     }
 
@@ -141,7 +143,11 @@ def test_nobo_itinerary_resupply_notes_use_access_nodes(planner_factory):
     )
 
     assert any(
-        "Shelter" in day["daily_stop_location"]
+        day["daily_stop_location_type"] in {
+            "crossing",
+            "logistics",
+            "trailhead",
+        }
         for day in resupply_days
     )
 
@@ -150,4 +156,251 @@ def test_nobo_itinerary_resupply_notes_use_access_nodes(planner_factory):
         for row in itinerary["resupply_plan"]
     }
 
+    assert itinerary["resupply_plan"][0]["day"] == 1
+    assert (
+        itinerary["resupply_plan"][0]["notes"]
+        == "start"
+    )
+    assert (
+        itinerary["resupply_plan"][0][
+            "days_to_next_resupply"
+        ]
+        > 0
+    )
     assert "Vt. 11/30" in resupply_plan_locations
+
+
+def test_resupply_and_recovery_cadence_are_separate(planner_factory):
+    """Test separate food-carry and recovery cadence behavior."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+            "min_daily_miles": 8,
+            "max_daily_miles": 12,
+            "max_daily_elevation": 3750,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    rows = itinerary["daily_plan"]
+
+    allowed_notes = {
+        "resupply",
+        "nero",
+        "zero",
+        "resupply / nero",
+        "resupply / zero",
+    }
+
+    noted_rows = [
+        row for row in rows
+        if row.get("notes")
+    ]
+
+    assert noted_rows
+
+    for row in noted_rows:
+        assert row["notes"] in allowed_notes
+
+    zero_rows = [
+        row for row in rows
+        if "zero" in row.get("notes", "")
+    ]
+
+    assert zero_rows
+
+    for row in zero_rows:
+        assert row["daily_miles"] == 0.0
+        assert row["daily_start_mile"] == row["daily_stop_mile"]
+        assert (
+            row["daily_start_location"]
+            == row["daily_stop_location"]
+        )
+        assert (
+            row["daily_start_location_type"]
+            == row["daily_stop_location_type"]
+        )
+
+    resupply_rows = [
+        row for row in rows
+        if "resupply" in row.get("notes", "")
+    ]
+
+    assert resupply_rows
+
+    for row in resupply_rows:
+        assert (
+            row["food_carry_days_since_last_resupply"]
+            == 0
+        )
+
+    assert any(
+        row["notes"] == "resupply"
+        for row in resupply_rows
+    )
+
+    assert any(
+        row["notes"] == "resupply / zero"
+        for row in zero_rows
+    )
+
+
+def test_extra_resupply_only_stops_can_be_disabled(planner_factory):
+    """Test standalone resupply cadence does not force recovery stops."""
+    profile = {
+        "direction": "NOBO",
+        "ingress_route": "North Adams Approach",
+        "resupply_cadence": 5,
+        "recovery_cadence": 6,
+        "min_daily_miles": 8,
+        "max_daily_miles": 12,
+    }
+
+    with_extra = planner_factory(
+        user_profile={
+            **profile,
+            "allow_extra_resupply_only": True,
+        },
+    ).synthesize_itinerary(
+        desired_days=28
+    )
+
+    without_extra = planner_factory(
+        user_profile={
+            **profile,
+            "allow_extra_resupply_only": False,
+        },
+    ).synthesize_itinerary(
+        desired_days=28
+    )
+
+    with_resupply_only = [
+        row for row in with_extra["daily_plan"]
+        if row.get("notes") == "resupply"
+    ]
+
+    without_resupply_only = [
+        row for row in without_extra["daily_plan"]
+        if row.get("notes") == "resupply"
+    ]
+
+    assert len(with_resupply_only) > len(
+        without_resupply_only
+    )
+
+
+def test_sobo_itinerary_descends_with_positive_travel_miles(planner_factory):
+    """Test SOBO traverses south using northbound-reference miles."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "Williamstown Approach",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 7,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    rows = itinerary["daily_plan"]
+
+    assert len(rows) > 1
+
+    first_day = rows[0]
+    last_day = rows[-1]
+
+    assert (
+        first_day["daily_start_location"]
+        == "Journey's End Trail"
+    )
+    assert (
+        first_day["daily_stop_mile"]
+        < first_day["daily_start_mile"]
+    )
+    assert (
+        last_day["daily_stop_location"]
+        == "Pine Cobble Road in Williamstown"
+    )
+    assert last_day["daily_stop_mile"] == -3.3
+
+    for row in rows:
+
+        if row["daily_miles"] == 0.0:
+            assert "zero" in row.get("notes", "")
+            continue
+
+        assert row["daily_miles"] > 0
+        assert (
+            row["daily_stop_mile"]
+            < row["daily_start_mile"]
+        )
+
+
+def test_sobo_resupply_strategy_is_populated(planner_factory):
+    """Test SOBO produces resupply rows from valid amenity data."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "Williamstown Approach",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "resupply_cadence": 7,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    assert itinerary["resupply_plan"]
+
+    assert itinerary["resupply_plan"][0]["day"] == 1
+    assert (
+        itinerary["resupply_plan"][0]["location"]
+        == "Journey's End Trail"
+    )
+    assert (
+        itinerary["resupply_plan"][0]["notes"]
+        == "start"
+    )
+    assert (
+        itinerary["resupply_plan"][-1]["day"]
+        < itinerary["daily_plan"][-1]["day"]
+    )
+
+    for idx, row in enumerate(
+        itinerary["resupply_plan"]
+    ):
+        assert row["location"]
+        assert row["mile"] is not None
+        assert row["town_access"]
+
+        if idx + 1 < len(
+            itinerary["resupply_plan"]
+        ):
+            assert (
+                row["days_to_next_resupply"]
+                == (
+                    itinerary["resupply_plan"][idx + 1]["day"]
+                    - row["day"]
+                )
+            )

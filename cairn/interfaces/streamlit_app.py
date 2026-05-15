@@ -57,36 +57,23 @@ with st.sidebar:
         AVAILABLE_TRAILS,
     )
 
-    direction = st.selectbox(
+    trip_type = st.selectbox(
         "Trip Type",
         [
-            "NOBO",
-            "SOBO",
+            "THRU",
             "SECTION",
         ],
     )
 
-    if direction == "NOBO":
+    direction = st.selectbox(
+        "Direction",
+        [
+            "NOBO",
+            "SOBO",
+        ],
+    )
 
-        ingress_help = (
-            "Southern access approaches toward the southern terminus"
-        )
-
-        egress_help = (
-            "Northern exit approaches away from the northern terminus"
-        )
-
-    elif direction == "SOBO":
-
-        ingress_help = (
-            "Northern access approaches toward the northern terminus"
-        )
-
-        egress_help = (
-            "Southern exit approaches away from the southern terminus"
-        )
-
-    else:
+    if trip_type == "SECTION":
 
         ingress_help = (
             "Section hike ingress selection"
@@ -96,17 +83,38 @@ with st.sidebar:
             "Section hike egress selection"
         )
 
+    elif direction == "NOBO":
+
+        ingress_help = (
+            "Southern access approaches toward the southern terminus"
+        )
+
+        egress_help = (
+            "Northern exit approaches away from the northern terminus"
+        )
+
+    else:
+
+        ingress_help = (
+            "Northern access approaches toward the northern terminus"
+        )
+
+        egress_help = (
+            "Southern exit approaches away from the southern terminus"
+        )
+
     st.subheader(
         "Directional Access"
     )
 
-    if direction == "NOBO":
+    if trip_type == "SECTION":
 
         ingress_route = st.selectbox(
             "Ingress Route",
             [
                 "Williamstown Approach",
                 "North Adams Approach",
+                "Journey's End Trail",
             ],
             help=ingress_help,
         )
@@ -114,17 +122,20 @@ with st.sidebar:
         egress_route = st.selectbox(
             "Egress Route",
             [
+                "Williamstown Approach",
+                "North Adams Approach",
                 "Journey's End Trail",
             ],
             help=egress_help,
         )
 
-    elif direction == "SOBO":
+    elif direction == "NOBO":
 
         ingress_route = st.selectbox(
             "Ingress Route",
             [
-                "Journey's End Trail",
+                "Williamstown Approach",
+                "North Adams Approach",
             ],
             help=ingress_help,
         )
@@ -132,8 +143,7 @@ with st.sidebar:
         egress_route = st.selectbox(
             "Egress Route",
             [
-                "Williamstown Approach",
-                "North Adams Approach",
+                "Journey's End Trail",
             ],
             help=egress_help,
         )
@@ -143,8 +153,6 @@ with st.sidebar:
         ingress_route = st.selectbox(
             "Ingress Route",
             [
-                "Williamstown Approach",
-                "North Adams Approach",
                 "Journey's End Trail",
             ],
             help=ingress_help,
@@ -155,7 +163,6 @@ with st.sidebar:
             [
                 "Williamstown Approach",
                 "North Adams Approach",
-                "Journey's End Trail",
             ],
             help=egress_help,
         )
@@ -190,10 +197,22 @@ with st.sidebar:
     )
 
     resupply_cadence = st.slider(
-        "Preferred Resupply / Zero Cadence (days)",
+        "Preferred Resupply Cadence (days)",
         min_value=2,
         max_value=10,
         value=5,
+    )
+
+    recovery_cadence = st.slider(
+        "Preferred Zero/Nero Cadence (days)",
+        min_value=3,
+        max_value=14,
+        value=6,
+    )
+
+    allow_extra_resupply_only = st.checkbox(
+        "Allow Extra Resupply-Only Stops",
+        value=True,
     )
 
     planner_button_label = (
@@ -217,11 +236,16 @@ if run_planner:
         "selected_trail": selected_trail,
         "trail_root": str(trail_root),
         "desired_days": desired_days,
+        "trip_type": trip_type,
         "direction": direction,
         "min_daily_miles": min_daily_miles,
         "max_daily_miles": max_daily_miles,
         "max_daily_elevation": max_daily_elevation,
         "resupply_cadence": resupply_cadence,
+        "recovery_cadence": recovery_cadence,
+        "allow_extra_resupply_only": (
+            allow_extra_resupply_only
+        ),
         "ingress_route": ingress_route,
         "egress_route": egress_route,
     }
@@ -233,6 +257,11 @@ if run_planner:
             "max_daily_miles": max_daily_miles,
             "max_daily_elevation": max_daily_elevation,
             "resupply_cadence": resupply_cadence,
+            "recovery_cadence": recovery_cadence,
+            "allow_extra_resupply_only": (
+                allow_extra_resupply_only
+            ),
+            "trip_type": trip_type,
             "direction": direction,
             "ingress_route": ingress_route,
             "egress_route": egress_route,
@@ -393,12 +422,23 @@ if planner_result:
         "daily_plan"
     ]
 
+    display_itinerary_rows = [
+        {
+            key: value
+            for key, value in row.items()
+            if key != (
+                "food_carry_days_since_last_resupply"
+            )
+        }
+        for row in itinerary_rows
+    ]
+
     st.caption(
         "Daily operational traversal plan using overlay semantics, shelters, logistics nodes, and ingress-aware progression."
     )
 
     st.dataframe(
-        itinerary_rows,
+        display_itinerary_rows,
         width="stretch",
         hide_index=True,
         column_order=[
