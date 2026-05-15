@@ -69,8 +69,12 @@ The output includes:
 
 - a synthesized daily itinerary
 - descriptive stop names and operational locations
+- estimated daily elevation gain for each selected leg, reported directly
+  rather than capped to the elevation preference
 - a resupply strategy table tied to real road crossings, trailheads, and town-access points
 - days until the next resupply segment or finish
+- operational feasibility warnings when the requested timeline is achievable
+  only by exceeding daily mileage or elevation preferences
 - Gaia GeoJSON download with a hot-pink trail spine, lime shelter/campsite markers, and red car markers for planned resupply crossings
 - alternate realistic plans when the requested itinerary is infeasible
 - validation feedback when a user request is invalid or cannot be satisfied as requested
