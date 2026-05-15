@@ -61,7 +61,6 @@ with st.sidebar:
         "Trip Type",
         [
             "THRU",
-            "SECTION",
         ],
     )
 

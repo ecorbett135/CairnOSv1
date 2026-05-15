@@ -16,8 +16,11 @@ and Gaia GeoJSON export.
 
 - Builds a trail topology and operational graph from compiled trail data.
 - Loads route overlay metadata and operational node semantics at runtime.
-- Synthesizes expedition itineraries using `cairn/planner/planner_v2.py`.
+- Synthesizes expedition itineraries through the `PlannerV2` facade, with
+  terrain, logistics, and itinerary responsibilities split into focused helper
+  modules under `cairn/planner/`.
 - Supports THRU trip planning with separate trip type and direction controls.
+  SECTION planning is deferred and hidden in the UI for the MVP.
 - Preserves NOBO and SOBO ingress/egress semantics over northbound-reference guidebook miles.
 - Prioritizes real shelter and campsite stops over synthetic labels, including
   compiled overnight reference candidates.
@@ -44,11 +47,13 @@ CairnOSv1 is evolving toward:
 - terrain-aware expedition planning instead of pure geometry slicing
 - an expedition-grade workspace for guided trail planning and review
 
+The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`.
+
 ## Project structure
 
 - `build_topo/` — topology compiler and operational graph generation
 - `cairn/runtime/` — runtime graph loading, traversal semantics, operational queries
-- `cairn/planner/` — planner core and itinerary synthesis logic
+- `cairn/planner/` — `PlannerV2` facade plus terrain, logistics, and itinerary helper modules
 - `cairn/interfaces/` — UI and interface surfaces (Streamlit)
 - `data/` — forward-looking raw/derived/manual/generated data separation structure
 - `docs/` — documentation assets and provenance/licensing notes
@@ -61,7 +66,7 @@ The Streamlit app provides a user-facing interface for requesting expedition pla
 
 Typical input parameters include:
 
-- trip type selection (THRU / SECTION)
+- trip type selection (THRU for MVP; SECTION is deferred)
 - direction selection (NOBO / SOBO)
 - ingress / egress approaches
 - daily cadence or target mileage preferences
@@ -229,7 +234,11 @@ streamlit run cairn/interfaces/streamlit_app.py
 
 ## Notes for developers
 
-- `PlannerV2` is the authoritative current planner implementation.
+- `PlannerV2` is the authoritative current planner facade.
+- Terrain, logistics/recovery, and itinerary synthesis logic should stay in
+  `cairn/planner/terrain.py`, `cairn/planner/logistics.py`, and
+  `cairn/planner/itinerary.py` unless a public facade method is needed for
+  compatibility.
 - The system intentionally avoids synthetic planner behavior in favor of operational realism.
 - The overlay (`route_overlay.json`) is the authoritative source for canonical stop names, shelter semantics, and progression ordering.
 - NOBO and SOBO use the same northbound-reference guidebook miles; direction changes traversal order, not mile semantics.
@@ -241,6 +250,10 @@ streamlit run cairn/interfaces/streamlit_app.py
   spine-distance checks, and provenance review.
 - Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
 - The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
+- SECTION planning is intentionally hidden from the Streamlit menu for the MVP
+  while the internal code path remains available for future work.
+- See `docs/MVP_ROADMAP.md` before starting data quality, mile-system,
+  traversal, or SECTION planning work.
 
 ## License
 
