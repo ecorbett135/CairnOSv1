@@ -3,8 +3,8 @@
 from streamlit.testing.v1 import AppTest
 
 
-def test_sidebar_exposes_trip_type_and_direction_separately():
-    """Test trip scope and travel direction are distinct controls."""
+def test_sidebar_exposes_thru_trip_type_and_direction():
+    """Test MVP trip scope and travel direction are distinct controls."""
     app = AppTest.from_file(
         "cairn/interfaces/streamlit_app.py"
     )
@@ -22,7 +22,6 @@ def test_sidebar_exposes_trip_type_and_direction_separately():
     assert "Direction" in selectboxes
     assert selectboxes["Trip Type"].options == [
         "THRU",
-        "SECTION",
     ]
     assert selectboxes["Direction"].options == [
         "NOBO",
