@@ -1,5 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
+import json
+
 from cairn.runtime.graph_runtime import (
     OperationalGraphRuntime,
 )
@@ -124,19 +126,109 @@ class OperationalQueries:
             if n.get("shelter")
         ]
 
+    def load_overnight_reference(self):
+
+        path = (
+            self.runtime.compiled_dir /
+            "overnight_reference.json"
+        )
+
+        if not path.exists():
+            return {}
+
+        with open(path) as handle:
+            return json.load(handle)
+
+    def get_overnight_reference_candidates(self):
+
+        payload = (
+            self.load_overnight_reference()
+        )
+
+        candidates = []
+
+        for row in payload.get(
+            "planner_candidates",
+            [],
+        ):
+
+            node = {
+                "canonical_name": row.get(
+                    "canonical_name"
+                ),
+                "trail_mile": row.get(
+                    "trail_mile"
+                ),
+                "node_class": row.get(
+                    "node_class",
+                    "camp",
+                ),
+                "division": row.get(
+                    "division"
+                ),
+                "overnight": True,
+                "shelter": row.get(
+                    "shelter",
+                    False,
+                ),
+                "camping": row.get(
+                    "camping",
+                    False,
+                ),
+                "coordinates": row.get(
+                    "coordinates"
+                ),
+                "overnight_reference": True,
+                "source_file": row.get(
+                    "source_file"
+                ),
+                "source_id": row.get(
+                    "source_id"
+                ),
+                "distance_to_spine_miles": (
+                    row.get(
+                        "distance_to_spine_miles"
+                    )
+                ),
+            }
+
+            if not (
+                node["canonical_name"]
+                and node["trail_mile"] is not None
+            ):
+                continue
+
+            priority = (
+                1
+                if node.get("shelter")
+                else 2
+            )
+
+            candidates.append({
+                "node": node,
+                "priority": priority,
+                "type": (
+                    "shelter"
+                    if node.get("shelter")
+                    else "camp"
+                ),
+            })
+
+        return candidates
+
     def get_operational_overnight_nodes(self):
         """
         Get all operational overnight nodes including shelters and camps.
-        
+
         Priority order for overnight selection:
         1. Shelters (node_class: "shelter")
-        2. Designated campsites (node_class: "camp") 
+        2. Designated campsites (node_class: "camp")
         3. Other overnight nodes (overnight: true)
         """
         overlay_nodes = self.runtime.get_overlay_nodes()
-        
+
         operational_overnight = []
-        
+
         # Add shelters first (highest priority)
         for node in overlay_nodes:
             if node.get("shelter"):
@@ -145,7 +237,7 @@ class OperationalQueries:
                     "priority": 1,  # Highest priority
                     "type": "shelter"
                 })
-        
+
         # Add designated campsites
         for node in overlay_nodes:
             if node.get("camping") and not node.get("shelter"):
@@ -154,16 +246,24 @@ class OperationalQueries:
                     "priority": 2,  # Medium priority
                     "type": "camp"
                 })
-        
+
         # Add other overnight nodes
         for node in overlay_nodes:
-            if node.get("overnight") and not node.get("shelter") and not node.get("camping"):
+            if (
+                node.get("overnight")
+                and not node.get("shelter")
+                and not node.get("camping")
+            ):
                 operational_overnight.append({
                     "node": node,
                     "priority": 3,  # Lower priority
                     "type": "overnight"
                 })
-        
+
+        operational_overnight.extend(
+            self.get_overnight_reference_candidates()
+        )
+
         return operational_overnight
 
     def get_resupply_access_nodes(self):

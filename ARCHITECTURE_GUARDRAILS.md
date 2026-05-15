@@ -335,6 +335,14 @@ DO NOT:
 - ignore known operational overnight infrastructure
 - treat all overnight nodes equally
 
+Compiled overnight reference data may expand stop options when:
+
+- the source waypoint is matched or projected near the compiled trail spine
+- provenance is recorded
+- route overlay semantics remain authoritative
+
+DO NOT treat raw waypoint exports as operational truth before reconciliation.
+
 ---
 
 ### Shelter Ontology Must Remain Distinct

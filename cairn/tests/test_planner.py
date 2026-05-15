@@ -65,6 +65,128 @@ def test_operational_stop_selection_expands_after_primary_miss(planner):
     assert 4.0 < abs(selected_stop["trail_mile"] - 100.0) <= 8.0
 
 
+def test_enriched_overnight_reference_stops_are_available(planner):
+    """Test compiled overnight references extend stop options."""
+    operational_nodes = (
+        planner.queries
+        .get_operational_overnight_nodes()
+    )
+
+    reference_nodes = [
+        item for item in operational_nodes
+        if item["node"].get(
+            "overnight_reference"
+        )
+    ]
+
+    assert reference_nodes
+    assert any(
+        item["node"]["canonical_name"]
+        == "Taylor Lodge"
+        for item in reference_nodes
+    )
+
+    taylor = next(
+        item for item in reference_nodes
+        if item["node"]["canonical_name"]
+        == "Taylor Lodge"
+    )
+
+    assert taylor["priority"] == 1
+    assert taylor["type"] == "shelter"
+    assert taylor["node"]["shelter"] is True
+
+
+def test_enriched_overnight_reference_can_be_selected(planner):
+    """Test stop selection can choose an enriched overnight site."""
+    operational_nodes = (
+        planner.queries
+        .get_operational_overnight_nodes()
+    )
+
+    selected_stop = planner.select_operational_stop(
+        target_mile=201.0,
+        operational_overnight_nodes=operational_nodes,
+        logistics_nodes=[],
+        current_mile=190.0,
+    )
+
+    assert selected_stop is not None
+    assert selected_stop["canonical_name"] == "Taylor Lodge"
+    assert selected_stop["overnight_reference"] is True
+
+
+def test_enriched_overnight_reference_selection_has_direction_parity(
+    planner_factory,
+):
+    """Test enriched stops can be selected in NOBO and SOBO traversal."""
+    cases = [
+        (
+            "NOBO",
+            190.0,
+            201.0,
+            "Taylor Lodge",
+        ),
+        (
+            "SOBO",
+            212.0,
+            201.0,
+            "Taylor Lodge",
+        ),
+        (
+            "NOBO",
+            240.0,
+            249.8,
+            "Tillotson Camp",
+        ),
+        (
+            "SOBO",
+            260.0,
+            249.8,
+            "Tillotson Camp",
+        ),
+    ]
+
+    for (
+        direction,
+        current_mile,
+        target_mile,
+        expected_name,
+    ) in cases:
+
+        planner = planner_factory(
+            user_profile={
+                "direction": direction,
+            },
+        )
+
+        operational_nodes = (
+            planner.queries
+            .get_operational_overnight_nodes()
+        )
+
+        selected_stop = (
+            planner.select_operational_stop(
+                target_mile=target_mile,
+                operational_overnight_nodes=(
+                    operational_nodes
+                ),
+                logistics_nodes=[],
+                current_mile=current_mile,
+            )
+        )
+
+        assert selected_stop is not None
+        assert (
+            selected_stop["canonical_name"]
+            == expected_name
+        )
+        assert (
+            selected_stop["overnight_reference"]
+            is True
+        )
+
+
 def test_resupply_access_nodes_available(planner):
     """Test that resupply candidates come from operational overlay access."""
     resupply_nodes = planner.queries.get_resupply_access_nodes()
@@ -417,6 +539,41 @@ def test_elevation_exceptions_escalate_feasibility(planner_factory):
     assert elevation_exception["limit"] == 3500
     assert elevation_exception["observed_max"] > 3500
     assert elevation_exception["count"] > 0
+
+
+def test_late_recovery_zero_does_not_replace_final_egress(
+    planner_factory,
+):
+    """Test final completion takes priority over late recovery zeros."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    last_day = itinerary["daily_plan"][-1]
+
+    assert last_day["day"] == 28
+    assert (
+        last_day["daily_stop_location"]
+        == "Journey's End Trail Parking"
+    )
+    assert last_day["daily_stop_mile"] == 273.3
+    assert last_day["daily_miles"] > 0
+    assert last_day["notes"] == ""
 
 
 def test_sobo_itinerary_descends_with_positive_travel_miles(planner_factory):
