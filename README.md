@@ -24,6 +24,8 @@ and Gaia GeoJSON export.
 - Separates resupply cadence from zero/nero recovery cadence.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
 - Produces a resupply strategy table with trip-start carry segment, town access, and days to next resupply segment.
+- Uses terrain interval analysis to bias daily pacing and report terrain-derived
+  elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
@@ -66,14 +68,17 @@ Typical input parameters include:
 - operational constraints such as shelter/campsite preferences
 - preferred resupply cadence
 - preferred zero/nero recovery cadence
+- configurable minimum and maximum nero mileage
 - optional extra resupply-only stops
 
 The output includes:
 
 - a synthesized daily itinerary
 - descriptive stop names and operational locations
-- estimated daily elevation gain for each selected leg, reported directly
-  rather than capped to the elevation preference
+- average daily mileage calculated over moving days, excluding zero-mile
+  recovery rows
+- terrain-derived daily elevation gain where compiled terrain coverage exists,
+  reported directly rather than capped to the elevation preference
 - a resupply strategy table tied to real road crossings, trailheads, and town-access points
 - days until the next resupply segment or finish
 - operational feasibility warnings when the requested timeline is achievable
@@ -106,6 +111,10 @@ Daily stop coordinates are resolved from compiled and enriched trail data, prefe
 
 PlannerV2 treats resupply cadence as a food-carry planning target and zero/nero cadence as a separate recovery planning target. Both are soft windows, not fixed intervals. Resupply notes are added only when the itinerary crosses an operationally meaningful logistics/access node, while zero and nero notes are reserved for recovery stops.
 
+Nero annotations are constrained by a configurable mileage window. The default
+window is 5-8 miles, and the Streamlit UI exposes minimum and maximum nero-mile
+controls so recovery semantics can match the user's planning style.
+
 The resupply strategy table includes the trip start as the first carry segment
 anchor, then lists planned resupply access points and the number of days until
 the next resupply segment or the finish. Terminal-day resupply stops are
@@ -117,6 +126,18 @@ The current Long Trail resupply layer is sourced from:
 - `trails/vermont_long_trail/compiled/route_overlay.json`
 
 The raw CSV preserves town access, available services, zero-day suitability, source provenance, and road/trailhead coordinates. The planner still relies on route overlay semantics for operational truth; the CSV enriches access points with practical resupply metadata.
+
+## Terrain-aware pacing
+
+PlannerV2 now uses compiled terrain samples to evaluate the actual start/stop
+interval for each moving day. The planner computes direction-aware gain, loss,
+gain per mile, and ruggedness, then uses those values to bias upcoming daily
+mileage lower in harder sections and higher in gentler sections.
+
+When dense compiled terrain coverage cannot resolve an interval, the planner
+falls back to `route_master.csv` elevation points and then to a conservative
+distance-based estimate. This keeps ingress/egress and incomplete terrain
+coverage operational without reintroducing capped elevation output.
 
 ## Gaia reference enrichment
 

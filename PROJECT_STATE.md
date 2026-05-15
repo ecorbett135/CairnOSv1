@@ -418,19 +418,34 @@ These should only appear:
 
 ---
 
-## Terrain Modeling Still Simplistic
+## Terrain Modeling Now Incrementally Interval-Aware
 
-Terrain weighting currently behaves mostly as:
+PlannerV2 now uses compiled terrain samples to evaluate itinerary intervals.
+For each moving leg it can derive:
 
-- decorative effort scaling
+- elevation gain
+- elevation loss
+- gain per mile
+- ruggedness
 
-Eventually terrain should materially influence:
+Terrain coverage still has imperfect mile-system alignment, so PlannerV2 falls
+back to `route_master.csv` elevation points and then to a conservative
+distance-based estimate when needed.
+
+Terrain now influences:
+
+- daily target mileage
+- reported daily elevation gain
+- operational feasibility exceptions
+
+Expedition summary effort averages now use moving days, excluding zero-mile
+recovery rows from average daily mileage and elevation calculations.
+
+Eventually terrain should also materially influence:
 
 - overnight selection
-- mileage collapse
 - recovery insertion
 - cadence degradation
-- operational feasibility
 
 ---
 
@@ -447,6 +462,10 @@ PlannerV2 uses resupply cadence as a food-carry target and recovery cadence
 as a separate zero/nero target. Both remain soft windows: resupply is only
 annotated when the itinerary actually traverses a meaningful access node near
 the food-carry window, and zero/nero notes are reserved for recovery stops.
+
+Nero annotations now require the moving day to fall inside the configured
+nero-mile window. The default window is 5-8 miles, with Streamlit controls for
+minimum and maximum nero mileage.
 
 The resupply strategy table now includes:
 
@@ -587,7 +606,7 @@ Immediate operational objectives:
 - remove remaining synthetic stop generation
 - improve shelter-aware stop synthesis
 - improve logistics-aware resupply planning
-- improve terrain-aware progression realism
+- mature terrain-aware progression realism
 - implement section traversal substrate
 
 ---

@@ -28,3 +28,24 @@ def test_sidebar_exposes_trip_type_and_direction_separately():
         "NOBO",
         "SOBO",
     ]
+
+
+def test_sidebar_exposes_configurable_nero_window():
+    """Test recovery planning exposes nero-mile bounds."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    sliders = {
+        widget.label: widget
+        for widget in app.sidebar.slider
+    }
+
+    assert "Minimum Nero Miles" in sliders
+    assert "Maximum Nero Miles" in sliders
+    assert sliders["Minimum Nero Miles"].value == 5
+    assert sliders["Maximum Nero Miles"].value == 8
