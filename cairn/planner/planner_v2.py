@@ -202,15 +202,180 @@ class PlannerV2:
             multiplier
         )
 
-        elevation = min(
-            elevation,
-            self.max_daily_elevation,
-        )
-
         return round(
             elevation,
             0,
         )
+
+    def classification_rank(
+        self,
+        classification,
+    ):
+
+        ranks = {
+            "comfortable": 0,
+            "challenging": 1,
+            "aggressive": 2,
+            "unrealistic": 3,
+        }
+
+        return ranks.get(
+            classification,
+            0,
+        )
+
+    def max_classification(
+        self,
+        first,
+        second,
+    ):
+
+        if (
+            self.classification_rank(
+                second
+            )
+            > self.classification_rank(
+                first
+            )
+        ):
+            return second
+
+        return first
+
+    def summarize_itinerary_exceptions(
+        self,
+        daily_plan,
+    ):
+
+        moving_rows = [
+            row for row in daily_plan
+            if row.get(
+                "daily_miles",
+                0,
+            ) > 0
+        ]
+
+        exceptions = []
+
+        mileage_rows = [
+            row for row in moving_rows
+            if row.get(
+                "daily_miles",
+                0,
+            ) > self.max_daily_miles
+        ]
+
+        if mileage_rows:
+
+            exceptions.append({
+                "constraint": "daily_miles",
+                "limit": self.max_daily_miles,
+                "observed_max": round(
+                    max(
+                        row.get(
+                            "daily_miles",
+                            0,
+                        )
+                        for row in mileage_rows
+                    ),
+                    1,
+                ),
+                "count": len(
+                    mileage_rows
+                ),
+                "days": [
+                    row.get("day")
+                    for row in mileage_rows
+                ],
+            })
+
+        elevation_rows = [
+            row for row in moving_rows
+            if row.get(
+                "daily_elevation_gain",
+                0,
+            ) > self.max_daily_elevation
+        ]
+
+        if elevation_rows:
+
+            exceptions.append({
+                "constraint": "daily_elevation_gain",
+                "limit": self.max_daily_elevation,
+                "observed_max": round(
+                    max(
+                        row.get(
+                            "daily_elevation_gain",
+                            0,
+                        )
+                        for row in elevation_rows
+                    ),
+                    0,
+                ),
+                "count": len(
+                    elevation_rows
+                ),
+                "days": [
+                    row.get("day")
+                    for row in elevation_rows
+                ],
+            })
+
+        return exceptions
+
+    def apply_itinerary_exceptions(
+        self,
+        completion_analysis,
+        daily_plan,
+    ):
+
+        exceptions = (
+            self.summarize_itinerary_exceptions(
+                daily_plan
+            )
+        )
+
+        if not exceptions:
+            return completion_analysis
+
+        updated = {
+            **completion_analysis,
+        }
+
+        evaluation = {
+            **updated.get(
+                "evaluation",
+                {},
+            )
+        }
+
+        evaluation["classification"] = (
+            self.max_classification(
+                evaluation.get(
+                    "classification",
+                    "comfortable",
+                ),
+                "aggressive",
+            )
+        )
+
+        evaluation["feasible"] = True
+
+        updated["accepted"] = True
+        updated["evaluation"] = evaluation
+        updated["has_itinerary_exceptions"] = True
+        updated["itinerary_exceptions"] = exceptions
+        updated["recommendation"] = (
+            "Requested completion target is achievable, but the "
+            "generated itinerary exceeds one or more daily preferences "
+            "to finish in the requested time."
+        )
+        updated["exception_guidance"] = (
+            "Review exception days or adjust completion days, mileage, "
+            "or elevation preferences for a gentler plan."
+        )
+
+        return updated
 
     def should_insert_recovery_day(
         self,
@@ -2677,6 +2842,13 @@ class PlannerV2:
             )
         )
 
+        completion_analysis = (
+            self.apply_itinerary_exceptions(
+                negotiation,
+                daily_plan,
+            )
+        )
+
         resupply_plan = (
             self.build_resupply_plan(
                 daily_plan
@@ -2685,7 +2857,7 @@ class PlannerV2:
 
         return {
             "completion_analysis": (
-                negotiation
+                completion_analysis
             ),
             "expedition_summary": (
                 expedition_summary

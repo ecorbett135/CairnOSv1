@@ -296,6 +296,129 @@ def test_extra_resupply_only_stops_can_be_disabled(planner_factory):
     )
 
 
+def test_daily_elevation_gain_is_not_capped_by_user_limit(planner_factory):
+    """Test displayed daily gain reports estimated gain, not the max limit."""
+    low_limit_planner = planner_factory(
+        user_profile={
+            "max_daily_elevation": 3500,
+        },
+    )
+
+    high_limit_planner = planner_factory(
+        user_profile={
+            "max_daily_elevation": 6000,
+        },
+    )
+
+    low_limit_gain = (
+        low_limit_planner.calculate_daily_elevation(
+            daily_miles=14.9,
+            day=24,
+        )
+    )
+
+    high_limit_gain = (
+        high_limit_planner.calculate_daily_elevation(
+            daily_miles=14.9,
+            day=24,
+        )
+    )
+
+    assert low_limit_gain == high_limit_gain
+    assert low_limit_gain > 3500
+
+
+def test_itinerary_elevation_gain_can_exceed_requested_limit(planner_factory):
+    """Test itinerary rows are not overwritten by the elevation slider cap."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 99,
+            "recovery_cadence": 99,
+            "allow_extra_resupply_only": False,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    daily_gains = [
+        row["daily_elevation_gain"]
+        for row in itinerary["daily_plan"]
+        if row["daily_miles"] > 0
+    ]
+
+    assert max(daily_gains) > 3500
+
+    capped_rows = [
+        gain for gain in daily_gains
+        if gain == 3500
+    ]
+
+    assert not capped_rows
+
+
+def test_elevation_exceptions_escalate_feasibility(planner_factory):
+    """Test fixed-duration plans complete and flag elevation exceptions."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 99,
+            "recovery_cadence": 99,
+            "allow_extra_resupply_only": False,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    completion = itinerary[
+        "completion_analysis"
+    ]
+
+    assert completion[
+        "accepted"
+    ] is True
+    assert completion[
+        "has_itinerary_exceptions"
+    ] is True
+    assert (
+        completion["evaluation"]["classification"]
+        == "aggressive"
+    )
+
+    assert (
+        itinerary["daily_plan"][-1][
+            "daily_stop_location"
+        ]
+        == "Journey's End Trail Parking"
+    )
+
+    elevation_exception = next(
+        row for row in completion[
+            "itinerary_exceptions"
+        ]
+        if row["constraint"] == "daily_elevation_gain"
+    )
+
+    assert elevation_exception["limit"] == 3500
+    assert elevation_exception["observed_max"] > 3500
+    assert elevation_exception["count"] > 0
+
+
 def test_sobo_itinerary_descends_with_positive_travel_miles(planner_factory):
     """Test SOBO traverses south using northbound-reference miles."""
     planner = planner_factory(

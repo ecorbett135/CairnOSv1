@@ -194,6 +194,11 @@ with st.sidebar:
         max_value=10000,
         value=3500,
         step=250,
+        help=(
+            "Planning preference for daily climbing effort. "
+            "Reported daily_elevation_gain remains the estimated gain "
+            "for the selected leg and is not capped to this value."
+        ),
     )
 
     resupply_cadence = st.slider(
@@ -383,7 +388,31 @@ if planner_result:
         recommended_days,
     )
 
-    if completion["accepted"]:
+    if completion.get(
+        "has_itinerary_exceptions"
+    ):
+
+        st.warning(
+            completion[
+                "recommendation"
+            ]
+        )
+
+        st.dataframe(
+            completion[
+                "itinerary_exceptions"
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+
+        st.info(
+            completion[
+                "exception_guidance"
+            ]
+        )
+
+    elif completion["accepted"]:
 
         st.success(
             completion[
