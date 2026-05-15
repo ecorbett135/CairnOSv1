@@ -1,9 +1,10 @@
-# CURRENT SESSION — PlannerV2 Direction And Cadence Stabilization
+# CURRENT SESSION — PlannerV2 Extraction And MVP Hardening
 
 ## Current Focus
 
 This session stabilized the PlannerV2 THRU workflow around three related areas:
 
+- PlannerV2 module extraction into terrain, logistics, and itinerary helpers
 - NOBO / SOBO direction parity
 - separate resupply and zero/nero recovery cadence semantics
 - terrain-aware pacing and terrain-derived elevation reporting
@@ -35,6 +36,8 @@ PlannerV2 now supports:
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
 - Streamlit operational UI integration
+- a THRU-only MVP Streamlit trip type menu, with SECTION deferred but not
+  removed from the underlying planner path
 
 The system has successfully moved away from:
 
@@ -52,8 +55,12 @@ and toward:
 
 The UI now separates:
 
-- Trip Type: `THRU` / `SECTION`
+- Trip Type: `THRU` in the MVP UI
 - Direction: `NOBO` / `SOBO`
+
+SECTION mode remains intentionally hidden from Streamlit until the traversal
+and data semantics are ready. The internal code path is still present for
+future work.
 
 Current THRU semantics:
 
@@ -106,7 +113,7 @@ carry.
 The Streamlit UI currently supports:
 
 - trail selection
-- trip type selection
+- trip type selection (`THRU` visible for MVP)
 - direction selection
 - ingress route selection
 - egress route selection
@@ -190,6 +197,9 @@ PlannerV2 still needs improvement in these areas:
 ## Planner
 
 - cairn/planner/planner_v2.py
+- cairn/planner/terrain.py
+- cairn/planner/logistics.py
+- cairn/planner/itinerary.py
 
 ## Runtime
 
@@ -219,18 +229,17 @@ PlannerV2 still needs improvement in these areas:
 
 ## Current Priorities
 
-Priority order:
+Priority order is now tracked in `docs/MVP_ROADMAP.md`:
 
-1. make overlay traversal authoritative
-2. improve shelter-aware overnight synthesis
-3. mature logistics-aware resupply and recovery scoring
-4. improve terrain-aware progression realism
-5. implement section traversal substrate
-6. reduce remaining synthetic stop generation
-7. add food-weight effort modeling
-8. rewrite planner validation layer
-9. harden Gaia export regression coverage
-10. reintegrate dev_agent against stabilized runtime APIs
+1. PlannerV2 module extraction
+1. data quality/provenance hardening
+1. terrain profile and mile-system reconciliation
+1. overlay-authoritative traversal
+1. SECTION planning
+
+Supporting follow-on work includes reducing synthetic stop generation, adding
+food-weight effort modeling, hardening Gaia export regression coverage, and
+reintegrating dev_agent against stabilized runtime APIs.
 
 ---
 

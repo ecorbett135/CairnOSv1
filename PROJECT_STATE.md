@@ -1,5 +1,3 @@
-
-
 # CairnOSv1 — Project State
 
 ## Executive Summary
@@ -36,6 +34,23 @@ The planner should reason about:
 NOT merely:
 
 - partitioning mileage into evenly sized chunks.
+
+---
+
+## MVP Roadmap
+
+The active MVP roadmap is documented in `docs/MVP_ROADMAP.md`.
+
+Current execution order:
+
+1. PlannerV2 module extraction
+1. data quality/provenance hardening
+1. terrain profile and mile-system reconciliation
+1. overlay-authoritative traversal
+1. SECTION planning
+
+SECTION mode remains deferred and hidden from the Streamlit menu for the MVP,
+while the internal code path remains available for later implementation.
 
 ---
 
@@ -150,15 +165,20 @@ Responsible for:
 - resupply planning
 - feasibility evaluation
 
-Key File:
+Key Files:
 
 - planner_v2.py
+- terrain.py
+- logistics.py
+- itinerary.py
 
 IMPORTANT:
 
-Do NOT endlessly mutate the original planner.
+Do NOT endlessly mutate the facade.
 
-PlannerV2 is the authoritative planning substrate.
+PlannerV2 is the authoritative public planning substrate. Terrain, logistics
+and recovery scoring, and daily itinerary synthesis should stay in focused
+helper modules behind that facade.
 
 ---
 
@@ -331,7 +351,7 @@ Daily rows should communicate:
 The Streamlit UI currently supports:
 
 - trail selection
-- trip type selection (THRU / SECTION)
+- trip type selection (`THRU` visible for MVP; `SECTION` deferred)
 - direction selection (NOBO / SOBO)
 - ingress route selection
 - egress route selection
@@ -488,7 +508,8 @@ Future semantics should still reason more deeply about:
 
 ## Section Hiking Not Yet Implemented
 
-SECTION mode remains largely incomplete.
+SECTION mode remains largely incomplete and is intentionally hidden from the
+Streamlit trip type menu for the MVP.
 
 Future implementation must support:
 
@@ -587,6 +608,9 @@ ALWAYS:
 ## Planner Layer
 
 - cairn/planner/planner_v2.py
+- cairn/planner/terrain.py
+- cairn/planner/logistics.py
+- cairn/planner/itinerary.py
 
 ---
 
@@ -600,14 +624,11 @@ ALWAYS:
 
 Immediate operational objectives:
 
-- fully fix ingress initialization semantics
-- fully honor approach trail progression
-- improve overlay-authoritative stop selection
-- remove remaining synthetic stop generation
-- improve shelter-aware stop synthesis
-- improve logistics-aware resupply planning
-- mature terrain-aware progression realism
-- implement section traversal substrate
+- complete PlannerV2 module extraction and keep facade compatibility
+- harden data quality and provenance
+- reconcile terrain profile and mile-system semantics
+- make overlay traversal authoritative
+- implement section traversal substrate after THRU behavior is stable
 
 ---
 

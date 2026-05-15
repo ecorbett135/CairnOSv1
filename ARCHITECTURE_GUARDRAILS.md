@@ -61,7 +61,11 @@ DO NOT:
 - continue mutating legacy planner architecture endlessly
 - merge old planner assumptions into PlannerV2
 
-PlannerV2 is the authoritative expedition planner.
+PlannerV2 is the authoritative public expedition planner facade.
+
+Terrain, logistics/recovery scoring, and daily itinerary synthesis should live
+behind that facade in focused helper modules. Preserve the facade contract for
+Streamlit, tests, and export integrations.
 
 Legacy planner behavior should be considered:
 
@@ -453,6 +457,10 @@ SECTION mode requires:
 DO NOT fake section hiking by:
 
 - simply clipping itinerary endpoints.
+
+SECTION mode is deferred and hidden from the Streamlit menu for the MVP. The
+internal code path may remain in place, but it should not be presented as a
+supported planning mode until these traversal semantics are implemented.
 
 ---
 
