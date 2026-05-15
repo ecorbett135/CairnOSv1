@@ -419,7 +419,7 @@ def test_extra_resupply_only_stops_can_be_disabled(planner_factory):
 
 
 def test_daily_elevation_gain_is_not_capped_by_user_limit(planner_factory):
-    """Test displayed daily gain reports estimated gain, not the max limit."""
+    """Test fallback daily gain reports are not capped by the max limit."""
     low_limit_planner = planner_factory(
         user_profile={
             "max_daily_elevation": 3500,
@@ -448,6 +448,174 @@ def test_daily_elevation_gain_is_not_capped_by_user_limit(planner_factory):
 
     assert low_limit_gain == high_limit_gain
     assert low_limit_gain > 3500
+
+
+def test_terrain_interval_analysis_identifies_harder_sections(planner):
+    """Test terrain intervals expose harder and easier trail sections."""
+    easy_interval = planner.analyze_terrain_interval(
+        40.0,
+        50.0,
+    )
+    hard_interval = planner.analyze_terrain_interval(
+        200.0,
+        210.0,
+    )
+
+    assert easy_interval["source"] == "terrain"
+    assert hard_interval["source"] == "terrain"
+    assert (
+        hard_interval["elevation_gain_ft"]
+        > easy_interval["elevation_gain_ft"]
+    )
+    assert (
+        hard_interval["ruggedness_score"]
+        > easy_interval["ruggedness_score"]
+    )
+
+
+def test_terrain_interval_analysis_is_direction_aware(planner_factory):
+    """Test SOBO terrain gain is positive in traversal direction."""
+    nobo_planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+        },
+    )
+    sobo_planner = planner_factory(
+        user_profile={
+            "direction": "SOBO",
+        },
+    )
+
+    nobo_interval = (
+        nobo_planner
+        .analyze_terrain_interval(
+            200.0,
+            210.0,
+        )
+    )
+    sobo_interval = (
+        sobo_planner
+        .analyze_terrain_interval(
+            210.0,
+            200.0,
+        )
+    )
+
+    assert nobo_interval["source"] == "terrain"
+    assert sobo_interval["source"] == "terrain"
+    assert sobo_interval["elevation_gain_ft"] > 0
+    assert (
+        sobo_interval["elevation_gain_ft"]
+        == nobo_interval["elevation_loss_ft"]
+    )
+
+
+def test_terrain_interval_analysis_falls_back_to_route_master(
+    planner_factory,
+):
+    """Test route-master elevation fallback works without terrain samples."""
+    planner = planner_factory()
+
+    planner._terrain_samples = []
+
+    interval = planner.analyze_terrain_interval(
+        200.0,
+        210.0,
+    )
+
+    assert interval["source"] == "route_master"
+    assert interval["elevation_gain_ft"] > 0
+    assert interval["gain_per_mile"] > 0
+
+
+def test_terrain_aware_pacing_lowers_hard_section_target(planner):
+    """Test harder upcoming terrain lowers daily mileage target."""
+    easy_target = (
+        planner
+        .calculate_terrain_adjusted_target(
+            10.0,
+            1,
+            current_mile=40.0,
+            southern_mile=0.0,
+            northern_mile=273.3,
+        )
+    )
+    hard_target = (
+        planner
+        .calculate_terrain_adjusted_target(
+            10.0,
+            1,
+            current_mile=200.0,
+            southern_mile=0.0,
+            northern_mile=273.3,
+        )
+    )
+
+    assert hard_target < easy_target
+
+
+def test_nero_notes_obey_default_mileage_window(planner_factory):
+    """Test nero labels only apply inside the configured window."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "Williamstown Approach",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    nero_rows = [
+        row for row in itinerary["daily_plan"]
+        if "nero" in row.get("notes", "")
+    ]
+
+    assert nero_rows
+
+    for row in nero_rows:
+        assert 5.0 <= row["daily_miles"] <= 8.0
+
+
+def test_custom_nero_window_changes_classification(planner_factory):
+    """Test custom nero bounds allow longer recovery-mile days."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+            "min_nero_miles": 1,
+            "max_nero_miles": 12,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    nero_rows = [
+        row for row in itinerary["daily_plan"]
+        if "nero" in row.get("notes", "")
+    ]
+
+    assert any(
+        row["daily_miles"] > 8.0
+        for row in nero_rows
+    )
 
 
 def test_itinerary_elevation_gain_can_exceed_requested_limit(planner_factory):
@@ -484,6 +652,50 @@ def test_itinerary_elevation_gain_can_exceed_requested_limit(planner_factory):
     ]
 
     assert not capped_rows
+
+
+def test_summary_average_daily_miles_excludes_zero_days(planner_factory):
+    """Test summary effort averages use moving days, not calendar days."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    moving_days = len([
+        row for row in itinerary["daily_plan"]
+        if row["daily_miles"] > 0
+    ])
+    summary = itinerary[
+        "expedition_summary"
+    ]
+
+    assert moving_days < summary["completion_days"]
+    assert summary["moving_days"] == moving_days
+    assert summary["average_daily_miles"] == round(
+        summary["total_miles"] / moving_days,
+        1,
+    )
+    assert (
+        summary["average_daily_miles"]
+        > round(
+            summary["total_miles"]
+            / summary["completion_days"],
+            1,
+        )
+    )
 
 
 def test_elevation_exceptions_escalate_feasibility(planner_factory):

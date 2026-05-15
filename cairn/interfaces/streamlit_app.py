@@ -196,8 +196,9 @@ with st.sidebar:
         step=250,
         help=(
             "Planning preference for daily climbing effort. "
-            "Reported daily_elevation_gain remains the estimated gain "
-            "for the selected leg and is not capped to this value."
+            "Reported daily_elevation_gain is terrain-derived "
+            "where compiled elevation coverage exists and is not "
+            "capped to this value."
         ),
     )
 
@@ -214,6 +215,36 @@ with st.sidebar:
         max_value=14,
         value=6,
     )
+
+    min_nero_miles = st.slider(
+        "Minimum Nero Miles",
+        min_value=1,
+        max_value=10,
+        value=5,
+        help=(
+            "Lower mileage bound for labeling a recovery "
+            "stop as a nero."
+        ),
+    )
+
+    max_nero_miles = st.slider(
+        "Maximum Nero Miles",
+        min_value=4,
+        max_value=15,
+        value=8,
+        help=(
+            "Upper mileage bound for labeling a recovery "
+            "stop as a nero."
+        ),
+    )
+
+    if max_nero_miles < min_nero_miles:
+        st.warning(
+            (
+                "Maximum Nero Miles is below Minimum Nero Miles; "
+                "the planner will use the minimum value for both."
+            )
+        )
 
     allow_extra_resupply_only = st.checkbox(
         "Allow Extra Resupply-Only Stops",
@@ -248,6 +279,8 @@ if run_planner:
         "max_daily_elevation": max_daily_elevation,
         "resupply_cadence": resupply_cadence,
         "recovery_cadence": recovery_cadence,
+        "min_nero_miles": min_nero_miles,
+        "max_nero_miles": max_nero_miles,
         "allow_extra_resupply_only": (
             allow_extra_resupply_only
         ),
@@ -263,6 +296,8 @@ if run_planner:
             "max_daily_elevation": max_daily_elevation,
             "resupply_cadence": resupply_cadence,
             "recovery_cadence": recovery_cadence,
+            "min_nero_miles": min_nero_miles,
+            "max_nero_miles": max_nero_miles,
             "allow_extra_resupply_only": (
                 allow_extra_resupply_only
             ),

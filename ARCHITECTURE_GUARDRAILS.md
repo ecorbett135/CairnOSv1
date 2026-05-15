@@ -381,6 +381,12 @@ DO NOT:
 
 - reduce terrain to cosmetic effort multipliers only.
 
+Terrain-derived daily elevation should come from actual itinerary intervals
+where compiled terrain coverage exists. If terrain coverage is incomplete,
+PlannerV2 may fall back to route-master elevation points or conservative
+distance-based estimates, but it must not cap reported elevation to the user's
+planning preference.
+
 ---
 
 ## Resupply Guardrails
@@ -416,6 +422,10 @@ Resupply strategy output should remain operationally useful:
 - avoid terminal-day resupply stops that do not help the hiker
 - use sparse operational notes such as `resupply`, `nero`, `zero`,
   `resupply / nero`, and `resupply / zero`
+
+Nero notes should only be used when the moving day falls inside the configured
+nero-mile window. Days outside that window may still be useful resupply or zero
+opportunities, but they should not be labeled as nero by default.
 
 Current cadence logic is incremental and should keep moving toward richer
 food-weight, terrain, and recovery modeling.
