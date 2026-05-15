@@ -19,13 +19,16 @@ and Gaia GeoJSON export.
 - Synthesizes expedition itineraries using `cairn/planner/planner_v2.py`.
 - Supports THRU trip planning with separate trip type and direction controls.
 - Preserves NOBO and SOBO ingress/egress semantics over northbound-reference guidebook miles.
-- Prioritizes real shelter and campsite stops over synthetic labels.
+- Prioritizes real shelter and campsite stops over synthetic labels, including
+  compiled overnight reference candidates.
 - Separates resupply cadence from zero/nero recovery cadence.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
 - Produces a resupply strategy table with trip-start carry segment, town access, and days to next resupply segment.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
-- Provides tests in `cairn/tests/` for planner behavior, operational stop selection, SOBO direction semantics, Streamlit UI controls, Gaia export behavior, and Gaia reference enrichment.
+- Provides tests in `cairn/tests/` for planner behavior, operational stop
+  selection, SOBO direction semantics, Streamlit UI controls, Gaia export
+  behavior, and reference enrichment.
 
 ## What it is working toward
 
@@ -137,6 +140,33 @@ trails/vermont_long_trail/compiled/waypoint_reference.json
 
 This enrichment layer preserves Gaia waypoint names, coordinates, icons, marker types, and marker colors. It is used by the Gaia export layer to improve shelter/campsite placement and marker metadata, but it is not operational truth and is not wired into PlannerV2 traversal behavior.
 
+## Overnight reference enrichment
+
+Optional shelter and campsite GeoJSON exports can be stored at:
+
+```text
+trails/vermont_long_trail/raw/geojson/shelters.geojson
+trails/vermont_long_trail/raw/geojson/campsites.geojson
+```
+
+The overnight reference compiler:
+
+```text
+build_topo/compiler/overnight_reference.py
+```
+
+produces:
+
+```text
+trails/vermont_long_trail/compiled/overnight_reference.json
+```
+
+This layer matches shelter/campsite waypoints against `route_overlay.json`,
+keeps matched and unmatched records, estimates trail miles from the compiled
+spine for unmatched points, and exposes near-spine planner candidates as
+additional shelter/camp stop options. It enriches overnight stop selection but
+does not mutate `route_overlay.json` or replace overlay operational truth.
+
 ## Data handling
 
 - Project code is licensed under Apache 2.0, but datasets may have separate
@@ -144,6 +174,8 @@ This enrichment layer preserves Gaia waypoint names, coordinates, icons, marker 
 - Compiled outputs are stored under `trails/vermont_long_trail/compiled/` and `trails/vermont_long_trail/intermediate/`.
 - Curated resupply access metadata is stored in `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`.
 - Optional Gaia reference waypoint data is stored in `trails/vermont_long_trail/raw/geojson/gaia_reference.geojson`.
+- Optional overnight shelter/campsite reference exports are stored in
+  `trails/vermont_long_trail/raw/geojson/`.
 - New data work should use the `data/` layout:
   - `data/raw/` for untouched source data
   - `data/derived/` for transformed datasets
@@ -184,6 +216,8 @@ streamlit run cairn/interfaces/streamlit_app.py
 - Resupply behavior should stay tied to real logistics/access nodes and curated access data, not arbitrary day numbers.
 - Recovery behavior should remain separate from resupply behavior even when both occur at the same access point.
 - Gaia reference data is enrichment only; do not treat Gaia waypoint exports as planner traversal authority.
+- Overnight reference data can add planner stop candidates only after matching,
+  spine-distance checks, and provenance review.
 - Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
 - The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
 

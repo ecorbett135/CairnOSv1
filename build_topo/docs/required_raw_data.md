@@ -279,6 +279,41 @@ Expected semantics include:
 - matched and unmatched waypoint records
 - summary counts for shelters, campsites, and approach references
 
+## 8. shelters.geojson and campsites.geojson
+
+Directory:
+
+```text
+raw/geojson/
+```
+
+Purpose:
+
+Provides optional shelter and campsite reference waypoints for overnight stop
+enrichment.
+
+These files are enrichment data, NOT operational truth. They can help identify
+overnight sites missing from `route_overlay.json`, but they must be matched
+against the route overlay and projected against the compiled trail spine before
+PlannerV2 treats them as candidate stops.
+
+The overnight reference compiler produces:
+
+```text
+compiled/overnight_reference.json
+```
+
+Expected semantics include:
+
+- point waypoint title / name
+- coordinates
+- source file and source id
+- icon and marker metadata
+- likely overnight class: shelter or campsite
+- fuzzy match status against route overlay canonical names
+- estimated trail mile for unmatched near-spine points
+- matched, unmatched, and planner-candidate records
+
 ---
 
 # Optional Raw Layers
