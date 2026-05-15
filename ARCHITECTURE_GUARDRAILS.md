@@ -18,9 +18,9 @@ These guardrails exist to prevent:
 
 ---
 
-# Core Architectural Principle
+## Core Architectural Principle
 
-## Operational Truth Overrides Ontology Elegance
+### Operational Truth Overrides Ontology Elegance
 
 This is the most important invariant in CairnOSv1.
 
@@ -52,9 +52,9 @@ NOT:
 
 ---
 
-# Planner Guardrails
+## Planner Guardrails
 
-## PlannerV2 Is Mandatory
+### PlannerV2 Is Mandatory
 
 DO NOT:
 
@@ -71,7 +71,7 @@ Legacy planner behavior should be considered:
 
 ---
 
-## PlannerV2 Must Model Expeditions
+### PlannerV2 Must Model Expeditions
 
 PlannerV2 MUST reason about:
 
@@ -93,9 +93,9 @@ PlannerV2 MUST NOT behave like:
 
 ---
 
-# Overlay Authority Guardrails
+## Overlay Authority Guardrails
 
-## route_overlay.json Is Authoritative
+### route_overlay.json Is Authoritative
 
 The operational overlay is the authoritative traversal semantics layer.
 
@@ -118,7 +118,7 @@ The planner MUST prefer overlay semantics over:
 
 ---
 
-## Overlay Progression Must Eventually Become Traversal Authority
+### Overlay Progression Must Eventually Become Traversal Authority
 
 Current planner behavior:
 
@@ -140,9 +140,9 @@ DO NOT regress toward:
 
 ---
 
-# Approach Trail Guardrails
+## Approach Trail Guardrails
 
-## Approach Trails Are Operational Branches
+### Approach Trails Are Operational Branches
 
 Approach trails are NOT:
 
@@ -160,7 +160,7 @@ Approach trails ARE:
 
 ---
 
-## Ingress / Egress Semantics Are Mandatory
+### Ingress / Egress Semantics Are Mandatory
 
 The planner MUST honor:
 
@@ -182,7 +182,7 @@ Ingress / egress selection is:
 
 ---
 
-## NOBO / SOBO Direction Parity Is Mandatory
+### NOBO / SOBO Direction Parity Is Mandatory
 
 NOBO and SOBO are traversal directions over the same northbound-reference
 guidebook miles. They are not separate mile systems.
@@ -213,7 +213,7 @@ DO NOT:
 
 ---
 
-## Negative Mileage Semantics Must Be Preserved
+### Negative Mileage Semantics Must Be Preserved
 
 Approach trails may legitimately exist at:
 
@@ -239,9 +239,9 @@ DO NOT:
 
 ---
 
-# Itinerary Guardrails
+## Itinerary Guardrails
 
-## The Itinerary Is A Traversal Narrative
+### The Itinerary Is A Traversal Narrative
 
 The itinerary should communicate:
 
@@ -260,7 +260,7 @@ The itinerary MUST NOT resemble:
 
 ---
 
-## Synthetic Labels Are Forbidden When Better Operational Data Exists
+### Synthetic Labels Are Forbidden When Better Operational Data Exists
 
 DO NOT generate labels like:
 
@@ -290,7 +290,7 @@ Synthetic fallback labels should ONLY appear:
 
 ---
 
-## Notes Field Should Remain Operationally Sparse
+### Notes Field Should Remain Operationally Sparse
 
 The itinerary notes field should ONLY contain:
 
@@ -317,9 +317,9 @@ that is already operationally obvious.
 
 ---
 
-# Overnight Selection Guardrails
+## Overnight Selection Guardrails
 
-## Overnight Selection Must Be Operationally Meaningful
+### Overnight Selection Must Be Operationally Meaningful
 
 Overnight selection should prioritize:
 
@@ -337,7 +337,7 @@ DO NOT:
 
 ---
 
-## Shelter Ontology Must Remain Distinct
+### Shelter Ontology Must Remain Distinct
 
 The system should distinguish between:
 
@@ -354,9 +354,9 @@ Avoid flattening all overnight semantics into:
 
 ---
 
-# Terrain Modeling Guardrails
+## Terrain Modeling Guardrails
 
-## Terrain Must Influence Traversal Meaningfully
+### Terrain Must Influence Traversal Meaningfully
 
 Terrain is NOT decorative metadata.
 
@@ -375,9 +375,9 @@ DO NOT:
 
 ---
 
-# Resupply Guardrails
+## Resupply Guardrails
 
-## Resupply Must Become Operationally Realistic
+### Resupply Must Become Operationally Realistic
 
 Resupply planning MUST distinguish:
 
@@ -414,9 +414,9 @@ food-weight, terrain, and recovery modeling.
 
 ---
 
-# Section Hiking Guardrails
+## Section Hiking Guardrails
 
-## Section Hiking Is A Distinct Traversal Mode
+### Section Hiking Is A Distinct Traversal Mode
 
 SECTION mode is NOT:
 
@@ -438,9 +438,9 @@ DO NOT fake section hiking by:
 
 ---
 
-# Runtime Layer Guardrails
+## Runtime Layer Guardrails
 
-## Runtime APIs Must Remain Stable
+### Runtime APIs Must Remain Stable
 
 The runtime layer should provide:
 
@@ -461,9 +461,9 @@ through brittle assumptions.
 
 ---
 
-# Dev Agent Guardrails
+## Dev Agent Guardrails
 
-## dev_agent Should Operate Only On Bounded Semantic Tasks
+### dev_agent Should Operate Only On Bounded Semantic Tasks
 
 Good dev_agent tasks:
 
@@ -489,7 +489,7 @@ Human supervision is mandatory for:
 
 ---
 
-# Forbidden Regression Patterns
+## Forbidden Regression Patterns
 
 DO NOT:
 
@@ -506,7 +506,7 @@ DO NOT:
 
 ---
 
-# Required Future Direction
+## Required Future Direction
 
 CairnOSv1 must continue evolving toward:
 
