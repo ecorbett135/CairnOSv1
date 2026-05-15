@@ -233,8 +233,10 @@ Expected semantics include:
 - zero-day suitability
 - source provenance
 
-This layer allows the planner to treat resupply cadence as a soft target
-around real operational access points instead of fixed day intervals.
+This layer allows the planner to treat resupply cadence as a soft food-carry
+target around real operational access points instead of fixed day intervals.
+Recovery cadence is a separate planner concern for zero/nero opportunities,
+though it may overlap with resupply at amenity-backed access points.
 When latitude and longitude are present, export layers may use them as
 curated access-point coordinates for Gaia markers. Missing coordinates do
 not make a resupply row invalid; they simply require downstream exporters to

@@ -2,6 +2,12 @@
 
 CairnOSv1 is an operational expedition planning system for long-distance trail networks. It is designed to move beyond abstract mileage partitioning and toward realistic, logistics-aware itinerary synthesis using trail-level operational semantics.
 
+## Screenshots
+
+The current Streamlit workflow supports planner configuration, generated
+expedition summaries, resupply strategy output, operational itinerary review,
+and Gaia GeoJSON export.
+
 ![CairnOSv1 Streamlit UI](docs/images/CairnOSv1-streamlit-ui.png)
 
 ![CairnOSv1 operational itinerary and Gaia export](docs/images/CairnOSv1-streamlit-generate_gaia.png)
@@ -11,12 +17,15 @@ CairnOSv1 is an operational expedition planning system for long-distance trail n
 - Builds a trail topology and operational graph from compiled trail data.
 - Loads route overlay metadata and operational node semantics at runtime.
 - Synthesizes expedition itineraries using `cairn/planner/planner_v2.py`.
-- Supports approach/egress handling and ingress-aware itinerary initialization.
+- Supports THRU trip planning with separate trip type and direction controls.
+- Preserves NOBO and SOBO ingress/egress semantics over northbound-reference guidebook miles.
 - Prioritizes real shelter and campsite stops over synthetic labels.
+- Separates resupply cadence from zero/nero recovery cadence.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
+- Produces a resupply strategy table with trip-start carry segment, town access, and days to next resupply segment.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
-- Provides tests in `cairn/tests/` for planner behavior, operational stop selection, route semantics, Gaia export behavior, and Gaia reference enrichment.
+- Provides tests in `cairn/tests/` for planner behavior, operational stop selection, SOBO direction semantics, Streamlit UI controls, Gaia export behavior, and Gaia reference enrichment.
 
 ## What it is working toward
 
@@ -36,6 +45,8 @@ CairnOSv1 is evolving toward:
 - `cairn/runtime/` — runtime graph loading, traversal semantics, operational queries
 - `cairn/planner/` — planner core and itinerary synthesis logic
 - `cairn/interfaces/` — UI and interface surfaces (Streamlit)
+- `data/` — forward-looking raw/derived/manual/generated data separation structure
+- `docs/` — documentation assets and provenance/licensing notes
 - `trails/vermont_long_trail/` — sample trail dataset and compiled outputs
 - `cairn/tests/` — automated tests for planner and runtime behavior
 
@@ -45,18 +56,21 @@ The Streamlit app provides a user-facing interface for requesting expedition pla
 
 Typical input parameters include:
 
-- direction and route selection (NOBO / SOBO)
+- trip type selection (THRU / SECTION)
+- direction selection (NOBO / SOBO)
 - ingress / egress approaches
-- start and end points
 - daily cadence or target mileage preferences
 - operational constraints such as shelter/campsite preferences
-- preferred resupply / zero cadence
+- preferred resupply cadence
+- preferred zero/nero recovery cadence
+- optional extra resupply-only stops
 
 The output includes:
 
 - a synthesized daily itinerary
 - descriptive stop names and operational locations
 - a resupply strategy table tied to real road crossings, trailheads, and town-access points
+- days until the next resupply segment or finish
 - Gaia GeoJSON download with a hot-pink trail spine, lime shelter/campsite markers, and red car markers for planned resupply crossings
 - alternate realistic plans when the requested itinerary is infeasible
 - validation feedback when a user request is invalid or cannot be satisfied as requested
@@ -81,9 +95,14 @@ It converts a PlannerV2 operational itinerary into a Gaia-importable GeoJSON fea
 
 Daily stop coordinates are resolved from compiled and enriched trail data, preferring curated reference coordinates where available and falling back to compiled route overlay or spine interpolation. Planned resupply markers are driven by `resupply_amenities.csv`, which now includes latitude and longitude for the known Long Trail resupply access points.
 
-## Resupply semantics
+## Resupply and recovery semantics
 
-PlannerV2 treats resupply cadence as a soft planning target, not a fixed interval. Resupply notes are added only when the itinerary crosses an operationally meaningful logistics/access node.
+PlannerV2 treats resupply cadence as a food-carry planning target and zero/nero cadence as a separate recovery planning target. Both are soft windows, not fixed intervals. Resupply notes are added only when the itinerary crosses an operationally meaningful logistics/access node, while zero and nero notes are reserved for recovery stops.
+
+The resupply strategy table includes the trip start as the first carry segment
+anchor, then lists planned resupply access points and the number of days until
+the next resupply segment or the finish. Terminal-day resupply stops are
+suppressed because they do not reduce a future food carry.
 
 The current Long Trail resupply layer is sourced from:
 
@@ -116,11 +135,19 @@ This enrichment layer preserves Gaia waypoint names, coordinates, icons, marker 
 
 ## Data handling
 
+- Project code is licensed under Apache 2.0, but datasets may have separate
+  licenses and obligations.
 - Compiled outputs are stored under `trails/vermont_long_trail/compiled/` and `trails/vermont_long_trail/intermediate/`.
 - Curated resupply access metadata is stored in `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`.
 - Optional Gaia reference waypoint data is stored in `trails/vermont_long_trail/raw/geojson/gaia_reference.geojson`.
+- New data work should use the `data/` layout:
+  - `data/raw/` for untouched source data
+  - `data/derived/` for transformed datasets
+  - `data/manual/` for manually curated Cairn datasets
+  - `data/generated/` for reports, exports, cache files, and temporary outputs
 - Raw DEM files are managed outside normal Git history using Git LFS to avoid repository bloat.
 - `.gitattributes` already tracks `trails/vermont_long_trail/raw/dem/*.tif` with Git LFS.
+- Dataset provenance is tracked in `data/DATASETS.md`; guidance lives in `docs/DATA_PROVENANCE.md`.
 - Readme images and documentation assets are kept under `docs/images/` to avoid top-level directory pollution.
 
 ## Getting started
@@ -148,9 +175,22 @@ streamlit run cairn/interfaces/streamlit_app.py
 - `PlannerV2` is the authoritative current planner implementation.
 - The system intentionally avoids synthetic planner behavior in favor of operational realism.
 - The overlay (`route_overlay.json`) is the authoritative source for canonical stop names, shelter semantics, and progression ordering.
+- NOBO and SOBO use the same northbound-reference guidebook miles; direction changes traversal order, not mile semantics.
+- Selected ingress and egress routes are planner state, not display-only metadata.
 - Resupply behavior should stay tied to real logistics/access nodes and curated access data, not arbitrary day numbers.
+- Recovery behavior should remain separate from resupply behavior even when both occur at the same access point.
 - Gaia reference data is enrichment only; do not treat Gaia waypoint exports as planner traversal authority.
+- Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
 - The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
+
+## License
+
+CairnOSv1 project code is licensed under the Apache License 2.0. See `LICENSE`.
+
+Data files are not automatically Apache licensed. Trail datasets, OSM-derived
+layers, Gaia exports, DEMs, screenshots, generated reports, and manually
+curated data may carry separate provenance and license obligations. See
+`docs/DATA_PROVENANCE.md` and `data/DATASETS.md` before reusing datasets.
 
 ## Current repository goals
 

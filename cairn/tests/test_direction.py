@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 from cairn.planner.planner_v2 import PlannerV2
 
 

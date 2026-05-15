@@ -1,3 +1,5 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
 from cairn.export.gaia_geojson import (
     export_itinerary_to_gaia_geojson,
     load_resupply_access_reference,
@@ -164,7 +166,7 @@ def test_gaia_export_uses_reference_coordinates_for_camps(
     )
 
     itinerary = planner.synthesize_itinerary(
-        desired_days=27
+        desired_days=24
     )
 
     export = export_itinerary_to_gaia_geojson(
@@ -212,7 +214,7 @@ def test_gaia_export_uses_curated_access_coordinates_for_resupply_crossings(
     )
 
     itinerary = planner.synthesize_itinerary(
-        desired_days=24
+        desired_days=32
     )
 
     export = export_itinerary_to_gaia_geojson(
@@ -289,8 +291,14 @@ def test_gaia_export_adds_resupply_strategy_markers(
     ]
 
     assert resupply_features
+
+    exportable_resupply_rows = [
+        row for row in itinerary["resupply_plan"]
+        if "resupply" in row.get("notes", "")
+    ]
+
     assert len(resupply_features) == len(
-        itinerary["resupply_plan"]
+        exportable_resupply_rows
     )
 
     manchester = next(

@@ -198,8 +198,30 @@ Approach trails should support:
 
 - NOBO ingress
 - SOBO ingress
+- NOBO egress
+- SOBO egress
 - future section traversal
 - operational branch continuity
+
+---
+
+## Direction Semantics
+
+NOBO and SOBO THRU plans now share the same northbound-reference trail mile
+system. Direction changes traversal order, not the meaning of guidebook miles.
+
+Current THRU semantics:
+
+- NOBO starts from the selected southern ingress and progresses north
+- SOBO starts from the selected northern ingress and progresses south
+- selected egress routes are honored in both directions
+- SOBO daily traversal mileage is positive even as guidebook mile values descend
+- Journey's End Trail acts as northern ingress/egress, depending on direction
+- Williamstown and North Adams approaches remain valid southern ingress/egress
+
+The planner should continue to preserve NOBO / SOBO feature parity for
+itinerary synthesis, resupply strategy generation, recovery annotations, and
+Gaia export.
 
 ---
 
@@ -309,14 +331,17 @@ Daily rows should communicate:
 The Streamlit UI currently supports:
 
 - trail selection
-- NOBO / SOBO / SECTION selection
+- trip type selection (THRU / SECTION)
+- direction selection (NOBO / SOBO)
 - ingress route selection
 - egress route selection
 - desired completion days
 - min daily mileage
 - max daily mileage
 - max elevation gain
-- resupply / zero cadence
+- preferred resupply cadence
+- preferred zero/nero recovery cadence
+- optional extra resupply-only stops
 
 The UI should prioritize:
 
@@ -331,23 +356,27 @@ NOT:
 
 ---
 
-# Current Known Problems
+# Current Stabilized Behavior And Remaining Gaps
 
 ## Ingress / Egress Continuity
 
-Current planner behavior still sometimes:
+Current PlannerV2 behavior now preserves selected ingress and egress routes for
+the primary NOBO and SOBO THRU workflows.
 
-- ignores ingress initialization
-- resets traversal to mile 0
-- loses approach continuity
+Examples:
 
-This is a major operational bug.
+- NOBO can begin on the North Adams or Williamstown approach and end at
+  Journey's End Trail
+- SOBO can begin on Journey's End Trail and end through the selected southern
+  approach
+- approach trail negative mile semantics are preserved instead of normalized
+  away
 
 ---
 
 ## Overlay Traversal Authority
 
-The planner currently:
+The planner still primarily:
 
 - targets mileage
 - then searches for nearby nodes
@@ -414,9 +443,19 @@ Current resupply behavior now identifies candidate access nodes from:
 - crossing / trailhead / logistics node classes
 - curated Long Trail trail-town amenities
 
-PlannerV2 uses the user cadence as a soft target and only annotates a
-resupply when the itinerary actually traverses a meaningful access node near
-that cadence window.
+PlannerV2 uses resupply cadence as a food-carry target and recovery cadence
+as a separate zero/nero target. Both remain soft windows: resupply is only
+annotated when the itinerary actually traverses a meaningful access node near
+the food-carry window, and zero/nero notes are reserved for recovery stops.
+
+The resupply strategy table now includes:
+
+- a trip-start carry segment anchor
+- planned resupply access points
+- town access metadata
+- days until the next resupply segment or finish
+
+Terminal-day resupply is avoided because it does not reduce a future food carry.
 
 Future semantics should still reason more deeply about:
 
@@ -447,15 +486,15 @@ Future implementation must support:
 
 Priority order is currently:
 
-1. ingress / egress continuity
-2. overlay-authoritative traversal synthesis
-3. shelter-aware overnight selection
-4. logistics-aware resupply insertion
-5. terrain-aware itinerary synthesis
-6. recovery semantics
-7. operational cadence realism
-8. section hiking substrate
-9. planner validation rewrite
+1. overlay-authoritative traversal synthesis
+2. shelter-aware overnight selection
+3. logistics-aware resupply insertion
+4. terrain-aware itinerary synthesis
+5. recovery semantics
+6. operational cadence realism
+7. section hiking substrate
+8. planner validation rewrite
+9. Gaia export enrichment hardening
 10. dev_agent reintegration
 
 ---

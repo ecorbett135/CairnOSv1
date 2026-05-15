@@ -1,3 +1,6 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
+import csv
 from statistics import mean
 
 from cairn.runtime.graph_runtime import (
@@ -79,6 +82,20 @@ class PlannerV2:
             self.user_profile.get(
                 "resupply_cadence",
                 5,
+            )
+        )
+
+        self.recovery_cadence = (
+            self.user_profile.get(
+                "recovery_cadence",
+                6,
+            )
+        )
+
+        self.allow_extra_resupply_only = (
+            self.user_profile.get(
+                "allow_extra_resupply_only",
+                True,
             )
         )
 
@@ -201,9 +218,9 @@ class PlannerV2:
     ):
 
         cadence_window = [
-            self.resupply_cadence - 1,
-            self.resupply_cadence,
-            self.resupply_cadence + 1,
+            self.recovery_cadence - 1,
+            self.recovery_cadence,
+            self.recovery_cadence + 1,
         ]
 
         return day in cadence_window
@@ -497,6 +514,141 @@ class PlannerV2:
             "location_name": approach_name,
         }
 
+    def load_approach_records(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_approach_records",
+        ):
+            return self._approach_records
+
+        path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "approach_trails.csv"
+        )
+
+        if not path.exists():
+            self._approach_records = []
+            return self._approach_records
+
+        records = []
+
+        with open(
+            path,
+            newline="",
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+
+                mile = self.parse_float(
+                    row.get(
+                        "cumulative_to_trail_mi"
+                    )
+                )
+
+                if mile is None:
+                    continue
+
+                records.append({
+                    "approach_id": row.get(
+                        "approach_id",
+                        "",
+                    ),
+                    "approach_name": row.get(
+                        "approach_name",
+                        "",
+                    ),
+                    "route_name": row.get(
+                        "route_name",
+                        "",
+                    ),
+                    "location": row.get(
+                        "location",
+                        "",
+                    ),
+                    "node_class": row.get(
+                        "node_class",
+                        "trailhead",
+                    ),
+                    "mile": mile,
+                    "sequence": self.parse_float(
+                        row.get("sequence")
+                    ),
+                    "road_access": self.parse_bool(
+                        row.get("road_access")
+                    ),
+                })
+
+        self._approach_records = records
+        return self._approach_records
+
+    def _resolve_egress_node(self):
+
+        if not self.egress_route:
+            return None
+
+        records = [
+            row
+            for row in self.load_approach_records()
+            if row.get(
+                "approach_name",
+                "",
+            ).strip().lower()
+            == self.egress_route.strip().lower()
+        ]
+
+        if not records:
+            return None
+
+        if self.is_sobo():
+            endpoint = min(
+                records,
+                key=lambda row: row.get(
+                    "mile",
+                    0,
+                ),
+            )
+        else:
+            endpoint = max(
+                records,
+                key=lambda row: row.get(
+                    "mile",
+                    0,
+                ),
+            )
+
+        location_name = (
+            endpoint.get("location")
+            or endpoint.get("approach_name")
+            or "Egress Trailhead"
+        )
+
+        return {
+            "canonical_name": location_name,
+            "trail_mile": round(
+                endpoint.get("mile"),
+                1,
+            ),
+            "node_class": endpoint.get(
+                "node_class",
+                "trailhead",
+            ),
+            "division": (
+                "division0"
+                if endpoint.get("mile", 0) <= 0
+                else "division12"
+            ),
+            "egress_route": endpoint.get(
+                "approach_name"
+            ),
+        }
+
     def get_directional_access(
         self,
     ):
@@ -573,19 +725,672 @@ class PlannerV2:
             node.get("mile"),
         )
 
+    def is_sobo(
+        self,
+    ):
+
+        return (
+            str(self.direction)
+            .strip()
+            .upper()
+            == "SOBO"
+        )
+
+    def mainline_northern_mile(
+        self,
+        overlay_nodes,
+    ):
+
+        miles = [
+            self.node_mile(node)
+            for node in overlay_nodes
+            if self.node_mile(node) is not None
+        ]
+
+        if not miles:
+            return 272.0
+
+        return round(
+            max(miles),
+            1,
+        )
+
+    def mainline_southern_mile(
+        self,
+    ):
+
+        return 0.0
+
+    def target_mile_for_distance(
+        self,
+        current_mile,
+        distance,
+        southern_mile,
+        northern_mile,
+    ):
+
+        if self.is_sobo():
+            return round(
+                max(
+                    southern_mile,
+                    current_mile - distance,
+                ),
+                1,
+            )
+
+        return round(
+            min(
+                northern_mile,
+                current_mile + distance,
+            ),
+            1,
+        )
+
+    def travel_distance(
+        self,
+        start_mile,
+        stop_mile,
+    ):
+
+        return round(
+            abs(stop_mile - start_mile),
+            1,
+        )
+
+    def reached_route_end(
+        self,
+        current_mile,
+        southern_mile,
+        northern_mile,
+    ):
+
+        if self.is_sobo():
+            return (
+                current_mile <= southern_mile
+            )
+
+        return (
+            current_mile >= northern_mile
+        )
+
+    def is_forward_progress(
+        self,
+        current_mile,
+        candidate_mile,
+    ):
+
+        if current_mile is None:
+            return True
+
+        if candidate_mile is None:
+            return False
+
+        if self.is_sobo():
+            return candidate_mile < (
+                current_mile - 0.05
+            )
+
+        return candidate_mile > (
+            current_mile + 0.05
+        )
+
+    def mile_in_travel_window(
+        self,
+        start_mile,
+        stop_mile,
+        candidate_mile,
+    ):
+
+        if candidate_mile is None:
+            return False
+
+        if self.is_sobo():
+            return (
+                stop_mile
+                <= candidate_mile
+                < start_mile
+            )
+
+        return (
+            start_mile
+            < candidate_mile
+            <= stop_mile
+        )
+
+    def extended_target_mile(
+        self,
+        current_mile,
+        target_mile,
+        southern_mile,
+        northern_mile,
+    ):
+
+        if self.is_sobo():
+            lower_mile = max(
+                southern_mile,
+                target_mile - 3.0,
+                current_mile
+                - self.max_daily_miles
+                - 4.0,
+            )
+
+            return round(
+                lower_mile,
+                1,
+            )
+
+        upper_mile = min(
+            northern_mile,
+            target_mile + 3.0,
+            current_mile
+            + self.max_daily_miles
+            + 4.0,
+        )
+
+        return round(
+            upper_mile,
+            1,
+        )
+
     def resupply_node_id(
         self,
         node,
     ):
 
         return (
-            node.get("overlay_id")
+            node.get("resupply_amenity_id")
+            or node.get("overlay_id")
             or node.get("node_id")
             or (
                 f"{node.get('canonical_name')}:"
                 f"{self.node_mile(node)}"
             )
         )
+
+    def parse_bool(
+        self,
+        value,
+    ):
+
+        return str(
+            value or ""
+        ).strip().lower() in {
+            "true",
+            "1",
+            "yes",
+            "y",
+        }
+
+    def parse_float(
+        self,
+        value,
+    ):
+
+        try:
+            return float(value)
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return None
+
+    def normalize_match_tokens(
+        self,
+        value,
+    ):
+
+        normalized = "".join(
+            char.lower()
+            if char.isalnum()
+            else " "
+            for char in str(value or "")
+        )
+
+        return set(
+            token
+            for token in normalized.split()
+            if token
+        )
+
+    def load_resupply_amenities(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_resupply_amenities",
+        ):
+            return self._resupply_amenities
+
+        path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "resupply_amenities.csv"
+        )
+
+        if not path.exists():
+            self._resupply_amenities = []
+            return self._resupply_amenities
+
+        amenities = []
+
+        with open(
+            path,
+            newline="",
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+
+                trail_mile = self.parse_float(
+                    row.get("trail_mile")
+                )
+
+                if trail_mile is None:
+                    continue
+
+                latitude = self.parse_float(
+                    row.get("latitude")
+                )
+
+                longitude = self.parse_float(
+                    row.get("longitude")
+                )
+
+                amenities.append({
+                    "trail_mile": trail_mile,
+                    "town_access": (
+                        row.get("town_access")
+                        or ""
+                    ),
+                    "canonical_hint": (
+                        row.get("canonical_hint")
+                        or ""
+                    ),
+                    "access_notes": (
+                        row.get("access_notes")
+                        or ""
+                    ),
+                    "grocery": self.parse_bool(
+                        row.get("grocery")
+                    ),
+                    "post_office": self.parse_bool(
+                        row.get("post_office")
+                    ),
+                    "outfitter": self.parse_bool(
+                        row.get("outfitter")
+                    ),
+                    "lodging": self.parse_bool(
+                        row.get("lodging")
+                    ),
+                    "restaurants": self.parse_bool(
+                        row.get("restaurants")
+                    ),
+                    "zero_candidate": self.parse_bool(
+                        row.get("zero_candidate")
+                    ),
+                    "source_name": (
+                        row.get("source_name")
+                        or ""
+                    ),
+                    "source_url": (
+                        row.get("source_url")
+                        or ""
+                    ),
+                    "latitude": latitude,
+                    "longitude": longitude,
+                })
+
+        self._resupply_amenities = amenities
+        return self._resupply_amenities
+
+    def find_overlay_for_amenity(
+        self,
+        amenity,
+        overlay_nodes,
+    ):
+
+        amenity_mile = amenity.get(
+            "trail_mile"
+        )
+
+        if amenity_mile is None:
+            return None
+
+        hint_tokens = (
+            self.normalize_match_tokens(
+                amenity.get("canonical_hint")
+            )
+        )
+
+        town_tokens = (
+            self.normalize_match_tokens(
+                amenity.get("town_access")
+            )
+        )
+
+        candidates = []
+
+        for node in overlay_nodes:
+
+            node_mile = self.node_mile(node)
+
+            if node_mile is None:
+                continue
+
+            distance = abs(
+                node_mile - amenity_mile
+            )
+
+            if distance > 1.0:
+                continue
+
+            name_tokens = (
+                self.normalize_match_tokens(
+                    node.get("canonical_name")
+                )
+            )
+
+            node_town_tokens = (
+                self.normalize_match_tokens(
+                    node.get("town_access")
+                )
+            )
+
+            token_match = bool(
+                hint_tokens & name_tokens
+                or town_tokens & node_town_tokens
+            )
+
+            candidates.append({
+                "node": node,
+                "distance": distance,
+                "token_match": token_match,
+            })
+
+        if not candidates:
+            return None
+
+        candidates = sorted(
+            candidates,
+            key=lambda item: (
+                not item["token_match"],
+                item["distance"],
+            ),
+        )
+
+        return candidates[0]["node"]
+
+    def services_from_amenity(
+        self,
+        amenity,
+    ):
+
+        services = []
+
+        for service in [
+            "grocery",
+            "post_office",
+            "outfitter",
+            "lodging",
+            "restaurants",
+        ]:
+
+            if amenity.get(service):
+                services.append(service)
+
+        return services
+
+    def build_logistics_candidates(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_logistics_candidates",
+        ):
+            return self._logistics_candidates
+
+        overlay_nodes = (
+            self.queries
+            .get_resupply_access_nodes()
+        )
+
+        rows = []
+
+        amenities = (
+            self.load_resupply_amenities()
+        )
+
+        if not amenities:
+            self._logistics_candidates = (
+                overlay_nodes
+            )
+            return self._logistics_candidates
+
+        for amenity in amenities:
+
+            overlay_node = (
+                self.find_overlay_for_amenity(
+                    amenity,
+                    overlay_nodes,
+                )
+            )
+
+            if overlay_node:
+                node = dict(overlay_node)
+            else:
+                node = {
+                    "canonical_name": (
+                        amenity.get(
+                            "canonical_hint"
+                        )
+                        or amenity.get(
+                            "town_access"
+                        )
+                        or "Logistics Access"
+                    ),
+                    "trail_mile": amenity.get(
+                        "trail_mile"
+                    ),
+                    "node_class": "logistics",
+                    "division": None,
+                }
+
+            node[
+                "resupply_amenity"
+            ] = amenity
+
+            node[
+                "resupply_amenity_id"
+            ] = (
+                f"{amenity.get('canonical_hint')}:"
+                f"{amenity.get('trail_mile')}"
+            )
+
+            node[
+                "town_access"
+            ] = (
+                node.get("town_access")
+                or amenity.get("town_access")
+                or ""
+            )
+
+            node[
+                "access_notes"
+            ] = (
+                node.get("access_notes")
+                or amenity.get("access_notes")
+                or ""
+            )
+
+            node[
+                "resupply_services"
+            ] = self.services_from_amenity(
+                amenity
+            )
+
+            node[
+                "resupply_source"
+            ] = amenity.get(
+                "source_name"
+            )
+
+            node[
+                "resupply_source_url"
+            ] = amenity.get(
+                "source_url"
+            )
+
+            for key in [
+                "grocery",
+                "post_office",
+                "outfitter",
+                "lodging",
+                "restaurants",
+                "zero_candidate",
+            ]:
+
+                node[key] = amenity.get(
+                    key,
+                    False,
+                )
+
+            node["resupply"] = (
+                self.is_resupply_candidate(
+                    node
+                )
+            )
+
+            node["recovery_candidate"] = (
+                self.is_recovery_candidate(
+                    node
+                )
+            )
+
+            rows.append(node)
+
+        rows = sorted(
+            rows,
+            key=lambda node: (
+                self.node_mile(node)
+                or 0
+            ),
+        )
+
+        self._logistics_candidates = rows
+        return self._logistics_candidates
+
+    def is_resupply_candidate(
+        self,
+        node,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        services = set(
+            node.get(
+                "resupply_services",
+                [],
+            )
+            or []
+        )
+
+        return bool(
+            amenity.get("grocery")
+            or amenity.get("post_office")
+            or amenity.get("outfitter")
+            or "grocery" in services
+            or "post_office" in services
+            or "outfitter" in services
+        )
+
+    def is_recovery_candidate(
+        self,
+        node,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        services = set(
+            node.get(
+                "resupply_services",
+                [],
+            )
+            or []
+        )
+
+        return bool(
+            amenity.get("zero_candidate")
+            or amenity.get("lodging")
+            or amenity.get("restaurants")
+            or node.get("zero_candidate")
+            or "lodging" in services
+            or "restaurants" in services
+        )
+
+    def score_resupply_candidate(
+        self,
+        node,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        score = 0
+
+        if amenity.get("grocery"):
+            score += 100
+
+        if amenity.get("post_office"):
+            score += 35
+
+        if amenity.get("outfitter"):
+            score += 25
+
+        if node.get("town_access"):
+            score += 10
+
+        return score
+
+    def score_recovery_candidate(
+        self,
+        node,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        score = 0
+
+        if amenity.get("zero_candidate"):
+            score += 100
+
+        if amenity.get("lodging"):
+            score += 35
+
+        if amenity.get("restaurants"):
+            score += 25
+
+        if amenity.get("grocery"):
+            score += 10
+
+        if node.get("town_access"):
+            score += 5
+
+        return score
 
     def select_resupply_for_day(
         self,
@@ -611,16 +1416,6 @@ class PlannerV2:
         ):
             return None
 
-        lower_mile = min(
-            start_mile,
-            stop_mile,
-        )
-
-        upper_mile = max(
-            start_mile,
-            stop_mile,
-        )
-
         candidates = []
 
         for node in resupply_nodes:
@@ -632,28 +1427,32 @@ class PlannerV2:
             if node_id in used_resupply_ids:
                 continue
 
+            if not self.is_resupply_candidate(
+                node
+            ):
+                continue
+
             mile = self.node_mile(node)
 
             if mile is None:
                 continue
 
-            if (
-                mile <= lower_mile
-                or mile > upper_mile
+            if not self.mile_in_travel_window(
+                start_mile,
+                stop_mile,
+                mile,
             ):
                 continue
 
-            services = (
-                node.get(
-                    "resupply_services",
-                    []
+            score = (
+                self.score_resupply_candidate(
+                    node
                 )
-                or []
             )
 
             candidates.append({
                 "node": node,
-                "service_count": len(services),
+                "score": score,
                 "distance_to_stop": abs(
                     stop_mile - mile
                 ),
@@ -669,9 +1468,7 @@ class PlannerV2:
                     days_since_resupply
                     - cadence
                 ),
-                -item[
-                    "service_count"
-                ],
+                -item["score"],
                 item[
                     "distance_to_stop"
                 ],
@@ -679,6 +1476,163 @@ class PlannerV2:
         )
 
         return candidates[0]["node"]
+
+    def select_recovery_for_day(
+        self,
+        start_mile,
+        target_mile,
+        day,
+        last_recovery_day,
+        logistics_candidates,
+        used_recovery_ids,
+    ):
+
+        cadence = max(
+            3,
+            self.recovery_cadence,
+        )
+
+        days_since_recovery = (
+            day - last_recovery_day
+        )
+
+        if days_since_recovery < (
+            cadence - 1
+        ):
+            return (
+                None,
+                None,
+            )
+
+        if self.is_sobo():
+            search_stop_mile = max(
+                self.mainline_southern_mile(),
+                target_mile - 3.0,
+                start_mile
+                - self.max_daily_miles
+                - 4.0,
+            )
+        else:
+            search_stop_mile = min(
+                self.mainline_northern_mile(
+                    logistics_candidates
+                ),
+                target_mile + 3.0,
+                start_mile
+                + self.max_daily_miles
+                + 4.0,
+            )
+
+        candidates = []
+
+        for node in logistics_candidates:
+
+            node_id = (
+                self.resupply_node_id(node)
+            )
+
+            if node_id in used_recovery_ids:
+                continue
+
+            if not self.is_recovery_candidate(
+                node
+            ):
+                continue
+
+            mile = self.node_mile(node)
+
+            if mile is None:
+                continue
+
+            if not self.mile_in_travel_window(
+                start_mile,
+                search_stop_mile,
+                mile,
+            ):
+                continue
+
+            score = (
+                self.score_recovery_candidate(
+                    node
+                )
+            )
+
+            if score <= 0:
+                continue
+
+            candidates.append({
+                "node": node,
+                "score": score,
+                "distance_to_target": abs(
+                    target_mile - mile
+                ),
+            })
+
+        if not candidates:
+            return (
+                None,
+                None,
+            )
+
+        candidates = sorted(
+            candidates,
+            key=lambda item: (
+                abs(
+                    days_since_recovery
+                    - cadence
+                ),
+                -item["score"],
+                item[
+                    "distance_to_target"
+                ],
+            ),
+        )
+
+        selected = candidates[0]["node"]
+
+        amenity = selected.get(
+            "resupply_amenity",
+            {},
+        )
+
+        cadence = max(
+            3,
+            self.recovery_cadence,
+        )
+
+        if (
+            amenity.get("zero_candidate")
+            and days_since_recovery >= cadence
+        ):
+            recovery_kind = "zero"
+        else:
+            recovery_kind = "nero"
+
+        return (
+            selected,
+            recovery_kind,
+        )
+
+    def build_logistics_note(
+        self,
+        resupply_node=None,
+        recovery_kind=None,
+    ):
+
+        if recovery_kind == "zero":
+            if resupply_node:
+                return "resupply / zero"
+            return "zero"
+
+        if recovery_kind == "nero":
+            if resupply_node:
+                return "resupply / nero"
+            return "nero"
+
+        if resupply_node:
+            return "resupply"
+
+        return ""
 
     def build_resupply_note(
         self,
@@ -690,27 +1644,9 @@ class PlannerV2:
         if not resupply_node:
             return ""
 
-        cadence = max(
-            2,
-            self.resupply_cadence,
+        return self.build_logistics_note(
+            resupply_node=resupply_node,
         )
-
-        days_since_resupply = (
-            day - last_resupply_day
-        )
-
-        if (
-            resupply_node.get(
-                "zero_candidate"
-            )
-            and days_since_resupply >= (
-                cadence + 1
-            )
-        ):
-
-            return "resupply / zero"
-
-        return "resupply"
 
     def build_resupply_plan(
         self,
@@ -720,12 +1656,73 @@ class PlannerV2:
         if daily_plan is not None:
 
             rows = []
+            terminal_day = daily_plan[-1][
+                "day"
+            ] if daily_plan else None
+
+            if daily_plan:
+
+                first_day = daily_plan[0]
+                start_mile = first_day.get(
+                    "daily_start_mile"
+                )
+
+                matched_start = None
+
+                for node in (
+                    self.build_logistics_candidates()
+                ):
+
+                    node_mile = self.node_mile(
+                        node
+                    )
+
+                    if (
+                        node_mile is None
+                        or start_mile is None
+                    ):
+                        continue
+
+                    if abs(
+                        node_mile - start_mile
+                    ) <= 1.5:
+                        matched_start = node
+                        break
+
+                rows.append({
+                    "day": first_day.get("day"),
+                    "location": first_day.get(
+                        "daily_start_location"
+                    ),
+                    "mile": start_mile,
+                    "town_access": (
+                        matched_start.get(
+                            "town_access"
+                        )
+                        if matched_start
+                        else ""
+                    ),
+                    "access_type": first_day.get(
+                        "daily_start_location_type",
+                        "trailhead",
+                    ),
+                    "notes": "start",
+                })
 
             for day in daily_plan:
+
+                if (
+                    terminal_day is not None
+                    and day.get("day")
+                    == terminal_day
+                ):
+                    continue
 
                 if day.get("notes") not in [
                     "resupply",
                     "zero",
+                    "nero",
+                    "resupply / nero",
                     "resupply / zero",
                 ]:
                     continue
@@ -755,11 +1752,38 @@ class PlannerV2:
                     ),
                 })
 
+            for idx, row in enumerate(rows):
+
+                if idx + 1 < len(rows):
+                    row[
+                        "days_to_next_resupply"
+                    ] = (
+                        rows[idx + 1]["day"]
+                        - row["day"]
+                    )
+                else:
+                    row[
+                        "days_to_next_resupply"
+                    ] = None
+
+                if (
+                    row[
+                        "days_to_next_resupply"
+                    ] is None
+                    and terminal_day is not None
+                ):
+                    row[
+                        "days_to_next_resupply"
+                    ] = max(
+                        0,
+                        terminal_day
+                        - row["day"],
+                    )
+
             return rows
 
         resupply_nodes = (
-            self.queries
-            .get_resupply_access_nodes()
+            self.build_logistics_candidates()
         )
 
         rows = []
@@ -788,6 +1812,7 @@ class PlannerV2:
                 "notes": (
                     "resupply"
                 ),
+                "days_to_next_resupply": None,
             })
 
         return rows[:10]
@@ -797,6 +1822,7 @@ class PlannerV2:
         target_mile,
         operational_overnight_nodes,
         logistics_nodes,
+        current_mile=None,
     ):
         """
         Select the best operational stop near target_mile.
@@ -827,6 +1853,12 @@ class PlannerV2:
                 if mile is None:
                     continue
 
+                if not self.is_forward_progress(
+                    current_mile,
+                    mile,
+                ):
+                    continue
+
                 delta = abs(
                     mile - target_mile
                 )
@@ -847,6 +1879,12 @@ class PlannerV2:
                 )
 
                 if mile is None:
+                    continue
+
+                if not self.is_forward_progress(
+                    current_mile,
+                    mile,
+                ):
                     continue
 
                 delta = abs(
@@ -893,15 +1931,31 @@ class PlannerV2:
             )
         )
 
-        logistics_nodes = (
-            self.queries
-            .get_logistics_access_nodes()
+        logistics_candidates = (
+            self.build_logistics_candidates()
         )
 
         resupply_nodes = (
-            self.queries
-            .get_resupply_access_nodes()
+            logistics_candidates
         )
+
+        logistics_nodes = (
+            logistics_candidates
+            or (
+                self.queries
+                .get_logistics_access_nodes()
+            )
+        )
+
+        egress_node = (
+            self._resolve_egress_node()
+        )
+
+        if egress_node:
+            logistics_nodes = [
+                *logistics_nodes,
+                egress_node,
+            ]
 
         operational_overnight_nodes = (
             self.queries
@@ -910,7 +1964,19 @@ class PlannerV2:
 
         rows = []
 
-        total_miles = 272.0
+        southern_mile = (
+            self.mainline_southern_mile()
+        )
+
+        northern_mile = (
+            self.mainline_northern_mile(
+                overlay_nodes
+            )
+        )
+
+        total_miles = (
+            northern_mile - southern_mile
+        )
 
         base_daily_target = (
             total_miles /
@@ -921,8 +1987,53 @@ class PlannerV2:
         current_location = "Southern Terminus"
         current_location_type = "terminus"
         current_division = "division1"
+
+        if self.is_sobo():
+
+            northern_node = max(
+                overlay_nodes,
+                key=lambda node: (
+                    self.node_mile(node)
+                    or southern_mile
+                ),
+            )
+
+            current_mile = northern_mile
+            current_location = northern_node.get(
+                "canonical_name",
+                "Northern Terminus",
+            )
+            current_location_type = (
+                northern_node.get(
+                    "node_class",
+                    "terminus",
+                )
+            )
+            current_division = northern_node.get(
+                "division",
+                "division12",
+            )
+
+        terminal_mile = (
+            southern_mile
+            if self.is_sobo()
+            else northern_mile
+        )
+
+        if (
+            egress_node
+        ):
+            terminal_mile = (
+                self.node_mile(
+                    egress_node
+                )
+                or terminal_mile
+            )
+
         last_resupply_day = 0
+        last_recovery_day = 0
         used_resupply_ids = set()
+        used_recovery_ids = set()
 
         ingress_resolved = (
             self._resolve_ingress_node()
@@ -959,7 +2070,9 @@ class PlannerV2:
                 current_division,
             )
 
-        for day in range(1, completion_days + 1):
+        day = 1
+
+        while day <= completion_days:
 
             daily_target = (
                 self.calculate_terrain_adjusted_target(
@@ -968,21 +2081,149 @@ class PlannerV2:
                 )
             )
 
-            target_mile = round(
+            remaining_distance = (
+                self.travel_distance(
+                    current_mile,
+                    terminal_mile,
+                )
+            )
+
+            remaining_days = max(
+                1,
+                completion_days - day + 1,
+            )
+
+            required_daily_target = round(
+                remaining_distance /
+                remaining_days,
+                1,
+            )
+
+            daily_target = round(
                 min(
-                    total_miles,
-                    current_mile + daily_target,
+                    self.max_daily_miles,
+                    max(
+                        daily_target,
+                        required_daily_target,
+                    ),
                 ),
                 1,
             )
 
-            selected_stop = (
-                self.select_operational_stop(
-                    target_mile,
-                    operational_overnight_nodes,
-                    logistics_nodes,
+            if (
+                egress_node
+                and day == completion_days
+            ):
+                daily_target = (
+                    self.travel_distance(
+                        current_mile,
+                        terminal_mile,
+                    )
+                )
+
+            target_mile = (
+                self.target_mile_for_distance(
+                    current_mile,
+                    daily_target,
+                    min(
+                        southern_mile,
+                        terminal_mile,
+                    ),
+                    max(
+                        northern_mile,
+                        terminal_mile,
+                    ),
                 )
             )
+
+            resupply_search_mile = (
+                self.extended_target_mile(
+                    current_mile,
+                    target_mile,
+                    min(
+                        southern_mile,
+                        terminal_mile,
+                    ),
+                    max(
+                        northern_mile,
+                        terminal_mile,
+                    ),
+                )
+            )
+
+            recovery_node, recovery_kind = (
+                (
+                    None,
+                    None,
+                )
+                if (
+                    day == completion_days
+                    or (
+                        self.is_sobo()
+                        and egress_node
+                        and target_mile <= terminal_mile
+                    )
+                    or (
+                        not self.is_sobo()
+                        and egress_node
+                        and target_mile >= terminal_mile
+                    )
+                )
+                else self.select_recovery_for_day(
+                    current_mile,
+                    target_mile,
+                    day,
+                    last_recovery_day,
+                    logistics_candidates,
+                    used_recovery_ids,
+                )
+            )
+
+            planned_resupply_stop = None
+
+            if (
+                not recovery_node
+                and self.allow_extra_resupply_only
+                and day < completion_days
+            ):
+                planned_resupply_stop = (
+                    self.select_resupply_for_day(
+                        current_mile,
+                        resupply_search_mile,
+                        day,
+                        last_resupply_day,
+                        resupply_nodes,
+                        used_resupply_ids,
+                    )
+                )
+
+            if recovery_node:
+                selected_stop = recovery_node
+            elif planned_resupply_stop:
+                selected_stop = planned_resupply_stop
+            elif (
+                egress_node
+                and (
+                    (
+                        self.is_sobo()
+                        and target_mile <= terminal_mile
+                    )
+                    or (
+                        not self.is_sobo()
+                        and target_mile >= terminal_mile
+                    )
+                )
+            ):
+                selected_stop = egress_node
+            else:
+                selected_stop = (
+                    self.select_operational_stop(
+                        target_mile,
+                        operational_overnight_nodes,
+                        logistics_nodes,
+                        current_mile=current_mile,
+                    )
+                )
 
             if selected_stop:
 
@@ -1014,6 +2255,7 @@ class PlannerV2:
                             "division",
                             current_division,
                         )
+                        or current_division
                     )
 
                 else:
@@ -1076,19 +2318,12 @@ class PlannerV2:
                 stop_location_type = "camp"
                 stop_division = current_division
 
-            if day == 1 and current_mile < 0:
-
-                daily_distance = round(
-                    abs(current_mile) + next_mile,
-                    1,
+            daily_distance = (
+                self.travel_distance(
+                    current_mile,
+                    next_mile,
                 )
-
-            else:
-
-                daily_distance = round(
-                    next_mile - current_mile,
-                    1,
-                )
+            )
 
             elevation_variation = (
                 self.calculate_daily_elevation(
@@ -1097,23 +2332,64 @@ class PlannerV2:
                 )
             )
 
-            resupply_node = (
-                self.select_resupply_for_day(
-                    current_mile,
-                    next_mile,
-                    day,
-                    last_resupply_day,
-                    resupply_nodes,
-                    used_resupply_ids,
+            resupply_node = None
+
+            if (
+                recovery_node
+                and recovery_kind == "nero"
+                and self.is_resupply_candidate(
+                    recovery_node
+                )
+            ):
+                resupply_node = recovery_node
+
+            elif (
+                planned_resupply_stop
+            ):
+                resupply_node = planned_resupply_stop
+
+            elif (
+                not recovery_node
+                and self.allow_extra_resupply_only
+                and day < completion_days
+            ):
+                resupply_node = (
+                    self.select_resupply_for_day(
+                        current_mile,
+                        next_mile,
+                        day,
+                        last_resupply_day,
+                        resupply_nodes,
+                        used_resupply_ids,
+                    )
+                )
+
+            if (
+                recovery_node
+                and recovery_kind == "nero"
+            ):
+
+                used_recovery_ids.add(
+                    self.resupply_node_id(
+                        recovery_node
+                    )
+                )
+
+                last_recovery_day = day
+
+            notes = (
+                self.build_logistics_note(
+                    resupply_node=resupply_node,
+                    recovery_kind=(
+                        recovery_kind
+                        if recovery_kind == "nero"
+                        else None
+                    ),
                 )
             )
 
-            notes = (
-                self.build_resupply_note(
-                    resupply_node,
-                    day,
-                    last_resupply_day,
-                )
+            food_carry_days = (
+                day - last_resupply_day
             )
 
             resupply_location = ""
@@ -1122,6 +2398,8 @@ class PlannerV2:
             town_access = ""
 
             if resupply_node:
+
+                food_carry_days = 0
 
                 last_resupply_day = day
 
@@ -1195,6 +2473,9 @@ class PlannerV2:
                 "town_access": (
                     town_access
                 ),
+                "food_carry_days_since_last_resupply": (
+                    food_carry_days
+                ),
                 "notes": notes,
             })
 
@@ -1205,8 +2486,141 @@ class PlannerV2:
             )
             current_division = stop_division
 
-            if current_mile >= total_miles:
+            if self.reached_route_end(
+                current_mile,
+                terminal_mile
+                if self.is_sobo()
+                else southern_mile,
+                terminal_mile
+                if not self.is_sobo()
+                else northern_mile,
+            ):
                 break
+
+            if (
+                recovery_node
+                and recovery_kind == "zero"
+                and day < completion_days
+            ):
+
+                zero_day = day + 1
+                zero_resupply_node = None
+
+                if self.is_resupply_candidate(
+                    recovery_node
+                ):
+                    zero_resupply_node = recovery_node
+
+                zero_notes = (
+                    self.build_logistics_note(
+                        resupply_node=zero_resupply_node,
+                        recovery_kind="zero",
+                    )
+                )
+
+                zero_food_carry_days = (
+                    zero_day - last_resupply_day
+                )
+
+                zero_resupply_location = ""
+                zero_resupply_mile = None
+                zero_resupply_location_type = ""
+                zero_town_access = ""
+
+                if zero_resupply_node:
+
+                    zero_food_carry_days = 0
+
+                    last_resupply_day = zero_day
+
+                    used_resupply_ids.add(
+                        self.resupply_node_id(
+                            zero_resupply_node
+                        )
+                    )
+
+                    zero_resupply_location = (
+                        zero_resupply_node.get(
+                            "canonical_name",
+                            ""
+                        )
+                    )
+
+                    zero_resupply_mile = round(
+                        self.node_mile(
+                            zero_resupply_node
+                        ),
+                        1,
+                    )
+
+                    zero_resupply_location_type = (
+                        zero_resupply_node.get(
+                            "node_class",
+                            "logistics",
+                        )
+                    )
+
+                    zero_town_access = (
+                        zero_resupply_node.get(
+                            "town_access",
+                            ""
+                        )
+                    )
+
+                used_recovery_ids.add(
+                    self.resupply_node_id(
+                        recovery_node
+                    )
+                )
+
+                last_recovery_day = zero_day
+
+                rows.append({
+                    "day": zero_day,
+                    "division": current_division,
+                    "daily_start_mile": round(
+                        current_mile,
+                        1,
+                    ),
+                    "daily_start_location": (
+                        current_location
+                    ),
+                    "daily_start_location_type": (
+                        current_location_type
+                    ),
+                    "daily_stop_mile": round(
+                        current_mile,
+                        1,
+                    ),
+                    "daily_stop_location": (
+                        current_location
+                    ),
+                    "daily_stop_location_type": (
+                        current_location_type
+                    ),
+                    "daily_miles": 0.0,
+                    "daily_elevation_gain": 0.0,
+                    "resupply_location": (
+                        zero_resupply_location
+                    ),
+                    "resupply_mile": (
+                        zero_resupply_mile
+                    ),
+                    "resupply_location_type": (
+                        zero_resupply_location_type
+                    ),
+                    "town_access": (
+                        zero_town_access
+                    ),
+                    "food_carry_days_since_last_resupply": (
+                        zero_food_carry_days
+                    ),
+                    "notes": zero_notes,
+                })
+
+                day = zero_day
+
+            day += 1
 
         return rows
 
