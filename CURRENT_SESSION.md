@@ -6,6 +6,7 @@ This session stabilized the PlannerV2 THRU workflow around three related areas:
 
 - NOBO / SOBO direction parity
 - separate resupply and zero/nero recovery cadence semantics
+- terrain-aware pacing and terrain-derived elevation reporting
 - Gaia-compatible export behavior for itinerary and resupply markers
 
 The current implementation is intentionally incremental. PlannerV2 is still
@@ -28,6 +29,8 @@ PlannerV2 now supports:
 - logistics-aware stop synthesis
 - separate resupply and recovery cadence inputs
 - zero and nero annotations for recovery planning
+- configurable nero-mile bounds
+- terrain interval analysis from compiled elevation samples
 - resupply strategy output tied to amenity-backed access points
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
@@ -113,6 +116,8 @@ The Streamlit UI currently supports:
 - max elevation gain
 - preferred resupply cadence
 - preferred zero/nero recovery cadence
+- minimum nero miles
+- maximum nero miles
 - optional extra resupply-only stops
 - explicit plan regeneration
 - Gaia GeoJSON download
@@ -131,9 +136,13 @@ Operational itinerary rows should communicate:
 - stop location
 - operational node type
 - daily mileage
-- realistic elevation gain
+- terrain-derived elevation gain
 - logistics significance
 - division continuity
+
+Expedition summary effort averages should use moving days. Zero-mile recovery
+rows remain part of completion time, but they should not dilute average daily
+mileage or average daily elevation from an effort-planning perspective.
 
 NOBO example:
 
@@ -165,7 +174,8 @@ PlannerV2 still needs improvement in these areas:
 - overlay progression should become the primary traversal substrate instead of
   target-mile search plus nearby node selection
 - section hiking remains incomplete
-- terrain semantics are still lightweight
+- terrain semantics are now interval-aware, but deeper fatigue and grade
+  modeling remains future work
 - food-carry weight is tracked only as backend planning context, not as an
   effort multiplier yet
 - synthetic fallback labels should become increasingly rare as compiled

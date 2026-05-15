@@ -1,6 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 import csv
+import json
 from statistics import mean
 
 from cairn.runtime.graph_runtime import (
@@ -92,6 +93,28 @@ class PlannerV2:
             )
         )
 
+        self.min_nero_miles = float(
+            self.user_profile.get(
+                "min_nero_miles",
+                5.0,
+            )
+        )
+
+        self.max_nero_miles = float(
+            self.user_profile.get(
+                "max_nero_miles",
+                8.0,
+            )
+        )
+
+        if (
+            self.max_nero_miles
+            < self.min_nero_miles
+        ):
+            self.max_nero_miles = (
+                self.min_nero_miles
+            )
+
         self.allow_extra_resupply_only = (
             self.user_profile.get(
                 "allow_extra_resupply_only",
@@ -134,30 +157,584 @@ class PlannerV2:
             )
         )
 
+        self._terrain_samples = None
+        self._route_master_elevation_samples = None
+
+
+    def load_terrain_samples(
+        self,
+    ):
+
+        if self._terrain_samples is not None:
+            return self._terrain_samples
+
+        terrain_path = (
+            self.runtime.compiled_dir /
+            "terrain.geojson"
+        )
+
+        samples = []
+
+        if terrain_path.exists():
+
+            with open(terrain_path) as handle:
+                payload = json.load(handle)
+
+            for feature in payload.get(
+                "features",
+                [],
+            ):
+
+                props = feature.get(
+                    "properties",
+                    {},
+                )
+
+                try:
+                    mile = float(
+                        props.get("mile")
+                    )
+                    elevation = float(
+                        props.get(
+                            "elevation_ft"
+                        )
+                    )
+                except (
+                    TypeError,
+                    ValueError,
+                ):
+                    continue
+
+                samples.append(
+                    (
+                        mile,
+                        elevation,
+                    )
+                )
+
+        self._terrain_samples = sorted(
+            samples,
+            key=lambda item: item[0],
+        )
+
+        return self._terrain_samples
+
+    def load_route_master_elevation_samples(
+        self,
+    ):
+
+        if (
+            self._route_master_elevation_samples
+            is not None
+        ):
+            return (
+                self
+                ._route_master_elevation_samples
+            )
+
+        route_master_path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "route_master.csv"
+        )
+
+        samples = []
+
+        if route_master_path.exists():
+
+            with open(
+                route_master_path,
+                newline="",
+            ) as handle:
+
+                reader = csv.DictReader(handle)
+
+                for row in reader:
+
+                    try:
+                        mile = float(
+                            row.get(
+                                "miles_from_MA_border_nb"
+                            )
+                        )
+                        elevation = float(
+                            row.get(
+                                "elevation_ft"
+                            )
+                        )
+                    except (
+                        TypeError,
+                        ValueError,
+                    ):
+                        continue
+
+                    samples.append(
+                        (
+                            mile,
+                            elevation,
+                        )
+                    )
+
+        self._route_master_elevation_samples = (
+            sorted(
+                samples,
+                key=lambda item: item[0],
+            )
+        )
+
+        return (
+            self._route_master_elevation_samples
+        )
+
+    def guidebook_mainline_range(
+        self,
+    ):
+
+        route_samples = (
+            self
+            .load_route_master_elevation_samples()
+        )
+
+        mainline_miles = [
+            mile for mile, _ in route_samples
+            if mile >= 0
+        ]
+
+        if not mainline_miles:
+            return (
+                0.0,
+                272.0,
+            )
+
+        return (
+            0.0,
+            max(mainline_miles),
+        )
+
+    def map_guidebook_to_terrain_mile(
+        self,
+        guidebook_mile,
+    ):
+
+        terrain_samples = (
+            self.load_terrain_samples()
+        )
+
+        if len(terrain_samples) < 2:
+            return None
+
+        guidebook_min, guidebook_max = (
+            self.guidebook_mainline_range()
+        )
+
+        if (
+            guidebook_mile < guidebook_min
+            or guidebook_mile > guidebook_max
+            or guidebook_max <= guidebook_min
+        ):
+            return None
+
+        terrain_min = terrain_samples[0][0]
+        terrain_max = terrain_samples[-1][0]
+
+        ratio = (
+            (guidebook_mile - guidebook_min)
+            / (guidebook_max - guidebook_min)
+        )
+
+        return (
+            terrain_min
+            + ratio
+            * (terrain_max - terrain_min)
+        )
+
+    def interpolate_elevation(
+        self,
+        samples,
+        mile,
+    ):
+
+        if not samples:
+            return None
+
+        if mile < samples[0][0]:
+            return None
+
+        if mile > samples[-1][0]:
+            return None
+
+        for index in range(
+            len(samples) - 1
+        ):
+
+            left_mile, left_elevation = (
+                samples[index]
+            )
+            right_mile, right_elevation = (
+                samples[index + 1]
+            )
+
+            if left_mile == mile:
+                return left_elevation
+
+            if (
+                left_mile
+                <= mile
+                <= right_mile
+            ):
+
+                if right_mile == left_mile:
+                    return right_elevation
+
+                ratio = (
+                    (mile - left_mile)
+                    / (right_mile - left_mile)
+                )
+
+                return (
+                    left_elevation
+                    + ratio
+                    * (
+                        right_elevation
+                        - left_elevation
+                    )
+                )
+
+        if mile == samples[-1][0]:
+            return samples[-1][1]
+
+        return None
+
+    def analyze_sample_interval(
+        self,
+        samples,
+        start_mile,
+        stop_mile,
+        source,
+        reported_distance=None,
+    ):
+
+        if (
+            not samples
+            or start_mile is None
+            or stop_mile is None
+        ):
+            return None
+
+        if start_mile == stop_mile:
+            return {
+                "source": source,
+                "elevation_gain_ft": 0.0,
+                "elevation_loss_ft": 0.0,
+                "gain_per_mile": 0.0,
+                "ruggedness_score": 0.0,
+            }
+
+        low_mile = min(
+            start_mile,
+            stop_mile,
+        )
+        high_mile = max(
+            start_mile,
+            stop_mile,
+        )
+
+        if (
+            low_mile < samples[0][0]
+            or high_mile > samples[-1][0]
+        ):
+            return None
+
+        points = [
+            low_mile,
+            *[
+                mile for mile, _ in samples
+                if low_mile < mile < high_mile
+            ],
+            high_mile,
+        ]
+
+        elevations = []
+
+        for mile in points:
+            elevation = self.interpolate_elevation(
+                samples,
+                mile,
+            )
+
+            if elevation is None:
+                return None
+
+            elevations.append(
+                (
+                    mile,
+                    elevation,
+                )
+            )
+
+        if start_mile > stop_mile:
+            elevations = list(
+                reversed(elevations)
+            )
+
+        elevation_gain = 0.0
+        elevation_loss = 0.0
+
+        for (
+            _,
+            start_elevation,
+        ), (
+            _,
+            stop_elevation,
+        ) in zip(
+            elevations,
+            elevations[1:],
+        ):
+
+            delta = (
+                stop_elevation
+                - start_elevation
+            )
+
+            if delta > 0:
+                elevation_gain += delta
+            else:
+                elevation_loss += abs(delta)
+
+        distance = (
+            reported_distance
+            if reported_distance is not None
+            else abs(
+                stop_mile - start_mile
+            )
+        )
+
+        if distance <= 0:
+            gain_per_mile = 0.0
+            ruggedness_score = 0.0
+        else:
+            gain_per_mile = (
+                elevation_gain /
+                distance
+            )
+            ruggedness_score = (
+                (
+                    elevation_gain
+                    + elevation_loss
+                )
+                / distance
+            )
+
+        return {
+            "source": source,
+            "elevation_gain_ft": round(
+                elevation_gain,
+                0,
+            ),
+            "elevation_loss_ft": round(
+                elevation_loss,
+                0,
+            ),
+            "gain_per_mile": round(
+                gain_per_mile,
+                1,
+            ),
+            "ruggedness_score": round(
+                ruggedness_score,
+                1,
+            ),
+        }
+
+    def estimate_terrain_interval(
+        self,
+        start_mile,
+        stop_mile,
+    ):
+
+        distance = self.travel_distance(
+            start_mile,
+            stop_mile,
+        )
+
+        elevation_gain = (
+            distance * 240
+        )
+
+        return {
+            "source": "estimated",
+            "elevation_gain_ft": round(
+                elevation_gain,
+                0,
+            ),
+            "elevation_loss_ft": round(
+                elevation_gain,
+                0,
+            ),
+            "gain_per_mile": 240.0,
+            "ruggedness_score": 480.0,
+        }
+
+    def analyze_terrain_interval(
+        self,
+        start_mile,
+        stop_mile,
+    ):
+
+        distance = self.travel_distance(
+            start_mile,
+            stop_mile,
+        )
+
+        if distance == 0:
+            return {
+                "source": "none",
+                "elevation_gain_ft": 0.0,
+                "elevation_loss_ft": 0.0,
+                "gain_per_mile": 0.0,
+                "ruggedness_score": 0.0,
+            }
+
+        terrain_start = (
+            self.map_guidebook_to_terrain_mile(
+                start_mile
+            )
+        )
+        terrain_stop = (
+            self.map_guidebook_to_terrain_mile(
+                stop_mile
+            )
+        )
+
+        terrain_stats = self.analyze_sample_interval(
+            self.load_terrain_samples(),
+            terrain_start,
+            terrain_stop,
+            "terrain",
+            reported_distance=distance,
+        )
+
+        if terrain_stats:
+            return terrain_stats
+
+        route_stats = self.analyze_sample_interval(
+            (
+                self
+                .load_route_master_elevation_samples()
+            ),
+            start_mile,
+            stop_mile,
+            "route_master",
+            reported_distance=distance,
+        )
+
+        if route_stats:
+            return route_stats
+
+        return self.estimate_terrain_interval(
+            start_mile,
+            stop_mile,
+        )
+
+    def is_nero_distance(
+        self,
+        daily_miles,
+    ):
+
+        return (
+            self.min_nero_miles
+            <= daily_miles
+            <= self.max_nero_miles
+        )
 
     def calculate_terrain_adjusted_target(
         self,
         base_daily_target,
         day,
+        current_mile=None,
+        southern_mile=None,
+        northern_mile=None,
     ):
 
         fatigue_penalty = (
-            (day - 1) * 0.015
+            min(
+                0.12,
+                (day - 1) * 0.004,
+            )
         )
 
-        terrain_cycle = [
-            0.92,
-            1.05,
-            0.88,
-            1.08,
-            0.95,
-        ]
+        terrain_multiplier = 1.0
 
-        terrain_multiplier = (
-            terrain_cycle[
-                (day - 1) % len(terrain_cycle)
-            ]
-        )
+        if current_mile is not None:
+
+            lower_bound = (
+                southern_mile
+                if southern_mile is not None
+                else self.mainline_southern_mile()
+            )
+            upper_bound = (
+                northern_mile
+                if northern_mile is not None
+                else (
+                    self.guidebook_mainline_range()
+                    [1]
+                )
+            )
+
+            probe_distance = max(
+                self.min_daily_miles,
+                min(
+                    self.max_daily_miles,
+                    base_daily_target,
+                ),
+            )
+
+            probe_stop = (
+                self.target_mile_for_distance(
+                    current_mile,
+                    probe_distance,
+                    lower_bound,
+                    upper_bound,
+                )
+            )
+
+            terrain_stats = (
+                self.analyze_terrain_interval(
+                    current_mile,
+                    probe_stop,
+                )
+            )
+
+            gain_ratio = (
+                terrain_stats[
+                    "gain_per_mile"
+                ]
+                / 240.0
+            )
+            ruggedness_ratio = (
+                terrain_stats[
+                    "ruggedness_score"
+                ]
+                / 500.0
+            )
+
+            terrain_burden = (
+                gain_ratio * 0.65
+                + ruggedness_ratio * 0.35
+            )
+
+            terrain_multiplier = max(
+                0.78,
+                min(
+                    1.15,
+                    1.0
+                    - (
+                        terrain_burden
+                        - 1.0
+                    )
+                    * 0.22,
+                ),
+            )
 
         adjusted_target = (
             base_daily_target *
@@ -184,22 +761,9 @@ class PlannerV2:
         day,
     ):
 
-        terrain_bias = [
-            1.0,
-            1.25,
-            0.85,
-            1.4,
-            0.95,
-        ]
-
-        multiplier = terrain_bias[
-            (day - 1) % len(terrain_bias)
-        ]
-
         elevation = (
             daily_miles *
-            240 *
-            multiplier
+            240
         )
 
         return round(
@@ -573,6 +1137,7 @@ class PlannerV2:
     def build_expedition_summary(
         self,
         completion_days,
+        daily_plan=None,
     ):
 
         effort_model = (
@@ -581,23 +1146,49 @@ class PlannerV2:
 
         total_miles = 272.0
 
+        moving_rows = [
+            row for row in (
+                daily_plan or []
+            )
+            if row.get(
+                "daily_miles",
+                0,
+            ) > 0
+        ]
+
+        moving_days = (
+            len(moving_rows)
+            or completion_days
+        )
+
         average_daily_miles = round(
             total_miles /
-            completion_days,
+            moving_days,
             1,
         )
 
-        total_elevation_gain = 62129
+        total_elevation_gain = (
+            sum(
+                row.get(
+                    "daily_elevation_gain",
+                    0,
+                )
+                for row in moving_rows
+            )
+            if moving_rows
+            else 62129
+        )
 
         average_daily_elevation = round(
             total_elevation_gain /
-            completion_days,
+            moving_days,
             0,
         )
 
         return {
             "total_miles": total_miles,
             "completion_days": completion_days,
+            "moving_days": moving_days,
             "average_daily_miles": average_daily_miles,
             "average_daily_elevation": average_daily_elevation,
         }
@@ -1725,9 +2316,47 @@ class PlannerV2:
             if score <= 0:
                 continue
 
+            amenity = node.get(
+                "resupply_amenity",
+                {},
+            )
+
+            candidate_distance = (
+                self.travel_distance(
+                    start_mile,
+                    mile,
+                )
+            )
+
+            candidate_kind = (
+                "zero"
+                if (
+                    (
+                        amenity.get(
+                            "zero_candidate"
+                        )
+                        or node.get(
+                            "zero_candidate"
+                        )
+                    )
+                    and days_since_recovery
+                    >= cadence
+                )
+                else "nero"
+            )
+
+            if (
+                candidate_kind == "nero"
+                and not self.is_nero_distance(
+                    candidate_distance
+                )
+            ):
+                continue
+
             candidates.append({
                 "node": node,
                 "score": score,
+                "kind": candidate_kind,
                 "distance_to_target": abs(
                     target_mile - mile
                 ),
@@ -1753,25 +2382,10 @@ class PlannerV2:
             ),
         )
 
-        selected = candidates[0]["node"]
+        selected_item = candidates[0]
 
-        amenity = selected.get(
-            "resupply_amenity",
-            {},
-        )
-
-        cadence = max(
-            3,
-            self.recovery_cadence,
-        )
-
-        if (
-            amenity.get("zero_candidate")
-            and days_since_recovery >= cadence
-        ):
-            recovery_kind = "zero"
-        else:
-            recovery_kind = "nero"
+        selected = selected_item["node"]
+        recovery_kind = selected_item["kind"]
 
         return (
             selected,
@@ -2243,6 +2857,15 @@ class PlannerV2:
                 self.calculate_terrain_adjusted_target(
                     base_daily_target,
                     day,
+                    current_mile=current_mile,
+                    southern_mile=min(
+                        southern_mile,
+                        terminal_mile,
+                    ),
+                    northern_mile=max(
+                        northern_mile,
+                        terminal_mile,
+                    ),
                 )
             )
 
@@ -2490,11 +3113,17 @@ class PlannerV2:
                 )
             )
 
-            elevation_variation = (
-                self.calculate_daily_elevation(
-                    daily_distance,
-                    day,
+            terrain_stats = (
+                self.analyze_terrain_interval(
+                    current_mile,
+                    next_mile,
                 )
+            )
+
+            elevation_variation = (
+                terrain_stats[
+                    "elevation_gain_ft"
+                ]
             )
 
             resupply_node = None
@@ -2826,12 +3455,6 @@ class PlannerV2:
             )
         )
 
-        expedition_summary = (
-            self.build_expedition_summary(
-                recommended_days
-            )
-        )
-
         directional_access = (
             self.get_directional_access()
         )
@@ -2839,6 +3462,13 @@ class PlannerV2:
         daily_plan = (
             self.build_daily_itinerary(
                 recommended_days
+            )
+        )
+
+        expedition_summary = (
+            self.build_expedition_summary(
+                recommended_days,
+                daily_plan=daily_plan,
             )
         )
 
