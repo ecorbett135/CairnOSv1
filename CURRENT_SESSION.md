@@ -24,6 +24,7 @@ PlannerV2 now supports:
 - ingress / egress semantics
 - NOBO and SOBO THRU traversal over northbound-reference guidebook miles
 - shelter-aware overnight selection
+- overnight reference enrichment from compiled shelter/campsite waypoints
 - logistics-aware stop synthesis
 - separate resupply and recovery cadence inputs
 - zero and nero annotations for recovery planning
@@ -197,9 +198,12 @@ PlannerV2 still needs improvement in these areas:
 ## Operational Data
 
 - trails/vermont_long_trail/compiled/route_overlay.json
+- trails/vermont_long_trail/compiled/overnight_reference.json
 - trails/vermont_long_trail/compiled/approach_trails.json
 - trails/vermont_long_trail/compiled/operational_graph.json
 - trails/vermont_long_trail/raw/csv/resupply_amenities.csv
+- trails/vermont_long_trail/raw/geojson/shelters.geojson
+- trails/vermont_long_trail/raw/geojson/campsites.geojson
 
 ---
 

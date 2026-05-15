@@ -104,6 +104,11 @@ def main():
         ),
 
         (
+            "Overnight Reference Overlay",
+            "build_topo.compiler.overnight_reference",
+        ),
+
+        (
             "Approach Trails",
             "build_topo.compiler.approach_trails",
         ),

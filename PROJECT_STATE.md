@@ -482,19 +482,41 @@ Future implementation must support:
 
 ---
 
+## Overnight Reference Enrichment
+
+Current overnight enrichment now reads optional shelter and campsite GeoJSON
+exports from `trails/vermont_long_trail/raw/geojson/`.
+
+The compiler produces:
+
+- `trails/vermont_long_trail/compiled/overnight_reference.json`
+
+This layer:
+
+- preserves raw shelter/campsite waypoint metadata
+- matches known sites against `route_overlay.json`
+- keeps matched and unmatched overnight records
+- estimates trail miles from the compiled spine for unmatched near-spine sites
+- exposes additional planner stop candidates without mutating the route overlay
+
+This data remains enrichment, not operational truth. Route overlay semantics
+still win when a conflict exists.
+
+---
+
 # Current Priorities
 
 Priority order is currently:
 
 1. overlay-authoritative traversal synthesis
-2. shelter-aware overnight selection
+2. terrain-aware itinerary synthesis
 3. logistics-aware resupply insertion
-4. terrain-aware itinerary synthesis
-5. recovery semantics
-6. operational cadence realism
-7. section hiking substrate
-8. planner validation rewrite
-9. Gaia export enrichment hardening
+4. recovery semantics
+5. operational cadence realism
+6. section hiking substrate
+7. planner validation rewrite
+8. Gaia export enrichment hardening
+9. overnight provenance hardening
 10. dev_agent reintegration
 
 ---
@@ -527,6 +549,7 @@ ALWAYS:
 ## Topology / Operational Data
 
 - trails/vermont_long_trail/compiled/route_overlay.json
+- trails/vermont_long_trail/compiled/overnight_reference.json
 - trails/vermont_long_trail/compiled/approach_trails.json
 - trails/vermont_long_trail/compiled/operational_graph.json
 - trails/vermont_long_trail/compiled/segments.json

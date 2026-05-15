@@ -2665,7 +2665,7 @@ class PlannerV2:
             if (
                 recovery_node
                 and recovery_kind == "zero"
-                and day < completion_days
+                and day + 1 < completion_days
             ):
 
                 zero_day = day + 1
