@@ -158,13 +158,13 @@ This enrichment layer preserves Gaia waypoint names, coordinates, icons, marker 
 python -m pip install -r requirements.txt
 ```
 
-2. Run the test suite:
+1. Run the test suite:
 
 ```bash
 python -m pytest cairn/tests -q
 ```
 
-3. Launch the Streamlit interface (if desired):
+1. Launch the Streamlit interface (if desired):
 
 ```bash
 streamlit run cairn/interfaces/streamlit_app.py

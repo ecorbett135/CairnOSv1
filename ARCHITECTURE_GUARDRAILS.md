@@ -1,5 +1,3 @@
-
-
 # CairnOSv1 — Architecture Guardrails
 
 ## Purpose
