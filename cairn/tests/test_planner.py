@@ -835,6 +835,51 @@ def test_aggressive_target_extends_instead_of_absurd_final_catchup(
     ) < 30
 
 
+def test_extended_plan_bounds_final_day_to_overmax_allowance(
+    planner_factory,
+):
+    """Test extended recommendations do not hide excessive final pushes."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 12,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=21
+    )
+
+    rows = itinerary["daily_plan"]
+    completion = itinerary[
+        "completion_analysis"
+    ]
+    mileage_cap = (
+        planner.max_daily_miles * 1.3
+    )
+
+    assert completion[
+        "completion_extended"
+    ] is True
+    assert (
+        rows[-1]["daily_stop_location"]
+        == "Journey's End Trail Parking"
+    )
+    assert rows[-1]["daily_miles"] <= mileage_cap
+    assert max(
+        row["daily_miles"]
+        for row in rows
+    ) <= mileage_cap
+
+
 def test_sobo_itinerary_descends_with_positive_travel_miles(planner_factory):
     """Test SOBO traverses south using northbound-reference miles."""
     planner = planner_factory(

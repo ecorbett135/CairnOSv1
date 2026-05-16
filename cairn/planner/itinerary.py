@@ -326,9 +326,8 @@ class ItineraryBuilder:
                 1,
             )
 
-            final_day_extension_limit = max(
-                self.max_daily_miles + 6.0,
-                self.max_daily_miles * 1.35,
+            final_day_extension_limit = (
+                self.max_daily_miles * 1.3
             )
 
             if (
@@ -529,6 +528,23 @@ class ItineraryBuilder:
                         )
 
                         stop_division = current_division
+
+                if (
+                    self.travel_distance(
+                        current_mile,
+                        next_mile,
+                    )
+                    > final_day_extension_limit
+                    and not (
+                        egress_node
+                        and selected_stop == egress_node
+                    )
+                ):
+                    selected_stop = None
+                    next_mile = target_mile
+                    stop_location = "Backcountry Camp"
+                    stop_location_type = "camp"
+                    stop_division = current_division
 
             else:
 
