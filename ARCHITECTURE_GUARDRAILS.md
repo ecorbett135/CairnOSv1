@@ -97,6 +97,39 @@ PlannerV2 MUST NOT behave like:
 
 ---
 
+### CairnOS Is Not A Navigation Platform
+
+CairnOSv1 MUST remain an operational expedition reasoning layer.
+
+It may export to and complement navigation tools such as:
+
+- HiiKER
+- Gaia GPS
+- Garmin
+- FarOut
+- paper maps and guidebooks
+
+CairnOSv1 MUST prioritize:
+
+- itinerary feasibility
+- logistics and resupply reasoning
+- shelter and campsite stop selection
+- recovery and effort modeling
+- export interoperability
+
+CairnOSv1 MUST NOT drift into:
+
+- general-purpose map editing
+- offline map management
+- turn-by-turn navigation
+- social trail publishing
+- replacing official sources, guidebooks, or dedicated navigation apps
+
+Prefer clean exports and integrations over rebuilding mature navigation
+ecosystems.
+
+---
+
 ## Overlay Authority Guardrails
 
 ### route_overlay.json Is Authoritative

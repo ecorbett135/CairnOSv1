@@ -2,6 +2,26 @@
 
 CairnOSv1 is an operational expedition planning system for long-distance trail networks. It is designed to move beyond abstract mileage partitioning and toward realistic, logistics-aware itinerary synthesis using trail-level operational semantics.
 
+## Product positioning
+
+CairnOSv1 is the operational reasoning layer for expedition planning, not a
+replacement for mature map, navigation, or guidebook tools. It complements
+workflows in tools such as HiiKER, Gaia GPS, Garmin, FarOut, and paper maps by
+generating logistics-aware itineraries that can be reviewed, adjusted, and
+exported into navigation systems.
+
+The project should stay focused on questions like:
+
+- Is this itinerary feasible for the requested mileage, elevation, and recovery
+  preferences?
+- Where do shelter, camp, resupply, zero, and nero decisions make operational
+  sense?
+- Which days exceed the user's stated comfort zone?
+- What export can downstream navigation tools consume?
+
+CairnOSv1 should not try to become a general-purpose route drawing, offline
+navigation, social trail database, or map subscription platform.
+
 ## Screenshots
 
 The current Streamlit workflow supports planner configuration, generated

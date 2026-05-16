@@ -17,6 +17,27 @@ SECTION planning is intentionally deferred. The underlying planner branches
 remain in place for later work, but the Streamlit UI hides SECTION mode until
 the traversal and data semantics are ready.
 
+## Product Boundary
+
+CairnOSv1 should remain an operational itinerary and feasibility tool. The MVP
+should avoid competing with full map/navigation platforms such as HiiKER, Gaia
+GPS, Garmin, or FarOut. Those tools are downstream navigation ecosystems;
+CairnOSv1 should produce better logistics-aware plans and exports for them.
+
+Near-term work should prioritize:
+
+- feasibility and exception reasoning
+- terrain-aware daily pacing
+- shelter, campsite, resupply, zero, and nero decisions
+- clean exports into navigation workflows
+
+Do not spend MVP effort on:
+
+- general-purpose route drawing
+- offline map management
+- social/community trail publishing
+- replacing guidebooks, official sources, or navigation apps
+
 ## Execution Order
 
 1. PlannerV2 module extraction
