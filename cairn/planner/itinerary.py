@@ -275,8 +275,11 @@ class ItineraryBuilder:
             )
 
         day = 1
+        max_planning_days = (
+            completion_days + 60
+        )
 
-        while day <= completion_days:
+        while day <= max_planning_days:
 
             daily_target = (
                 self.calculate_terrain_adjusted_target(
@@ -323,16 +326,19 @@ class ItineraryBuilder:
                 1,
             )
 
+            final_day_extension_limit = max(
+                self.max_daily_miles + 6.0,
+                self.max_daily_miles * 1.35,
+            )
+
             if (
                 egress_node
                 and day == completion_days
-            ):
-                daily_target = (
-                    self.travel_distance(
-                        current_mile,
-                        terminal_mile,
-                    )
+                and remaining_distance <= (
+                    final_day_extension_limit
                 )
+            ):
+                daily_target = remaining_distance
 
             target_mile = (
                 self.target_mile_for_distance(
@@ -370,7 +376,7 @@ class ItineraryBuilder:
                     None,
                 )
                 if (
-                    day == completion_days
+                    day >= completion_days
                     or (
                         self.is_sobo()
                         and egress_node
@@ -842,4 +848,3 @@ class ItineraryBuilder:
             day += 1
 
         return rows
-

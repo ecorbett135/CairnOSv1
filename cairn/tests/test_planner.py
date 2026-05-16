@@ -788,6 +788,53 @@ def test_late_recovery_zero_does_not_replace_final_egress(
     assert last_day["notes"] == ""
 
 
+def test_aggressive_target_extends_instead_of_absurd_final_catchup(
+    planner_factory,
+):
+    """Test impossible catch-up days become extended plans."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=21
+    )
+
+    rows = itinerary["daily_plan"]
+    completion = itinerary[
+        "completion_analysis"
+    ]
+
+    assert completion[
+        "completion_extended"
+    ] is True
+    assert completion[
+        "recommended_days"
+    ] > 21
+    assert rows[-1]["day"] == completion[
+        "recommended_days"
+    ]
+    assert (
+        rows[-1]["daily_stop_location"]
+        == "Journey's End Trail Parking"
+    )
+    assert max(
+        row["daily_miles"]
+        for row in rows
+    ) < 30
+
+
 def test_sobo_itinerary_descends_with_positive_travel_miles(planner_factory):
     """Test SOBO traverses south using northbound-reference miles."""
     planner = planner_factory(
