@@ -70,3 +70,23 @@ def test_sidebar_exposes_configurable_nero_window():
     assert "Maximum Nero Miles" in sliders
     assert sliders["Minimum Nero Miles"].value == 5
     assert sliders["Maximum Nero Miles"].value == 8
+
+
+def test_sidebar_defaults_to_alpha_safe_completion_days():
+    """Test Alpha defaults avoid overly aggressive first-run plans."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    sliders = {
+        widget.label: widget
+        for widget in app.sidebar.slider
+    }
+
+    assert sliders[
+        "Desired Completion Days"
+    ].value == 28
