@@ -3,6 +3,28 @@
 from streamlit.testing.v1 import AppTest
 
 
+def test_streamlit_exposes_alpha_advisory_notice():
+    """Test hosted Alpha usage is framed as advisory."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    warnings = [
+        widget.value
+        for widget in app.warning
+    ]
+
+    assert any(
+        "Alpha preview" in warning
+        and "not a safety-critical" in warning
+        for warning in warnings
+    )
+
+
 def test_sidebar_exposes_thru_trip_type_and_direction():
     """Test MVP trip scope and travel direction are distinct controls."""
     app = AppTest.from_file(
