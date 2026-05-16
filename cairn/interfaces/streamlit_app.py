@@ -40,6 +40,20 @@ AVAILABLE_TRAILS = sorted([
     if p.is_dir()
 ])
 
+
+def streamlit_secret(
+    key,
+    default="",
+):
+    try:
+        return st.secrets.get(
+            key,
+            default,
+        )
+    except Exception:
+        return default
+
+
 if "planner_result" not in st.session_state:
     st.session_state["planner_result"] = None
 
@@ -47,6 +61,24 @@ st.title("🥾 CairnOSv1")
 st.subheader(
     "Operational Expedition Planning"
 )
+
+st.warning(
+    (
+        "Alpha preview: CairnOSv1 is an advisory planning prototype, "
+        "not a safety-critical trip-planning authority. Verify all routes, "
+        "conditions, services, closures, and backcountry decisions with "
+        "official sources before hiking."
+    )
+)
+
+alpha_feedback_url = streamlit_secret(
+    "alpha_feedback_url"
+)
+
+if alpha_feedback_url:
+    st.markdown(
+        f"[Share Alpha feedback]({alpha_feedback_url})"
+    )
 
 with st.sidebar:
 

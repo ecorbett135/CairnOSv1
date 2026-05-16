@@ -12,6 +12,35 @@ and Gaia GeoJSON export.
 
 ![CairnOSv1 operational itinerary and Gaia export](docs/images/CairnOSv1-streamlit-generate_gaia.png)
 
+## Hosted Alpha
+
+CairnOSv1 is preparing for a low-friction hosted Alpha on Streamlit Community
+Cloud for a small trusted tester group. The hosted app is an advisory prototype,
+not a safety-critical trip-planning authority. Users must verify routes,
+services, conditions, closures, and backcountry decisions with official sources
+before hiking.
+
+Alpha testing guidance lives in `docs/ALPHA_TESTING.md`.
+
+The hosted Streamlit runtime should use the app-specific dependency file at:
+
+```text
+cairn/interfaces/requirements.txt
+```
+
+The hosted app needs compiled runtime data and a small set of runtime CSV
+inputs, not the full topology compiler or raw GIS dataset. Required runtime
+data is currently:
+
+- `trails/vermont_long_trail/compiled/`
+- `trails/vermont_long_trail/raw/csv/approach_trails.csv`
+- `trails/vermont_long_trail/raw/csv/route_master.csv`
+- `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`
+
+The topology compiler, raw SHP/DEM inputs, raw enrichment exports, and
+build-time GIS dependencies are development assets and should not be treated as
+hosted Alpha runtime requirements.
+
 ## What it does today
 
 - Builds a trail topology and operational graph from compiled trail data.
@@ -232,6 +261,10 @@ python -m pytest cairn/tests -q
 streamlit run cairn/interfaces/streamlit_app.py
 ```
 
+For hosted Alpha deployments on Streamlit Community Cloud, use
+`cairn/interfaces/streamlit_app.py` as the app entrypoint and configure the
+feedback form URL as a Streamlit secret named `alpha_feedback_url`.
+
 ## Notes for developers
 
 - `PlannerV2` is the authoritative current planner facade.
@@ -250,6 +283,9 @@ streamlit run cairn/interfaces/streamlit_app.py
   spine-distance checks, and provenance review.
 - Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
 - The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
+- Hosted Alpha deployments should rely on compiled runtime artifacts and the
+  small raw CSV files listed in `docs/ALPHA_TESTING.md`, not the full
+  build/topology source dataset.
 - SECTION planning is intentionally hidden from the Streamlit menu for the MVP
   while the internal code path remains available for future work.
 - See `docs/MVP_ROADMAP.md` before starting data quality, mile-system,
