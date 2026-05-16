@@ -8,6 +8,10 @@ __pycache__/
 # virtualenv
 venv/
 
+# Streamlit local secrets
+.streamlit/secrets.toml
+cairn/interfaces/.streamlit/secrets.toml
+
 # pytest
 .pytest_cache/
 
