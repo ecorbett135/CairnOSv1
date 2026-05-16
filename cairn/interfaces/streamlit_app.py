@@ -202,7 +202,7 @@ with st.sidebar:
         "Desired Completion Days",
         min_value=3,
         max_value=60,
-        value=21,
+        value=28,
     )
 
     min_daily_miles = st.slider(

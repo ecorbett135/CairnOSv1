@@ -450,18 +450,97 @@ class PlannerV2:
 
         evaluation["feasible"] = True
 
-        updated["accepted"] = True
+        updated["accepted"] = not updated.get(
+            "completion_extended",
+            False,
+        )
         updated["evaluation"] = evaluation
         updated["has_itinerary_exceptions"] = True
         updated["itinerary_exceptions"] = exceptions
-        updated["recommendation"] = (
-            "Requested completion target is achievable, but the "
-            "generated itinerary exceeds one or more daily preferences "
-            "to finish in the requested time."
+
+        if updated.get(
+            "completion_extended",
+            False,
+        ):
+            updated["recommendation"] = (
+                "Requested completion target would require unrealistic "
+                "catch-up days, so an extended itinerary was generated."
+            )
+            updated["exception_guidance"] = (
+                "Use the recommended day count or adjust mileage, "
+                "recovery, and elevation preferences for a gentler plan."
+            )
+        else:
+            updated["recommendation"] = (
+                "Requested completion target is achievable, but the "
+                "generated itinerary exceeds one or more daily preferences "
+                "to finish in the requested time."
+            )
+            updated["exception_guidance"] = (
+                "Review exception days or adjust completion days, mileage, "
+                "or elevation preferences for a gentler plan."
+            )
+
+        return updated
+
+    def apply_completion_extension(
+        self,
+        completion_analysis,
+        actual_days,
+    ):
+
+        expected_days = (
+            completion_analysis.get(
+                "recommended_days"
+            )
+            or completion_analysis.get(
+                "desired_days"
+            )
+            or (
+                completion_analysis.get(
+                    "evaluation",
+                    {},
+                ).get("desired_days")
+            )
+            or actual_days
         )
-        updated["exception_guidance"] = (
-            "Review exception days or adjust completion days, mileage, "
-            "or elevation preferences for a gentler plan."
+
+        if actual_days <= expected_days:
+            return completion_analysis
+
+        updated = {
+            **completion_analysis,
+        }
+
+        evaluation = {
+            **updated.get(
+                "evaluation",
+                {},
+            )
+        }
+
+        evaluation["classification"] = (
+            self.max_classification(
+                evaluation.get(
+                    "classification",
+                    "comfortable",
+                ),
+                "aggressive",
+            )
+        )
+        evaluation["feasible"] = True
+
+        updated["accepted"] = False
+        updated["evaluation"] = evaluation
+        updated["completion_extended"] = True
+        updated["requested_days"] = expected_days
+        updated["recommended_days"] = actual_days
+        updated["extension_days"] = (
+            actual_days - expected_days
+        )
+        updated["recommendation"] = (
+            "Requested completion target would require unrealistic "
+            "catch-up days, so an extended itinerary was generated."
         )
 
         return updated
@@ -1421,16 +1500,29 @@ class PlannerV2:
             )
         )
 
+        actual_completion_days = (
+            daily_plan[-1]["day"]
+            if daily_plan
+            else recommended_days
+        )
+
+        completion_analysis = (
+            self.apply_completion_extension(
+                negotiation,
+                actual_completion_days,
+            )
+        )
+
         expedition_summary = (
             self.build_expedition_summary(
-                recommended_days,
-                daily_plan=daily_plan,
+                actual_completion_days,
+                daily_plan,
             )
         )
 
         completion_analysis = (
             self.apply_itinerary_exceptions(
-                negotiation,
+                completion_analysis,
                 daily_plan,
             )
         )
