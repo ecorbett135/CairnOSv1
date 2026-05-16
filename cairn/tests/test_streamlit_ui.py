@@ -90,3 +90,24 @@ def test_sidebar_defaults_to_alpha_safe_completion_days():
     assert sliders[
         "Desired Completion Days"
     ].value == 28
+
+
+def test_sidebar_exposes_alpha_build_fingerprint():
+    """Test deployed Alpha can be matched to a repository commit."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    captions = [
+        widget.value
+        for widget in app.sidebar.caption
+    ]
+
+    assert any(
+        caption.startswith("Alpha build: ")
+        for caption in captions
+    )

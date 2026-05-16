@@ -1,6 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
+import subprocess
 import sys
 
 PROJECT_ROOT = (
@@ -52,6 +53,26 @@ def streamlit_secret(
         )
     except Exception:
         return default
+
+
+def current_build_sha():
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "rev-parse",
+                "--short",
+                "HEAD",
+            ],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            check=True,
+            text=True,
+            timeout=2,
+        )
+        return result.stdout.strip() or "unknown"
+    except Exception:
+        return "unknown"
 
 
 if "planner_result" not in st.session_state:
@@ -290,6 +311,10 @@ with st.sidebar:
 
     run_planner = st.button(
         planner_button_label
+    )
+
+    st.caption(
+        f"Alpha build: {current_build_sha()}"
     )
 
 if run_planner:
