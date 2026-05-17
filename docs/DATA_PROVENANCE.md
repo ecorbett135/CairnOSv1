@@ -56,6 +56,23 @@ Generated files should generally go under `data/generated/` or another ignored
 output directory unless they are deliberate release artifacts with documented
 provenance.
 
+## Runtime Data Validation
+
+CairnOS includes a lightweight runtime data-quality validator:
+
+```text
+venv/bin/python -m cairn.runtime.data_quality trails/vermont_long_trail
+```
+
+The validator checks internal consistency across runtime files such as route
+overlay, route master, resupply amenities, overnight references, approach
+trails, terrain samples, spine geometry, and the operational graph.
+
+Validation can identify broken references, missing fields, suspicious
+coordinates, duplicate identifiers, mismatched summary counts, and known
+reconciliation warnings. It is not a licensing review and does not convert
+external source data into Apache-licensed project material.
+
 ## Current Compatibility Note
 
 The historical Long Trail dataset currently remains under:

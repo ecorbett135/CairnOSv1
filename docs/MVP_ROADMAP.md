@@ -46,6 +46,17 @@ Do not spend MVP effort on:
 1. overlay-authoritative traversal
 1. SECTION planning
 
+## Current Data-Quality Work
+
+The data-quality/provenance hardening step adds runtime validation around the
+current Long Trail data foundation. It checks that route overlay, route master,
+terrain, spine, resupply, overnight reference, approach trail, and operational
+graph data agree where they should.
+
+This work should not rewrite planner behavior. Its purpose is to make data
+issues visible before more advanced terrain, traversal, and SECTION features
+depend on them.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and

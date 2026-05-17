@@ -1,4 +1,4 @@
-# CURRENT SESSION — PlannerV2 Extraction And MVP Hardening
+# CURRENT SESSION — PlannerV2 Extraction, MVP Hardening, And Data Quality
 
 ## Current Focus
 
@@ -9,10 +9,14 @@ This session stabilized the PlannerV2 THRU workflow around three related areas:
 - separate resupply and zero/nero recovery cadence semantics
 - terrain-aware pacing and terrain-derived elevation reporting
 - Gaia-compatible export behavior for itinerary and resupply markers
+- runtime data-quality validation for the current Long Trail dataset
 
 The current implementation is intentionally incremental. PlannerV2 is still
 not a full overlay traversal engine, but the primary THRU workflow now behaves
 like an operational expedition plan instead of a one-direction mileage slicer.
+The runtime dataset now has a validator that reports internal consistency
+errors and known warnings without treating validation as a provenance or
+licensing guarantee.
 
 ---
 
@@ -206,6 +210,7 @@ PlannerV2 still needs improvement in these areas:
 - cairn/runtime/graph_runtime.py
 - cairn/runtime/traversal.py
 - cairn/runtime/operational_queries.py
+- cairn/runtime/data_quality.py
 
 ## UI
 
@@ -236,6 +241,16 @@ Priority order is now tracked in `docs/MVP_ROADMAP.md`:
 1. terrain profile and mile-system reconciliation
 1. overlay-authoritative traversal
 1. SECTION planning
+
+The current data-quality hardening branch adds:
+
+- a stdlib-only runtime data validator
+- route overlay, route master, resupply, overnight reference, approach trail,
+  terrain, spine, and operational graph consistency checks
+- pytest coverage for the live Long Trail dataset and representative broken
+  synthetic data
+- documentation that validation improves trust but does not resolve source
+  licensing or provenance gaps
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and
