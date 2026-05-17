@@ -9,6 +9,7 @@ reference exports, but it does not make vendor data operational truth.
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import math
 import re
@@ -110,6 +111,18 @@ class ReferenceRoute:
             ),
             "smoothing_threshold_ft": threshold_ft,
         }
+
+
+@dataclass
+class CalibrationManifestRow:
+    name: str
+    start_mile: float
+    stop_mile: float
+    reference_gain_ft: float | None = None
+    reference_distance_miles: float | None = None
+    source_tool: str = ""
+    notes: str = ""
+    file: str | None = None
 
 
 def round_optional(
@@ -497,6 +510,256 @@ def load_reference_routes(
     return []
 
 
+def parse_optional_float(
+    value,
+):
+    if value is None:
+        return None
+
+    value = str(value).strip()
+
+    if value == "":
+        return None
+
+    return float(value)
+
+
+def clean_manifest_key(
+    key,
+):
+    return (
+        key
+        .replace("\ufeff", "")
+        .strip()
+    )
+
+
+def normalize_reference_name(
+    value,
+):
+    return re.sub(
+        r"[^a-z0-9]+",
+        "",
+        str(value).lower(),
+    )
+
+
+def load_calibration_manifest(
+    path,
+) -> list[CalibrationManifestRow]:
+    manifest_path = Path(path)
+    rows = []
+
+    with manifest_path.open(
+        newline="",
+    ) as handle:
+        reader = csv.DictReader(
+            handle
+        )
+
+        for raw_row in reader:
+            row = {
+                clean_manifest_key(key): value
+                for key, value in raw_row.items()
+            }
+
+            name = (
+                row.get("name")
+                or row.get("route")
+                or row.get("segment")
+            )
+
+            if not name:
+                continue
+
+            rows.append(
+                CalibrationManifestRow(
+                    name=name.strip(),
+                    start_mile=float(
+                        row["start_mile"]
+                    ),
+                    stop_mile=float(
+                        row["stop_mile"]
+                    ),
+                    reference_gain_ft=(
+                        parse_optional_float(
+                            row.get(
+                                "reference_gain_ft"
+                            )
+                        )
+                    ),
+                    reference_distance_miles=(
+                        parse_optional_float(
+                            row.get(
+                                "reference_distance_miles"
+                            )
+                        )
+                    ),
+                    source_tool=(
+                        row.get("source_tool")
+                        or ""
+                    ).strip(),
+                    notes=(
+                        row.get("notes")
+                        or ""
+                    ).strip(),
+                    file=(
+                        row.get("file")
+                        or None
+                    ),
+                )
+            )
+
+    return rows
+
+
+def find_manifest_reference_file(
+    manifest_path,
+    manifest_row,
+) -> Path | None:
+    manifest_dir = Path(
+        manifest_path
+    ).parent
+
+    if manifest_row.file:
+        candidate = Path(
+            manifest_row.file
+        )
+
+        if not candidate.is_absolute():
+            candidate = (
+                manifest_dir / candidate
+            )
+
+        if candidate.exists():
+            return candidate
+
+        return None
+
+    row_name = normalize_reference_name(
+        manifest_row.name
+    )
+
+    for candidate in sorted(
+        manifest_dir.iterdir()
+    ):
+        if candidate.suffix.lower() not in {
+            ".geojson",
+            ".json",
+            ".gpx",
+            ".kml",
+        }:
+            continue
+
+        if (
+            normalize_reference_name(
+                candidate.stem
+            )
+            == row_name
+        ):
+            return candidate
+
+    return None
+
+
+def load_first_reference_route(
+    path,
+) -> ReferenceRoute | None:
+    if path is None:
+        return None
+
+    routes = load_reference_routes(
+        path
+    )
+
+    if not routes:
+        return None
+
+    return routes[0]
+
+
+def preferred_reference_value(
+    manifest_value,
+    route_summary,
+    summary_key,
+    smoothed_key=None,
+):
+    if manifest_value is not None:
+        return (
+            manifest_value,
+            "manifest",
+        )
+
+    if (
+        route_summary
+        and route_summary.get(summary_key)
+        is not None
+    ):
+        return (
+            route_summary[summary_key],
+            "route_summary",
+        )
+
+    if (
+        smoothed_key
+        and route_summary
+        and route_summary.get(smoothed_key)
+        is not None
+    ):
+        return (
+            route_summary[smoothed_key],
+            "route_smoothed",
+        )
+
+    return (
+        None,
+        None,
+    )
+
+
+def classify_reference_delta(
+    delta_ft,
+    delta_percent,
+    pass_delta_ft=250,
+    pass_delta_percent=10,
+    warn_delta_ft=500,
+    warn_delta_percent=20,
+):
+    if delta_ft is None:
+        return "unknown"
+
+    absolute_delta = abs(
+        delta_ft
+    )
+    absolute_percent = (
+        abs(delta_percent)
+        if delta_percent is not None
+        else None
+    )
+
+    if (
+        absolute_delta <= pass_delta_ft
+        or (
+            absolute_percent is not None
+            and absolute_percent
+            <= pass_delta_percent
+        )
+    ):
+        return "pass"
+
+    if (
+        absolute_delta <= warn_delta_ft
+        or (
+            absolute_percent is not None
+            and absolute_percent
+            <= warn_delta_percent
+        )
+    ):
+        return "warn"
+
+    return "fail"
+
+
 def infer_cairn_interval(
     route,
     planner,
@@ -855,6 +1118,241 @@ def build_calibration_report(
     return report
 
 
+def compare_manifest_row_to_cairn(
+    manifest_row,
+    manifest_path,
+    planner,
+    threshold_ft=DEFAULT_ELEVATION_THRESHOLD_FT,
+    pass_delta_ft=250,
+    pass_delta_percent=10,
+    warn_delta_ft=500,
+    warn_delta_percent=20,
+) -> dict:
+    reference_path = (
+        find_manifest_reference_file(
+            manifest_path,
+            manifest_row,
+        )
+    )
+    reference_route = (
+        load_first_reference_route(
+            reference_path
+        )
+    )
+    route_summary = (
+        reference_route.summary(
+            threshold_ft=threshold_ft,
+        )
+        if reference_route
+        else None
+    )
+    interval = (
+        manifest_row.start_mile,
+        manifest_row.stop_mile,
+    )
+    terrain_stats = (
+        planner.analyze_terrain_interval(
+            interval[0],
+            interval[1],
+        )
+    )
+    linear_stats = (
+        analyze_mapped_terrain_interval(
+            planner,
+            interval,
+            mapper="linear",
+        )
+    )
+    anchor_stats = (
+        analyze_mapped_terrain_interval(
+            planner,
+            interval,
+            mapper="anchor",
+        )
+    )
+    reference_gain, reference_gain_source = (
+        preferred_reference_value(
+            manifest_row.reference_gain_ft,
+            route_summary,
+            "summary_gain_ft",
+            smoothed_key="smoothed_gain_ft",
+        )
+    )
+    reference_distance, reference_distance_source = (
+        preferred_reference_value(
+            manifest_row.reference_distance_miles,
+            route_summary,
+            "summary_distance_miles",
+            smoothed_key="measured_distance_miles",
+        )
+    )
+
+    gain_delta = None
+    gain_delta_percent = None
+
+    if reference_gain not in {
+        None,
+        0,
+    }:
+        gain_delta = (
+            terrain_stats["elevation_gain_ft"]
+            - reference_gain
+        )
+        gain_delta_percent = (
+            gain_delta
+            / reference_gain
+            * 100.0
+        )
+
+    status = classify_reference_delta(
+        gain_delta,
+        gain_delta_percent,
+        pass_delta_ft=pass_delta_ft,
+        pass_delta_percent=pass_delta_percent,
+        warn_delta_ft=warn_delta_ft,
+        warn_delta_percent=warn_delta_percent,
+    )
+
+    return {
+        "name": manifest_row.name,
+        "file": (
+            str(reference_path)
+            if reference_path
+            else None
+        ),
+        "source_tool": manifest_row.source_tool,
+        "cairn_interval": {
+            "start_mile": interval[0],
+            "stop_mile": interval[1],
+        },
+        "reference_distance_miles": (
+            round_optional(
+                reference_distance,
+                2,
+            )
+        ),
+        "reference_distance_source": (
+            reference_distance_source
+        ),
+        "reference_gain_ft": (
+            round_optional(
+                reference_gain,
+                0,
+            )
+        ),
+        "reference_gain_source": (
+            reference_gain_source
+        ),
+        "cairn": terrain_stats,
+        "linear_cairn": (
+            linear_stats["stats"]
+            if linear_stats
+            else None
+        ),
+        "linear_terrain_interval": (
+            linear_stats["terrain_interval"]
+            if linear_stats
+            else None
+        ),
+        "anchor_terrain_interval": (
+            anchor_stats["terrain_interval"]
+            if anchor_stats
+            else None
+        ),
+        "gain_delta_ft": round_optional(
+            gain_delta,
+            0,
+        ),
+        "gain_delta_percent": round_optional(
+            gain_delta_percent,
+            1,
+        ),
+        "status": status,
+        "notes": manifest_row.notes,
+        "route_summary": route_summary,
+    }
+
+
+def summarize_manifest_rows(
+    rows,
+) -> dict:
+    statuses = {
+        "pass": 0,
+        "warn": 0,
+        "fail": 0,
+        "unknown": 0,
+    }
+
+    for row in rows:
+        statuses[
+            row.get(
+                "status",
+                "unknown",
+            )
+        ] = (
+            statuses.get(
+                row.get(
+                    "status",
+                    "unknown",
+                ),
+                0,
+            )
+            + 1
+        )
+
+    return {
+        "rows": len(rows),
+        **statuses,
+    }
+
+
+def build_manifest_calibration_report(
+    manifest_path,
+    trail_root,
+    threshold_ft=DEFAULT_ELEVATION_THRESHOLD_FT,
+    pass_delta_ft=250,
+    pass_delta_percent=10,
+    warn_delta_ft=500,
+    warn_delta_percent=20,
+) -> dict:
+    manifest_path = Path(
+        manifest_path
+    )
+    planner = PlannerV2(
+        trail_root=Path(trail_root),
+    )
+    rows = [
+        compare_manifest_row_to_cairn(
+            row,
+            manifest_path,
+            planner,
+            threshold_ft=threshold_ft,
+            pass_delta_ft=pass_delta_ft,
+            pass_delta_percent=pass_delta_percent,
+            warn_delta_ft=warn_delta_ft,
+            warn_delta_percent=warn_delta_percent,
+        )
+        for row in load_calibration_manifest(
+            manifest_path
+        )
+    ]
+
+    return {
+        "manifest": str(manifest_path),
+        "thresholds": {
+            "pass_delta_ft": pass_delta_ft,
+            "pass_delta_percent": pass_delta_percent,
+            "warn_delta_ft": warn_delta_ft,
+            "warn_delta_percent": warn_delta_percent,
+            "smoothing_threshold_ft": threshold_ft,
+        },
+        "summary": summarize_manifest_rows(
+            rows
+        ),
+        "rows": rows,
+    }
+
+
 def main(
     argv=None,
 ) -> int:
@@ -887,6 +1385,14 @@ def main(
         default=DEFAULT_ELEVATION_THRESHOLD_FT,
     )
     parser.add_argument(
+        "--manifest",
+        help=(
+            "Local calibration manifest CSV. "
+            "Manifest rows define Cairn intervals and "
+            "optional reference files/summary values."
+        ),
+    )
+    parser.add_argument(
         "--audit-anchors",
         action="store_true",
         help=(
@@ -904,6 +1410,19 @@ def main(
             json.dumps(
                 build_anchor_audit_report(
                     args.trail_root,
+                ),
+                indent=2,
+            )
+        )
+        return 0
+
+    if args.manifest:
+        print(
+            json.dumps(
+                build_manifest_calibration_report(
+                    args.manifest,
+                    args.trail_root,
+                    threshold_ft=args.threshold_ft,
                 ),
                 indent=2,
             )

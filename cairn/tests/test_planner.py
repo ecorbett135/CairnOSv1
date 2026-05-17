@@ -790,7 +790,7 @@ def test_nero_notes_obey_default_mileage_window(planner_factory):
             "min_daily_miles": 9,
             "max_daily_miles": 15,
             "resupply_cadence": 5,
-            "recovery_cadence": 6,
+            "recovery_cadence": 5,
             "allow_extra_resupply_only": True,
         },
     )
@@ -1266,3 +1266,41 @@ def test_sobo_resupply_strategy_is_populated(planner_factory):
                     - row["day"]
                 )
             )
+
+
+def test_overlay_authoritative_miles_override_enriched_stop_drift(
+    planner_factory,
+):
+    """Test enriched overnight stops keep overlay-authoritative miles."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_nero_miles": 5,
+            "max_nero_miles": 8,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+    montclair_row = next(
+        row for row in itinerary["daily_plan"]
+        if row["daily_stop_location"]
+        == "Montclair Glen Lodge"
+    )
+
+    assert montclair_row["daily_stop_mile"] == 173.8
+    assert montclair_row["daily_miles"] == 10.6
+    assert (
+        montclair_row["daily_elevation_gain"]
+        != planner.max_daily_elevation
+    )

@@ -97,6 +97,10 @@ instead of relying only on a whole-trail linear scale. The anchor audit report
 should be used to find suspicious local intervals before accepting future
 terrain behavior changes.
 
+Elevation calibration also supports a local ignored manifest CSV so known Gaia
+or Garmin reference segments can be rechecked as pass/warn/fail diagnostics
+without committing third-party route exports.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and

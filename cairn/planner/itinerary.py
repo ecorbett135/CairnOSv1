@@ -121,6 +121,44 @@ class ItineraryBuilder:
 
         return candidate_nodes[0]["node"]
 
+    def overlay_authoritative_match(
+        self,
+        selected_stop,
+        overlay_by_name,
+        current_mile=None,
+    ):
+        canonical_name = selected_stop.get(
+            "canonical_name"
+        )
+
+        if not canonical_name:
+            return None
+
+        overlay_node = overlay_by_name.get(
+            canonical_name.casefold()
+        )
+
+        if not overlay_node:
+            return None
+
+        overlay_mile = self.node_mile(
+            overlay_node
+        )
+
+        if overlay_mile is None:
+            return None
+
+        if (
+            current_mile is not None
+            and not self.is_forward_progress(
+                current_mile,
+                overlay_mile,
+            )
+        ):
+            return None
+
+        return overlay_node
+
     def build_daily_itinerary(
         self,
         completion_days,
@@ -134,6 +172,14 @@ class ItineraryBuilder:
                 0,
             )
         )
+        overlay_by_name = {
+            node.get(
+                "canonical_name",
+                "",
+            ).casefold(): node
+            for node in overlay_nodes
+            if node.get("canonical_name")
+        }
 
         logistics_candidates = (
             self.build_logistics_candidates()
@@ -444,10 +490,21 @@ class ItineraryBuilder:
                 )
 
             if selected_stop:
+                authoritative_overlay = (
+                    self.overlay_authoritative_match(
+                        selected_stop,
+                        overlay_by_name,
+                        current_mile=current_mile,
+                    )
+                )
+                mile_source = (
+                    authoritative_overlay
+                    or selected_stop
+                )
 
                 next_mile = round(
                     self.node_mile(
-                        selected_stop
+                        mile_source
                     )
                     or target_mile,
                     1,
@@ -469,7 +526,10 @@ class ItineraryBuilder:
                     )
 
                     stop_division = (
-                        selected_stop.get(
+                        (
+                            authoritative_overlay
+                            or selected_stop
+                        ).get(
                             "division",
                             current_division,
                         )

@@ -635,6 +635,10 @@ Immediate operational objectives:
   vendor data operational truth
 - use trusted coordinate anchors to improve local guidebook-mile to
   terrain-mile mapping accuracy
+- use local ignored elevation calibration manifests to recheck known reference
+  segments as diagnostics
+- keep overlay canonical miles authoritative when enriched reference stops
+  share the same canonical name
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 

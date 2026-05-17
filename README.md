@@ -235,6 +235,32 @@ The report compares reference distance/gain/loss against Cairn terrain
 intervals where the interval can be inferred from the route title, such as
 `LongTrailCenterlineTrackRouteNOBO` or `NorthAdamsApproachNOBO`.
 
+For repeatable segment checks, create a local ignored manifest:
+
+```text
+elevation_calibration/manifest.csv
+```
+
+Required columns are:
+
+```text
+name,start_mile,stop_mile,reference_gain_ft,reference_distance_miles,source_tool,notes
+```
+
+An optional `file` column can point to a local `.geojson`, `.gpx`, or `.kml`
+reference export. If `reference_gain_ft` is blank, the report uses the
+reference file's route summary when available.
+
+Run the manifest comparison with:
+
+```bash
+venv/bin/python -m cairn.runtime.elevation_calibration --manifest elevation_calibration/manifest.csv
+```
+
+Manifest rows are classified as `pass`, `warn`, `fail`, or `unknown` using
+local calibration thresholds. These reports are diagnostics only; reference
+exports are not treated as CairnOS source data.
+
 To audit the trail-wide anchor mapping without using third-party reference
 files:
 

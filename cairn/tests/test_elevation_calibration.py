@@ -5,7 +5,10 @@ import json
 from cairn.runtime.elevation_calibration import (
     build_anchor_audit_report,
     build_calibration_report,
+    build_manifest_calibration_report,
     calculate_gain_loss,
+    classify_reference_delta,
+    load_calibration_manifest,
     load_reference_routes,
 )
 
@@ -234,3 +237,124 @@ def test_anchor_audit_report_surfaces_mapping_deltas(
         interval["flagged"]
         for interval in report["intervals"]
     )
+
+
+def test_calibration_manifest_parses_core_fields(
+    tmp_path,
+):
+    manifest = tmp_path / "manifest.csv"
+    manifest.write_text(
+        "\n".join([
+            "name,start_mile,stop_mile,reference_gain_ft,"
+            "reference_distance_miles,source_tool,notes,file",
+            "Goddard to Story,24.4,33.3,1062,8.3,Gaia,"
+            "known benchmark,goddardtostory.geojson",
+        ])
+    )
+
+    rows = load_calibration_manifest(
+        manifest
+    )
+
+    assert len(rows) == 1
+    assert rows[0].name == "Goddard to Story"
+    assert rows[0].start_mile == 24.4
+    assert rows[0].stop_mile == 33.3
+    assert rows[0].reference_gain_ft == 1062
+    assert rows[0].file == "goddardtostory.geojson"
+
+
+def test_reference_delta_classification_thresholds():
+    assert (
+        classify_reference_delta(
+            240,
+            30,
+        )
+        == "pass"
+    )
+    assert (
+        classify_reference_delta(
+            450,
+            18,
+        )
+        == "warn"
+    )
+    assert (
+        classify_reference_delta(
+            700,
+            35,
+        )
+        == "fail"
+    )
+    assert (
+        classify_reference_delta(
+            None,
+            None,
+        )
+        == "unknown"
+    )
+
+
+def test_manifest_calibration_report_compares_reference_rows(
+    tmp_path,
+    trail_root,
+):
+    reference = tmp_path / "goddardtostory.geojson"
+    reference.write_text(
+        json.dumps({
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "title": "GoddardToStory",
+                        "distance": 13379.747,
+                        "total_ascent": 335.28,
+                        "total_descent": 586.266,
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [
+                                -73.072233,
+                                42.974273,
+                                1086.0,
+                            ],
+                            [
+                                -73.012413,
+                                43.050631,
+                                850.0,
+                            ],
+                        ],
+                    },
+                }
+            ],
+        })
+    )
+    manifest = tmp_path / "manifest.csv"
+    manifest.write_text(
+        "\n".join([
+            "name,start_mile,stop_mile,reference_gain_ft,"
+            "reference_distance_miles,source_tool,notes,file",
+            "GoddardToStory,24.4,33.3,,8.3,Gaia,"
+            "fixture,goddardtostory.geojson",
+        ])
+    )
+
+    report = build_manifest_calibration_report(
+        manifest,
+        trail_root,
+    )
+    row = report["rows"][0]
+
+    assert report["summary"]["rows"] == 1
+    assert row["reference_gain_source"] == "route_summary"
+    assert row["reference_gain_ft"] == 1100
+    assert row["status"] in {
+        "pass",
+        "warn",
+    }
+    assert row["anchor_terrain_interval"] == {
+        "start_mile": 22.558,
+        "stop_mile": 30.881,
+    }
