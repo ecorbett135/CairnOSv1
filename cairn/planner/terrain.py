@@ -2,9 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import json
+import math
+from statistics import median
 
 
 ELEVATION_NOISE_THRESHOLD_FT = 50.0
+EARTH_RADIUS_MILES = 3958.7613
+ANCHOR_PROJECTION_MAX_MILES = 0.25
+ANCHOR_MIN_MATCH_SCORE = 0.9
 
 
 class TerrainAnalyzer:
@@ -213,6 +218,7 @@ class TerrainAnalyzer:
             "guidebook_span": None,
             "terrain_span": None,
             "terrain_miles_per_guidebook_mile": None,
+            "anchor_count": 0,
             "status": "unavailable",
         }
 
@@ -244,16 +250,30 @@ class TerrainAnalyzer:
         ):
             return reconciliation
 
+        terrain_scale = (
+            terrain_span / guidebook_span
+        )
+
         reconciliation.update({
-            "terrain_miles_per_guidebook_mile": (
-                terrain_span / guidebook_span
-            ),
+            "terrain_miles_per_guidebook_mile": terrain_scale,
             "status": "ready",
         })
 
+        anchors = (
+            self.load_terrain_mile_anchors()
+        )
+
+        if len(anchors) >= 2:
+            reconciliation.update({
+                "mapping": (
+                    "anchor_interpolated_mainline_reconciliation"
+                ),
+                "anchor_count": len(anchors),
+            })
+
         return reconciliation
 
-    def map_guidebook_to_terrain_mile(
+    def map_guidebook_to_terrain_mile_linear(
         self,
         guidebook_mile,
     ):
@@ -295,6 +315,506 @@ class TerrainAnalyzer:
                 - guidebook_min
             )
             * terrain_scale
+        )
+
+    def haversine_miles(
+        self,
+        left,
+        right,
+    ):
+
+        left_lon, left_lat = map(
+            math.radians,
+            left[:2],
+        )
+        right_lon, right_lat = map(
+            math.radians,
+            right[:2],
+        )
+
+        delta_lon = right_lon - left_lon
+        delta_lat = right_lat - left_lat
+
+        h_value = (
+            math.sin(delta_lat / 2) ** 2
+            + math.cos(left_lat)
+            * math.cos(right_lat)
+            * math.sin(delta_lon / 2) ** 2
+        )
+
+        return (
+            2
+            * EARTH_RADIUS_MILES
+            * math.asin(
+                math.sqrt(h_value)
+            )
+        )
+
+    def load_spine_mile_points(
+        self,
+    ):
+
+        if hasattr(
+            self.planner,
+            "_spine_mile_points",
+        ):
+            return self.planner._spine_mile_points
+
+        spine_path = (
+            self.planner.runtime.compiled_dir /
+            "spine.geojson"
+        )
+
+        points = []
+
+        if spine_path.exists():
+            with open(spine_path) as handle:
+                payload = json.load(handle)
+
+            features = payload.get(
+                "features",
+                [],
+            )
+
+            if features:
+                coordinates = (
+                    features[0]
+                    .get("geometry", {})
+                    .get("coordinates", [])
+                )
+            else:
+                coordinates = (
+                    payload
+                    .get("geometry", {})
+                    .get("coordinates", [])
+                )
+
+            cumulative_mile = 0.0
+
+            for index, coordinate in enumerate(
+                coordinates
+            ):
+                if index > 0:
+                    cumulative_mile += (
+                        self.haversine_miles(
+                            coordinates[index - 1],
+                            coordinate,
+                        )
+                    )
+
+                points.append({
+                    "terrain_mile": cumulative_mile,
+                    "coordinates": (
+                        float(coordinate[0]),
+                        float(coordinate[1]),
+                    ),
+                })
+
+        self.planner._spine_mile_points = points
+
+        return points
+
+    def project_coordinate_to_spine(
+        self,
+        coordinates,
+    ):
+
+        spine_points = (
+            self.load_spine_mile_points()
+        )
+
+        if not spine_points:
+            return None
+
+        try:
+            coordinate = (
+                float(coordinates[0]),
+                float(coordinates[1]),
+            )
+        except (
+            TypeError,
+            ValueError,
+            IndexError,
+        ):
+            return None
+
+        best_point = min(
+            spine_points,
+            key=lambda point: (
+                self.haversine_miles(
+                    coordinate,
+                    point["coordinates"],
+                )
+            ),
+        )
+
+        projection_distance = (
+            self.haversine_miles(
+                coordinate,
+                best_point["coordinates"],
+            )
+        )
+
+        return {
+            "terrain_mile": best_point[
+                "terrain_mile"
+            ],
+            "distance_from_spine_miles": (
+                projection_distance
+            ),
+        }
+
+    def reference_anchor_items(
+        self,
+    ):
+
+        sources = [
+            (
+                self.planner.runtime.compiled_dir /
+                "overnight_reference.json",
+                "matched_overnight_sites",
+            ),
+            (
+                self.planner.runtime.compiled_dir /
+                "waypoint_reference.json",
+                "matched_waypoints",
+            ),
+        ]
+
+        for path, key in sources:
+            if not path.exists():
+                continue
+
+            with open(path) as handle:
+                payload = json.load(handle)
+
+            for item in payload.get(
+                key,
+                [],
+            ):
+                if item.get("deleted") is True:
+                    continue
+
+                yield {
+                    "name": (
+                        item.get("canonical_name")
+                        or item.get("title")
+                    ),
+                    "guidebook_mile": (
+                        item.get("trail_mile")
+                    ),
+                    "coordinates": item.get(
+                        "coordinates"
+                    ),
+                    "match_score": item.get(
+                        "match_score",
+                        1.0,
+                    ),
+                    "source": path.name,
+                }
+
+        resupply_path = (
+            self.planner.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "resupply_amenities.csv"
+        )
+
+        if not resupply_path.exists():
+            return
+
+        with open(
+            resupply_path,
+            newline="",
+        ) as handle:
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+                if (
+                    not row.get("latitude")
+                    or not row.get("longitude")
+                ):
+                    continue
+
+                yield {
+                    "name": (
+                        row.get("canonical_hint")
+                        or row.get("town_access")
+                    ),
+                    "guidebook_mile": row.get(
+                        "trail_mile"
+                    ),
+                    "coordinates": (
+                        row.get("longitude"),
+                        row.get("latitude"),
+                    ),
+                    "match_score": 1.0,
+                    "source": (
+                        "resupply_amenities.csv"
+                    ),
+                }
+
+    def build_projected_anchor(
+        self,
+        item,
+    ):
+
+        try:
+            guidebook_mile = float(
+                item.get("guidebook_mile")
+            )
+            match_score = float(
+                item.get("match_score", 1.0)
+            )
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return None
+
+        guidebook_min, guidebook_max = (
+            self.guidebook_mainline_range()
+        )
+
+        if (
+            guidebook_mile < guidebook_min
+            or guidebook_mile > guidebook_max
+            or match_score < ANCHOR_MIN_MATCH_SCORE
+        ):
+            return None
+
+        projection = (
+            self.project_coordinate_to_spine(
+                item.get("coordinates")
+            )
+        )
+
+        if projection is None:
+            return None
+
+        if (
+            projection["distance_from_spine_miles"]
+            > ANCHOR_PROJECTION_MAX_MILES
+        ):
+            return None
+
+        return {
+            "guidebook_mile": guidebook_mile,
+            "terrain_mile": projection[
+                "terrain_mile"
+            ],
+            "distance_from_spine_miles": (
+                projection[
+                    "distance_from_spine_miles"
+                ]
+            ),
+            "name": item.get("name"),
+            "source": item.get("source"),
+            "match_score": match_score,
+        }
+
+    def load_terrain_mile_anchors(
+        self,
+    ):
+
+        if hasattr(
+            self.planner,
+            "_terrain_mile_anchors",
+        ):
+            return self.planner._terrain_mile_anchors
+
+        terrain_range = self.terrain_mile_range()
+
+        if terrain_range is None:
+            self.planner._terrain_mile_anchors = []
+            return self.planner._terrain_mile_anchors
+
+        guidebook_min, guidebook_max = (
+            self.guidebook_mainline_range()
+        )
+        terrain_min, terrain_max = terrain_range
+
+        grouped = {}
+
+        for item in self.reference_anchor_items():
+            anchor = self.build_projected_anchor(
+                item
+            )
+
+            if anchor is None:
+                continue
+
+            anchor_key = round(
+                anchor["guidebook_mile"],
+                3,
+            )
+            grouped.setdefault(
+                anchor_key,
+                [],
+            ).append(anchor)
+
+        anchors = [
+            {
+                "guidebook_mile": guidebook_min,
+                "terrain_mile": terrain_min,
+                "distance_from_spine_miles": 0.0,
+                "name": "mainline_southern_endpoint",
+                "source": "terrain_endpoint",
+                "match_score": 1.0,
+                "sample_count": 1,
+            }
+        ]
+
+        for guidebook_mile in sorted(
+            grouped
+        ):
+            if (
+                guidebook_mile == guidebook_min
+                or guidebook_mile == guidebook_max
+            ):
+                continue
+
+            values = grouped[
+                guidebook_mile
+            ]
+            nearest = min(
+                values,
+                key=lambda item: (
+                    item[
+                        "distance_from_spine_miles"
+                    ]
+                ),
+            )
+
+            anchors.append({
+                "guidebook_mile": guidebook_mile,
+                "terrain_mile": median([
+                    item["terrain_mile"]
+                    for item in values
+                ]),
+                "distance_from_spine_miles": (
+                    nearest[
+                        "distance_from_spine_miles"
+                    ]
+                ),
+                "name": nearest["name"],
+                "source": nearest["source"],
+                "match_score": nearest[
+                    "match_score"
+                ],
+                "sample_count": len(values),
+            })
+
+        anchors.append({
+            "guidebook_mile": guidebook_max,
+            "terrain_mile": terrain_max,
+            "distance_from_spine_miles": 0.0,
+            "name": "mainline_northern_endpoint",
+            "source": "terrain_endpoint",
+            "match_score": 1.0,
+            "sample_count": 1,
+        })
+
+        anchors = sorted(
+            anchors,
+            key=lambda item: item["guidebook_mile"],
+        )
+
+        monotonic_anchors = []
+
+        for anchor in anchors:
+            if (
+                monotonic_anchors
+                and anchor["terrain_mile"]
+                <= monotonic_anchors[-1][
+                    "terrain_mile"
+                ]
+            ):
+                continue
+
+            monotonic_anchors.append(anchor)
+
+        self.planner._terrain_mile_anchors = (
+            monotonic_anchors
+        )
+
+        return self.planner._terrain_mile_anchors
+
+    def map_guidebook_to_terrain_mile_anchor(
+        self,
+        guidebook_mile,
+    ):
+
+        guidebook_min, guidebook_max = (
+            self.guidebook_mainline_range()
+        )
+
+        if (
+            guidebook_mile < guidebook_min
+            or guidebook_mile > guidebook_max
+        ):
+            return None
+
+        anchors = (
+            self.load_terrain_mile_anchors()
+        )
+
+        if len(anchors) < 2:
+            return None
+
+        if guidebook_mile == guidebook_min:
+            return anchors[0]["terrain_mile"]
+
+        if guidebook_mile == guidebook_max:
+            return anchors[-1]["terrain_mile"]
+
+        for left, right in zip(
+            anchors,
+            anchors[1:],
+        ):
+            left_mile = left["guidebook_mile"]
+            right_mile = right["guidebook_mile"]
+
+            if (
+                left_mile
+                <= guidebook_mile
+                <= right_mile
+            ):
+                if right_mile == left_mile:
+                    return right["terrain_mile"]
+
+                ratio = (
+                    (guidebook_mile - left_mile)
+                    / (right_mile - left_mile)
+                )
+
+                return (
+                    left["terrain_mile"]
+                    + ratio
+                    * (
+                        right["terrain_mile"]
+                        - left["terrain_mile"]
+                    )
+                )
+
+        return None
+
+    def map_guidebook_to_terrain_mile(
+        self,
+        guidebook_mile,
+    ):
+
+        anchor_mile = (
+            self.map_guidebook_to_terrain_mile_anchor(
+                guidebook_mile
+            )
+        )
+
+        if anchor_mile is not None:
+            return anchor_mile
+
+        return self.map_guidebook_to_terrain_mile_linear(
+            guidebook_mile
         )
 
     def interpolate_elevation(

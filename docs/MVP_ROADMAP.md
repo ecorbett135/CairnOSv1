@@ -92,6 +92,11 @@ exports can be compared against Cairn intervals from the ignored
 `elevation_calibration/` directory. These files are reference measurements only,
 not Cairn source data.
 
+Terrain mile reconciliation now uses trusted coordinate anchors where possible
+instead of relying only on a whole-trail linear scale. The anchor audit report
+should be used to find suspicious local intervals before accepting future
+terrain behavior changes.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and

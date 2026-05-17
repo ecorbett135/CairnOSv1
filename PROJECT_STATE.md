@@ -633,6 +633,8 @@ Immediate operational objectives:
 - preserve explicit guidebook-mile to terrain-sample-mile reconciliation
 - calibrate elevation gain/loss against local reference exports without making
   vendor data operational truth
+- use trusted coordinate anchors to improve local guidebook-mile to
+  terrain-mile mapping accuracy
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 

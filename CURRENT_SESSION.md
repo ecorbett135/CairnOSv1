@@ -264,6 +264,8 @@ The current data-quality hardening branch adds:
   licensing or provenance gaps
 - IP-safe elevation calibration using ignored local reference exports and
   comparison reports
+- anchor-based terrain mile mapping from trusted matched coordinate references
+  plus a whole-trail audit report for suspicious local intervals
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and

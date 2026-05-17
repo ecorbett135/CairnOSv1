@@ -3,6 +3,7 @@
 import json
 
 from cairn.runtime.elevation_calibration import (
+    build_anchor_audit_report,
     build_calibration_report,
     calculate_gain_loss,
     load_reference_routes,
@@ -155,3 +156,81 @@ def test_calibration_report_infers_known_long_trail_interval(
     }
     assert report[0]["cairn"]["source"] == "terrain"
     assert report[0]["gain_delta_percent"] is not None
+
+
+def test_calibration_report_shows_linear_and_anchor_mapping(
+    tmp_path,
+    trail_root,
+):
+    path = tmp_path / "goddardtostory.geojson"
+    path.write_text(
+        json.dumps({
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "title": "GoddardtoStorySpringShelters",
+                        "distance": 13379.747,
+                        "total_ascent": 323.8,
+                        "total_descent": 586.266,
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [
+                                -73.072233,
+                                42.974273,
+                                1086.0,
+                            ],
+                            [
+                                -73.012413,
+                                43.050631,
+                                850.0,
+                            ],
+                        ],
+                    },
+                }
+            ],
+        })
+    )
+
+    report = build_calibration_report(
+        [
+            path,
+        ],
+        trail_root,
+        start_mile=24.4,
+        stop_mile=33.3,
+    )
+
+    row = report[0]
+
+    assert row["linear_terrain_interval"] == {
+        "start_mile": 22.338,
+        "stop_mile": 30.485,
+    }
+    assert row["anchor_terrain_interval"] == {
+        "start_mile": 22.558,
+        "stop_mile": 30.881,
+    }
+    assert (
+        row["cairn"]["elevation_gain_ft"]
+        > row["linear_cairn"]["elevation_gain_ft"]
+    )
+
+
+def test_anchor_audit_report_surfaces_mapping_deltas(
+    trail_root,
+):
+    report = build_anchor_audit_report(
+        trail_root
+    )
+
+    assert report["anchor_count"] > 50
+    assert report["interval_count"] > 50
+    assert report["flagged_count"] > 0
+    assert any(
+        interval["flagged"]
+        for interval in report["intervals"]
+    )

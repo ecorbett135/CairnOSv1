@@ -561,11 +561,24 @@ def compare_route_to_cairn(
     if interval is None:
         summary["cairn_interval"] = None
         summary["cairn"] = None
+        summary["linear_cairn"] = None
+        summary["linear_terrain_interval"] = None
+        summary["anchor_terrain_interval"] = None
         return summary
 
     terrain_stats = planner.analyze_terrain_interval(
         interval[0],
         interval[1],
+    )
+    linear_stats = analyze_mapped_terrain_interval(
+        planner,
+        interval,
+        mapper="linear",
+    )
+    anchor_stats = analyze_mapped_terrain_interval(
+        planner,
+        interval,
+        mapper="anchor",
     )
     reference_gain = (
         summary["summary_gain_ft"]
@@ -595,6 +608,21 @@ def compare_route_to_cairn(
         "stop_mile": interval[1],
     }
     summary["cairn"] = terrain_stats
+    summary["linear_cairn"] = (
+        linear_stats["stats"]
+        if linear_stats
+        else None
+    )
+    summary["linear_terrain_interval"] = (
+        linear_stats["terrain_interval"]
+        if linear_stats
+        else None
+    )
+    summary["anchor_terrain_interval"] = (
+        anchor_stats["terrain_interval"]
+        if anchor_stats
+        else None
+    )
     summary["gain_delta_ft"] = round_optional(
         gain_delta,
         0,
@@ -605,6 +633,197 @@ def compare_route_to_cairn(
     )
 
     return summary
+
+
+def analyze_mapped_terrain_interval(
+    planner,
+    interval,
+    mapper,
+) -> dict | None:
+    start_mile, stop_mile = interval
+
+    if mapper == "linear":
+        mapper_function = (
+            planner.terrain
+            .map_guidebook_to_terrain_mile_linear
+        )
+        source = "terrain_linear"
+    elif mapper == "anchor":
+        mapper_function = (
+            planner.terrain
+            .map_guidebook_to_terrain_mile_anchor
+        )
+        source = "terrain_anchor"
+    else:
+        raise ValueError(
+            f"Unknown terrain mapper: {mapper}"
+        )
+
+    terrain_start = mapper_function(
+        start_mile
+    )
+    terrain_stop = mapper_function(
+        stop_mile
+    )
+
+    if (
+        terrain_start is None
+        or terrain_stop is None
+    ):
+        return None
+
+    stats = (
+        planner.terrain.analyze_sample_interval(
+            planner.load_terrain_samples(),
+            terrain_start,
+            terrain_stop,
+            source,
+            reported_distance=(
+                planner.travel_distance(
+                    start_mile,
+                    stop_mile,
+                )
+            ),
+        )
+    )
+
+    if stats is None:
+        return None
+
+    return {
+        "terrain_interval": {
+            "start_mile": round(
+                terrain_start,
+                3,
+            ),
+            "stop_mile": round(
+                terrain_stop,
+                3,
+            ),
+        },
+        "stats": stats,
+    }
+
+
+def build_anchor_audit_report(
+    trail_root,
+    min_delta_ft=500,
+    min_delta_percent=35,
+) -> dict:
+    planner = PlannerV2(
+        trail_root=Path(trail_root),
+    )
+    anchors = (
+        planner.terrain.load_terrain_mile_anchors()
+    )
+    intervals = []
+
+    for left, right in zip(
+        anchors,
+        anchors[1:],
+    ):
+        start_mile = left["guidebook_mile"]
+        stop_mile = right["guidebook_mile"]
+        guidebook_distance = (
+            planner.travel_distance(
+                start_mile,
+                stop_mile,
+            )
+        )
+
+        if guidebook_distance < 1.0:
+            continue
+
+        linear = analyze_mapped_terrain_interval(
+            planner,
+            (
+                start_mile,
+                stop_mile,
+            ),
+            mapper="linear",
+        )
+        anchor = analyze_mapped_terrain_interval(
+            planner,
+            (
+                start_mile,
+                stop_mile,
+            ),
+            mapper="anchor",
+        )
+
+        if (
+            linear is None
+            or anchor is None
+        ):
+            continue
+
+        linear_gain = linear["stats"][
+            "elevation_gain_ft"
+        ]
+        anchor_gain = anchor["stats"][
+            "elevation_gain_ft"
+        ]
+        delta = anchor_gain - linear_gain
+        delta_percent = None
+
+        if linear_gain:
+            delta_percent = (
+                delta
+                / linear_gain
+                * 100.0
+            )
+
+        flagged = (
+            abs(delta) >= min_delta_ft
+            or (
+                delta_percent is not None
+                and abs(delta_percent)
+                >= min_delta_percent
+            )
+        )
+
+        intervals.append({
+            "start_mile": start_mile,
+            "stop_mile": stop_mile,
+            "guidebook_distance": round(
+                guidebook_distance,
+                2,
+            ),
+            "geometry_distance": round(
+                abs(
+                    right["terrain_mile"]
+                    - left["terrain_mile"]
+                ),
+                2,
+            ),
+            "start_anchor": left["name"],
+            "stop_anchor": right["name"],
+            "linear_gain_ft": linear_gain,
+            "anchor_gain_ft": anchor_gain,
+            "delta_ft": round(
+                delta,
+                0,
+            ),
+            "delta_percent": round_optional(
+                delta_percent,
+                1,
+            ),
+            "flagged": flagged,
+        })
+
+    return {
+        "anchor_count": len(anchors),
+        "interval_count": len(intervals),
+        "flagged_count": len([
+            interval for interval in intervals
+            if interval["flagged"]
+        ]),
+        "thresholds": {
+            "min_delta_ft": min_delta_ft,
+            "min_delta_percent": min_delta_percent,
+        },
+        "intervals": intervals,
+    }
 
 
 def build_calibration_report(
@@ -647,7 +866,7 @@ def main(
     )
     parser.add_argument(
         "paths",
-        nargs="+",
+        nargs="*",
         help="Local GeoJSON, GPX, or KML reference files.",
     )
     parser.add_argument(
@@ -667,10 +886,29 @@ def main(
         type=float,
         default=DEFAULT_ELEVATION_THRESHOLD_FT,
     )
+    parser.add_argument(
+        "--audit-anchors",
+        action="store_true",
+        help=(
+            "Report trail-wide anchor mapping deltas "
+            "without requiring reference files."
+        ),
+    )
 
     args = parser.parse_args(
         argv
     )
+
+    if args.audit_anchors:
+        print(
+            json.dumps(
+                build_anchor_audit_report(
+                    args.trail_root,
+                ),
+                indent=2,
+            )
+        )
+        return 0
 
     report = build_calibration_report(
         args.paths,

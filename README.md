@@ -192,8 +192,10 @@ mileage lower in harder sections and higher in gentler sections.
 
 Planner and export outputs use northbound-reference guidebook miles. The dense
 compiled terrain profile currently uses an internal geometry/sample mile domain,
-so PlannerV2 maps guidebook mainline miles into that terrain domain explicitly
-before reading elevation samples.
+so PlannerV2 maps guidebook mainline miles into that terrain domain before
+reading elevation samples. The mapper prefers trusted matched coordinate
+anchors from compiled overnight, waypoint, and resupply references, then falls
+back to the linear mainline reconciliation when anchors are unavailable.
 
 When dense compiled terrain coverage cannot resolve an interval, the planner
 falls back to `route_master.csv` elevation points and then to a conservative
@@ -232,6 +234,13 @@ venv/bin/python -m cairn.runtime.elevation_calibration elevation_calibration/*.g
 The report compares reference distance/gain/loss against Cairn terrain
 intervals where the interval can be inferred from the route title, such as
 `LongTrailCenterlineTrackRouteNOBO` or `NorthAdamsApproachNOBO`.
+
+To audit the trail-wide anchor mapping without using third-party reference
+files:
+
+```bash
+venv/bin/python -m cairn.runtime.elevation_calibration --audit-anchors
+```
 
 ## Gaia reference enrichment
 
