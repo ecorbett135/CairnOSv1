@@ -166,9 +166,8 @@ class TerrainAnalyzer:
             max(mainline_miles),
         )
 
-    def map_guidebook_to_terrain_mile(
+    def terrain_mile_range(
         self,
-        guidebook_mile,
     ):
 
         terrain_samples = (
@@ -178,29 +177,121 @@ class TerrainAnalyzer:
         if len(terrain_samples) < 2:
             return None
 
+        return (
+            terrain_samples[0][0],
+            terrain_samples[-1][0],
+        )
+
+    def terrain_mile_reconciliation(
+        self,
+    ):
+
         guidebook_min, guidebook_max = (
             self.guidebook_mainline_range()
         )
+        terrain_range = (
+            self.terrain_mile_range()
+        )
+
+        reconciliation = {
+            "guidebook_domain": (
+                "northbound_reference_mainline_miles"
+            ),
+            "terrain_domain": (
+                "compiled_geometry_sample_miles"
+            ),
+            "mapping": (
+                "linear_mainline_domain_reconciliation"
+            ),
+            "guidebook_min": guidebook_min,
+            "guidebook_max": guidebook_max,
+            "terrain_min": None,
+            "terrain_max": None,
+            "guidebook_span": None,
+            "terrain_span": None,
+            "terrain_miles_per_guidebook_mile": None,
+            "status": "unavailable",
+        }
+
+        if terrain_range is None:
+            return reconciliation
+
+        terrain_min, terrain_max = terrain_range
+
+        reconciliation.update({
+            "terrain_min": terrain_min,
+            "terrain_max": terrain_max,
+        })
+
+        guidebook_span = (
+            guidebook_max - guidebook_min
+        )
+        terrain_span = (
+            terrain_max - terrain_min
+        )
+
+        reconciliation.update({
+            "guidebook_span": guidebook_span,
+            "terrain_span": terrain_span,
+        })
+
+        if (
+            guidebook_span <= 0
+            or terrain_span <= 0
+        ):
+            return reconciliation
+
+        reconciliation.update({
+            "terrain_miles_per_guidebook_mile": (
+                terrain_span / guidebook_span
+            ),
+            "status": "ready",
+        })
+
+        return reconciliation
+
+    def map_guidebook_to_terrain_mile(
+        self,
+        guidebook_mile,
+    ):
+
+        reconciliation = (
+            self.terrain_mile_reconciliation()
+        )
+
+        if (
+            reconciliation["status"]
+            != "ready"
+        ):
+            return None
+
+        guidebook_min = reconciliation[
+            "guidebook_min"
+        ]
+        guidebook_max = reconciliation[
+            "guidebook_max"
+        ]
 
         if (
             guidebook_mile < guidebook_min
             or guidebook_mile > guidebook_max
-            or guidebook_max <= guidebook_min
         ):
             return None
 
-        terrain_min = terrain_samples[0][0]
-        terrain_max = terrain_samples[-1][0]
-
-        ratio = (
-            (guidebook_mile - guidebook_min)
-            / (guidebook_max - guidebook_min)
-        )
+        terrain_min = reconciliation[
+            "terrain_min"
+        ]
+        terrain_scale = reconciliation[
+            "terrain_miles_per_guidebook_mile"
+        ]
 
         return (
             terrain_min
-            + ratio
-            * (terrain_max - terrain_min)
+            + (
+                guidebook_mile
+                - guidebook_min
+            )
+            * terrain_scale
         )
 
     def interpolate_elevation(

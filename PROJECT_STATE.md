@@ -449,8 +449,10 @@ For each moving leg it can derive:
 - ruggedness
 
 Terrain coverage still has imperfect mile-system alignment, so PlannerV2 falls
-back to `route_master.csv` elevation points and then to a conservative
-distance-based estimate when needed.
+maps northbound-reference guidebook miles into the compiled terrain sample
+domain before reading dense elevation samples. It falls back to
+`route_master.csv` elevation points and then to a conservative distance-based
+estimate when needed.
 
 Terrain now influences:
 
@@ -624,9 +626,9 @@ ALWAYS:
 
 Immediate operational objectives:
 
-- complete PlannerV2 module extraction and keep facade compatibility
-- harden data quality and provenance
-- reconcile terrain profile and mile-system semantics
+- keep PlannerV2 facade compatibility after helper extraction
+- keep runtime data-quality validation in the normal test loop
+- preserve explicit guidebook-mile to terrain-sample-mile reconciliation
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 

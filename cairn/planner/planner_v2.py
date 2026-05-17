@@ -199,6 +199,19 @@ class PlannerV2:
     ):
         return self.terrain.guidebook_mainline_range()
 
+    def terrain_mile_range(
+        self,
+    ):
+        return self.terrain.terrain_mile_range()
+
+    def terrain_mile_reconciliation(
+        self,
+    ):
+        return (
+            self.terrain
+            .terrain_mile_reconciliation()
+        )
+
     def map_guidebook_to_terrain_mile(
         self,
         guidebook_mile,

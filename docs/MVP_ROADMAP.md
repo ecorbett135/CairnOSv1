@@ -57,6 +57,18 @@ This work should not rewrite planner behavior. Its purpose is to make data
 issues visible before more advanced terrain, traversal, and SECTION features
 depend on them.
 
+## Terrain Profile And Mile Systems
+
+The planner and UI use northbound-reference guidebook miles as the public mile
+system for NOBO and SOBO. Compiled terrain and spine artifacts can use internal
+geometry/sample miles, which may not have the same span as guidebook miles.
+
+PlannerV2 must reconcile those domains explicitly before using terrain samples
+for interval gain, loss, ruggedness, pacing, or feasibility exceptions. Future
+compiler work may emit guidebook-aware terrain metadata, but runtime planner
+logic should never assume terrain sample miles and guidebook miles are the same
+without an explicit mapper.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and

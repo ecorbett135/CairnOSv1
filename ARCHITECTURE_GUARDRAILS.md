@@ -250,6 +250,31 @@ DO NOT:
 
 ---
 
+### Mile Systems Must Be Explicit
+
+Guidebook/trail miles are the public planner mile system. They are
+northbound-reference miles even when the itinerary direction is SOBO.
+
+Compiled terrain and spine artifacts may use internal geometry/sample mile
+domains. Those domains MUST NOT be treated as guidebook miles unless a dedicated
+mapper reconciles them first.
+
+The planner MUST preserve:
+
+- guidebook miles in itinerary rows, resupply rows, UI output, CSV export, and
+  Gaia export properties
+- explicit terrain-domain mapping before reading compiled elevation samples
+- route-master or conservative fallback behavior for approach and egress miles
+  outside dense terrain coverage
+
+DO NOT:
+
+- compare guidebook miles directly to terrain sample miles without a mapper
+- introduce hidden ratio math outside the terrain reconciliation helper
+- let terrain sample mileage redefine public trail mileage
+
+---
+
 ### Negative Mileage Semantics Must Be Preserved
 
 Approach trails may legitimately exist at:

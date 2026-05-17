@@ -7,6 +7,7 @@ from cairn.runtime.data_quality import (
     validate_resupply_amenities_rows,
     validate_route_overlay_payload,
     validate_runtime_dataset,
+    validate_terrain_payload,
 )
 
 
@@ -148,4 +149,58 @@ def test_resupply_validation_flags_missing_required_columns():
         in finding_codes(
             findings
         )
+    )
+
+
+def test_terrain_validation_reports_mile_reconciliation_metadata():
+    findings = validate_terrain_payload(
+        {
+            "features": [
+                {
+                    "properties": {
+                        "mile": 0.0,
+                        "elevation_ft": 1000,
+                    },
+                },
+                {
+                    "properties": {
+                        "mile": 10.0,
+                        "elevation_ft": 1200,
+                    },
+                },
+            ],
+        },
+        overlay_miles=[
+            -1.0,
+            0.0,
+            20.0,
+        ],
+    )
+
+    info_codes = finding_codes(
+        findings,
+        severity="info",
+    )
+    warning_codes = finding_codes(
+        findings,
+        severity="warning",
+    )
+    reconciliation = next(
+        finding
+        for finding in findings
+        if (
+            finding.code
+            == "terrain_mile_reconciliation"
+        )
+    )
+
+    assert "terrain_mile_reconciliation" in info_codes
+    assert "terrain_mile_domain_differs" in warning_codes
+    assert (
+        reconciliation.context["guidebook_domain"]
+        == "northbound_reference_mainline_miles"
+    )
+    assert (
+        reconciliation.context["terrain_domain"]
+        == "compiled_geometry_sample_miles"
     )

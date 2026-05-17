@@ -2,7 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 from cairn.export.gaia_geojson import (
     export_itinerary_to_gaia_geojson,
+    interpolate_spine_coordinate,
+    load_overlay_nodes,
     load_resupply_access_reference,
+    load_spine_coordinates,
+    total_overlay_miles,
 )
 
 
@@ -94,6 +98,32 @@ def test_gaia_export_builds_point_features(
         "notes",
     ]:
         assert key in first_feature["properties"]
+
+
+def test_gaia_spine_interpolation_uses_guidebook_overlay_endpoints(
+    trail_root,
+):
+    """Test fallback spine coordinates use public guidebook miles."""
+    overlay_nodes = load_overlay_nodes(
+        trail_root
+    )
+    spine_coordinates = load_spine_coordinates(
+        trail_root
+    )
+    total_miles = total_overlay_miles(
+        overlay_nodes
+    )
+
+    assert interpolate_spine_coordinate(
+        spine_coordinates,
+        0.0,
+        total_miles,
+    ) == spine_coordinates[0][:2]
+    assert interpolate_spine_coordinate(
+        spine_coordinates,
+        total_miles,
+        total_miles,
+    ) == spine_coordinates[-1][:2]
 
 
 def test_gaia_export_marks_shelters_with_gaia_icon(

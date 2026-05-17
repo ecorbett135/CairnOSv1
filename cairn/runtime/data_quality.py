@@ -1345,15 +1345,100 @@ def validate_terrain_payload(
         overlay_miles
         and miles
     ):
+        terrain_min = min(
+            miles
+        )
+        terrain_max = max(
+            miles
+        )
+        terrain_span = (
+            terrain_max - terrain_min
+        )
+        mainline_overlay_miles = [
+            mile
+            for mile in overlay_miles
+            if mile >= 0
+        ]
+        guidebook_min = (
+            min(
+                mainline_overlay_miles
+            )
+            if mainline_overlay_miles
+            else min(
+                overlay_miles
+            )
+        )
+        guidebook_max = (
+            max(
+                mainline_overlay_miles
+            )
+            if mainline_overlay_miles
+            else max(
+                overlay_miles
+            )
+        )
+        guidebook_span = (
+            guidebook_max - guidebook_min
+        )
+
+        add_finding(
+            findings,
+            "info",
+            "terrain_mile_reconciliation",
+            (
+                "Terrain samples use compiled geometry/sample "
+                "miles; planner maps guidebook mainline miles "
+                "into this terrain domain at runtime."
+            ),
+            path,
+            guidebook_domain=(
+                "northbound_reference_mainline_miles"
+            ),
+            terrain_domain=(
+                "compiled_geometry_sample_miles"
+            ),
+            overlay_min=round(
+                min(
+                    overlay_miles
+                ),
+                1,
+            ),
+            overlay_max=round(
+                max(
+                    overlay_miles
+                ),
+                1,
+            ),
+            guidebook_mainline_min=round(
+                guidebook_min,
+                1,
+            ),
+            guidebook_mainline_max=round(
+                guidebook_max,
+                1,
+            ),
+            terrain_min=round(
+                terrain_min,
+                1,
+            ),
+            terrain_max=round(
+                terrain_max,
+                1,
+            ),
+            guidebook_span=round(
+                guidebook_span,
+                1,
+            ),
+            terrain_span=round(
+                terrain_span,
+                1,
+            ),
+        )
+
         overlay_span = max(
             overlay_miles
         ) - min(
             overlay_miles
-        )
-        terrain_span = max(
-            miles
-        ) - min(
-            miles
         )
         if abs(
             overlay_span - terrain_span
@@ -1362,7 +1447,11 @@ def validate_terrain_payload(
                 findings,
                 "warning",
                 "terrain_mile_domain_differs",
-                "Terrain sample miles and guidebook overlay miles use different domains.",
+                (
+                    "Terrain sample miles and guidebook overlay "
+                    "miles use different domains; PlannerV2 must "
+                    "reconcile them explicitly at runtime."
+                ),
                 path,
                 overlay_span=round(
                     overlay_span,

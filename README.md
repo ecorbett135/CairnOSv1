@@ -188,6 +188,11 @@ interval for each moving day. The planner computes direction-aware gain, loss,
 gain per mile, and ruggedness, then uses those values to bias upcoming daily
 mileage lower in harder sections and higher in gentler sections.
 
+Planner and export outputs use northbound-reference guidebook miles. The dense
+compiled terrain profile currently uses an internal geometry/sample mile domain,
+so PlannerV2 maps guidebook mainline miles into that terrain domain explicitly
+before reading elevation samples.
+
 When dense compiled terrain coverage cannot resolve an interval, the planner
 falls back to `route_master.csv` elevation points and then to a conservative
 distance-based estimate. This keeps ingress/egress and incomplete terrain
@@ -295,6 +300,8 @@ feedback form URL as a Streamlit secret named `alpha_feedback_url`.
 - The system intentionally avoids synthetic planner behavior in favor of operational realism.
 - The overlay (`route_overlay.json`) is the authoritative source for canonical stop names, shelter semantics, and progression ordering.
 - NOBO and SOBO use the same northbound-reference guidebook miles; direction changes traversal order, not mile semantics.
+- Terrain and spine geometry miles must not be treated as public planner miles
+  unless an explicit mapper reconciles them to guidebook miles.
 - Selected ingress and egress routes are planner state, not display-only metadata.
 - Resupply behavior should stay tied to real logistics/access nodes and curated access data, not arbitrary day numbers.
 - Recovery behavior should remain separate from resupply behavior even when both occur at the same access point.

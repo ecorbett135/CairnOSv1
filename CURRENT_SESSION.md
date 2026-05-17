@@ -10,13 +10,16 @@ This session stabilized the PlannerV2 THRU workflow around three related areas:
 - terrain-aware pacing and terrain-derived elevation reporting
 - Gaia-compatible export behavior for itinerary and resupply markers
 - runtime data-quality validation for the current Long Trail dataset
+- terrain profile and mile-system reconciliation
 
 The current implementation is intentionally incremental. PlannerV2 is still
 not a full overlay traversal engine, but the primary THRU workflow now behaves
 like an operational expedition plan instead of a one-direction mileage slicer.
 The runtime dataset now has a validator that reports internal consistency
 errors and known warnings without treating validation as a provenance or
-licensing guarantee.
+licensing guarantee. Terrain profile analysis now distinguishes public
+guidebook miles from compiled geometry/sample miles and maps between those
+domains explicitly.
 
 ---
 
@@ -36,6 +39,7 @@ PlannerV2 now supports:
 - zero and nero annotations for recovery planning
 - configurable nero-mile bounds
 - terrain interval analysis from compiled elevation samples
+- explicit terrain mile-domain reconciliation
 - resupply strategy output tied to amenity-backed access points
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
@@ -185,8 +189,8 @@ PlannerV2 still needs improvement in these areas:
 - overlay progression should become the primary traversal substrate instead of
   target-mile search plus nearby node selection
 - section hiking remains incomplete
-- terrain semantics are now interval-aware, but deeper fatigue and grade
-  modeling remains future work
+- terrain semantics are now interval-aware and mile-domain-aware, but deeper
+  fatigue, grade, and surface modeling remains future work
 - food-carry weight is tracked only as backend planning context, not as an
   effort multiplier yet
 - synthetic fallback labels should become increasingly rare as compiled
@@ -247,6 +251,8 @@ The current data-quality hardening branch adds:
 - a stdlib-only runtime data validator
 - route overlay, route master, resupply, overnight reference, approach trail,
   terrain, spine, and operational graph consistency checks
+- explicit reporting for guidebook-mile and terrain-sample-mile domain
+  reconciliation
 - pytest coverage for the live Long Trail dataset and representative broken
   synthetic data
 - documentation that validation improves trust but does not resolve source

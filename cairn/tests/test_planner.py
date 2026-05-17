@@ -473,6 +473,64 @@ def test_terrain_interval_analysis_identifies_harder_sections(planner):
     )
 
 
+def test_terrain_mile_reconciliation_is_explicit(planner):
+    """Test guidebook miles map into a named terrain sample domain."""
+    reconciliation = (
+        planner.terrain_mile_reconciliation()
+    )
+    guidebook_min, guidebook_max = (
+        planner.guidebook_mainline_range()
+    )
+    terrain_min, terrain_max = (
+        planner.terrain_mile_range()
+    )
+
+    assert reconciliation["status"] == "ready"
+    assert (
+        reconciliation["guidebook_domain"]
+        == "northbound_reference_mainline_miles"
+    )
+    assert (
+        reconciliation["terrain_domain"]
+        == "compiled_geometry_sample_miles"
+    )
+    assert (
+        planner.map_guidebook_to_terrain_mile(
+            guidebook_min
+        )
+        == terrain_min
+    )
+    assert round(
+        planner.map_guidebook_to_terrain_mile(
+            guidebook_max
+        ),
+        6,
+    ) == round(
+        terrain_max,
+        6,
+    )
+
+
+def test_terrain_mile_mapping_is_monotonic_and_mainline_only(planner):
+    """Test approach miles fall back instead of entering terrain domain."""
+    first = planner.map_guidebook_to_terrain_mile(
+        10.0
+    )
+    second = planner.map_guidebook_to_terrain_mile(
+        20.0
+    )
+
+    assert first is not None
+    assert second is not None
+    assert second > first
+    assert (
+        planner.map_guidebook_to_terrain_mile(
+            -0.1
+        )
+        is None
+    )
+
+
 def test_terrain_interval_analysis_is_direction_aware(planner_factory):
     """Test SOBO terrain gain is positive in traversal direction."""
     nobo_planner = planner_factory(
