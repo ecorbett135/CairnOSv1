@@ -637,9 +637,30 @@ def test_terrain_interval_analysis_is_direction_aware(planner_factory):
     assert sobo_interval["source"] == "terrain"
     assert sobo_interval["elevation_gain_ft"] > 0
     assert (
-        sobo_interval["elevation_gain_ft"]
-        == nobo_interval["elevation_loss_ft"]
+        abs(
+            sobo_interval["elevation_gain_ft"]
+            - nobo_interval["elevation_loss_ft"]
+        )
+        <= 75
     )
+
+
+def test_terrain_interval_crossing_approach_and_mainline_uses_mixed_sources(
+    planner,
+):
+    """Test approach-to-mainline intervals do not fully fall back."""
+    interval = planner.analyze_terrain_interval(
+        -3.8,
+        5.5,
+    )
+
+    assert interval["source"] == "mixed"
+    assert interval["source_parts"] == [
+        "route_master",
+        "terrain",
+    ]
+    assert interval["elevation_gain_ft"] > 2500
+    assert interval["elevation_loss_ft"] > 0
 
 
 def test_terrain_interval_analysis_falls_back_to_route_master(

@@ -200,10 +200,38 @@ falls back to `route_master.csv` elevation points and then to a conservative
 distance-based estimate. This keeps ingress/egress and incomplete terrain
 coverage operational without reintroducing capped elevation output.
 
+Elevation calculations apply a small vertical-noise threshold before summing
+gain and loss. This keeps dense DEM/profile samples closer to route-planning
+tools that smooth small elevation reversals instead of counting every tiny
+sample fluctuation.
+
 Operational feasibility classification now treats small, sparse preference
 overages as minor exceptions instead of automatically escalating a reasonable
 plan to aggressive. Larger or repeated mileage/elevation exceptions still raise
 the classification.
+
+## Elevation calibration
+
+Local reference exports from tools such as Gaia GPS or Garmin Explore can be
+placed in:
+
+```text
+elevation_calibration/
+```
+
+That directory is intentionally ignored by git except for its README. Use it for
+local comparison inputs only; do not commit third-party route exports,
+screenshots, or proprietary map data without provenance review.
+
+Run a local comparison report with:
+
+```bash
+venv/bin/python -m cairn.runtime.elevation_calibration elevation_calibration/*.geojson
+```
+
+The report compares reference distance/gain/loss against Cairn terrain
+intervals where the interval can be inferred from the route title, such as
+`LongTrailCenterlineTrackRouteNOBO` or `NorthAdamsApproachNOBO`.
 
 ## Gaia reference enrichment
 

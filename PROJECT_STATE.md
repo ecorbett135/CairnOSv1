@@ -631,6 +631,8 @@ Immediate operational objectives:
 - keep PlannerV2 facade compatibility after helper extraction
 - keep runtime data-quality validation in the normal test loop
 - preserve explicit guidebook-mile to terrain-sample-mile reconciliation
+- calibrate elevation gain/loss against local reference exports without making
+  vendor data operational truth
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 

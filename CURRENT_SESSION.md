@@ -262,6 +262,8 @@ The current data-quality hardening branch adds:
   synthetic data
 - documentation that validation improves trust but does not resolve source
   licensing or provenance gaps
+- IP-safe elevation calibration using ignored local reference exports and
+  comparison reports
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and

@@ -4,6 +4,9 @@ import csv
 import json
 
 
+ELEVATION_NOISE_THRESHOLD_FT = 50.0
+
+
 class TerrainAnalyzer:
     """Terrain and elevation calculations for PlannerV2."""
 
@@ -358,6 +361,9 @@ class TerrainAnalyzer:
         stop_mile,
         source,
         reported_distance=None,
+        elevation_noise_threshold_ft=(
+            ELEVATION_NOISE_THRESHOLD_FT
+        ),
     ):
 
         if (
@@ -425,27 +431,30 @@ class TerrainAnalyzer:
 
         elevation_gain = 0.0
         elevation_loss = 0.0
+        accepted_elevation = elevations[0][1]
 
         for (
             _,
-            start_elevation,
-        ), (
-            _,
             stop_elevation,
-        ) in zip(
-            elevations,
-            elevations[1:],
-        ):
+        ) in elevations[1:]:
 
             delta = (
                 stop_elevation
-                - start_elevation
+                - accepted_elevation
             )
+
+            if (
+                abs(delta)
+                < elevation_noise_threshold_ft
+            ):
+                continue
 
             if delta > 0:
                 elevation_gain += delta
             else:
                 elevation_loss += abs(delta)
+
+            accepted_elevation = stop_elevation
 
         distance = (
             reported_distance
@@ -520,7 +529,124 @@ class TerrainAnalyzer:
             "ruggedness_score": 480.0,
         }
 
-    def analyze_terrain_interval(
+    def split_interval_at_mainline_boundaries(
+        self,
+        start_mile,
+        stop_mile,
+    ):
+
+        lower_bound, upper_bound = (
+            self.guidebook_mainline_range()
+        )
+
+        if start_mile == stop_mile:
+            return [
+                (
+                    start_mile,
+                    stop_mile,
+                )
+            ]
+
+        increasing = stop_mile > start_mile
+        boundaries = []
+
+        for boundary in (
+            lower_bound,
+            upper_bound,
+        ):
+            if (
+                increasing
+                and start_mile < boundary < stop_mile
+            ):
+                boundaries.append(boundary)
+            elif (
+                not increasing
+                and stop_mile < boundary < start_mile
+            ):
+                boundaries.append(boundary)
+
+        boundaries = sorted(
+            boundaries,
+            reverse=not increasing,
+        )
+
+        points = [
+            start_mile,
+            *boundaries,
+            stop_mile,
+        ]
+
+        return list(
+            zip(
+                points,
+                points[1:],
+            )
+        )
+
+    def combine_terrain_stats(
+        self,
+        parts,
+        reported_distance,
+    ):
+
+        if not parts:
+            return None
+
+        if len(parts) == 1:
+            return parts[0]
+
+        elevation_gain = sum(
+            part["elevation_gain_ft"]
+            for part in parts
+        )
+        elevation_loss = sum(
+            part["elevation_loss_ft"]
+            for part in parts
+        )
+
+        if reported_distance <= 0:
+            gain_per_mile = 0.0
+            ruggedness_score = 0.0
+        else:
+            gain_per_mile = (
+                elevation_gain
+                / reported_distance
+            )
+            ruggedness_score = (
+                (
+                    elevation_gain
+                    + elevation_loss
+                )
+                / reported_distance
+            )
+
+        source_parts = [
+            part["source"]
+            for part in parts
+        ]
+
+        return {
+            "source": "mixed",
+            "source_parts": source_parts,
+            "elevation_gain_ft": round(
+                elevation_gain,
+                0,
+            ),
+            "elevation_loss_ft": round(
+                elevation_loss,
+                0,
+            ),
+            "gain_per_mile": round(
+                gain_per_mile,
+                1,
+            ),
+            "ruggedness_score": round(
+                ruggedness_score,
+                1,
+            ),
+        }
+
+    def analyze_terrain_interval_single(
         self,
         start_mile,
         stop_mile,
@@ -579,6 +705,46 @@ class TerrainAnalyzer:
         return self.estimate_terrain_interval(
             start_mile,
             stop_mile,
+        )
+
+    def analyze_terrain_interval(
+        self,
+        start_mile,
+        stop_mile,
+    ):
+
+        distance = self.planner.travel_distance(
+            start_mile,
+            stop_mile,
+        )
+
+        if distance == 0:
+            return {
+                "source": "none",
+                "elevation_gain_ft": 0.0,
+                "elevation_loss_ft": 0.0,
+                "gain_per_mile": 0.0,
+                "ruggedness_score": 0.0,
+            }
+
+        interval_parts = (
+            self.split_interval_at_mainline_boundaries(
+                start_mile,
+                stop_mile,
+            )
+        )
+
+        terrain_parts = [
+            self.analyze_terrain_interval_single(
+                part_start,
+                part_stop,
+            )
+            for part_start, part_stop in interval_parts
+        ]
+
+        return self.combine_terrain_stats(
+            terrain_parts,
+            distance,
         )
 
     def calculate_terrain_adjusted_target(

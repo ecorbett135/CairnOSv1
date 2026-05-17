@@ -24,5 +24,9 @@ data/generated/*
 outputs/*
 *.tmp
 
+# local elevation calibration references
+elevation_calibration/*
+!elevation_calibration/README.md
+
 # build artifacts
 *.zip

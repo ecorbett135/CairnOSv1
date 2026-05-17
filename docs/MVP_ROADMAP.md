@@ -87,6 +87,11 @@ resupply-only stops without depending on prose parsing.
 Gaia/manual elevation comparisons should feed back into terrain validation and
 terrain-profile calibration, not ad hoc planner overrides.
 
+Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
+exports can be compared against Cairn intervals from the ignored
+`elevation_calibration/` directory. These files are reference measurements only,
+not Cairn source data.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and
