@@ -1,6 +1,62 @@
 # CairnOSv1
 
-CairnOSv1 is an operational expedition planning system for long-distance trail networks. It is designed to move beyond abstract mileage partitioning and toward realistic, logistics-aware itinerary synthesis using trail-level operational semantics.
+CairnOSv1 is an operational expedition planning system for long-distance trail
+networks. It is designed to move beyond abstract mileage partitioning and
+toward realistic, logistics-aware itinerary synthesis using trail-level
+operational semantics.
+
+## Alpha Status And Safety Notice
+
+CairnOSv1 is public alpha software for hikers, early testers, and contributors
+who want to evaluate whether a generated itinerary feels operationally
+realistic. It is not production software and is not a safety-critical
+trip-planning authority.
+
+Use CairnOSv1 as a planning aid only. Before hiking, verify every route,
+shelter, campsite, road crossing, resupply option, closure, weather condition,
+water expectation, and backcountry decision with official sources, current
+maps, local trail organizations, and personal judgment.
+
+Current public testing is focused on the Vermont Long Trail THRU workflow.
+SECTION planning is intentionally hidden in the UI until the traversal semantics
+and data quality are ready.
+
+## Who It Is For
+
+- Long-distance hikers evaluating Long Trail NOBO or SOBO itinerary realism.
+- Alpha testers willing to report confusing output, bad stop choices, and data
+  corrections.
+- Developers interested in operational planning, trail data quality, terrain
+  analysis, and Gaia-compatible exports.
+- Maintainers improving curated trail datasets with clear provenance.
+
+## Quick Start
+
+For local development, use Python 3.11 or newer.
+
+```bash
+python -m venv venv
+venv/bin/python -m pip install -r requirements.txt
+venv/bin/python -m pytest cairn/tests -q
+venv/bin/streamlit run cairn/interfaces/streamlit_app.py
+```
+
+For Streamlit Community Cloud, use `cairn/interfaces/streamlit_app.py` as the
+entrypoint. The hosted app uses the lean dependency file at
+`cairn/interfaces/requirements.txt`.
+
+## Feedback
+
+Alpha testers can report feedback through:
+
+- GitHub issues, using the bug, feature, trail/data, or alpha-feedback
+  templates.
+- The hosted app feedback link when configured by the maintainer.
+- The alpha testing guidance in `docs/ALPHA_TESTING.md`.
+
+When reporting planner output, include direction, requested days, mileage and
+elevation settings, resupply/recovery settings, screenshots, CSV output, or
+Gaia GeoJSON if available.
 
 ## Product positioning
 
@@ -34,11 +90,11 @@ and Gaia GeoJSON export.
 
 ## Hosted Alpha
 
-CairnOSv1 is preparing for a low-friction hosted Alpha on Streamlit Community
-Cloud for a small trusted tester group. The hosted app is an advisory prototype,
-not a safety-critical trip-planning authority. Users must verify routes,
-services, conditions, closures, and backcountry decisions with official sources
-before hiking.
+CairnOSv1 is available as a low-friction hosted alpha on Streamlit Community
+Cloud for early tester feedback. The hosted app is an advisory prototype, not a
+safety-critical trip-planning authority. Users must verify routes, services,
+conditions, closures, and backcountry decisions with official sources before
+hiking.
 
 Alpha testing guidance lives in `docs/ALPHA_TESTING.md`.
 
@@ -84,6 +140,21 @@ hosted Alpha runtime requirements.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export
   behavior, and reference enrichment.
+
+## Known limitations
+
+- Alpha output can be wrong, incomplete, too aggressive, or too conservative.
+- The current UI supports Long Trail THRU planning; SECTION planning is
+  deferred.
+- Trail data, shelter/campsite metadata, terrain, road access, and resupply
+  information continue to need provenance review and field validation.
+- Feasibility does not yet model food weight, weather, seasonal service
+  changes, injuries, water reliability, personal pace variation, or group
+  dynamics.
+- Elevation calibration is improving, but reference tools may report different
+  ascent totals depending on smoothing and route geometry.
+- Gaia export is intended for review/import convenience, not as replacement for
+  navigation or official maps.
 
 ## What it is working toward
 
@@ -332,6 +403,10 @@ amenity is compiled into structured metadata.
 - Optional Gaia reference waypoint data is stored in `trails/vermont_long_trail/raw/geojson/gaia_reference.geojson`.
 - Optional overnight shelter/campsite reference exports are stored in
   `trails/vermont_long_trail/raw/geojson/`.
+- Test fixtures and behavior checks live under `cairn/tests/`.
+- User-generated plans, exports, reports, and local calibration inputs should
+  stay in ignored output or calibration directories unless intentionally
+  reviewed for provenance.
 - New data work should use the `data/` layout:
   - `data/raw/` for untouched source data
   - `data/derived/` for transformed datasets
@@ -344,22 +419,28 @@ amenity is compiled into structured metadata.
 
 ## Getting started
 
+1. Create a virtual environment:
+
+```bash
+python -m venv venv
+```
+
 1. Install dependencies:
 
 ```bash
-python -m pip install -r requirements.txt
+venv/bin/python -m pip install -r requirements.txt
 ```
 
 1. Run the test suite:
 
 ```bash
-python -m pytest cairn/tests -q
+venv/bin/python -m pytest cairn/tests -q
 ```
 
 1. Launch the Streamlit interface (if desired):
 
 ```bash
-streamlit run cairn/interfaces/streamlit_app.py
+venv/bin/streamlit run cairn/interfaces/streamlit_app.py
 ```
 
 For hosted Alpha deployments on Streamlit Community Cloud, use

@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a new capability or improvement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        CairnOSv1 is focused on operational expedition planning, not replacing maps, guidebooks, or navigation apps.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: It is hard to plan...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature in user terms.
+      placeholder: Add an option to...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area of the app
+      options:
+        - Planner behavior
+        - Streamlit UI
+        - Resupply / logistics
+        - Overnight stops
+        - Terrain / elevation
+        - Gaia export
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or references
+      description: Include screenshots, trail examples, or official sources if relevant.
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Project boundaries
+      options:
+        - label: I understand CairnOSv1 is an alpha planning aid and not a safety-critical trip-planning authority.
+          required: true

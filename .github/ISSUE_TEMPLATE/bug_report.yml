@@ -1,0 +1,57 @@
+name: Bug report
+description: Report something that appears broken in the app or code.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. CairnOSv1 is alpha software, so clear examples are especially helpful.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the problem in plain language.
+      placeholder: The planner produced...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: I expected...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include planner settings, direction, mileage/elevation limits, and any clicked buttons.
+      placeholder: |
+        1. Open the app
+        2. Set direction to NOBO
+        3. Set desired days to 28
+        4. Generate plan
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Screenshots or exported output
+      description: Attach screenshots, CSV exports, or Gaia GeoJSON if useful. Do not include private data.
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where did this happen?
+      options:
+        - Hosted Streamlit alpha
+        - Local Streamlit run
+        - Command line / tests
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Safety or field-use concern
+      description: If this could mislead a hiker, explain why. Planner output must still be verified with official sources.

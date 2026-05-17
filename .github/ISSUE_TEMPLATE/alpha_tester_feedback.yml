@@ -1,0 +1,46 @@
+name: Alpha tester feedback
+description: Share nontechnical feedback from trying the hosted alpha.
+title: "[Alpha feedback]: "
+labels: ["alpha-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for testing CairnOSv1. Plain-language hiking feedback is welcome.
+  - type: textarea
+    id: scenario
+    attributes:
+      label: What plan did you try?
+      description: Include direction, days, mileage/elevation settings, and any resupply/recovery settings you remember.
+      placeholder: NOBO, 28 days, 9-15 miles/day...
+    validations:
+      required: true
+  - type: textarea
+    id: realism
+    attributes:
+      label: Did the itinerary feel realistic?
+      description: Mention any days, stops, or resupply choices that felt especially good or wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: confusing
+    attributes:
+      label: What was confusing?
+      description: UI wording, tables, exports, warnings, or settings.
+  - type: textarea
+    id: useful
+    attributes:
+      label: What was useful?
+      description: Tell us what should be kept or emphasized.
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Screenshots or exports
+      description: Attach screenshots, CSV output, or Gaia GeoJSON if helpful.
+  - type: checkboxes
+    id: alpha_warning
+    attributes:
+      label: Alpha safety note
+      options:
+        - label: I understand CairnOSv1 output is advisory and must be checked against official sources before field use.
+          required: true

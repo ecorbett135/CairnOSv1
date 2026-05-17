@@ -1,0 +1,58 @@
+name: Trail or data issue
+description: Report incorrect trail, shelter, resupply, elevation, or export data.
+title: "[Trail data]: "
+labels: ["data", "trail"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for data corrections. Please cite sources; do not paste copyrighted guidebook text.
+  - type: textarea
+    id: issue
+    attributes:
+      label: What data looks wrong?
+      description: Name the trail segment, shelter, campsite, road crossing, resupply point, elevation value, or exported marker.
+      placeholder: The marker for... appears...
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location or mile marker
+      placeholder: "Example: mile 173.8, Montclair Glen Lodge"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Source or evidence
+      description: Link to official sources, trail organization pages, field notes, GPS export summaries, or screenshots.
+      placeholder: Source URL, date checked, and what it says...
+    validations:
+      required: true
+  - type: dropdown
+    id: data_type
+    attributes:
+      label: Data type
+      options:
+        - Shelter / campsite
+        - Resupply / town access
+        - Road crossing / trailhead
+        - Elevation / terrain
+        - Gaia export marker
+        - Ingress / egress approach
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Why does this matter?
+      description: Explain whether this affects safety, itinerary realism, resupply planning, export accuracy, or documentation.
+  - type: checkboxes
+    id: provenance
+    attributes:
+      label: Provenance reminder
+      options:
+        - label: I included the original source or clearly marked this as personal field observation.
+          required: true
+        - label: I did not paste large excerpts from copyrighted guidebooks or proprietary sources.
+          required: true

@@ -1,8 +1,8 @@
 # Alpha Testing
 
-CairnOSv1 Alpha is a hosted Streamlit preview for trusted testers. It is meant
-to collect feedback on itinerary realism, UI clarity, resupply assumptions,
-SOBO/NOBO parity, and Gaia export usefulness.
+CairnOSv1 Alpha is a hosted Streamlit preview for early testers. It is meant to
+collect feedback on itinerary realism, UI clarity, resupply assumptions,
+SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
 
 ## Tester Guidance
 
@@ -14,6 +14,8 @@ SOBO/NOBO parity, and Gaia export usefulness.
 - Note any day that feels unrealistic, confusing, too aggressive, or oddly
   conservative.
 - Submit feedback through the configured Alpha feedback form.
+- If using GitHub, choose the bug, trail/data, feature, or alpha-feedback issue
+  template that best matches the report.
 
 ## Known Alpha Limitations
 
@@ -64,6 +66,9 @@ The hosted Alpha should not need:
 - intermediate compiler outputs
 - topology compiler dependencies such as `geopandas`, `fiona`, `pyproj`, or
   `rasterio`
+
+Do not upload private tester data, proprietary route exports, unreviewed
+third-party datasets, or Streamlit secrets as part of an alpha report.
 
 The app-specific dependency file lives beside the Streamlit entrypoint:
 

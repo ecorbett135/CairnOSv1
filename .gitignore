@@ -14,6 +14,10 @@ cairn/interfaces/.streamlit/secrets.toml
 
 # pytest
 .pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 
 # dev agent artifacts
 dev_agent/generated_patches/
@@ -23,10 +27,13 @@ data/generated/*
 !data/generated/.gitkeep
 outputs/*
 *.tmp
+*.log
 
 # local elevation calibration references
 elevation_calibration/*
 !elevation_calibration/README.md
 
 # build artifacts
+build/
+dist/
 *.zip
