@@ -1,9 +1,43 @@
 # CairnOSv1
 
-CairnOSv1 is an operational expedition planning system for long-distance trail
-networks. It is designed to move beyond abstract mileage partitioning and
-toward realistic, logistics-aware itinerary synthesis using trail-level
-operational semantics.
+CairnOSv1 helps hikers draft realistic Long Trail itinerary plans. It looks at
+daily mileage, terrain, shelters and campsites, road access, resupply options,
+and recovery days so a plan feels closer to an actual hike than a simple
+spreadsheet of evenly divided miles.
+
+It is a planning aid for reviewing options before a trip. It is not a
+navigation app, guidebook, emergency tool, or safety authority.
+
+## Quick Start For Users
+
+Use the hosted alpha:
+
+- [https://cairnosv1-alpha.streamlit.app](https://cairnosv1-alpha.streamlit.app)
+
+In the app, choose your direction, approach route, completion days, mileage
+range, elevation preference, resupply cadence, and recovery cadence. Then
+generate a plan and review the expedition summary, resupply strategy, and daily
+itinerary.
+
+You can export the itinerary as CSV or Gaia-compatible GeoJSON for review in
+other tools. Please read the Alpha Status And Safety Notice before using any
+generated plan in the real world.
+
+## Quick Start For Developers
+
+Use Python 3.11 or newer.
+
+```bash
+python -m venv venv
+venv/bin/python -m pip install -r requirements.txt
+venv/bin/python -m pytest cairn/tests -q
+venv/bin/streamlit run cairn/interfaces/streamlit_app.py
+```
+
+For Streamlit Community Cloud, use `cairn/interfaces/streamlit_app.py` as the
+entrypoint. The hosted app uses the lean dependency file at
+`cairn/interfaces/requirements.txt`. Configure the feedback form URL as a
+Streamlit secret named `alpha_feedback_url`.
 
 ## Alpha Status And Safety Notice
 
@@ -29,21 +63,6 @@ and data quality are ready.
 - Developers interested in operational planning, trail data quality, terrain
   analysis, and Gaia-compatible exports.
 - Maintainers improving curated trail datasets with clear provenance.
-
-## Quick Start
-
-For local development, use Python 3.11 or newer.
-
-```bash
-python -m venv venv
-venv/bin/python -m pip install -r requirements.txt
-venv/bin/python -m pytest cairn/tests -q
-venv/bin/streamlit run cairn/interfaces/streamlit_app.py
-```
-
-For Streamlit Community Cloud, use `cairn/interfaces/streamlit_app.py` as the
-entrypoint. The hosted app uses the lean dependency file at
-`cairn/interfaces/requirements.txt`.
 
 ## Feedback
 
@@ -91,10 +110,13 @@ and Gaia GeoJSON export.
 ## Hosted Alpha
 
 CairnOSv1 is available as a low-friction hosted alpha on Streamlit Community
-Cloud for early tester feedback. The hosted app is an advisory prototype, not a
-safety-critical trip-planning authority. Users must verify routes, services,
-conditions, closures, and backcountry decisions with official sources before
-hiking.
+Cloud for early tester feedback:
+
+- [https://cairnosv1-alpha.streamlit.app](https://cairnosv1-alpha.streamlit.app)
+
+The hosted app is an advisory prototype, not a safety-critical trip-planning
+authority. Users must verify routes, services, conditions, closures, and
+backcountry decisions with official sources before hiking.
 
 Alpha testing guidance lives in `docs/ALPHA_TESTING.md`.
 
@@ -416,36 +438,6 @@ amenity is compiled into structured metadata.
 - `.gitattributes` already tracks `trails/vermont_long_trail/raw/dem/*.tif` with Git LFS.
 - Dataset provenance is tracked in `data/DATASETS.md`; guidance lives in `docs/DATA_PROVENANCE.md`.
 - Readme images and documentation assets are kept under `docs/images/` to avoid top-level directory pollution.
-
-## Getting started
-
-1. Create a virtual environment:
-
-```bash
-python -m venv venv
-```
-
-1. Install dependencies:
-
-```bash
-venv/bin/python -m pip install -r requirements.txt
-```
-
-1. Run the test suite:
-
-```bash
-venv/bin/python -m pytest cairn/tests -q
-```
-
-1. Launch the Streamlit interface (if desired):
-
-```bash
-venv/bin/streamlit run cairn/interfaces/streamlit_app.py
-```
-
-For hosted Alpha deployments on Streamlit Community Cloud, use
-`cairn/interfaces/streamlit_app.py` as the app entrypoint and configure the
-feedback form URL as a Streamlit secret named `alpha_feedback_url`.
 
 ## Notes for developers
 
