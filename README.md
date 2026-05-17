@@ -317,6 +317,12 @@ spine for unmatched points, and exposes near-spine planner candidates as
 additional shelter/camp stop options. It enriches overnight stop selection but
 does not mutate `route_overlay.json` or replace overlay operational truth.
 
+Future overnight enrichment should add curated amenity attributes such as bear
+box availability. GMC publishes a current bear-box location list at
+`https://www.greenmountainclub.org/bear-boxes/`; CairnOS should treat that as a
+provenanced data source and use it to bias overnight selection only after the
+amenity is compiled into structured metadata.
+
 ## Data handling
 
 - Project code is licensed under Apache 2.0, but datasets may have separate

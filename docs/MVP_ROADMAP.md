@@ -101,6 +101,45 @@ Elevation calibration also supports a local ignored manifest CSV so known Gaia
 or Garmin reference segments can be rechecked as pass/warn/fail diagnostics
 without committing third-party route exports.
 
+## Future Overnight Amenities
+
+Bear-box availability should become a structured overnight-site amenity, not a
+planner note. The source should be recorded as Green Mountain Club's bear-box
+location page:
+
+```text
+https://www.greenmountainclub.org/bear-boxes/
+```
+
+Candidate Long Trail / Vermont AT overnight sites currently listed by GMC:
+
+- Seth Warner Shelter
+- Goddard Shelter
+- Kid Gore Shelter
+- Story Spring Shelter
+- Stratton View Shelter
+- Stratton Pond Shelter
+- Peru Peak Shelter
+- Griffith Lake Tenting Area
+- Little Rock Pond Shelter
+- Clarendon Shelter
+- Governor Clement Shelter
+- Tucker Johnson Shelter
+- Stony Brook Shelter (AT)
+- Battell Shelter
+- Montclair Glen Lodge
+- Bamforth Ridge Shelter
+- Hump Brook Tenting Area
+- Taylor Lodge
+- Sterling Pond Shelter
+- Tillotson Camp
+
+Implementation should add a curated/provenanced overnight amenity source with a
+boolean such as `bear_box`, compile it into overnight/reference metadata, and
+optionally expose a Streamlit preference like "Prefer sites with bear boxes."
+The preference should bias shelter/camp selection, not make bear boxes a hard
+requirement unless a later UI explicitly asks for that mode.
+
 ## Near-Term Stabilization Notes
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, and

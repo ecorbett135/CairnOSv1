@@ -269,7 +269,9 @@ The current data-quality hardening branch adds:
   with pass/warn/fail diagnostics
 - itinerary stop resolution now prefers overlay-authoritative miles when an
   enriched overnight reference shares a canonical overlay name
-  plus a whole-trail audit report for suspicious local intervals
+- whole-trail audit reporting for suspicious local terrain intervals
+- bear-box availability is recorded as future overnight amenity work, sourced
+  from Green Mountain Club and not yet wired into planner behavior
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and

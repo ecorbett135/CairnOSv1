@@ -639,6 +639,8 @@ Immediate operational objectives:
   segments as diagnostics
 - keep overlay canonical miles authoritative when enriched reference stops
   share the same canonical name
+- add provenanced overnight amenity metadata such as bear-box availability
+  before exposing related route preferences
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 
