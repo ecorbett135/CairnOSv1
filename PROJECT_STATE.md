@@ -495,12 +495,14 @@ The resupply strategy table now includes:
 - planned resupply access points
 - town access metadata
 - days until the next resupply segment or finish
+- days until the next recovery opportunity
+- parsed town access distance and access notes
 
 Terminal-day resupply is avoided because it does not reduce a future food carry.
 
 Future semantics should still reason more deeply about:
 
-- actual town access
+- structured town access distance and shuttle friction
 - realistic recovery opportunities
 - terrain reset points
 - logistics viability

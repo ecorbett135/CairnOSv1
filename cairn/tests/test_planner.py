@@ -289,6 +289,12 @@ def test_nobo_itinerary_resupply_notes_use_access_nodes(planner_factory):
         ]
         > 0
     )
+    assert (
+        itinerary["resupply_plan"][0][
+            "days_to_next_recovery"
+        ]
+        > 0
+    )
     assert "Vt. 11/30" in resupply_plan_locations
 
 
@@ -415,6 +421,74 @@ def test_extra_resupply_only_stops_can_be_disabled(planner_factory):
 
     assert len(with_resupply_only) > len(
         without_resupply_only
+    )
+
+
+def test_resupply_plan_exposes_recovery_and_access_distance(
+    planner_factory,
+):
+    """Test resupply strategy shows recovery timing and town friction."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    resupply_plan = itinerary[
+        "resupply_plan"
+    ]
+
+    assert resupply_plan
+    assert all(
+        "days_to_next_recovery" in row
+        for row in resupply_plan
+    )
+
+    inn_at_long_trail = next(
+        row for row in resupply_plan
+        if row["location"] == (
+            "U.S. 4 west of Sherburne Pass"
+        )
+    )
+
+    assert (
+        inn_at_long_trail[
+            "access_distance_miles"
+        ]
+        == 1.0
+    )
+    assert "Less than 1 mile" in (
+        inn_at_long_trail[
+            "access_notes"
+        ]
+    )
+
+
+def test_access_distance_parser_extracts_nearest_town_miles(planner):
+    """Test resupply access notes become lightweight friction data."""
+    assert (
+        planner.logistics.parse_access_distance_miles(
+            "Less than 1 mile east to Inn at Long Trail"
+        )
+        == 1.0
+    )
+    assert (
+        planner.logistics.parse_access_distance_miles(
+            "4+ miles east to Warren and 5 miles west to Lincoln"
+        )
+        == 4.0
     )
 
 
@@ -809,6 +883,53 @@ def test_elevation_exceptions_escalate_feasibility(planner_factory):
     assert elevation_exception["limit"] == 3500
     assert elevation_exception["observed_max"] > 3500
     assert elevation_exception["count"] > 0
+    assert elevation_exception["severity"] == "major"
+
+
+def test_minor_preference_exceptions_do_not_force_aggressive_label(
+    planner_factory,
+):
+    """Test small, sparse overages preserve a comfortable classification."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_nero_miles": 5,
+            "max_nero_miles": 8,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    completion = itinerary[
+        "completion_analysis"
+    ]
+
+    assert completion[
+        "has_itinerary_exceptions"
+    ] is True
+    assert (
+        completion["evaluation"]["classification"]
+        == "comfortable"
+    )
+    assert {
+        row["severity"]
+        for row in completion[
+            "itinerary_exceptions"
+        ]
+    } == {
+        "minor",
+    }
 
 
 def test_late_recovery_zero_does_not_replace_final_egress(

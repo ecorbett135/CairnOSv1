@@ -1,6 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 import csv
+import re
 
 
 class LogisticsPlanner:
@@ -91,6 +92,41 @@ class LogisticsPlanner:
         ):
             return None
 
+    def parse_access_distance_miles(
+        self,
+        value,
+    ):
+
+        text = str(
+            value or ""
+        ).lower()
+
+        if not text:
+            return None
+
+        less_than_match = re.search(
+            r"less than\s+(\d+(?:\.\d+)?)\s*mile",
+            text,
+        )
+
+        if less_than_match:
+            return float(
+                less_than_match.group(1)
+            )
+
+        distances = [
+            float(match.group(1))
+            for match in re.finditer(
+                r"(\d+(?:\.\d+)?)\+?\s*miles?",
+                text,
+            )
+        ]
+
+        if not distances:
+            return None
+
+        return min(distances)
+
     def normalize_match_tokens(
         self,
         value,
@@ -169,6 +205,11 @@ class LogisticsPlanner:
                     "access_notes": (
                         row.get("access_notes")
                         or ""
+                    ),
+                    "access_distance_miles": (
+                        self.parse_access_distance_miles(
+                            row.get("access_notes")
+                        )
                     ),
                     "grocery": self.parse_bool(
                         row.get("grocery")
@@ -384,6 +425,12 @@ class LogisticsPlanner:
             )
 
             node[
+                "access_distance_miles"
+            ] = amenity.get(
+                "access_distance_miles"
+            )
+
+            node[
                 "resupply_services"
             ] = self.services_from_amenity(
                 amenity
@@ -518,7 +565,71 @@ class LogisticsPlanner:
         if node.get("town_access"):
             score += 10
 
+        score += self.score_access_convenience(
+            node
+        )
+
         return score
+
+    def access_distance_miles(
+        self,
+        node,
+    ):
+
+        distance = self.parse_float(
+            node.get("access_distance_miles")
+        )
+
+        if distance is not None:
+            return distance
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        return self.parse_float(
+            amenity.get(
+                "access_distance_miles"
+            )
+        )
+
+    def score_access_convenience(
+        self,
+        node,
+    ):
+
+        distance = self.access_distance_miles(
+            node
+        )
+
+        if distance is None:
+            return 0
+
+        if distance <= 1.0:
+            return 35
+
+        if distance <= 3.0:
+            return 20
+
+        if distance <= 5.0:
+            return 5
+
+        return -25
+
+    def is_convenient_extra_resupply(
+        self,
+        node,
+    ):
+
+        distance = self.access_distance_miles(
+            node
+        )
+
+        return (
+            distance is None
+            or distance <= 3.0
+        )
 
     def score_recovery_candidate(
         self,
@@ -598,6 +709,22 @@ class LogisticsPlanner:
                 start_mile,
                 stop_mile,
                 mile,
+            ):
+                continue
+
+            candidate_distance = (
+                self.travel_distance(
+                    start_mile,
+                    mile,
+                )
+            )
+
+            if (
+                candidate_distance
+                < self.min_daily_miles
+                and not self.is_convenient_extra_resupply(
+                    node
+                )
             ):
                 continue
 
@@ -882,6 +1009,21 @@ class LogisticsPlanner:
                         if matched_start
                         else ""
                     ),
+                    "access_distance_miles": (
+                        self.access_distance_miles(
+                            matched_start
+                        )
+                        if matched_start
+                        else None
+                    ),
+                    "access_notes": (
+                        matched_start.get(
+                            "access_notes",
+                            ""
+                        )
+                        if matched_start
+                        else ""
+                    ),
                     "access_type": first_day.get(
                         "daily_start_location_type",
                         "trailhead",
@@ -923,6 +1065,12 @@ class LogisticsPlanner:
                     "town_access": day.get(
                         "town_access"
                     ),
+                    "access_distance_miles": day.get(
+                        "resupply_access_distance_miles"
+                    ),
+                    "access_notes": day.get(
+                        "resupply_access_notes"
+                    ),
                     "access_type": day.get(
                         "resupply_location_type",
                         "logistics",
@@ -960,6 +1108,44 @@ class LogisticsPlanner:
                         - row["day"],
                     )
 
+            recovery_days = [
+                day.get("day")
+                for day in daily_plan
+                if (
+                    day.get("day") is not None
+                    and (
+                        "zero" in str(
+                            day.get("notes", "")
+                        )
+                        or "nero" in str(
+                            day.get("notes", "")
+                        )
+                    )
+                )
+            ]
+
+            for row in rows:
+
+                next_recovery_day = next(
+                    (
+                        recovery_day
+                        for recovery_day
+                        in recovery_days
+                        if recovery_day > row["day"]
+                    ),
+                    None,
+                )
+
+                row[
+                    "days_to_next_recovery"
+                ] = (
+                    next_recovery_day
+                    - row["day"]
+                    if next_recovery_day
+                    is not None
+                    else None
+                )
+
             return rows
 
         resupply_nodes = (
@@ -985,6 +1171,15 @@ class LogisticsPlanner:
                 "town_access": node.get(
                     "town_access"
                 ),
+                "access_distance_miles": (
+                    self.access_distance_miles(
+                        node
+                    )
+                ),
+                "access_notes": node.get(
+                    "access_notes",
+                    "",
+                ),
                 "access_type": node.get(
                     "node_class",
                     "logistics"
@@ -993,7 +1188,7 @@ class LogisticsPlanner:
                     "resupply"
                 ),
                 "days_to_next_resupply": None,
+                "days_to_next_recovery": None,
             })
 
         return rows[:10]
-

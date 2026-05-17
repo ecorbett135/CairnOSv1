@@ -183,24 +183,30 @@ def test_gaia_export_marks_shelters_with_gaia_icon(
 
 
 def test_gaia_export_uses_reference_coordinates_for_camps(
-    planner_factory,
     trail_root,
 ):
-    planner = planner_factory(
-        user_profile={
-            "direction": "NOBO",
-            "ingress_route": "North Adams Approach",
-            "min_daily_miles": 8,
-            "max_daily_miles": 16,
-        },
-    )
-
-    itinerary = planner.synthesize_itinerary(
-        desired_days=24
-    )
-
     export = export_itinerary_to_gaia_geojson(
-        itinerary["daily_plan"],
+        [
+            {
+                "day": 1,
+                "division": "division10",
+                "daily_start_mile": 222.3,
+                "daily_start_location": (
+                    "Vt. 15 at cemetery"
+                ),
+                "daily_start_location_type": (
+                    "logistics"
+                ),
+                "daily_stop_mile": 233.7,
+                "daily_stop_location": (
+                    "Corliss Camp"
+                ),
+                "daily_stop_location_type": "camp",
+                "daily_miles": 11.4,
+                "daily_elevation_gain": 2599,
+                "notes": "",
+            }
+        ],
         trail_root,
     )
 

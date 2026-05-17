@@ -40,6 +40,7 @@ PlannerV2 now supports:
 - configurable nero-mile bounds
 - terrain interval analysis from compiled elevation samples
 - explicit terrain mile-domain reconciliation
+- minor-exception-aware feasibility classification
 - resupply strategy output tied to amenity-backed access points
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
@@ -110,6 +111,8 @@ The resupply strategy table now includes:
 - planned resupply access points
 - town access metadata
 - days until the next resupply segment or finish
+- days until the next recovery opportunity
+- parsed town access distance and access notes
 
 Terminal-day resupply is suppressed because it does not reduce a future food
 carry.
@@ -191,6 +194,8 @@ PlannerV2 still needs improvement in these areas:
 - section hiking remains incomplete
 - terrain semantics are now interval-aware and mile-domain-aware, but deeper
   fatigue, grade, and surface modeling remains future work
+- town-access friction is still parsed from prose notes and should become
+  structured source data
 - food-carry weight is tracked only as backend planning context, not as an
   effort multiplier yet
 - synthetic fallback labels should become increasingly rare as compiled

@@ -75,7 +75,8 @@ hosted Alpha runtime requirements.
   compiled overnight reference candidates.
 - Separates resupply cadence from zero/nero recovery cadence.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
-- Produces a resupply strategy table with trip-start carry segment, town access, and days to next resupply segment.
+- Produces a resupply strategy table with trip-start carry segment, town access,
+  access-distance context, and days to next resupply and recovery.
 - Uses terrain interval analysis to bias daily pacing and report terrain-derived
   elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
@@ -170,9 +171,10 @@ window is 5-8 miles, and the Streamlit UI exposes minimum and maximum nero-mile
 controls so recovery semantics can match the user's planning style.
 
 The resupply strategy table includes the trip start as the first carry segment
-anchor, then lists planned resupply access points and the number of days until
-the next resupply segment or the finish. Terminal-day resupply stops are
-suppressed because they do not reduce a future food carry.
+anchor, then lists planned resupply access points, parsed town access distance,
+access notes, days until the next resupply segment or finish, and days until
+the next recovery stop. Terminal-day resupply stops are suppressed because they
+do not reduce a future food carry.
 
 The current Long Trail resupply layer is sourced from:
 
@@ -197,6 +199,11 @@ When dense compiled terrain coverage cannot resolve an interval, the planner
 falls back to `route_master.csv` elevation points and then to a conservative
 distance-based estimate. This keeps ingress/egress and incomplete terrain
 coverage operational without reintroducing capped elevation output.
+
+Operational feasibility classification now treats small, sparse preference
+overages as minor exceptions instead of automatically escalating a reasonable
+plan to aggressive. Larger or repeated mileage/elevation exceptions still raise
+the classification.
 
 ## Gaia reference enrichment
 

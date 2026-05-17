@@ -637,6 +637,8 @@ class ItineraryBuilder:
             resupply_mile = None
             resupply_location_type = ""
             town_access = ""
+            resupply_access_distance = None
+            resupply_access_notes = ""
 
             if resupply_node:
 
@@ -678,6 +680,19 @@ class ItineraryBuilder:
                     )
                 )
 
+                resupply_access_distance = (
+                    self.access_distance_miles(
+                        resupply_node
+                    )
+                )
+
+                resupply_access_notes = (
+                    resupply_node.get(
+                        "access_notes",
+                        ""
+                    )
+                )
+
             rows.append({
                 "day": day,
                 "division": stop_division,
@@ -713,6 +728,12 @@ class ItineraryBuilder:
                 ),
                 "town_access": (
                     town_access
+                ),
+                "resupply_access_distance_miles": (
+                    resupply_access_distance
+                ),
+                "resupply_access_notes": (
+                    resupply_access_notes
                 ),
                 "food_carry_days_since_last_resupply": (
                     food_carry_days
@@ -767,6 +788,8 @@ class ItineraryBuilder:
                 zero_resupply_mile = None
                 zero_resupply_location_type = ""
                 zero_town_access = ""
+                zero_access_distance = None
+                zero_access_notes = ""
 
                 if zero_resupply_node:
 
@@ -804,6 +827,19 @@ class ItineraryBuilder:
                     zero_town_access = (
                         zero_resupply_node.get(
                             "town_access",
+                            ""
+                        )
+                    )
+
+                    zero_access_distance = (
+                        self.access_distance_miles(
+                            zero_resupply_node
+                        )
+                    )
+
+                    zero_access_notes = (
+                        zero_resupply_node.get(
+                            "access_notes",
                             ""
                         )
                     )
@@ -852,6 +888,12 @@ class ItineraryBuilder:
                     ),
                     "town_access": (
                         zero_town_access
+                    ),
+                    "resupply_access_distance_miles": (
+                        zero_access_distance
+                    ),
+                    "resupply_access_notes": (
+                        zero_access_notes
                     ),
                     "food_carry_days_since_last_resupply": (
                         zero_food_carry_days

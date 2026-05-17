@@ -11,6 +11,8 @@ planning before expanding into broader route modes.
 - terrain-aware pacing with feasibility exceptions
 - resupply and recovery cadence separation
 - configurable nero-mile rules
+- minor-exception-aware feasibility classification
+- resupply strategy rows with recovery timing and town-access friction context
 - Gaia-compatible GeoJSON export
 
 SECTION planning is intentionally deferred. The underlying planner branches
@@ -68,6 +70,22 @@ for interval gain, loss, ruggedness, pacing, or feasibility exceptions. Future
 compiler work may emit guidebook-aware terrain metadata, but runtime planner
 logic should never assume terrain sample miles and guidebook miles are the same
 without an explicit mapper.
+
+## Feasibility And Logistics Calibration
+
+The alpha planner should distinguish minor preference exceptions from truly
+aggressive plans. Small, sparse mileage or elevation overages can remain
+comfortable when the base effort model and recovery pattern support that
+classification; larger or repeated exceptions should escalate to challenging or
+aggressive.
+
+Current resupply convenience scoring may parse town-access distance from notes.
+Future data-quality work should promote this into structured source fields so
+the planner can reason about shuttle friction, town distance, and short
+resupply-only stops without depending on prose parsing.
+
+Gaia/manual elevation comparisons should feed back into terrain validation and
+terrain-profile calibration, not ad hoc planner overrides.
 
 ## Near-Term Stabilization Notes
 
