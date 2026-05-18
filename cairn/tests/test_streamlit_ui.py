@@ -72,6 +72,30 @@ def test_sidebar_exposes_configurable_nero_window():
     assert sliders["Maximum Nero Miles"].value == 8
 
 
+def test_sidebar_exposes_food_carry_preference():
+    """Test resupply planning exposes long-carry avoidance."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    checkboxes = {
+        widget.label: widget
+        for widget in app.sidebar.checkbox
+    }
+
+    assert "Avoid Long Food Carry" in checkboxes
+    assert (
+        checkboxes[
+            "Avoid Long Food Carry"
+        ].value
+        is True
+    )
+
+
 def test_sidebar_defaults_to_alpha_safe_completion_days():
     """Test Alpha defaults avoid overly aggressive first-run plans."""
     app = AppTest.from_file(
