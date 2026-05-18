@@ -303,6 +303,16 @@ with st.sidebar:
         value=True,
     )
 
+    avoid_long_food_carry = st.checkbox(
+        "Avoid Long Food Carry",
+        value=True,
+        help=(
+            "Bias resupply planning toward shorter food carries. "
+            "Standalone resupply-only stops still prefer access "
+            "close to the trail."
+        ),
+    )
+
     planner_button_label = (
         "Regenerate Plan"
         if st.session_state["planner_result"]
@@ -340,6 +350,9 @@ if run_planner:
         "allow_extra_resupply_only": (
             allow_extra_resupply_only
         ),
+        "avoid_long_food_carry": (
+            avoid_long_food_carry
+        ),
         "ingress_route": ingress_route,
         "egress_route": egress_route,
     }
@@ -356,6 +369,9 @@ if run_planner:
             "max_nero_miles": max_nero_miles,
             "allow_extra_resupply_only": (
                 allow_extra_resupply_only
+            ),
+            "avoid_long_food_carry": (
+                avoid_long_food_carry
             ),
             "trip_type": trip_type,
             "direction": direction,

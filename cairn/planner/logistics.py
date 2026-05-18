@@ -628,7 +628,84 @@ class LogisticsPlanner:
 
         return (
             distance is None
-            or distance <= 3.0
+            or distance <= 1.0
+        )
+
+    def forward_resupply_gap_after(
+        self,
+        node,
+        resupply_nodes,
+        used_resupply_ids,
+    ):
+
+        node_mile = self.node_mile(
+            node
+        )
+
+        if node_mile is None:
+            return None
+
+        forward_nodes = []
+
+        for candidate in resupply_nodes:
+
+            candidate_id = (
+                self.resupply_node_id(
+                    candidate
+                )
+            )
+
+            if candidate_id in used_resupply_ids:
+                continue
+
+            if (
+                candidate is node
+                or candidate_id
+                == self.resupply_node_id(
+                    node
+                )
+            ):
+                continue
+
+            if not self.is_resupply_candidate(
+                candidate
+            ):
+                continue
+
+            candidate_mile = self.node_mile(
+                candidate
+            )
+
+            if not self.is_forward_progress(
+                node_mile,
+                candidate_mile,
+            ):
+                continue
+
+            forward_nodes.append(
+                candidate
+            )
+
+        if not forward_nodes:
+            return None
+
+        next_node = sorted(
+            forward_nodes,
+            key=lambda candidate: (
+                self.travel_distance(
+                    node_mile,
+                    self.node_mile(
+                        candidate
+                    ),
+                )
+            ),
+        )[0]
+
+        return self.travel_distance(
+            node_mile,
+            self.node_mile(
+                next_node
+            ),
         )
 
     def score_recovery_candidate(
@@ -680,7 +757,7 @@ class LogisticsPlanner:
         )
 
         if days_since_resupply < (
-            cadence - 1
+            cadence - 2
         ):
             return None
 
@@ -719,14 +796,67 @@ class LogisticsPlanner:
                 )
             )
 
+            days_due = (
+                days_since_resupply
+                >= cadence
+            )
+
             if (
                 candidate_distance
                 < self.min_daily_miles
                 and not self.is_convenient_extra_resupply(
                     node
                 )
+                and not (
+                    self.avoid_long_food_carry
+                    and days_due
+                    and (
+                        self.access_distance_miles(
+                            node
+                        )
+                        is not None
+                    )
+                    and self.access_distance_miles(
+                        node
+                    ) <= 5.0
+                )
             ):
                 continue
+
+            early_resupply = (
+                days_since_resupply
+                < cadence - 1
+            )
+
+            if early_resupply:
+
+                forward_gap = (
+                    self.forward_resupply_gap_after(
+                        node,
+                        resupply_nodes,
+                        used_resupply_ids,
+                    )
+                )
+
+                long_gap_ahead = (
+                    forward_gap is None
+                    or forward_gap
+                    > (
+                        self.max_daily_miles
+                        * 2
+                    )
+                )
+
+                if (
+                    not self.is_convenient_extra_resupply(
+                        node
+                    )
+                    and not (
+                        self.avoid_long_food_carry
+                        and long_gap_ahead
+                    )
+                ):
+                    continue
 
             score = (
                 self.score_resupply_candidate(
@@ -740,6 +870,7 @@ class LogisticsPlanner:
                 "distance_to_stop": abs(
                     stop_mile - mile
                 ),
+                "early_resupply": early_resupply,
             })
 
         if not candidates:
@@ -752,6 +883,7 @@ class LogisticsPlanner:
                     days_since_resupply
                     - cadence
                 ),
+                item["early_resupply"],
                 -item["score"],
                 item[
                     "distance_to_stop"
@@ -868,7 +1000,9 @@ class LogisticsPlanner:
                         )
                     )
                     and days_since_recovery
-                    >= cadence
+                    >= cadence - 1
+                    and candidate_distance
+                    >= self.min_daily_miles
                 )
                 else "nero"
             )
@@ -1080,14 +1214,55 @@ class LogisticsPlanner:
                     ),
                 })
 
+            moving_days = [
+                day for day in daily_plan
+                if day.get(
+                    "daily_miles",
+                    0,
+                ) > 0
+            ]
+
+            def food_carry_days_between(
+                start_day,
+                stop_day,
+                include_start=False,
+            ):
+
+                if (
+                    start_day is None
+                    or stop_day is None
+                ):
+                    return None
+
+                return len([
+                    day for day in moving_days
+                    if (
+                        day.get("day")
+                        is not None
+                        and (
+                            day.get("day")
+                            >= start_day
+                            if include_start
+                            else day.get("day")
+                            > start_day
+                        )
+                        and day.get("day")
+                        <= stop_day
+                    )
+                ])
+
             for idx, row in enumerate(rows):
 
                 if idx + 1 < len(rows):
                     row[
                         "days_to_next_resupply"
-                    ] = (
-                        rows[idx + 1]["day"]
-                        - row["day"]
+                    ] = food_carry_days_between(
+                        row["day"],
+                        rows[idx + 1]["day"],
+                        include_start=(
+                            row.get("notes")
+                            == "start"
+                        ),
                     )
                 else:
                     row[
@@ -1102,11 +1277,24 @@ class LogisticsPlanner:
                 ):
                     row[
                         "days_to_next_resupply"
-                    ] = max(
-                        0,
+                    ] = food_carry_days_between(
+                        row["day"],
                         terminal_day
-                        - row["day"],
                     )
+
+                    if (
+                        row[
+                            "days_to_next_resupply"
+                        ]
+                        is None
+                    ):
+                        row[
+                            "days_to_next_resupply"
+                        ] = max(
+                            0,
+                            terminal_day
+                            - row["day"],
+                        )
 
             recovery_days = [
                 day.get("day")

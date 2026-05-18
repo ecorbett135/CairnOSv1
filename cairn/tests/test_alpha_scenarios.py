@@ -57,6 +57,11 @@ def assert_resupply_strategy_has_leg_lengths(
     itinerary,
 ):
     resupply_plan = itinerary["resupply_plan"]
+    moving_days = {
+        row["day"]
+        for row in itinerary["daily_plan"]
+        if row["daily_miles"] > 0
+    }
 
     assert resupply_plan
     assert resupply_plan[0]["day"] == 1
@@ -69,9 +74,24 @@ def assert_resupply_strategy_has_leg_lengths(
         assert "days_to_next_resupply" in row
 
         if idx + 1 < len(resupply_plan):
+            start_day = row["day"]
+            stop_day = resupply_plan[idx + 1][
+                "day"
+            ]
+            expected = len([
+                day for day in moving_days
+                if (
+                    (
+                        day >= start_day
+                        if row["notes"] == "start"
+                        else day > start_day
+                    )
+                    and day <= stop_day
+                )
+            ])
             assert (
                 row["days_to_next_resupply"]
-                == resupply_plan[idx + 1]["day"] - row["day"]
+                == expected
             )
 
 

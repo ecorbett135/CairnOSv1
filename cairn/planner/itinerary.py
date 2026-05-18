@@ -27,6 +27,7 @@ class ItineraryBuilder:
         operational_overnight_nodes,
         logistics_nodes,
         current_mile=None,
+        corridor_nodes=None,
     ):
         """
         Select the best operational stop near target_mile.
@@ -40,9 +41,49 @@ class ItineraryBuilder:
         Only falls back to synthetic camping if no operational nodes exist nearby.
         """
 
+        corridor_nodes = corridor_nodes or []
+
+        def corridor_rank(
+            mile,
+        ):
+
+            for index, node in enumerate(
+                corridor_nodes
+            ):
+
+                node_mile = self.node_mile(
+                    node
+                )
+
+                if (
+                    node_mile is not None
+                    and abs(
+                        node_mile - mile
+                    ) <= 0.15
+                ):
+                    return index
+
+            return len(
+                corridor_nodes
+            )
+
         def collect_candidates(search_radius):
 
             candidate_nodes = []
+            search_stop_mile = (
+                self.target_mile_for_distance(
+                    target_mile,
+                    search_radius,
+                    min(current_mile, target_mile)
+                    if current_mile is not None
+                    else target_mile - search_radius,
+                    max(current_mile, target_mile)
+                    if current_mile is not None
+                    else target_mile + search_radius,
+                )
+                if current_mile is not None
+                else target_mile
+            )
 
             # Add operational overnight nodes (shelters, camps, etc.)
             for item in operational_overnight_nodes:
@@ -63,6 +104,19 @@ class ItineraryBuilder:
                 ):
                     continue
 
+                if (
+                    current_mile is not None
+                    and not self.mile_in_travel_window(
+                        current_mile,
+                        search_stop_mile,
+                        mile,
+                    )
+                    and abs(
+                        mile - target_mile
+                    ) > search_radius
+                ):
+                    continue
+
                 delta = abs(
                     mile - target_mile
                 )
@@ -73,6 +127,9 @@ class ItineraryBuilder:
                         "priority": priority,
                         "delta": delta,
                         "type": item["type"],
+                        "corridor_rank": corridor_rank(
+                            mile
+                        ),
                     })
 
             # Add logistics nodes (lower priority than shelters)
@@ -91,6 +148,19 @@ class ItineraryBuilder:
                 ):
                     continue
 
+                if (
+                    current_mile is not None
+                    and not self.mile_in_travel_window(
+                        current_mile,
+                        search_stop_mile,
+                        mile,
+                    )
+                    and abs(
+                        mile - target_mile
+                    ) > search_radius
+                ):
+                    continue
+
                 delta = abs(
                     mile - target_mile
                 )
@@ -101,6 +171,9 @@ class ItineraryBuilder:
                         "priority": 4,
                         "delta": delta,
                         "type": "logistics",
+                        "corridor_rank": corridor_rank(
+                            mile
+                        ),
                     })
 
             return candidate_nodes
@@ -116,7 +189,11 @@ class ItineraryBuilder:
         # Sort by priority (lower number = higher priority), then by delta
         candidate_nodes = sorted(
             candidate_nodes,
-            key=lambda x: (x["priority"], x["delta"])
+            key=lambda x: (
+                x["priority"],
+                x["delta"],
+                x["corridor_rank"],
+            )
         )
 
         return candidate_nodes[0]["node"]
@@ -415,6 +492,14 @@ class ItineraryBuilder:
                 )
             )
 
+            daily_corridor_nodes = (
+                self.corridor_nodes_between(
+                    current_mile,
+                    resupply_search_mile,
+                    include_stop=True,
+                )
+            )
+
             recovery_node, recovery_kind = (
                 (
                     None,
@@ -446,6 +531,39 @@ class ItineraryBuilder:
             planned_resupply_stop = None
 
             if (
+                recovery_node
+                and recovery_kind == "zero"
+            ):
+                recovery_mile = (
+                    self.node_mile(
+                        recovery_node
+                    )
+                )
+                remaining_after_zero = (
+                    self.travel_distance(
+                        recovery_mile,
+                        terminal_mile,
+                    )
+                    if recovery_mile is not None
+                    else 0
+                )
+                moving_days_after_zero = max(
+                    1,
+                    completion_days
+                    - (
+                        day + 1
+                    ),
+                )
+
+                if (
+                    remaining_after_zero
+                    / moving_days_after_zero
+                    > final_day_extension_limit
+                ):
+                    recovery_node = None
+                    recovery_kind = None
+
+            if (
                 not recovery_node
                 and self.allow_extra_resupply_only
                 and day < completion_days
@@ -463,8 +581,6 @@ class ItineraryBuilder:
 
             if recovery_node:
                 selected_stop = recovery_node
-            elif planned_resupply_stop:
-                selected_stop = planned_resupply_stop
             elif (
                 egress_node
                 and (
@@ -486,8 +602,17 @@ class ItineraryBuilder:
                         operational_overnight_nodes,
                         logistics_nodes,
                         current_mile=current_mile,
+                        corridor_nodes=daily_corridor_nodes,
                     )
                 )
+
+                if (
+                    not selected_stop
+                    and planned_resupply_stop
+                ):
+                    selected_stop = (
+                        planned_resupply_stop
+                    )
 
             if selected_stop:
                 authoritative_overlay = (
@@ -541,7 +666,7 @@ class ItineraryBuilder:
                     matching_overlay = next(
                         (
                             node
-                            for node in overlay_nodes
+                            for node in daily_corridor_nodes
                             if abs(
                                 node.get(
                                     "trail_mile",
@@ -638,6 +763,16 @@ class ItineraryBuilder:
             if (
                 recovery_node
                 and recovery_kind == "nero"
+                and self.is_resupply_candidate(
+                    recovery_node
+                )
+            ):
+                resupply_node = recovery_node
+
+            elif (
+                recovery_node
+                and recovery_kind == "zero"
+                and day + 1 >= completion_days
                 and self.is_resupply_candidate(
                     recovery_node
                 )
