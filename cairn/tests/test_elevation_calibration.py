@@ -4,12 +4,15 @@ import json
 
 from cairn.runtime.elevation_calibration import (
     build_anchor_audit_report,
+    build_gain_check,
     build_calibration_report,
     build_manifest_calibration_report,
+    build_reference_gain_checks,
     calculate_gain_loss,
     classify_reference_delta,
     load_calibration_manifest,
     load_reference_routes,
+    resolve_manifest_status,
 )
 
 
@@ -295,6 +298,66 @@ def test_reference_delta_classification_thresholds():
     )
 
 
+def test_manifest_status_warns_when_summary_conflicts_with_track_gain():
+    route_summary = {
+        "summary_gain_ft": 3200,
+        "smoothed_gain_ft": 3360,
+        "raw_gain_ft": 3970,
+    }
+
+    checks = build_reference_gain_checks(
+        3971,
+        None,
+        route_summary,
+    )
+    primary = next(
+        check
+        for check in checks
+        if check["source"] == "route_summary"
+    )
+
+    status, reason, best = resolve_manifest_status(
+        primary,
+        checks,
+        manifest_gain=None,
+    )
+
+    assert primary["status"] == "fail"
+    assert status == "warn"
+    assert (
+        reason
+        == "route_summary_disagrees_with_embedded_track_elevation"
+    )
+    assert best["source"] == "route_raw"
+    assert best["status"] == "pass"
+
+
+def test_manifest_reference_gain_is_not_overridden_by_track_gain():
+    primary = build_gain_check(
+        3971,
+        3200,
+        "manifest",
+    )
+    checks = [
+        primary,
+        build_gain_check(
+            3971,
+            3970,
+            "route_raw",
+        ),
+    ]
+
+    status, reason, best = resolve_manifest_status(
+        primary,
+        checks,
+        manifest_gain=3200,
+    )
+
+    assert status == "fail"
+    assert reason == "manifest_reference_gain"
+    assert best == primary
+
+
 def test_manifest_calibration_report_compares_reference_rows(
     tmp_path,
     trail_root,
@@ -350,6 +413,12 @@ def test_manifest_calibration_report_compares_reference_rows(
     assert report["summary"]["rows"] == 1
     assert row["reference_gain_source"] == "route_summary"
     assert row["reference_gain_ft"] == 1100
+    assert row["primary_gain_check"]["source"] == "route_summary"
+    assert row["reference_gain_checks"]
+    assert row["status_reason"] in {
+        "primary_reference_gain",
+        "route_summary_disagrees_with_embedded_track_elevation",
+    }
     assert row["status"] in {
         "pass",
         "warn",

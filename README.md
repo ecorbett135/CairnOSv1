@@ -358,6 +358,13 @@ Manifest rows are classified as `pass`, `warn`, `fail`, or `unknown` using
 local calibration thresholds. These reports are diagnostics only; reference
 exports are not treated as CairnOS source data.
 
+The report compares Cairn terrain against the preferred reference gain and also
+shows alternate checks from the route summary, smoothed embedded track
+elevation, and raw embedded track elevation when available. A row may be a
+`warn` when a vendor summary ascent disagrees with the embedded track
+elevations; treat that as an inspection cue rather than an automatic planner
+override.
+
 To audit the trail-wide anchor mapping without using third-party reference
 files:
 

@@ -760,6 +760,240 @@ def classify_reference_delta(
     return "fail"
 
 
+def reference_delta(
+    cairn_gain,
+    reference_gain,
+):
+    if reference_gain in {
+        None,
+        0,
+    }:
+        return (
+            None,
+            None,
+        )
+
+    delta = (
+        cairn_gain
+        - reference_gain
+    )
+
+    return (
+        delta,
+        (
+            delta
+            / reference_gain
+            * 100.0
+        ),
+    )
+
+
+def build_gain_check(
+    cairn_gain,
+    reference_gain,
+    source,
+    pass_delta_ft=250,
+    pass_delta_percent=10,
+    warn_delta_ft=500,
+    warn_delta_percent=20,
+):
+    delta, delta_percent = (
+        reference_delta(
+            cairn_gain,
+            reference_gain,
+        )
+    )
+
+    return {
+        "source": source,
+        "reference_gain_ft": round_optional(
+            reference_gain,
+            0,
+        ),
+        "gain_delta_ft": round_optional(
+            delta,
+            0,
+        ),
+        "gain_delta_percent": round_optional(
+            delta_percent,
+            1,
+        ),
+        "status": classify_reference_delta(
+            delta,
+            delta_percent,
+            pass_delta_ft=pass_delta_ft,
+            pass_delta_percent=pass_delta_percent,
+            warn_delta_ft=warn_delta_ft,
+            warn_delta_percent=warn_delta_percent,
+        ),
+    }
+
+
+def build_reference_gain_checks(
+    cairn_gain,
+    manifest_gain,
+    route_summary,
+    pass_delta_ft=250,
+    pass_delta_percent=10,
+    warn_delta_ft=500,
+    warn_delta_percent=20,
+):
+    candidates = []
+
+    if manifest_gain is not None:
+        candidates.append(
+            (
+                "manifest",
+                manifest_gain,
+            )
+        )
+
+    if route_summary:
+        for source, key in (
+            (
+                "route_summary",
+                "summary_gain_ft",
+            ),
+            (
+                "route_smoothed",
+                "smoothed_gain_ft",
+            ),
+            (
+                "route_raw",
+                "raw_gain_ft",
+            ),
+        ):
+            value = route_summary.get(
+                key
+            )
+            if value is not None:
+                candidates.append(
+                    (
+                        source,
+                        value,
+                    )
+                )
+
+    checks = []
+    seen = set()
+
+    for source, value in candidates:
+        key = (
+            source,
+            value,
+        )
+        if key in seen:
+            continue
+        seen.add(
+            key
+        )
+
+        checks.append(
+            build_gain_check(
+                cairn_gain,
+                value,
+                source,
+                pass_delta_ft=pass_delta_ft,
+                pass_delta_percent=pass_delta_percent,
+                warn_delta_ft=warn_delta_ft,
+                warn_delta_percent=warn_delta_percent,
+            )
+        )
+
+    return checks
+
+
+def best_gain_check(
+    checks,
+):
+    rank = {
+        "pass": 0,
+        "warn": 1,
+        "fail": 2,
+        "unknown": 3,
+    }
+
+    if not checks:
+        return None
+
+    def absolute_delta(
+        check,
+    ):
+        delta = check.get(
+            "gain_delta_ft"
+        )
+        if delta is None:
+            return float("inf")
+        return abs(
+            delta
+        )
+
+    return min(
+        checks,
+        key=lambda check: (
+            rank.get(
+                check.get(
+                    "status"
+                ),
+                99,
+            ),
+            absolute_delta(
+                check
+            ),
+        ),
+    )
+
+
+def resolve_manifest_status(
+    primary_check,
+    checks,
+    manifest_gain,
+):
+    if not primary_check:
+        return (
+            "unknown",
+            "no_reference_gain_available",
+            None,
+        )
+
+    if manifest_gain is not None:
+        return (
+            primary_check["status"],
+            "manifest_reference_gain",
+            primary_check,
+        )
+
+    best_check = best_gain_check(
+        checks
+    )
+
+    if (
+        primary_check["status"] == "fail"
+        and best_check
+        and best_check["source"]
+        != primary_check["source"]
+        and best_check["status"]
+        in {
+            "pass",
+            "warn",
+        }
+    ):
+        return (
+            "warn",
+            (
+                "route_summary_disagrees_with_"
+                "embedded_track_elevation"
+            ),
+            best_check,
+        )
+
+    return (
+        primary_check["status"],
+        "primary_reference_gain",
+        best_check,
+    )
+
+
 def infer_cairn_interval(
     route,
     planner,
@@ -1187,30 +1421,30 @@ def compare_manifest_row_to_cairn(
         )
     )
 
-    gain_delta = None
-    gain_delta_percent = None
-
-    if reference_gain not in {
-        None,
-        0,
-    }:
-        gain_delta = (
-            terrain_stats["elevation_gain_ft"]
-            - reference_gain
-        )
-        gain_delta_percent = (
-            gain_delta
-            / reference_gain
-            * 100.0
-        )
-
-    status = classify_reference_delta(
-        gain_delta,
-        gain_delta_percent,
+    gain_checks = build_reference_gain_checks(
+        terrain_stats["elevation_gain_ft"],
+        manifest_row.reference_gain_ft,
+        route_summary,
         pass_delta_ft=pass_delta_ft,
         pass_delta_percent=pass_delta_percent,
         warn_delta_ft=warn_delta_ft,
         warn_delta_percent=warn_delta_percent,
+    )
+    primary_check = next(
+        (
+            check
+            for check in gain_checks
+            if check["source"]
+            == reference_gain_source
+        ),
+        None,
+    )
+    status, status_reason, best_check = (
+        resolve_manifest_status(
+            primary_check,
+            gain_checks,
+            manifest_row.reference_gain_ft,
+        )
     )
 
     return {
@@ -1260,14 +1494,30 @@ def compare_manifest_row_to_cairn(
             else None
         ),
         "gain_delta_ft": round_optional(
-            gain_delta,
+            (
+                primary_check.get(
+                    "gain_delta_ft"
+                )
+                if primary_check
+                else None
+            ),
             0,
         ),
         "gain_delta_percent": round_optional(
-            gain_delta_percent,
+            (
+                primary_check.get(
+                    "gain_delta_percent"
+                )
+                if primary_check
+                else None
+            ),
             1,
         ),
         "status": status,
+        "status_reason": status_reason,
+        "primary_gain_check": primary_check,
+        "best_gain_check": best_check,
+        "reference_gain_checks": gain_checks,
         "notes": manifest_row.notes,
         "route_summary": route_summary,
     }

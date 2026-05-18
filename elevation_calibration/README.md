@@ -21,3 +21,8 @@ name,start_mile,stop_mile,reference_gain_ft,reference_distance_miles,source_tool
 The `file` column is optional, but useful when a `.geojson`, `.gpx`, or `.kml`
 export in this directory has the same reference route. Leave
 `reference_gain_ft` blank to use a route export's summary ascent when present.
+
+Manifest reports also include alternate gain checks when a route export has
+embedded elevation points. This helps distinguish likely Cairn terrain mapping
+issues from vendor summary/smoothing differences. A `warn` status means the
+segment needs review; it is not a planner override.
