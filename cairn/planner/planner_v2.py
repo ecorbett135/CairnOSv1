@@ -133,6 +133,13 @@ class PlannerV2:
             )
         )
 
+        self.avoid_long_food_carry = (
+            self.user_profile.get(
+                "avoid_long_food_carry",
+                True,
+            )
+        )
+
         self.direction = (
             self.user_profile.get(
                 "direction",
@@ -645,9 +652,6 @@ class PlannerV2:
 
         expected_days = (
             completion_analysis.get(
-                "recommended_days"
-            )
-            or completion_analysis.get(
                 "desired_days"
             )
             or (
@@ -659,7 +663,17 @@ class PlannerV2:
             or actual_days
         )
 
-        if actual_days <= expected_days:
+        recommended_days = (
+            completion_analysis.get(
+                "recommended_days"
+            )
+            or expected_days
+        )
+
+        if (
+            actual_days <= expected_days
+            and recommended_days <= expected_days
+        ):
             return completion_analysis
 
         updated = {
@@ -688,9 +702,13 @@ class PlannerV2:
         updated["evaluation"] = evaluation
         updated["completion_extended"] = True
         updated["requested_days"] = expected_days
-        updated["recommended_days"] = actual_days
+        updated["recommended_days"] = max(
+            recommended_days,
+            actual_days,
+        )
         updated["extension_days"] = (
-            actual_days - expected_days
+            updated["recommended_days"]
+            - expected_days
         )
         updated["recommendation"] = (
             "Requested completion target would require unrealistic "
@@ -1333,19 +1351,10 @@ class PlannerV2:
         candidate_mile,
     ):
 
-        if current_mile is None:
-            return True
-
-        if candidate_mile is None:
-            return False
-
-        if self.is_sobo():
-            return candidate_mile < (
-                current_mile - 0.05
-            )
-
-        return candidate_mile > (
-            current_mile + 0.05
+        return self.traversal.is_forward_progress(
+            self.direction,
+            current_mile,
+            candidate_mile,
         )
 
     def mile_in_travel_window(
@@ -1355,20 +1364,39 @@ class PlannerV2:
         candidate_mile,
     ):
 
-        if candidate_mile is None:
-            return False
+        return self.traversal.mile_in_travel_window(
+            self.direction,
+            start_mile,
+            stop_mile,
+            candidate_mile,
+        )
 
-        if self.is_sobo():
-            return (
-                stop_mile
-                <= candidate_mile
-                < start_mile
-            )
+    def build_overlay_corridor(
+        self,
+        start_mile=None,
+        stop_mile=None,
+    ):
 
-        return (
-            start_mile
-            < candidate_mile
-            <= stop_mile
+        return self.traversal.build_overlay_corridor(
+            self.direction,
+            start_mile=start_mile,
+            stop_mile=stop_mile,
+        )
+
+    def corridor_nodes_between(
+        self,
+        start_mile,
+        stop_mile,
+        include_start=False,
+        include_stop=True,
+    ):
+
+        return self.traversal.corridor_nodes_between(
+            self.direction,
+            start_mile,
+            stop_mile,
+            include_start=include_start,
+            include_stop=include_stop,
         )
 
     def extended_target_mile(
