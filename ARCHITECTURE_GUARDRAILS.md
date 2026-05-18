@@ -545,31 +545,15 @@ through brittle assumptions.
 
 ---
 
-## Dev Agent Guardrails
+## Legacy Dev-Agent Guardrails
 
-### dev_agent Should Operate Only On Bounded Semantic Tasks
+The pre-Codex `dev_agent` coding scaffold is retired as product architecture.
+Do not rebuild future CairnOS or HikerLogix AI-agent integrations on that
+mutation workflow.
 
-Good dev_agent tasks:
-
-- schema propagation
-- validator generation
-- topology enrichment
-- UI enhancement
-- compiler refactors
-- graph enrichment
-
-Bad dev_agent tasks:
-
-- ontology invention
-- expedition semantics design
-- planner philosophy changes
-- unconstrained architectural rewrites
-
-Human supervision is mandatory for:
-
-- planner semantics
-- traversal ontology
-- operational modeling direction
+Preserve useful validation ideas in stable CairnOS modules. Future product
+agent work must start from explicit requirements around data authority,
+freshness, failure modes, privacy, and user-facing safety boundaries.
 
 ---
 

@@ -561,7 +561,7 @@ Priority order is currently:
 7. planner validation rewrite
 8. Gaia export enrichment hardening
 9. overnight provenance hardening
-10. dev_agent reintegration
+10. legacy development-agent retirement and validation preservation
 
 ---
 

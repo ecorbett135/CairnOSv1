@@ -1,8 +1,0 @@
-Fix the failing tests using the smallest safe patch possible.
-
-Preserve:
-- planner logic
-- streamlit compatibility
-- scenario validation
-
-Return unified diff only.

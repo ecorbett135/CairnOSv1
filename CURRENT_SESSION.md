@@ -275,7 +275,8 @@ The current data-quality hardening branch adds:
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and
-reintegrating dev_agent against stabilized runtime APIs.
+retiring the legacy development-agent scaffold while preserving useful
+validation helpers under stable CairnOS modules.
 
 ---
 

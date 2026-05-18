@@ -188,15 +188,19 @@ CairnOSv1 is evolving toward:
 - realistic logistics and resupply reasoning
 - operational traversal continuity across approach/egress branches
 - terrain-aware expedition planning instead of pure geometry slicing
+- export interoperability for future companion tools
 - an expedition-grade workspace for guided trail planning and review
 
-The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`.
+The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. A future
+HikerLogix companion integration concept is tracked in
+`docs/HIKERLOGIX_COMPANION.md`.
 
 ## Project structure
 
 - `build_topo/` — topology compiler and operational graph generation
 - `cairn/runtime/` — runtime graph loading, traversal semantics, operational queries
 - `cairn/planner/` — `PlannerV2` facade plus terrain, logistics, and itinerary helper modules
+- `cairn/validation/` — reusable itinerary validation helpers
 - `cairn/interfaces/` — UI and interface surfaces (Streamlit)
 - `data/` — forward-looking raw/derived/manual/generated data separation structure
 - `docs/` — documentation assets and provenance/licensing notes

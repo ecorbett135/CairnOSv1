@@ -48,6 +48,16 @@ Do not spend MVP effort on:
 1. overlay-authoritative traversal
 1. SECTION planning
 
+Future HikerLogix companion integration is tracked separately from the core MVP
+sequence. It should begin as export interoperability and later become personal
+calibration once CairnOS has a stable plan JSON export and SECTION semantics
+are further along. See `docs/HIKERLOGIX_COMPANION.md`.
+
+Legacy development-agent cleanup is tracked as MVP hardening work, not product
+AI-agent architecture. The pre-Codex coding-agent scaffold should be retired or
+quarantined, while useful validation helpers should live under stable CairnOS
+modules.
+
 ## Current Data-Quality Work
 
 The data-quality/provenance hardening step adds runtime validation around the

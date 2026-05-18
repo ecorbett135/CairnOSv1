@@ -1,119 +1,230 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
+import argparse
 import json
+import sys
 from pathlib import Path
 
-from app.core.planner import run_planner
+from cairn.planner.planner_v2 import PlannerV2
 
 
-CONFIG_PATH = Path("config/scenarios.json")
+CONFIG_PATH = Path("cairn/config/scenarios.json")
+TRAIL_ROOT = Path("trails/vermont_long_trail")
 
 
-# =========================================================
-# LOAD SCENARIOS
-# =========================================================
+def load_scenarios(path):
+
+    return json.loads(
+        path.read_text()
+    )
 
 
-def load_scenarios():
+def default_access(direction):
 
-    with open(CONFIG_PATH) as fp:
+    if direction == "SOBO":
+        return (
+            "Journey's End Trail",
+            "Williamstown Approach",
+        )
 
-        return json.load(fp)
+    return (
+        "Williamstown Approach",
+        "Journey's End Trail",
+    )
 
 
-# =========================================================
-# RUN SCENARIO
-# =========================================================
+def build_user_profile(config):
+
+    direction = config.get(
+        "direction",
+        "NOBO",
+    )
+
+    ingress_route, egress_route = (
+        default_access(direction)
+    )
+
+    return {
+        "trip_type": config.get(
+            "trip_type",
+            "THRU",
+        ),
+        "direction": direction,
+        "ingress_route": config.get(
+            "ingress_route",
+            ingress_route,
+        ),
+        "egress_route": config.get(
+            "egress_route",
+            egress_route,
+        ),
+        "min_daily_miles": config.get(
+            "min_daily_miles",
+            config.get("min_miles", 8),
+        ),
+        "max_daily_miles": config.get(
+            "max_daily_miles",
+            config.get("max_miles", 16),
+        ),
+        "max_daily_elevation": config.get(
+            "max_daily_elevation",
+            config.get("max_elevation", 3500),
+        ),
+        "resupply_cadence": config.get(
+            "resupply_cadence",
+            config.get("resupply_days", 5),
+        ),
+        "recovery_cadence": config.get(
+            "recovery_cadence",
+            config.get("recovery_days", 6),
+        ),
+        "min_nero_miles": config.get(
+            "min_nero_miles",
+            5,
+        ),
+        "max_nero_miles": config.get(
+            "max_nero_miles",
+            8,
+        ),
+        "allow_extra_resupply_only": config.get(
+            "allow_extra_resupply_only",
+            True,
+        ),
+    }
 
 
-def run_scenario(name, config):
+def summarize_itinerary(
+    name,
+    itinerary,
+):
+
+    daily_plan = itinerary.get(
+        "daily_plan",
+        [],
+    )
+
+    expedition_summary = itinerary.get(
+        "expedition_summary",
+        {},
+    )
+
+    completion_analysis = itinerary.get(
+        "completion_analysis",
+        {},
+    )
+
+    return {
+        "scenario": name,
+        "status": "ok",
+        "summary": {
+            "days": expedition_summary.get(
+                "completion_days",
+                len(daily_plan),
+            ),
+            "moving_days": expedition_summary.get(
+                "moving_days",
+            ),
+            "total_miles": expedition_summary.get(
+                "total_miles",
+            ),
+            "recommended_days":
+                completion_analysis.get(
+                    "recommended_days",
+                ),
+            "final_stop": (
+                daily_plan[-1].get(
+                    "daily_stop_location",
+                )
+                if daily_plan
+                else None
+            ),
+        },
+    }
+
+
+def run_scenario(
+    name,
+    config,
+    trail_root,
+):
 
     try:
 
-        result = run_planner(
-            direction="NOBO",
-            trip_type="THRU",
-            min_miles=config.get("min_miles", 8),
-            max_miles=config.get("max_miles", 15),
-            max_elevation_gain=config.get(
-                "max_elevation",
-                5000,
-            ),
-            resupply_days=config.get(
-                "resupply_days",
-                4,
-            ),
-            approach_trail=config.get(
-                "approach_trail",
-                False,
+        planner = PlannerV2(
+            trail_root=trail_root,
+            user_profile=build_user_profile(
+                config
             ),
         )
 
-        return {
-            "scenario": name,
-            "status": "ok",
-            "error": None,
-            "summary": {
-                "days": result.get(
-                    "total_days",
-                    0,
-                ),
-                "total_distance": result.get(
-                    "total_distance",
-                    0,
-                ),
-            },
-        }
+        itinerary = planner.synthesize_itinerary(
+            desired_days=config.get(
+                "desired_days",
+                28,
+            )
+        )
 
-    except Exception as e:
+        return summarize_itinerary(
+            name,
+            itinerary,
+        )
+
+    except Exception as exc:
 
         return {
             "scenario": name,
             "status": "error",
-            "error": str(e),
+            "error": str(exc),
         }
 
 
-# =========================================================
-# MAIN
-# =========================================================
+def main(argv=None):
 
-
-def main():
-
-    print(
-        "\n=== CairnOS Scenario Runner ===\n"
+    parser = argparse.ArgumentParser(
+        description=(
+            "Run configured CairnOS PlannerV2 "
+            "smoke scenarios."
+        )
+    )
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=CONFIG_PATH,
+    )
+    parser.add_argument(
+        "--trail-root",
+        type=Path,
+        default=TRAIL_ROOT,
     )
 
-    scenarios = load_scenarios()
+    args = parser.parse_args(argv)
 
-    results = []
+    scenarios = load_scenarios(
+        args.config
+    )
 
-    for name, config in scenarios.items():
-
-        print(f"[RUNNING] {name}")
-
-        result = run_scenario(
+    results = [
+        run_scenario(
             name,
             config,
+            args.trail_root,
         )
+        for name, config in scenarios.items()
+    ]
 
-        results.append(result)
-
-        print(
-            f"[{result['status'].upper()}] {name}"
-        )
-
-        if result["error"]:
-
-            print(result["error"])
+    passed = all(
+        result["status"] == "ok"
+        for result in results
+    )
 
     payload = {
-        "status": "success",
+        "status": (
+            "success"
+            if passed
+            else "error"
+        ),
         "scenarios": results,
     }
-
-    print("\n[SUMMARY]\n")
 
     print(
         json.dumps(
@@ -122,7 +233,11 @@ def main():
         )
     )
 
+    return 0 if passed else 1
+
 
 if __name__ == "__main__":
 
-    main()
+    raise SystemExit(
+        main()
+    )

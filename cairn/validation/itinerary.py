@@ -1,7 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
-from .semantic_validator import validate_semantics
-from .mileage_validator import validate_mileage
+from cairn.validation.mileage import validate_mileage
+from cairn.validation.semantics import validate_semantics
 
 
 def validate_plan(

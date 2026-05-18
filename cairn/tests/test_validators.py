@@ -1,6 +1,6 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
-from dev_agent.validators.itinerary_validator import (
+from cairn.validation import (
     validate_plan,
 )
 

@@ -1,5 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
+
+
 def validate_semantics(days):
 
     violations = []
@@ -13,7 +15,7 @@ def validate_semantics(days):
 
         overnight_type = day.get(
             "overnight_type",
-            ""
+            "",
         )
 
         if overnight_type in invalid_types:
