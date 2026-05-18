@@ -11,6 +11,9 @@ SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
   decisions against official sources before using anything in the field.
 - Try both NOBO and SOBO THRU plans.
 - Export the Gaia GeoJSON and check whether the markers land where expected.
+- Use the developer diagnostics download when reporting a specific planner
+  result. It includes the generated plan, resupply table, Gaia export, warnings,
+  and runtime data fingerprints without bundling raw/source datasets.
 - Note any day that feels unrealistic, confusing, too aggressive, or oddly
   conservative.
 - Submit feedback through the configured Alpha feedback form.
@@ -69,6 +72,10 @@ The hosted Alpha should not need:
 
 Do not upload private tester data, proprietary route exports, unreviewed
 third-party datasets, or Streamlit secrets as part of an alpha report.
+
+The developer diagnostics ZIP is designed to be safe to share with the project
+maintainer. It records checksums and sizes for runtime data files instead of
+copying raw trail datasets or local calibration exports.
 
 The app-specific dependency file lives beside the Streamlit entrypoint:
 

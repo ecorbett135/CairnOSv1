@@ -1,5 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
+from pathlib import Path
+
 from streamlit.testing.v1 import AppTest
 
 
@@ -135,3 +137,14 @@ def test_sidebar_exposes_alpha_build_fingerprint():
         caption.startswith("Alpha build: ")
         for caption in captions
     )
+
+
+def test_generated_plan_exposes_developer_diagnostics_download():
+    """Test generated plans expose a diagnostic bundle download."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Download Developer Diagnostics" in source
+    assert "developer_diagnostics_download" in source
+    assert "build_diagnostic_package" in source

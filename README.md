@@ -19,9 +19,11 @@ range, elevation preference, resupply cadence, and recovery cadence. Then
 generate a plan and review the expedition summary, resupply strategy, and daily
 itinerary.
 
-You can export the itinerary as CSV or Gaia-compatible GeoJSON for review in
-other tools. Please read the Alpha Status And Safety Notice before using any
-generated plan in the real world.
+You can export the itinerary as Gaia-compatible GeoJSON for review in other
+tools. If you are reporting a confusing planner result, use the developer
+diagnostics download so the run can be reproduced without screenshots. Please
+read the Alpha Status And Safety Notice before using any generated plan in the
+real world.
 
 ## Quick Start For Developers
 
@@ -74,8 +76,9 @@ Alpha testers can report feedback through:
 - The alpha testing guidance in `docs/ALPHA_TESTING.md`.
 
 When reporting planner output, include direction, requested days, mileage and
-elevation settings, resupply/recovery settings, screenshots, CSV output, or
-Gaia GeoJSON if available.
+elevation settings, and resupply/recovery settings. The preferred artifact is
+the developer diagnostics ZIP from the app because it includes the generated
+plan, resupply strategy, Gaia export, warnings, and runtime data fingerprints.
 
 ## Product positioning
 
@@ -236,6 +239,8 @@ The output includes:
 - operational feasibility warnings when the requested timeline is achievable
   only by exceeding daily mileage or elevation preferences
 - Gaia GeoJSON download with a hot-pink trail spine, lime shelter/campsite markers, and red car markers for planned resupply crossings
+- developer diagnostics ZIP download for sharing reproducible alpha tester
+  reports without screenshots or raw source datasets
 - alternate realistic plans when the requested itinerary is infeasible
 - validation feedback when a user request is invalid or cannot be satisfied as requested
 - persistent generated results until the user explicitly regenerates the plan
