@@ -245,7 +245,8 @@ The output includes:
   only by exceeding daily mileage or elevation preferences
 - Gaia GeoJSON download with a hot-pink trail spine, lime shelter/campsite markers, and red car markers for planned resupply crossings
 - developer diagnostics ZIP download for sharing reproducible alpha tester
-  reports without screenshots or raw source datasets
+  reports without screenshots or raw source datasets, including per-day
+  elevation confidence diagnostics
 - alternate realistic plans when the requested itinerary is infeasible
 - validation feedback when a user request is invalid or cannot be satisfied as requested
 - persistent generated results until the user explicitly regenerates the plan

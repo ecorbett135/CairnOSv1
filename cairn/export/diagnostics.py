@@ -15,6 +15,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from cairn.export.elevation_confidence import (
+    build_elevation_confidence_report,
+)
 from cairn.export.gaia_geojson import dumps_geojson
 
 
@@ -354,6 +357,12 @@ def build_diagnostic_package(
         trail_root,
         project_root,
     )
+    elevation_confidence = (
+        build_elevation_confidence_report(
+            sanitized_result,
+            trail_root,
+        )
+    )
 
     buffer = io.BytesIO()
 
@@ -395,6 +404,10 @@ def build_diagnostic_package(
         archive.writestr(
             "data_fingerprints.json",
             json_bytes(fingerprints),
+        )
+        archive.writestr(
+            "elevation_confidence.json",
+            json_bytes(elevation_confidence),
         )
 
     return buffer.getvalue()

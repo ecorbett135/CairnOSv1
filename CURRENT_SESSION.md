@@ -140,7 +140,8 @@ The Streamlit UI currently supports:
 - optional extra resupply-only stops
 - explicit plan regeneration
 - Gaia GeoJSON download
-- developer diagnostics ZIP download for reproducible alpha tester reports
+- developer diagnostics ZIP download for reproducible alpha tester reports,
+  including per-day elevation confidence diagnostics
 
 Planner output should stay visible until the user regenerates the plan. Slider,
 selector, and download interactions should not implicitly wipe the displayed
