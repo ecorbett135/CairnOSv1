@@ -146,6 +146,12 @@ Overlay semantics MUST control:
 - division continuity
 - traversal authority
 
+User-facing itinerary labels may be shorter than canonical overlay names when
+the canonical text includes side-spur or town-access prose. In those cases the
+canonical value remains in the row for diagnostics/export resolution, and the
+presentation value should be a concise operational site name plus a separate
+access-note field.
+
 The planner MUST prefer overlay semantics over:
 
 - synthetic naming
@@ -402,6 +408,11 @@ Compiled overnight reference data may expand stop options when:
 - the source waypoint is matched or projected near the compiled trail spine
 - provenance is recorded
 - route overlay semantics remain authoritative
+
+Off-spine shelter or campsite waypoints should be treated as overnight access
+metadata, not as permission to route the main itinerary down side trails. Daily
+mileage and elevation remain tied to the Long Trail spine unless a future
+feature explicitly models alternate blue-blaze/side-to-side hiking.
 
 DO NOT treat raw waypoint exports as operational truth before reconciliation.
 

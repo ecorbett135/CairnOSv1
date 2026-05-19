@@ -94,6 +94,12 @@ Future data-quality work should promote this into structured source fields so
 the planner can reason about shuttle friction, town distance, and short
 resupply-only stops without depending on prose parsing.
 
+Itinerary display should separate operational identity from presentation.
+Compiled overlay names remain canonical traversal/provenance fields, but
+overnight rows should show concise shelter/camp names and move short spur notes
+into access-note/comment fields. Longer town-access prose belongs in resupply,
+zero, nero, and logistics context.
+
 Gaia/manual elevation comparisons should feed back into terrain validation and
 terrain-profile calibration, not ad hoc planner overrides.
 
@@ -115,6 +121,16 @@ Calibration reports now include route-to-spine alignment diagnostics for local
 reference route files. These warnings help separate true terrain-calibration
 issues from reference routes that temporarily follow side trails, access routes,
 or other non-LT geometry.
+
+Developer diagnostics now include per-day elevation confidence details so
+reported elevation rows can be inspected for dense terrain coverage,
+route-master fallback, estimated fallback, or recomputation mismatch without
+changing the planner's user-facing elevation output.
+
+Per-day diagnostics also distinguish off-spine overnight access from actual
+route deviation. A shelter reached by a short spur can be displayed as the
+overnight site while traversal mileage and elevation remain tied to the main
+Long Trail spine.
 
 ## Future Overnight Amenities
 

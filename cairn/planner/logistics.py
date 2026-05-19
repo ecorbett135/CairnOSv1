@@ -610,10 +610,10 @@ class LogisticsPlanner:
             return 35
 
         if distance <= 3.0:
-            return 20
+            return 10
 
         if distance <= 5.0:
-            return 5
+            return -10
 
         return -25
 
@@ -863,6 +863,31 @@ class LogisticsPlanner:
                     node
                 )
             )
+            access_distance = (
+                self.access_distance_miles(
+                    node
+                )
+            )
+            off_trail_penalty = 0
+
+            if (
+                access_distance is not None
+                and access_distance > 1.0
+                and not (
+                    days_due
+                    or self.is_recovery_candidate(
+                        node
+                    )
+                )
+            ):
+                off_trail_penalty = 50
+
+            if (
+                self.avoid_long_food_carry
+                and days_since_resupply
+                == cadence - 1
+            ):
+                score += 20
 
             candidates.append({
                 "node": node,
@@ -871,6 +896,12 @@ class LogisticsPlanner:
                     stop_mile - mile
                 ),
                 "early_resupply": early_resupply,
+                "access_distance_miles": (
+                    access_distance
+                ),
+                "off_trail_penalty": (
+                    off_trail_penalty
+                ),
             })
 
         if not candidates:
@@ -884,6 +915,7 @@ class LogisticsPlanner:
                     - cadence
                 ),
                 item["early_resupply"],
+                item["off_trail_penalty"],
                 -item["score"],
                 item[
                     "distance_to_stop"

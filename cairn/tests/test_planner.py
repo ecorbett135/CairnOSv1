@@ -492,6 +492,145 @@ def test_access_distance_parser_extracts_nearest_town_miles(planner):
     )
 
 
+def test_overnight_display_names_keep_access_notes_separate(
+    planner_factory,
+):
+    """Test shelter rows show site names without side-trail prose."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+            "avoid_long_food_carry": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=27
+    )
+    daily_plan = itinerary["daily_plan"]
+    stratton_day = next(
+        row for row in daily_plan
+        if row["daily_stop_location"]
+        == "Stratton Pond Shelter"
+    )
+
+    assert stratton_day[
+        "daily_stop_canonical_location"
+    ].startswith(
+        "Stratton Pond Trail to "
+    )
+    assert stratton_day[
+        "daily_stop_access_notes"
+    ] == (
+        "600 ft S via Stratton Pond Trail "
+        "and spur"
+    )
+    assert "Manchester" not in stratton_day[
+        "daily_stop_location"
+    ]
+    assert "Kelley Stand" not in stratton_day[
+        "daily_stop_location"
+    ]
+
+    next_day = next(
+        row for row in daily_plan
+        if row["daily_start_mile"]
+        == stratton_day["daily_stop_mile"]
+    )
+    assert (
+        next_day["daily_start_location"]
+        == "Stratton Pond Shelter"
+    )
+    assert next_day[
+        "daily_start_access_notes"
+    ] == stratton_day[
+        "daily_stop_access_notes"
+    ]
+
+
+def test_off_spine_overnight_access_is_diagnostic_not_mileage(
+    planner_factory,
+):
+    """Test side-spur shelters remain tied to mainline guidebook miles."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=27
+    )
+    stratton_day = next(
+        row for row in itinerary["daily_plan"]
+        if row["daily_stop_location"]
+        == "Stratton Pond Shelter"
+    )
+
+    assert (
+        stratton_day["daily_stop_mile"]
+        == 43.8
+    )
+    assert stratton_day[
+        "daily_stop_spine_alignment"
+    ]["status"] == (
+        "off_spine_overnight_access"
+    )
+    assert stratton_day[
+        "daily_stop_spine_alignment"
+    ]["distance_to_spine_miles"] > 0.1
+
+
+def test_resupply_access_scoring_penalizes_long_resupply_only_side_trips(
+    planner,
+):
+    """Test convenience scoring favors close resupply-only access."""
+    close_node = {
+        "access_distance_miles": 1.0,
+    }
+    distant_node = {
+        "access_distance_miles": 5.0,
+    }
+
+    assert (
+        planner.logistics.score_access_convenience(
+            close_node
+        )
+        > planner.logistics.score_access_convenience(
+            distant_node
+        )
+    )
+    assert (
+        planner.logistics.is_convenient_extra_resupply(
+            close_node
+        )
+        is True
+    )
+    assert (
+        planner.logistics.is_convenient_extra_resupply(
+            distant_node
+        )
+        is False
+    )
+
+
 def test_daily_elevation_gain_is_not_capped_by_user_limit(planner_factory):
     """Test fallback daily gain reports are not capped by the max limit."""
     low_limit_planner = planner_factory(

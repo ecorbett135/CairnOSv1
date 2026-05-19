@@ -30,6 +30,7 @@ The planner should reason about:
 - logistics access
 - realistic pacing
 - cadence sustainability
+- the difference between mainline traversal and side-spur overnight access
 
 NOT merely:
 
@@ -102,6 +103,8 @@ The planner should:
 - insert recovery opportunities
 - synthesize realistic daily traversal
 - reason about operational constraints
+- preserve canonical overlay identity while presenting concise stop names to
+  users
 
 ---
 
@@ -503,8 +506,9 @@ Terminal-day resupply is avoided because it does not reduce a future food carry.
 
 The Streamlit app also exposes a developer diagnostics ZIP for generated plans.
 That bundle captures the plan result, resupply strategy, Gaia export, warnings,
-and runtime data fingerprints so alpha tester reports can be reproduced without
-screenshots or raw/source datasets.
+runtime data fingerprints, and per-day elevation confidence diagnostics so
+alpha tester reports can be reproduced without screenshots or raw/source
+datasets.
 
 Future semantics should still reason more deeply about:
 

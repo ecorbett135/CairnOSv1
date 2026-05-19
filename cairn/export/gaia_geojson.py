@@ -12,8 +12,12 @@ EXPORT_PROPERTIES = [
     "division",
     "daily_start_mile",
     "daily_start_location",
+    "daily_start_canonical_location",
+    "daily_start_access_notes",
     "daily_stop_mile",
     "daily_stop_location",
+    "daily_stop_canonical_location",
+    "daily_stop_access_notes",
     "daily_stop_location_type",
     "daily_miles",
     "daily_elevation_gain",
@@ -507,18 +511,35 @@ def find_overlay_node(
     overlay_nodes,
 ):
 
-    stop_name = normalize_name(
-        day.get("daily_stop_location")
-    )
+    stop_names = [
+        normalize_name(
+            day.get(
+                "daily_stop_canonical_location"
+            )
+        ),
+        normalize_name(
+            day.get("daily_stop_location")
+        ),
+    ]
 
     stop_mile = day.get(
         "daily_stop_mile"
     )
 
-    candidates = overlay_lookup.get(
-        stop_name,
-        [],
-    )
+    candidates = []
+
+    for stop_name in stop_names:
+
+        if not stop_name:
+            continue
+
+        candidates = overlay_lookup.get(
+            stop_name,
+            [],
+        )
+
+        if candidates:
+            break
 
     if candidates:
 
@@ -578,18 +599,35 @@ def find_waypoint_reference(
     waypoint_lookup,
 ):
 
-    stop_name = normalize_name(
-        day.get("daily_stop_location")
-    )
+    stop_names = [
+        normalize_name(
+            day.get("daily_stop_location")
+        ),
+        normalize_name(
+            day.get(
+                "daily_stop_canonical_location"
+            )
+        ),
+    ]
 
     stop_mile = day.get(
         "daily_stop_mile"
     )
 
-    candidates = waypoint_lookup.get(
-        stop_name,
-        [],
-    )
+    candidates = []
+
+    for stop_name in stop_names:
+
+        if not stop_name:
+            continue
+
+        candidates = waypoint_lookup.get(
+            stop_name,
+            [],
+        )
+
+        if candidates:
+            break
 
     if not candidates:
         return None

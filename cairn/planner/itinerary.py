@@ -1,5 +1,6 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
+import re
 
 
 class ItineraryBuilder:
@@ -20,6 +21,232 @@ class ItineraryBuilder:
             self.planner,
             name,
         )
+
+    def overnight_reference_lookup(self):
+
+        if hasattr(
+            self.planner,
+            "_overnight_display_lookup",
+        ):
+            return self.planner._overnight_display_lookup
+
+        payload = (
+            self.queries.load_overnight_reference()
+        )
+        lookup = {}
+
+        for row in payload.get(
+            "matched_overnight_sites",
+            [],
+        ):
+
+            for key in [
+                row.get("overlay_id"),
+                row.get("canonical_name"),
+                row.get("title"),
+            ]:
+
+                if key:
+                    lookup[
+                        str(key).casefold()
+                    ] = row
+
+        self.planner._overnight_display_lookup = (
+            lookup
+        )
+        return lookup
+
+    def overnight_reference_for_node(
+        self,
+        node,
+    ):
+
+        lookup = self.overnight_reference_lookup()
+
+        for key in [
+            node.get("overlay_id"),
+            node.get("canonical_name"),
+            node.get("title"),
+        ]:
+
+            if not key:
+                continue
+
+            match = lookup.get(
+                str(key).casefold()
+            )
+
+            if match:
+                return match
+
+        return None
+
+    def stop_is_overnight(
+        self,
+        node,
+    ):
+
+        node_class = str(
+            node.get("node_class", "")
+        ).casefold()
+
+        return bool(
+            node_class in {
+                "shelter",
+                "camp",
+                "campsite",
+            }
+            or node.get("shelter")
+            or node.get("camping")
+            or node.get("overnight")
+        )
+
+    def extract_overnight_display_name(
+        self,
+        canonical_name,
+    ):
+
+        text = str(
+            canonical_name or ""
+        ).strip()
+
+        if not text:
+            return (
+                "",
+                "",
+            )
+
+        first_part = text.split(";")[0].strip()
+        access_note = ""
+
+        if "," in first_part:
+            name_part, note_part = [
+                part.strip()
+                for part in first_part.split(
+                    ",",
+                    1,
+                )
+            ]
+            access_note = note_part
+        else:
+            name_part = first_part
+
+        to_match = re.search(
+            (
+                r"^(?P<trail>.+?)\s+to\s+"
+                r"(?P<name>.+?"
+                r"(?:Shelter|Camp|Lodge|"
+                r"Tenting Area|Campsite))$"
+            ),
+            name_part,
+        )
+
+        if to_match:
+            trail_name = (
+                to_match.group("trail").strip()
+            )
+            name_part = (
+                to_match.group("name").strip()
+            )
+
+            if (
+                access_note
+                and " via " not in access_note
+            ):
+                access_note = (
+                    f"{access_note} via "
+                    f"{trail_name}"
+                )
+
+        return (
+            name_part,
+            access_note,
+        )
+
+    def display_metadata_for_stop(
+        self,
+        node,
+        fallback_location="Operational Stop",
+    ):
+
+        canonical_name = (
+            node.get("canonical_name")
+            or node.get("location")
+            or fallback_location
+        )
+        access_notes = (
+            node.get("access_notes")
+            or ""
+        )
+
+        if not self.stop_is_overnight(node):
+            return {
+                "location": canonical_name,
+                "canonical_location": (
+                    canonical_name
+                ),
+                "access_notes": access_notes,
+                "spine_alignment": None,
+            }
+
+        reference = (
+            self.overnight_reference_for_node(
+                node
+            )
+            or {}
+        )
+        display_name = (
+            reference.get("title")
+            or node.get("title")
+        )
+
+        parsed_name, parsed_access = (
+            self.extract_overnight_display_name(
+                canonical_name
+            )
+        )
+
+        if not display_name:
+            display_name = (
+                parsed_name or canonical_name
+            )
+
+        if not access_notes:
+            access_notes = parsed_access
+
+        spine_alignment = None
+        distance_to_spine = reference.get(
+            "distance_to_spine_miles"
+        )
+
+        if distance_to_spine is not None:
+            spine_alignment = {
+                "status": (
+                    "off_spine_overnight_access"
+                    if distance_to_spine > 0.03
+                    else "on_spine"
+                ),
+                "distance_to_spine_miles": (
+                    distance_to_spine
+                ),
+                "projected_coordinates": (
+                    reference.get(
+                        "projected_coordinates"
+                    )
+                ),
+                "waypoint_coordinates": (
+                    reference.get(
+                        "coordinates"
+                    )
+                ),
+            }
+
+        return {
+            "location": display_name,
+            "canonical_location": canonical_name,
+            "access_notes": access_notes,
+            "spine_alignment": spine_alignment,
+        }
 
     def select_operational_stop(
         self,
@@ -312,6 +539,11 @@ class ItineraryBuilder:
 
         current_mile = 0.0
         current_location = "Southern Terminus"
+        current_canonical_location = (
+            current_location
+        )
+        current_access_notes = ""
+        current_spine_alignment = None
         current_location_type = "terminus"
         current_division = "division1"
 
@@ -330,6 +562,17 @@ class ItineraryBuilder:
                 "canonical_name",
                 "Northern Terminus",
             )
+            current_canonical_location = (
+                current_location
+            )
+            current_access_notes = (
+                northern_node.get(
+                    "access_notes",
+                    "",
+                )
+                or ""
+            )
+            current_spine_alignment = None
             current_location_type = (
                 northern_node.get(
                     "node_class",
@@ -642,6 +885,17 @@ class ItineraryBuilder:
                     stop_location = selected_stop.get(
                         "canonical_name"
                     )
+                    stop_access_notes = (
+                        selected_stop.get(
+                            "access_notes",
+                            "",
+                        )
+                        or ""
+                    )
+                    stop_canonical_location = (
+                        stop_location
+                    )
+                    stop_spine_alignment = None
 
                     stop_location_type = (
                         selected_stop.get(
@@ -659,6 +913,35 @@ class ItineraryBuilder:
                             current_division,
                         )
                         or current_division
+                    )
+
+                    display_metadata = (
+                        self.display_metadata_for_stop(
+                            selected_stop,
+                            fallback_location=(
+                                stop_location
+                            ),
+                        )
+                    )
+                    stop_location = (
+                        display_metadata[
+                            "location"
+                        ]
+                    )
+                    stop_canonical_location = (
+                        display_metadata[
+                            "canonical_location"
+                        ]
+                    )
+                    stop_access_notes = (
+                        display_metadata[
+                            "access_notes"
+                        ]
+                    )
+                    stop_spine_alignment = (
+                        display_metadata[
+                            "spine_alignment"
+                        ]
                     )
 
                 else:
@@ -683,6 +966,17 @@ class ItineraryBuilder:
                             "canonical_name",
                             "Operational Stop",
                         )
+                        stop_canonical_location = (
+                            stop_location
+                        )
+                        stop_access_notes = (
+                            matching_overlay.get(
+                                "access_notes",
+                                "",
+                            )
+                            or ""
+                        )
+                        stop_spine_alignment = None
 
                         stop_location_type = (
                             matching_overlay.get(
@@ -698,12 +992,52 @@ class ItineraryBuilder:
                             )
                         )
 
+                        display_metadata = (
+                            self.display_metadata_for_stop(
+                                matching_overlay,
+                                fallback_location=(
+                                    stop_location
+                                ),
+                            )
+                        )
+                        stop_location = (
+                            display_metadata[
+                                "location"
+                            ]
+                        )
+                        stop_canonical_location = (
+                            display_metadata[
+                                "canonical_location"
+                            ]
+                        )
+                        stop_access_notes = (
+                            display_metadata[
+                                "access_notes"
+                            ]
+                        )
+                        stop_spine_alignment = (
+                            display_metadata[
+                                "spine_alignment"
+                            ]
+                        )
+
                     else:
 
                         stop_location = selected_stop.get(
                             "location",
                             "Operational Stop",
                         )
+                        stop_canonical_location = (
+                            stop_location
+                        )
+                        stop_access_notes = (
+                            selected_stop.get(
+                                "access_notes",
+                                "",
+                            )
+                            or ""
+                        )
+                        stop_spine_alignment = None
 
                         stop_location_type = (
                             selected_stop.get(
@@ -728,6 +1062,11 @@ class ItineraryBuilder:
                     selected_stop = None
                     next_mile = target_mile
                     stop_location = "Backcountry Camp"
+                    stop_canonical_location = (
+                        stop_location
+                    )
+                    stop_access_notes = ""
+                    stop_spine_alignment = None
                     stop_location_type = "camp"
                     stop_division = current_division
 
@@ -735,6 +1074,11 @@ class ItineraryBuilder:
 
                 next_mile = target_mile
                 stop_location = "Backcountry Camp"
+                stop_canonical_location = (
+                    stop_location
+                )
+                stop_access_notes = ""
+                stop_spine_alignment = None
                 stop_location_type = "camp"
                 stop_division = current_division
 
@@ -898,12 +1242,30 @@ class ItineraryBuilder:
                 "daily_start_location": (
                     current_location
                 ),
+                "daily_start_canonical_location": (
+                    current_canonical_location
+                ),
+                "daily_start_access_notes": (
+                    current_access_notes
+                ),
+                "daily_start_spine_alignment": (
+                    current_spine_alignment
+                ),
                 "daily_start_location_type": (
                     current_location_type
                 ),
                 "daily_stop_mile": next_mile,
                 "daily_stop_location": (
                     stop_location
+                ),
+                "daily_stop_canonical_location": (
+                    stop_canonical_location
+                ),
+                "daily_stop_access_notes": (
+                    stop_access_notes
+                ),
+                "daily_stop_spine_alignment": (
+                    stop_spine_alignment
                 ),
                 "daily_stop_location_type": (
                     stop_location_type
@@ -938,6 +1300,15 @@ class ItineraryBuilder:
 
             current_mile = next_mile
             current_location = stop_location
+            current_canonical_location = (
+                stop_canonical_location
+            )
+            current_access_notes = (
+                stop_access_notes
+            )
+            current_spine_alignment = (
+                stop_spine_alignment
+            )
             current_location_type = (
                 stop_location_type
             )
@@ -1057,6 +1428,15 @@ class ItineraryBuilder:
                     "daily_start_location": (
                         current_location
                     ),
+                    "daily_start_canonical_location": (
+                        current_canonical_location
+                    ),
+                    "daily_start_access_notes": (
+                        current_access_notes
+                    ),
+                    "daily_start_spine_alignment": (
+                        current_spine_alignment
+                    ),
                     "daily_start_location_type": (
                         current_location_type
                     ),
@@ -1066,6 +1446,15 @@ class ItineraryBuilder:
                     ),
                     "daily_stop_location": (
                         current_location
+                    ),
+                    "daily_stop_canonical_location": (
+                        current_canonical_location
+                    ),
+                    "daily_stop_access_notes": (
+                        current_access_notes
+                    ),
+                    "daily_stop_spine_alignment": (
+                        current_spine_alignment
                     ),
                     "daily_stop_location_type": (
                         current_location_type

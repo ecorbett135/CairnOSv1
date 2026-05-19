@@ -623,9 +623,14 @@ def render_planner_result(
         {
             key: value
             for key, value in row.items()
-            if key != (
-                "food_carry_days_since_last_resupply"
-            )
+            if key not in {
+                "food_carry_days_since_last_resupply",
+                "daily_start_canonical_location",
+                "daily_stop_canonical_location",
+                "daily_start_spine_alignment",
+                "daily_stop_spine_alignment",
+                "daily_start_access_notes",
+            }
         }
         for row in itinerary_rows
     ]
@@ -646,6 +651,7 @@ def render_planner_result(
             "daily_start_location_type",
             "daily_stop_mile",
             "daily_stop_location",
+            "daily_stop_access_notes",
             "daily_stop_location_type",
             "daily_miles",
             "daily_elevation_gain",
