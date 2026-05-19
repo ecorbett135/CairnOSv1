@@ -26,3 +26,8 @@ Manifest reports also include alternate gain checks when a route export has
 embedded elevation points. This helps distinguish likely Cairn terrain mapping
 issues from vendor summary/smoothing differences. A `warn` status means the
 segment needs review; it is not a planner override.
+
+Manifest rows with a `file` value also include `route_alignment`. This samples
+the local reference route against CairnOS's compiled Long Trail spine so
+side-trail detours, access-route drift, or bad vendor geometry are visible
+before treating an elevation delta as a Cairn terrain problem.

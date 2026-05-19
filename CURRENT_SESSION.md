@@ -269,6 +269,8 @@ The current data-quality hardening branch adds:
 - anchor-based terrain mile mapping from trusted matched coordinate references
 - manifest-driven elevation calibration reports for known reference segments,
   with pass/warn/fail diagnostics
+- route-to-spine alignment checks so local reference routes that follow side
+  trails or access routes are flagged before their elevation deltas are trusted
 - itinerary stop resolution now prefers overlay-authoritative miles when an
   enriched overnight reference shares a canonical overlay name
 - whole-trail audit reporting for suspicious local terrain intervals
