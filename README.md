@@ -84,13 +84,14 @@ Alpha testers can report feedback through:
 - The hosted app feedback link when configured by the maintainer.
 - The alpha testing guidance in `docs/ALPHA_TESTING.md`.
 
-When reporting planner output, include direction, requested days, mileage and
-elevation settings, and resupply/recovery settings. The preferred artifact is
-the developer diagnostics ZIP from the app because it includes the generated
-plan, resupply strategy, Gaia export, warnings, and runtime data fingerprints.
-For export or marker-location issues, also attach the Gaia GeoJSON when useful.
-Do not include Streamlit secrets, private tester data, proprietary guidebook
-text, or unreviewed vendor exports.
+When reporting planner output, attach the developer diagnostics ZIP when
+possible. It already includes the planner settings, generated plan, resupply
+strategy, Gaia export, warnings, and runtime data fingerprints. If you are not
+attaching the ZIP, include direction, requested days, mileage and elevation
+settings, and resupply/recovery settings manually. If you are not attaching the
+ZIP, include Gaia GeoJSON for export or marker-location issues when useful. Do
+not include Streamlit secrets, private tester data, proprietary guidebook text,
+or unreviewed vendor exports.
 
 ## Product positioning
 
