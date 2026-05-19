@@ -126,6 +126,7 @@ The Streamlit UI currently supports:
 - trail selection
 - trip type selection (`THRU` visible for MVP)
 - direction selection
+- view mode selection for automatic, mobile, or desktop layout
 - ingress route selection
 - egress route selection
 - desired completion days

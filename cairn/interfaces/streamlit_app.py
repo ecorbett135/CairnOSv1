@@ -79,49 +79,144 @@ def current_build_sha():
         return "unknown"
 
 
-if "planner_result" not in st.session_state:
-    st.session_state["planner_result"] = None
+def user_agent():
+    try:
+        return str(
+            st.context.headers.get(
+                "user-agent",
+                "",
+            )
+            or ""
+        )
+    except Exception:
+        return ""
 
-st.title("🥾 CairnOSv1")
-st.subheader(
-    "Operational Expedition Planning"
-)
 
-st.warning(
-    (
-        "Alpha preview: CairnOSv1 is an advisory planning prototype, "
-        "not a safety-critical trip-planning authority. Verify all routes, "
-        "conditions, services, closures, and backcountry decisions with "
-        "official sources before hiking."
+def is_mobile_user_agent(
+    value,
+):
+    lower_value = value.lower()
+
+    return any(
+        token in lower_value
+        for token in [
+            "android",
+            "iphone",
+            "ipad",
+            "ipod",
+            "mobile",
+        ]
     )
-)
 
-alpha_feedback_url = streamlit_secret(
-    "alpha_feedback_url"
-)
 
-if alpha_feedback_url:
-    st.markdown(
-        f"[Share Alpha feedback]({alpha_feedback_url})"
+def resolve_view_mode(
+    selected_mode,
+):
+    if selected_mode == "Mobile":
+        return "mobile"
+
+    if selected_mode == "Desktop":
+        return "desktop"
+
+    if is_mobile_user_agent(
+        user_agent()
+    ):
+        return "mobile"
+
+    return "desktop"
+
+
+def planner_button_label():
+    return (
+        "Regenerate Plan"
+        if st.session_state[
+            "planner_result"
+        ]
+        else "Generate Plan"
     )
 
-with st.sidebar:
 
-    st.header("Planner Configuration")
+def directional_access_help(
+    trip_type,
+    direction,
+):
+    if trip_type == "SECTION":
+        return (
+            "Section hike ingress selection",
+            "Section hike egress selection",
+        )
 
-    selected_trail = st.selectbox(
+    if direction == "NOBO":
+        return (
+            "Southern access approaches toward the southern terminus",
+            "Northern exit approaches away from the northern terminus",
+        )
+
+    return (
+        "Northern access approaches toward the northern terminus",
+        "Southern exit approaches away from the southern terminus",
+    )
+
+
+def directional_access_options(
+    trip_type,
+    direction,
+):
+    if trip_type == "SECTION":
+        options = [
+            "Williamstown Approach",
+            "North Adams Approach",
+            "Journey's End Trail",
+        ]
+        return options, options
+
+    if direction == "NOBO":
+        return (
+            [
+                "Williamstown Approach",
+                "North Adams Approach",
+            ],
+            [
+                "Journey's End Trail",
+            ],
+        )
+
+    return (
+        [
+            "Journey's End Trail",
+        ],
+        [
+            "Williamstown Approach",
+            "North Adams Approach",
+        ],
+    )
+
+
+def render_planner_controls(
+    target,
+    layout_mode,
+):
+    target.header("Planner Configuration")
+
+    if layout_mode == "mobile":
+        target.caption(
+            "Mobile layout: planner controls are shown here instead of in the sidebar."
+        )
+        target.subheader("Trip")
+
+    selected_trail = target.selectbox(
         "Trail",
         AVAILABLE_TRAILS,
     )
 
-    trip_type = st.selectbox(
+    trip_type = target.selectbox(
         "Trip Type",
         [
             "THRU",
         ],
     )
 
-    direction = st.selectbox(
+    direction = target.selectbox(
         "Direction",
         [
             "NOBO",
@@ -129,122 +224,60 @@ with st.sidebar:
         ],
     )
 
-    if trip_type == "SECTION":
-
-        ingress_help = (
-            "Section hike ingress selection"
+    ingress_help, egress_help = (
+        directional_access_help(
+            trip_type,
+            direction,
         )
-
-        egress_help = (
-            "Section hike egress selection"
+    )
+    ingress_options, egress_options = (
+        directional_access_options(
+            trip_type,
+            direction,
         )
+    )
 
-    elif direction == "NOBO":
-
-        ingress_help = (
-            "Southern access approaches toward the southern terminus"
-        )
-
-        egress_help = (
-            "Northern exit approaches away from the northern terminus"
-        )
-
-    else:
-
-        ingress_help = (
-            "Northern access approaches toward the northern terminus"
-        )
-
-        egress_help = (
-            "Southern exit approaches away from the southern terminus"
-        )
-
-    st.subheader(
+    target.subheader(
         "Directional Access"
     )
 
-    if trip_type == "SECTION":
+    ingress_route = target.selectbox(
+        "Ingress Route",
+        ingress_options,
+        help=ingress_help,
+    )
 
-        ingress_route = st.selectbox(
-            "Ingress Route",
-            [
-                "Williamstown Approach",
-                "North Adams Approach",
-                "Journey's End Trail",
-            ],
-            help=ingress_help,
-        )
+    egress_route = target.selectbox(
+        "Egress Route",
+        egress_options,
+        help=egress_help,
+    )
 
-        egress_route = st.selectbox(
-            "Egress Route",
-            [
-                "Williamstown Approach",
-                "North Adams Approach",
-                "Journey's End Trail",
-            ],
-            help=egress_help,
-        )
+    if layout_mode == "mobile":
+        target.subheader("Daily Limits")
 
-    elif direction == "NOBO":
-
-        ingress_route = st.selectbox(
-            "Ingress Route",
-            [
-                "Williamstown Approach",
-                "North Adams Approach",
-            ],
-            help=ingress_help,
-        )
-
-        egress_route = st.selectbox(
-            "Egress Route",
-            [
-                "Journey's End Trail",
-            ],
-            help=egress_help,
-        )
-
-    else:
-
-        ingress_route = st.selectbox(
-            "Ingress Route",
-            [
-                "Journey's End Trail",
-            ],
-            help=ingress_help,
-        )
-
-        egress_route = st.selectbox(
-            "Egress Route",
-            [
-                "Williamstown Approach",
-                "North Adams Approach",
-            ],
-            help=egress_help,
-        )
-
-    desired_days = st.slider(
+    desired_days = target.slider(
         "Desired Completion Days",
         min_value=3,
         max_value=60,
         value=28,
     )
 
-    min_daily_miles = st.slider(
+    min_daily_miles = target.slider(
         "Minimum Daily Miles",
         min_value=4,
         max_value=25,
         value=8,
     )
 
-    max_daily_miles = st.slider(
+    max_daily_miles = target.slider(
         "Maximum Daily Miles",
         min_value=8,
         max_value=40,
         value=16,
     )
 
-    max_daily_elevation = st.slider(
+    max_daily_elevation = target.slider(
         "Maximum Daily Elevation Gain",
         min_value=1000,
         max_value=10000,
@@ -258,21 +291,24 @@ with st.sidebar:
         ),
     )
 
-    resupply_cadence = st.slider(
+    if layout_mode == "mobile":
+        target.subheader("Resupply And Recovery")
+
+    resupply_cadence = target.slider(
         "Preferred Resupply Cadence (days)",
         min_value=2,
         max_value=10,
         value=5,
     )
 
-    recovery_cadence = st.slider(
+    recovery_cadence = target.slider(
         "Preferred Zero/Nero Cadence (days)",
         min_value=3,
         max_value=14,
         value=6,
     )
 
-    min_nero_miles = st.slider(
+    min_nero_miles = target.slider(
         "Minimum Nero Miles",
         min_value=1,
         max_value=10,
@@ -283,7 +319,7 @@ with st.sidebar:
         ),
     )
 
-    max_nero_miles = st.slider(
+    max_nero_miles = target.slider(
         "Maximum Nero Miles",
         min_value=4,
         max_value=15,
@@ -295,19 +331,19 @@ with st.sidebar:
     )
 
     if max_nero_miles < min_nero_miles:
-        st.warning(
+        target.warning(
             (
                 "Maximum Nero Miles is below Minimum Nero Miles; "
                 "the planner will use the minimum value for both."
             )
         )
 
-    allow_extra_resupply_only = st.checkbox(
+    allow_extra_resupply_only = target.checkbox(
         "Allow Extra Resupply-Only Stops",
         value=True,
     )
 
-    avoid_long_food_carry = st.checkbox(
+    avoid_long_food_carry = target.checkbox(
         "Avoid Long Food Carry",
         value=True,
         help=(
@@ -316,22 +352,6 @@ with st.sidebar:
             "close to the trail."
         ),
     )
-
-    planner_button_label = (
-        "Regenerate Plan"
-        if st.session_state["planner_result"]
-        else "Generate Plan"
-    )
-
-    run_planner = st.button(
-        planner_button_label
-    )
-
-    st.caption(
-        f"Alpha build: {current_build_sha()}"
-    )
-
-if run_planner:
 
     trail_root = (
         TRAILS_ROOT /
@@ -361,46 +381,91 @@ if run_planner:
         "egress_route": egress_route,
     }
 
+    run_planner = target.button(
+        planner_button_label(),
+        key=f"{layout_mode}_planner_button",
+    )
+
+    target.caption(
+        f"Alpha build: {current_build_sha()}"
+    )
+
+    return planner_config, run_planner
+
+
+def synthesize_planner_result(
+    planner_config,
+):
+    trail_root = Path(
+        planner_config[
+            "trail_root"
+        ]
+    )
+
     planner = PlannerV2(
         trail_root=trail_root,
         user_profile={
-            "min_daily_miles": min_daily_miles,
-            "max_daily_miles": max_daily_miles,
-            "max_daily_elevation": max_daily_elevation,
-            "resupply_cadence": resupply_cadence,
-            "recovery_cadence": recovery_cadence,
-            "min_nero_miles": min_nero_miles,
-            "max_nero_miles": max_nero_miles,
+            "min_daily_miles": planner_config[
+                "min_daily_miles"
+            ],
+            "max_daily_miles": planner_config[
+                "max_daily_miles"
+            ],
+            "max_daily_elevation": planner_config[
+                "max_daily_elevation"
+            ],
+            "resupply_cadence": planner_config[
+                "resupply_cadence"
+            ],
+            "recovery_cadence": planner_config[
+                "recovery_cadence"
+            ],
+            "min_nero_miles": planner_config[
+                "min_nero_miles"
+            ],
+            "max_nero_miles": planner_config[
+                "max_nero_miles"
+            ],
             "allow_extra_resupply_only": (
-                allow_extra_resupply_only
+                planner_config[
+                    "allow_extra_resupply_only"
+                ]
             ),
             "avoid_long_food_carry": (
-                avoid_long_food_carry
+                planner_config[
+                    "avoid_long_food_carry"
+                ]
             ),
-            "trip_type": trip_type,
-            "direction": direction,
-            "ingress_route": ingress_route,
-            "egress_route": egress_route,
+            "trip_type": planner_config[
+                "trip_type"
+            ],
+            "direction": planner_config[
+                "direction"
+            ],
+            "ingress_route": planner_config[
+                "ingress_route"
+            ],
+            "egress_route": planner_config[
+                "egress_route"
+            ],
         },
     )
 
     itinerary = planner.synthesize_itinerary(
-        desired_days=desired_days
+        desired_days=planner_config[
+            "desired_days"
+        ]
     )
 
-    st.session_state["planner_result"] = {
+    return {
         "config": planner_config,
         "itinerary": itinerary,
     }
 
-    st.rerun()
 
-planner_result = st.session_state.get(
-    "planner_result"
-)
-
-if planner_result:
-
+def render_planner_result(
+    planner_result,
+):
     planner_config = planner_result[
         "config"
     ]
@@ -427,10 +492,6 @@ if planner_result:
 
     completion = itinerary[
         "completion_analysis"
-    ]
-
-    evaluation = completion[
-        "evaluation"
     ]
 
     st.header("Expedition Summary")
@@ -502,7 +563,6 @@ if planner_result:
     if completion.get(
         "has_itinerary_exceptions"
     ):
-
         st.warning(
             completion[
                 "recommendation"
@@ -524,7 +584,6 @@ if planner_result:
         )
 
     elif completion["accepted"]:
-
         st.success(
             completion[
                 "recommendation"
@@ -532,7 +591,6 @@ if planner_result:
         )
 
     else:
-
         st.warning(
             completion[
                 "recommendation"
@@ -550,7 +608,6 @@ if planner_result:
     ]
 
     if resupply_rows:
-
         st.dataframe(
             resupply_rows,
             width="stretch",
@@ -610,7 +667,6 @@ if planner_result:
     ]
 
     if gaia_warnings:
-
         st.warning(
             (
                 "Some itinerary stops could not be "
@@ -658,8 +714,79 @@ if planner_result:
     )
 
 
-else:
+if "planner_result" not in st.session_state:
+    st.session_state["planner_result"] = None
 
+st.title("🥾 CairnOSv1")
+st.subheader(
+    "Operational Expedition Planning"
+)
+
+st.warning(
+    (
+        "Alpha preview: CairnOSv1 is an advisory planning prototype, "
+        "not a safety-critical trip-planning authority. Verify all routes, "
+        "conditions, services, closures, and backcountry decisions with "
+        "official sources before hiking."
+    )
+)
+
+alpha_feedback_url = streamlit_secret(
+    "alpha_feedback_url"
+)
+
+if alpha_feedback_url:
+    st.markdown(
+        f"[Share Alpha feedback]({alpha_feedback_url})"
+    )
+
+selected_view_mode = st.radio(
+    "View Mode",
+    [
+        "Auto",
+        "Mobile",
+        "Desktop",
+    ],
+    horizontal=True,
+    key="view_mode",
+    help=(
+        "Use Mobile if your phone does not show Streamlit's sidebar controls."
+    ),
+)
+
+layout_mode = resolve_view_mode(
+    selected_view_mode
+)
+
+if layout_mode == "mobile":
+    planner_config, run_planner = render_planner_controls(
+        st,
+        layout_mode,
+    )
+else:
+    with st.sidebar:
+        planner_config, run_planner = render_planner_controls(
+            st,
+            layout_mode,
+        )
+
+if run_planner:
+    st.session_state["planner_result"] = (
+        synthesize_planner_result(
+            planner_config
+        )
+    )
+    st.rerun()
+
+planner_result = st.session_state.get(
+    "planner_result"
+)
+
+if planner_result:
+    render_planner_result(
+        planner_result
+    )
+else:
     st.info(
         "Configure expedition goals and generate an operational itinerary."
     )
