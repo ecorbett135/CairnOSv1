@@ -47,6 +47,8 @@ PlannerV2 now supports:
 - resupply strategy output tied to amenity-backed access points
 - structured resupply access-friction fields and user-tunable convenient
   resupply-only distance
+- curated bear-box overnight amenity metadata with an optional soft planner
+  preference
 - clean overnight stop display names with side-spur notes separated from
   canonical overlay names
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
@@ -146,6 +148,7 @@ The Streamlit UI currently supports:
 - maximum nero miles
 - optional extra resupply-only stops
 - convenient resupply-only access distance
+- optional bear-box site preference
 - explicit plan regeneration
 - Gaia GeoJSON download
 - developer diagnostics ZIP download for reproducible alpha tester reports,
@@ -271,6 +274,7 @@ PlannerV2 still needs improvement in these areas:
 - trails/vermont_long_trail/compiled/approach_trails.json
 - trails/vermont_long_trail/compiled/operational_graph.json
 - trails/vermont_long_trail/raw/csv/resupply_amenities.csv
+- trails/vermont_long_trail/raw/csv/overnight_amenities.csv
 - trails/vermont_long_trail/raw/geojson/shelters.geojson
 - trails/vermont_long_trail/raw/geojson/campsites.geojson
 
@@ -307,8 +311,9 @@ The current data-quality hardening branch adds:
 - itinerary stop resolution now prefers overlay-authoritative miles when an
   enriched overnight reference shares a canonical overlay name
 - whole-trail audit reporting for suspicious local terrain intervals
-- bear-box availability is recorded as future overnight amenity work, sourced
-  from Green Mountain Club and not yet wired into planner behavior
+- bear-box availability is recorded as structured overnight amenity metadata,
+  sourced from Green Mountain Club, and available as an optional soft planner
+  preference
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and

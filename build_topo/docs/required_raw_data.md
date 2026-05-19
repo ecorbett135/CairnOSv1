@@ -330,6 +330,38 @@ Optional future layers may include:
 - seasonal closures
 - transportation networks
 
+## 9. overnight_amenities.csv
+
+Directory:
+
+```text
+raw/csv/
+```
+
+Optional:
+
+```text
+overnight_amenities.csv
+```
+
+Purpose:
+
+Provides manually curated overnight-site amenities, such as bear-box
+availability, with explicit source and curation metadata.
+
+Current columns:
+
+- canonical_name
+- bear_box
+- source_name
+- source_url
+- source_accessed
+- curation_notes
+
+This data is enrichment only. It may bias shelter/camp selection when a user
+enables a preference, but it must not replace route overlay traversal truth or
+official field verification.
+
 The compiler architecture is intentionally extensible.
 
 ---

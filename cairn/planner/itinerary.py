@@ -349,10 +349,24 @@ class ItineraryBuilder:
                 )
 
                 if delta <= search_radius:
+                    effective_delta = delta
+
+                    if (
+                        self.prefer_bear_box_sites
+                        and node.get("bear_box")
+                    ):
+                        effective_delta = max(
+                            0,
+                            delta - 1.0,
+                        )
+
                     candidate_nodes.append({
                         "node": node,
                         "priority": priority,
                         "delta": delta,
+                        "effective_delta": (
+                            effective_delta
+                        ),
                         "type": item["type"],
                         "corridor_rank": corridor_rank(
                             mile
@@ -397,6 +411,7 @@ class ItineraryBuilder:
                         "node": node,
                         "priority": 4,
                         "delta": delta,
+                        "effective_delta": delta,
                         "type": "logistics",
                         "corridor_rank": corridor_rank(
                             mile
@@ -418,6 +433,7 @@ class ItineraryBuilder:
             candidate_nodes,
             key=lambda x: (
                 x["priority"],
+                x["effective_delta"],
                 x["delta"],
                 x["corridor_rank"],
             )
@@ -923,6 +939,11 @@ class ItineraryBuilder:
                         )
                         or current_division
                     )
+                    stop_bear_box = bool(
+                        selected_stop.get(
+                            "bear_box"
+                        )
+                    )
 
                     display_metadata = (
                         self.display_metadata_for_stop(
@@ -986,6 +1007,11 @@ class ItineraryBuilder:
                             or ""
                         )
                         stop_spine_alignment = None
+                        stop_bear_box = bool(
+                            matching_overlay.get(
+                                "bear_box"
+                            )
+                        )
 
                         stop_location_type = (
                             matching_overlay.get(
@@ -1047,6 +1073,11 @@ class ItineraryBuilder:
                             or ""
                         )
                         stop_spine_alignment = None
+                        stop_bear_box = bool(
+                            selected_stop.get(
+                                "bear_box"
+                            )
+                        )
 
                         stop_location_type = (
                             selected_stop.get(
@@ -1076,6 +1107,7 @@ class ItineraryBuilder:
                     )
                     stop_access_notes = ""
                     stop_spine_alignment = None
+                    stop_bear_box = False
                     stop_location_type = "camp"
                     stop_division = current_division
 
@@ -1088,6 +1120,7 @@ class ItineraryBuilder:
                 )
                 stop_access_notes = ""
                 stop_spine_alignment = None
+                stop_bear_box = False
                 stop_location_type = "camp"
                 stop_division = current_division
 
@@ -1307,6 +1340,9 @@ class ItineraryBuilder:
                 "daily_stop_spine_alignment": (
                     stop_spine_alignment
                 ),
+                "daily_stop_bear_box": (
+                    stop_bear_box
+                ),
                 "daily_stop_location_type": (
                     stop_location_type
                 ),
@@ -1506,6 +1542,15 @@ class ItineraryBuilder:
                     ),
                     "daily_stop_spine_alignment": (
                         current_spine_alignment
+                    ),
+                    "daily_stop_bear_box": (
+                        bool(
+                            rows[-1].get(
+                                "daily_stop_bear_box"
+                            )
+                        )
+                        if rows
+                        else False
                     ),
                     "daily_stop_location_type": (
                         current_location_type

@@ -3,7 +3,8 @@
   "trail": "vermont_long_trail",
   "sources": [
     "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/shelters.geojson",
-    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/campsites.geojson"
+    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/campsites.geojson",
+    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/csv/overnight_amenities.csv"
   ],
   "purpose": "Overnight waypoint reference enrichment; not operational traversal truth",
   "summary": {
@@ -17,6 +18,8 @@
     "matched_campsites": 6,
     "unmatched_campsites": 10,
     "planner_candidates": 18,
+    "bear_box_sites": 20,
+    "bear_box_planner_candidates": 7,
     "excluded_generic_titles": 3
   },
   "matched_overnight_sites": [
@@ -276,6 +279,11 @@
       "nearest_overlay_id": "overlay_0201",
       "nearest_overlay_name": "Snuffy\u2019s ski trail; Elephant\u2019s Head Trail to Sterling Pond Shelter, 0.7 mi E",
       "nearest_overlay_mile": 210.7,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -387,6 +395,11 @@
       "nearest_overlay_id": "overlay_0164",
       "nearest_overlay_name": "Bamforth Ridge Shelter",
       "nearest_overlay_mile": 179.2,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -535,6 +548,11 @@
       "nearest_overlay_id": "overlay_0134",
       "nearest_overlay_name": "Battell Shelter",
       "nearest_overlay_mile": 153.4,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -646,6 +664,11 @@
       "nearest_overlay_id": "overlay_0092",
       "nearest_overlay_name": "Tucker Johnson Shelter",
       "nearest_overlay_mile": 105.9,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -683,6 +706,11 @@
       "nearest_overlay_id": "overlay_0008",
       "nearest_overlay_name": "Seth Warner Shelter",
       "nearest_overlay_mile": 5.5,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -757,6 +785,11 @@
       "nearest_overlay_id": "overlay_0023",
       "nearest_overlay_name": "Goddard Shelter; West Ridge Trail, Woodford Hollow via Bald Mtn. Trail east branch, 9.7 mi S; to Branch Street in Bennington via Bald Mtn. Trail west branch, 11.3 mi S",
       "nearest_overlay_mile": 24.4,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -794,6 +827,11 @@
       "nearest_overlay_id": "overlay_0026",
       "nearest_overlay_name": "Kid Gore Shelter, 150 ft E via spur",
       "nearest_overlay_mile": 28.5,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -831,6 +869,11 @@
       "nearest_overlay_id": "overlay_0029",
       "nearest_overlay_name": "Story Spring Shelter",
       "nearest_overlay_mile": 33.3,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -942,6 +985,11 @@
       "nearest_overlay_id": "overlay_0037",
       "nearest_overlay_name": "Stratton Pond Trail to Stratton Pond Shelter, 600 ft S via Stratton Pond Trail and spur; to Stratton View Shelter via Lye Brook Trail, 0.8 mi W; to Kelley Stand Road, 3.8 mi S; to Manchester via Lye Brook Trail, 9.5 mi NW",
       "nearest_overlay_mile": 43.8,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -1053,6 +1101,11 @@
       "nearest_overlay_id": "overlay_0051",
       "nearest_overlay_name": "Peru Peak Shelter",
       "nearest_overlay_mile": 64.5,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -1275,6 +1328,11 @@
       "nearest_overlay_id": "overlay_0078",
       "nearest_overlay_name": "Clarendon Shelter",
       "nearest_overlay_mile": 87.8,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -1312,6 +1370,11 @@
       "nearest_overlay_id": "overlay_0083",
       "nearest_overlay_name": "Governor Clement Shelter",
       "nearest_overlay_mile": 93.9,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -1386,6 +1449,11 @@
       "nearest_overlay_id": "overlay_0092",
       "nearest_overlay_name": "Tucker Johnson Shelter",
       "nearest_overlay_mile": 105.9,
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": false
     },
@@ -1755,6 +1823,11 @@
       "nearest_overlay_name": "Twin Brooks Tenting Area, 100 ft W via spur",
       "nearest_overlay_mile": 200.7,
       "division": "division10",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -1823,6 +1896,11 @@
       "nearest_overlay_name": "Alpine Trail north end",
       "nearest_overlay_mile": 176.8,
       "division": "division9",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -2027,6 +2105,11 @@
       "nearest_overlay_name": "Homer Stone Brook bridge",
       "nearest_overlay_mile": 75.5,
       "division": "division4",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -2197,6 +2280,11 @@
       "nearest_overlay_name": "Alpine Trail north end",
       "nearest_overlay_mile": 176.8,
       "division": "division9",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -2299,6 +2387,11 @@
       "nearest_overlay_name": "Tillotson Peak",
       "nearest_overlay_mile": 249.3,
       "division": "division12",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -2367,6 +2460,11 @@
       "nearest_overlay_name": "Homer Stone Brook bridge",
       "nearest_overlay_mile": 75.5,
       "division": "division4",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     },
@@ -2401,6 +2499,11 @@
       "nearest_overlay_name": "Lake Trail to South End Road",
       "nearest_overlay_mile": 65.3,
       "division": "division4",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list.",
       "schema_version": "1.0",
       "planner_candidate": true
     }
@@ -2422,7 +2525,12 @@
       "source_file": "shelters.geojson",
       "source_id": "935ba8a3-0976-4e5e-9b6c-56e1e5160b4a",
       "reference_title": "Taylor Lodge",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Duck Brook Shelter",
@@ -2440,7 +2548,12 @@
       "source_file": "shelters.geojson",
       "source_id": "7895767b-77f2-4e8e-8332-6d61e55efddb",
       "reference_title": "Duck Brook Shelter",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Montclair Glen Lodge",
@@ -2458,7 +2571,12 @@
       "source_file": "shelters.geojson",
       "source_id": "02beb56f-3f46-4571-be41-210a4aa82daf",
       "reference_title": "Montclair Glen Lodge",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Birch Glen Shelter",
@@ -2476,7 +2594,12 @@
       "source_file": "shelters.geojson",
       "source_id": "82b95ee4-3d29-48cc-a580-a48dc8243054",
       "reference_title": "Birch Glen Shelter",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Glen Ellen Lodge",
@@ -2494,7 +2617,12 @@
       "source_file": "shelters.geojson",
       "source_id": "cad7661e-0434-4cc5-8a7f-a0087d4f7c58",
       "reference_title": "Glen Ellen Lodge",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Skyline Lodge",
@@ -2512,7 +2640,12 @@
       "source_file": "shelters.geojson",
       "source_id": "4f9c4c98-f070-47da-8672-95efc05797df",
       "reference_title": "Skyline Lodge",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Butler Lodge",
@@ -2530,7 +2663,12 @@
       "source_file": "shelters.geojson",
       "source_id": "75b586a6-37a1-44de-a405-4dfe9fdbd1d4",
       "reference_title": "Butler Lodge",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Ski Patrol Warming Hut Shelter",
@@ -2548,7 +2686,12 @@
       "source_file": "shelters.geojson",
       "source_id": "3410056f-fbdf-4f72-847f-c5ec6359d3de",
       "reference_title": "Ski Patrol Warming Hut Shelter",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Little Rock Pond Shelter",
@@ -2566,7 +2709,12 @@
       "source_file": "shelters.geojson",
       "source_id": "7ea6adf2-0dab-46c5-960c-1e34ff0a6a6d",
       "reference_title": "Little Rock Pond Shelter",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Pico Camp Shelter",
@@ -2584,7 +2732,12 @@
       "source_file": "shelters.geojson",
       "source_id": "7e2d148c-7124-43dd-ab40-a8194d36442b",
       "reference_title": "Pico Camp Shelter",
-      "reference_class": "shelter"
+      "reference_class": "shelter",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Journey's End Camp",
@@ -2602,7 +2755,12 @@
       "source_file": "campsites.geojson",
       "source_id": "6a17cf8b-c192-4624-97ff-0118b071d66b",
       "reference_title": "Journey's End Camp",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Jay Camp",
@@ -2620,7 +2778,12 @@
       "source_file": "campsites.geojson",
       "source_id": "e3fbe43a-ccde-47a6-b545-d269eebdda40",
       "reference_title": "Jay Camp",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Twin Brooks Tenting Area",
@@ -2638,7 +2801,12 @@
       "source_file": "campsites.geojson",
       "source_id": "d11c7777-c6b0-4355-93f6-7ae1148ed9e4",
       "reference_title": "Twin Brooks Tenting Area",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Hump Brook Campsite",
@@ -2656,7 +2824,12 @@
       "source_file": "campsites.geojson",
       "source_id": "58d0e735-5d8d-48f6-b43a-78524d3a357a",
       "reference_title": "Hump Brook Campsite",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Starks Nest",
@@ -2674,7 +2847,12 @@
       "source_file": "campsites.geojson",
       "source_id": "72a39307-31cf-4670-8226-bb6f4a9e050b",
       "reference_title": "Starks Nest",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": false,
+      "amenity_source_name": "",
+      "amenity_source_url": "",
+      "amenity_source_accessed": "",
+      "amenity_curation_notes": ""
     },
     {
       "canonical_name": "Tillotson Camp",
@@ -2692,7 +2870,12 @@
       "source_file": "campsites.geojson",
       "source_id": "2bf83a17-4fad-4800-9e5c-4ee6e82fd56f",
       "reference_title": "Tillotson Camp",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Little Rock Pond Tenting Area",
@@ -2710,7 +2893,12 @@
       "source_file": "campsites.geojson",
       "source_id": "0fe75904-6e44-4738-8fd0-683e1b7caf1a",
       "reference_title": "Little Rock Pond Tenting Area",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     },
     {
       "canonical_name": "Griffith Lake Camping Area",
@@ -2728,7 +2916,12 @@
       "source_file": "campsites.geojson",
       "source_id": "22631d42-9e6e-44dc-9806-b0763ac81aa4",
       "reference_title": "Griffith Lake Camping Area",
-      "reference_class": "campsite"
+      "reference_class": "campsite",
+      "bear_box": true,
+      "amenity_source_name": "Green Mountain Club Bear Box Locations",
+      "amenity_source_url": "https://www.greenmountainclub.org/bear-boxes/",
+      "amenity_source_accessed": "2026-05-19",
+      "amenity_curation_notes": "Manually curated bear-box availability from public GMC site list."
     }
   ]
 }

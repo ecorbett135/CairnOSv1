@@ -30,6 +30,7 @@ The planner should reason about:
 - recovery
 - logistics access
 - town-access friction
+- overnight amenity preferences such as bear-box availability
 - realistic pacing
 - cadence sustainability
 - the difference between mainline traversal and side-spur overnight access

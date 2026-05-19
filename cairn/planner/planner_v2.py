@@ -150,6 +150,13 @@ class PlannerV2:
             ),
         )
 
+        self.prefer_bear_box_sites = bool(
+            self.user_profile.get(
+                "prefer_bear_box_sites",
+                False,
+            )
+        )
+
         self.direction = (
             self.user_profile.get(
                 "direction",
