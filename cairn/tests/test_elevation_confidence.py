@@ -111,3 +111,52 @@ def test_elevation_confidence_report_summarizes_itinerary(
         day["confidence"] == "not_applicable"
         for day in report["days"]
     )
+    assert (
+        "off_spine_overnight_access_days"
+        in report["summary"]
+    )
+
+
+def test_elevation_confidence_preserves_spur_access_diagnostics(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        }
+    )
+    itinerary = planner.synthesize_itinerary(
+        desired_days=27
+    )
+
+    report = build_elevation_confidence_report(
+        {
+            "itinerary": itinerary,
+        },
+        trail_root,
+    )
+    stratton_day = next(
+        day for day in report["days"]
+        if day["daily_stop_location"]
+        == "Stratton Pond Shelter"
+    )
+
+    assert stratton_day[
+        "daily_stop_access_notes"
+    ] == (
+        "600 ft S via Stratton Pond Trail "
+        "and spur"
+    )
+    assert stratton_day[
+        "daily_stop_spine_alignment"
+    ]["status"] == (
+        "off_spine_overnight_access"
+    )

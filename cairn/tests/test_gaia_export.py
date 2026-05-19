@@ -90,14 +90,66 @@ def test_gaia_export_builds_point_features(
         "division",
         "daily_start_mile",
         "daily_start_location",
+        "daily_start_canonical_location",
         "daily_stop_mile",
         "daily_stop_location",
+        "daily_stop_canonical_location",
+        "daily_stop_access_notes",
         "daily_stop_location_type",
         "daily_miles",
         "daily_elevation_gain",
         "notes",
     ]:
         assert key in first_feature["properties"]
+
+
+def test_gaia_export_uses_clean_names_and_canonical_lookup(
+    planner_factory,
+    trail_root,
+):
+    """Test Gaia output names stay readable after display normalization."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+    itinerary = planner.synthesize_itinerary(
+        desired_days=27
+    )
+
+    export = export_itinerary_to_gaia_geojson(
+        itinerary["daily_plan"],
+        trail_root,
+        itinerary["resupply_plan"],
+    )
+
+    stratton_feature = next(
+        feature
+        for feature in export["geojson"]["features"]
+        if feature.get("properties", {}).get(
+            "daily_stop_location"
+        ) == "Stratton Pond Shelter"
+    )
+
+    assert stratton_feature[
+        "properties"
+    ]["name"] == "Day 5 — Stratton Pond Shelter"
+    assert stratton_feature[
+        "properties"
+    ]["daily_stop_access_notes"] == (
+        "600 ft S via Stratton Pond Trail "
+        "and spur"
+    )
+    assert stratton_feature[
+        "geometry"
+    ]["type"] == "Point"
 
 
 def test_gaia_spine_interpolation_uses_guidebook_overlay_endpoints(

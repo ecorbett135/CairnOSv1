@@ -30,6 +30,7 @@ The planner should reason about:
 - logistics access
 - realistic pacing
 - cadence sustainability
+- the difference between mainline traversal and side-spur overnight access
 
 NOT merely:
 
@@ -102,6 +103,8 @@ The planner should:
 - insert recovery opportunities
 - synthesize realistic daily traversal
 - reason about operational constraints
+- preserve canonical overlay identity while presenting concise stop names to
+  users
 
 ---
 
