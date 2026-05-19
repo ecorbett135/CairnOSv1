@@ -157,6 +157,14 @@ class PlannerV2:
             )
         )
 
+        self.selected_side_trip_ids = (
+            self.user_profile.get(
+                "selected_side_trip_ids",
+                [],
+            )
+            or []
+        )
+
         self.direction = (
             self.user_profile.get(
                 "direction",
@@ -2028,6 +2036,28 @@ class PlannerV2:
             daily_plan=daily_plan
         )
 
+    def build_resupply_town_details(
+        self,
+        resupply_plan=None,
+    ):
+        return (
+            self.logistics
+            .build_resupply_town_details(
+                resupply_plan=resupply_plan,
+            )
+        )
+
+    def annotate_daily_plan_with_side_trips(
+        self,
+        daily_plan,
+    ):
+        return (
+            self.logistics
+            .annotate_daily_plan_with_side_trips(
+                daily_plan
+            )
+        )
+
     def select_operational_stop(
         self,
         target_mile,
@@ -2135,6 +2165,16 @@ class PlannerV2:
                 daily_plan
             )
         )
+        resupply_town_details = (
+            self.build_resupply_town_details(
+                resupply_plan
+            )
+        )
+        daily_plan = (
+            self.annotate_daily_plan_with_side_trips(
+                daily_plan
+            )
+        )
 
         return {
             "completion_analysis": (
@@ -2145,6 +2185,9 @@ class PlannerV2:
             ),
             "resupply_plan": (
                 resupply_plan
+            ),
+            "resupply_town_details": (
+                resupply_town_details
             ),
             "directional_access": (
                 directional_access

@@ -66,6 +66,33 @@ Structured overnight amenity fields, such as bear-box availability, are
 manually curated trail data. They must retain source, access date, and curation
 notes, and should be treated as planning context rather than a field guarantee.
 
+Business-level town details, including lodging, outfitters, shuttles,
+restaurants, and mail-drop acceptance, are more volatile than town-level
+service categories. Do not bulk-copy third-party business listings into
+committed CairnOS data. Each listing should be checked against an independent
+current source, preferably the business site or an official/town tourism
+source, before it becomes reusable data.
+
+Side-trip options are also volatile experience data. A side trip may depend on
+hours, reservations, transportation, season, age restrictions, or personal
+interest. Treat side-trip rows as advisory annotations only unless future
+planner behavior explicitly models their time cost. Named side trips should
+retain candidate-source, validation-source, validation-date, and validation
+status fields.
+
+Long Trail guide pages, route-review pages, and hiking articles used during
+research are not automatically reusable datasets. They can inform product
+direction, UI framing, issue prioritization, and candidate-source discovery,
+but do not copy route tables, business lists, reviews, maps, photos, prose, or
+planning figures into CairnOS unless reuse rights and provenance are reviewed.
+
+Season, current-condition, transportation, and water-source metadata are
+especially dynamic. Prefer official trail organizations, public agencies,
+business/town sites, or clearly licensed open data for committed rows. Retain
+source URL, source type, validation date, validation status, and review notes,
+and keep user-facing output advisory unless a future feature explicitly models
+operational effects.
+
 ## Generated Reports And Exports
 
 Generated reports, cached files, planner exports, and temporary outputs should

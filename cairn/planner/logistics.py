@@ -35,6 +35,8 @@ class LogisticsPlanner:
 
         if name in {
             "_resupply_amenities",
+            "_town_service_options",
+            "_side_trip_options",
             "_logistics_candidates",
         }:
             setattr(
@@ -369,6 +371,751 @@ class LogisticsPlanner:
                 services.append(service)
 
         return services
+
+    def is_validated_option(
+        self,
+        row,
+    ):
+
+        return (
+            str(
+                row.get("validation_status", "")
+            )
+            .strip()
+            .casefold()
+            == "validated"
+        )
+
+    def load_town_service_options(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_town_service_options",
+        ):
+            return self._town_service_options
+
+        path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "town_service_options.csv"
+        )
+
+        if not path.exists():
+            self._town_service_options = []
+            return self._town_service_options
+
+        options = []
+
+        with open(
+            path,
+            newline="",
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+
+                if not self.is_validated_option(
+                    row
+                ):
+                    continue
+
+                options.append({
+                    "option_id": (
+                        row.get("option_id")
+                        or ""
+                    ),
+                    "resupply_amenity_id": (
+                        row.get(
+                            "resupply_amenity_id"
+                        )
+                        or ""
+                    ),
+                    "town_access": (
+                        row.get("town_access")
+                        or ""
+                    ),
+                    "service_category": (
+                        row.get(
+                            "service_category"
+                        )
+                        or ""
+                    ),
+                    "display_name": (
+                        row.get("display_name")
+                        or ""
+                    ),
+                    "service_notes": (
+                        row.get("service_notes")
+                        or ""
+                    ),
+                    "source_name": (
+                        row.get("source_name")
+                        or ""
+                    ),
+                    "source_url": (
+                        row.get("source_url")
+                        or ""
+                    ),
+                    "validation_status": (
+                        row.get(
+                            "validation_status"
+                        )
+                        or ""
+                    ),
+                    "validation_source_name": (
+                        row.get(
+                            "validation_source_name"
+                        )
+                        or ""
+                    ),
+                    "validation_source_url": (
+                        row.get(
+                            "validation_source_url"
+                        )
+                        or ""
+                    ),
+                    "validation_date": (
+                        row.get(
+                            "validation_date"
+                        )
+                        or ""
+                    ),
+                })
+
+        self._town_service_options = options
+        return self._town_service_options
+
+    def load_side_trip_options(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_side_trip_options",
+        ):
+            return self._side_trip_options
+
+        path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "side_trip_options.csv"
+        )
+
+        if not path.exists():
+            self._side_trip_options = []
+            return self._side_trip_options
+
+        options = []
+
+        with open(
+            path,
+            newline="",
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+
+                if not self.is_validated_option(
+                    row
+                ):
+                    continue
+
+                options.append({
+                    "side_trip_id": (
+                        row.get("side_trip_id")
+                        or ""
+                    ),
+                    "resupply_amenity_id": (
+                        row.get(
+                            "resupply_amenity_id"
+                        )
+                        or ""
+                    ),
+                    "town_access": (
+                        row.get("town_access")
+                        or ""
+                    ),
+                    "name": (
+                        row.get("name")
+                        or ""
+                    ),
+                    "category": (
+                        row.get("category")
+                        or ""
+                    ),
+                    "estimated_time": (
+                        row.get("estimated_time")
+                        or ""
+                    ),
+                    "planning_notes": (
+                        row.get("planning_notes")
+                        or ""
+                    ),
+                    "source_name": (
+                        row.get("source_name")
+                        or ""
+                    ),
+                    "source_url": (
+                        row.get("source_url")
+                        or ""
+                    ),
+                    "validation_status": (
+                        row.get(
+                            "validation_status"
+                        )
+                        or ""
+                    ),
+                    "validation_source_name": (
+                        row.get(
+                            "validation_source_name"
+                        )
+                        or ""
+                    ),
+                    "validation_source_url": (
+                        row.get(
+                            "validation_source_url"
+                        )
+                        or ""
+                    ),
+                    "validation_date": (
+                        row.get(
+                            "validation_date"
+                        )
+                        or ""
+                    ),
+                })
+
+        self._side_trip_options = options
+        return self._side_trip_options
+
+    def service_category_label(
+        self,
+        service,
+    ):
+
+        labels = {
+            "grocery": "Grocery",
+            "post_office": "Post office",
+            "outfitter": "Outfitter",
+            "lodging": "Lodging",
+            "restaurants": "Restaurants",
+        }
+
+        return labels.get(
+            service,
+            str(service).replace(
+                "_",
+                " ",
+            ).title(),
+        )
+
+    def options_for_resupply_node(
+        self,
+        node,
+        options,
+        id_field,
+    ):
+
+        if not node:
+            return []
+
+        node_id = self.resupply_node_id(
+            node
+        )
+
+        return [
+            option for option in options
+            if option.get(id_field) == node_id
+        ]
+
+    def town_service_options_for_node(
+        self,
+        node,
+    ):
+
+        return self.options_for_resupply_node(
+            node,
+            self.load_town_service_options(),
+            "resupply_amenity_id",
+        )
+
+    def selected_side_trip_ids(
+        self,
+    ):
+
+        return set(
+            str(value)
+            for value in (
+                self.user_profile.get(
+                    "selected_side_trip_ids",
+                    [],
+                )
+                or []
+            )
+            if str(value)
+        )
+
+    def side_trip_options_for_node(
+        self,
+        node,
+    ):
+
+        selected_ids = (
+            self.selected_side_trip_ids()
+        )
+
+        if not selected_ids:
+            return []
+
+        return [
+            option for option in (
+                self.options_for_resupply_node(
+                    node,
+                    self.load_side_trip_options(),
+                    "resupply_amenity_id",
+                )
+            )
+            if option.get("side_trip_id")
+            in selected_ids
+        ]
+
+    def format_option_names(
+        self,
+        options,
+        name_field,
+    ):
+
+        return ", ".join([
+            option.get(name_field, "")
+            for option in options
+            if option.get(name_field)
+        ])
+
+    def zero_support_status(
+        self,
+        node,
+        service_options,
+    ):
+
+        categories = {
+            option.get(
+                "service_category",
+                "",
+            )
+            for option in service_options
+        }
+
+        has_validated_lodging = (
+            "lodging" in categories
+        )
+        has_validated_food = bool(
+            categories & {
+                "food",
+                "grocery",
+                "restaurant",
+                "restaurants",
+            }
+        )
+
+        if (
+            has_validated_lodging
+            and has_validated_food
+        ):
+            return "validated_lodging_and_food"
+
+        services = set(
+            node.get(
+                "resupply_services",
+                [],
+            )
+            or []
+            if node
+            else []
+        )
+
+        if (
+            "lodging" in services
+            and services & {
+                "grocery",
+                "restaurants",
+            }
+        ):
+            return "category_only"
+
+        return "insufficient_validated_detail"
+
+    def side_trip_note(
+        self,
+        side_trip_options,
+    ):
+
+        notes = []
+
+        for option in side_trip_options:
+
+            estimated_time = option.get(
+                "estimated_time",
+                "",
+            )
+            name = option.get(
+                "name",
+                "",
+            )
+
+            if not name:
+                continue
+
+            if estimated_time:
+                notes.append(
+                    f"{name} ({estimated_time})"
+                )
+            else:
+                notes.append(name)
+
+        return "; ".join(notes)
+
+    def match_logistics_candidate_for_resupply_row(
+        self,
+        row,
+    ):
+
+        row_mile_value = row.get("mile")
+
+        if row_mile_value is None:
+            row_mile_value = row.get(
+                "resupply_mile"
+            )
+
+        row_mile = self.parse_float(
+            row_mile_value
+        )
+        row_town_tokens = (
+            self.normalize_match_tokens(
+                row.get("town_access")
+            )
+        )
+        row_location_tokens = (
+            self.normalize_match_tokens(
+                row.get("location")
+                or row.get("resupply_location")
+            )
+        )
+
+        matches = []
+
+        for node in self.build_logistics_candidates():
+
+            node_mile = self.node_mile(
+                node
+            )
+            distance = None
+
+            if (
+                row_mile is not None
+                and node_mile is not None
+            ):
+                distance = abs(
+                    row_mile - node_mile
+                )
+
+                if distance > 1.5:
+                    continue
+
+            node_town_tokens = (
+                self.normalize_match_tokens(
+                    node.get("town_access")
+                )
+            )
+            node_location_tokens = (
+                self.normalize_match_tokens(
+                    node.get("canonical_name")
+                    or node.get("location")
+                )
+            )
+            token_match = bool(
+                row_town_tokens & node_town_tokens
+                or row_location_tokens
+                & node_location_tokens
+            )
+
+            if (
+                row_mile is None
+                and not token_match
+            ):
+                continue
+
+            matches.append({
+                "node": node,
+                "token_match": token_match,
+                "distance": (
+                    distance
+                    if distance is not None
+                    else 999
+                ),
+            })
+
+        if not matches:
+            return None
+
+        matches = sorted(
+            matches,
+            key=lambda match: (
+                not match["token_match"],
+                match["distance"],
+            ),
+        )
+
+        return matches[0]["node"]
+
+    def build_resupply_town_details(
+        self,
+        resupply_plan=None,
+    ):
+
+        rows = []
+        source_plan = (
+            resupply_plan
+            if resupply_plan is not None
+            else self.build_resupply_plan()
+        )
+
+        for row in source_plan:
+
+            node = (
+                self.match_logistics_candidate_for_resupply_row(
+                    row
+                )
+            )
+
+            town_access = (
+                row.get("town_access")
+                or (
+                    node.get("town_access")
+                    if node
+                    else ""
+                )
+            )
+
+            if not town_access:
+                continue
+
+            service_options = (
+                self.town_service_options_for_node(
+                    node
+                )
+            )
+            side_trip_options = (
+                self.side_trip_options_for_node(
+                    node
+                )
+            )
+
+            services = (
+                node.get(
+                    "resupply_services",
+                    [],
+                )
+                or []
+                if node
+                else []
+            )
+            service_categories = ", ".join([
+                self.service_category_label(
+                    service
+                )
+                for service in services
+            ])
+            lodging_options = [
+                option for option
+                in service_options
+                if option.get(
+                    "service_category"
+                ) == "lodging"
+            ]
+            food_options = [
+                option for option
+                in service_options
+                if option.get(
+                    "service_category"
+                ) in {
+                    "food",
+                    "grocery",
+                    "restaurant",
+                    "restaurants",
+                }
+            ]
+            outfitter_options = [
+                option for option
+                in service_options
+                if option.get(
+                    "service_category"
+                ) == "outfitter"
+            ]
+            mail_drop_options = [
+                option for option
+                in service_options
+                if option.get(
+                    "service_category"
+                ) == "mail_drop"
+            ]
+
+            access_distance = (
+                self.access_distance_miles(
+                    node
+                )
+                if node
+                else row.get(
+                    "access_distance_miles"
+                )
+            )
+            access_notes = (
+                row.get("access_notes")
+                or (
+                    node.get(
+                        "access_notes",
+                        "",
+                    )
+                    if node
+                    else ""
+                )
+            )
+
+            rows.append({
+                "day": row.get("day"),
+                "resupply_location": row.get(
+                    "location"
+                ),
+                "mile": row.get("mile"),
+                "town_access": town_access,
+                "access_distance_miles": (
+                    access_distance
+                ),
+                "access_notes": access_notes,
+                "service_categories": (
+                    service_categories
+                    or "Unspecified"
+                ),
+                "validated_lodging": (
+                    self.format_option_names(
+                        lodging_options,
+                        "display_name",
+                    )
+                ),
+                "validated_food": (
+                    self.format_option_names(
+                        food_options,
+                        "display_name",
+                    )
+                ),
+                "validated_outfitters": (
+                    self.format_option_names(
+                        outfitter_options,
+                        "display_name",
+                    )
+                ),
+                "validated_mail_drop": (
+                    self.format_option_names(
+                        mail_drop_options,
+                        "display_name",
+                    )
+                ),
+                "zero_support": (
+                    self.zero_support_status(
+                        node,
+                        service_options,
+                    )
+                ),
+                "selected_side_trips": (
+                    self.side_trip_note(
+                        side_trip_options
+                    )
+                ),
+                "zero_candidate": (
+                    bool(
+                        node.get(
+                            "zero_candidate"
+                        )
+                    )
+                    if node
+                    else False
+                ),
+                "source_name": (
+                    node.get("resupply_source")
+                    if node
+                    else ""
+                ),
+                "source_url": (
+                    node.get(
+                        "resupply_source_url"
+                    )
+                    if node
+                    else ""
+                ),
+                "business_detail_status": (
+                    (
+                        "validated named options "
+                        "available"
+                    )
+                    if service_options
+                    else (
+                        "category-only; named "
+                        "options require "
+                        "independent current "
+                        "validation"
+                    )
+                ),
+            })
+
+        return rows
+
+    def annotate_daily_plan_with_side_trips(
+        self,
+        daily_plan,
+    ):
+
+        if not self.selected_side_trip_ids():
+            return daily_plan
+
+        annotated_rows = []
+
+        for row in daily_plan:
+
+            annotated = dict(row)
+            node = (
+                self.match_logistics_candidate_for_resupply_row({
+                    "mile": row.get(
+                        "resupply_mile"
+                    ),
+                    "town_access": row.get(
+                        "town_access"
+                    ),
+                    "location": row.get(
+                        "resupply_location"
+                    ),
+                })
+            )
+            side_trip_options = (
+                self.side_trip_options_for_node(
+                    node
+                )
+            )
+            annotated[
+                "selected_side_trips"
+            ] = self.side_trip_note(
+                side_trip_options
+            )
+
+            annotated_rows.append(
+                annotated
+            )
+
+        return annotated_rows
 
     def build_logistics_candidates(
         self,
