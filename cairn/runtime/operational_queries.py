@@ -156,6 +156,15 @@ class OperationalQueries:
                 "canonical_name": row.get(
                     "canonical_name"
                 ),
+                "title": row.get(
+                    "title"
+                ),
+                "display_name": (
+                    row.get("title")
+                    or row.get(
+                        "canonical_name"
+                    )
+                ),
                 "trail_mile": row.get(
                     "trail_mile"
                 ),

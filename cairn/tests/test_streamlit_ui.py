@@ -213,3 +213,14 @@ def test_generated_plan_exposes_developer_diagnostics_download():
     assert "Download Developer Diagnostics" in source
     assert "developer_diagnostics_download" in source
     assert "build_diagnostic_package" in source
+
+
+def test_itinerary_table_exposes_stop_access_notes():
+    """Test itinerary display includes concise side-spur comments."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "daily_stop_access_notes" in source
+    assert "daily_stop_canonical_location" in source
+    assert "daily_stop_spine_alignment" in source

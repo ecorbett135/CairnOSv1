@@ -177,6 +177,7 @@ def summarize_days(
         "low": 0,
         "not_applicable": 0,
         "flagged_days": [],
+        "off_spine_overnight_access_days": [],
     }
 
     for day in days:
@@ -199,6 +200,19 @@ def summarize_days(
             summary["flagged_days"].append(
                 day["day"]
             )
+
+        stop_alignment = day.get(
+            "daily_stop_spine_alignment"
+        )
+
+        if (
+            isinstance(stop_alignment, dict)
+            and stop_alignment.get("status")
+            == "off_spine_overnight_access"
+        ):
+            summary[
+                "off_spine_overnight_access_days"
+            ].append(day["day"])
 
     return summary
 
@@ -272,8 +286,26 @@ def build_day_confidence(
         "daily_start_location": row.get(
             "daily_start_location"
         ),
+        "daily_start_canonical_location": row.get(
+            "daily_start_canonical_location"
+        ),
+        "daily_start_access_notes": row.get(
+            "daily_start_access_notes"
+        ),
+        "daily_start_spine_alignment": row.get(
+            "daily_start_spine_alignment"
+        ),
         "daily_stop_location": row.get(
             "daily_stop_location"
+        ),
+        "daily_stop_canonical_location": row.get(
+            "daily_stop_canonical_location"
+        ),
+        "daily_stop_access_notes": row.get(
+            "daily_stop_access_notes"
+        ),
+        "daily_stop_spine_alignment": row.get(
+            "daily_stop_spine_alignment"
         ),
         "reported_elevation_gain_ft": (
             reported_gain

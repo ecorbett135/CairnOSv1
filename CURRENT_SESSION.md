@@ -11,6 +11,8 @@ This session stabilized the PlannerV2 THRU workflow around three related areas:
 - Gaia-compatible export behavior for itinerary and resupply markers
 - runtime data-quality validation for the current Long Trail dataset
 - terrain profile and mile-system reconciliation
+- itinerary display-name normalization and off-spine overnight-access
+  diagnostics
 
 The current implementation is intentionally incremental. PlannerV2 is still
 not a full overlay traversal engine, but the primary THRU workflow now behaves
@@ -42,6 +44,8 @@ PlannerV2 now supports:
 - explicit terrain mile-domain reconciliation
 - minor-exception-aware feasibility classification
 - resupply strategy output tied to amenity-backed access points
+- clean overnight stop display names with side-spur notes separated from
+  canonical overlay names
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
 - Streamlit operational UI integration
@@ -141,7 +145,8 @@ The Streamlit UI currently supports:
 - explicit plan regeneration
 - Gaia GeoJSON download
 - developer diagnostics ZIP download for reproducible alpha tester reports,
-  including per-day elevation confidence diagnostics
+  including per-day elevation confidence and off-spine overnight-access
+  diagnostics
 
 Planner output should stay visible until the user regenerates the plan. Slider,
 selector, and download interactions should not implicitly wipe the displayed
@@ -155,6 +160,8 @@ Operational itinerary rows should communicate:
 
 - start location
 - stop location
+- concise stop access notes when the stop is reached by a short spur or side
+  trail
 - operational node type
 - daily mileage
 - terrain-derived elevation gain
@@ -164,6 +171,13 @@ Operational itinerary rows should communicate:
 Expedition summary effort averages should use moving days. Zero-mile recovery
 rows remain part of completion time, but they should not dilute average daily
 mileage or average daily elevation from an effort-planning perspective.
+
+Overnight stop display names should be human-readable site names, such as
+`Stratton Pond Shelter`. Longer compiled overlay names remain available as
+canonical fields for diagnostics and export resolution, while immediate spur
+details such as `600 ft S via Stratton Pond Trail and spur` live in access-note
+fields. Longer town-access prose belongs in resupply or logistics context, not
+ordinary shelter location fields.
 
 NOBO example:
 
