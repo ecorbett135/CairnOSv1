@@ -257,6 +257,47 @@ def test_generated_plan_exposes_developer_diagnostics_download():
     assert "build_diagnostic_package" in source
 
 
+def test_alpha_feedback_panel_exposes_routing_and_repro_guidance():
+    """Test hosted Alpha reports ask for reproducible context."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "render_alpha_feedback_panel" in source
+    assert "alpha_feedback_url" in source
+    assert "Share Alpha Feedback" in source
+    assert "Open GitHub Feedback Templates" in source
+    assert (
+        "https://github.com/ecorbett135/CairnOSv1/issues/new/choose"
+        in source
+    )
+    assert "direction, requested days" in source
+    assert "mileage/elevation limits" in source
+    assert "resupply/recovery settings" in source
+    assert "Developer Diagnostics ZIP" in source
+    assert "Gaia GeoJSON" in source
+    assert "Do not include private tester data" in source
+    assert "CairnOS output is advisory planning context only" in source
+
+
+def test_alpha_feedback_does_not_enter_planner_inputs():
+    """Test feedback routing remains separate from planner synthesis."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    synthesize_block = source.split(
+        "def synthesize_planner_result",
+        1,
+    )[1].split(
+        "def render_planner_result",
+        1,
+    )[0]
+
+    assert "alpha_feedback_url" not in synthesize_block
+    assert "GITHUB_FEEDBACK_URL" not in synthesize_block
+
+
 def test_itinerary_table_exposes_stop_access_notes():
     """Test itinerary display includes concise side-spur comments."""
     source = Path(

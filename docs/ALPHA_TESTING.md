@@ -19,7 +19,7 @@ SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
   bundling raw/source datasets.
 - Note any day that feels unrealistic, confusing, too aggressive, or oddly
   conservative.
-- Submit feedback through the configured Alpha feedback form.
+- Submit feedback through the app's Alpha Feedback panel.
 - If using GitHub, choose the bug, trail/data, feature, or alpha-feedback issue
   template that best matches the report.
 
@@ -50,6 +50,9 @@ alpha_feedback_url = "https://example.com/form"
 ```
 
 Do not commit private form-management links or credentials to the repository.
+When the secret is configured, the app routes testers to that feedback form. If
+the secret is absent, the app falls back to the public GitHub issue-template
+chooser.
 
 ## Runtime Data Package
 
@@ -95,6 +98,12 @@ root, so the hosted app can install lean runtime dependencies while the root
 
 ## Feedback Prompts
 
+- Include direction, requested days, mileage/elevation limits,
+  resupply/recovery cadence, and nero-mile window when reporting planner output.
+- Attach screenshots only when they make the report easier to understand.
+- Attach the developer diagnostics ZIP for reproducible planner output.
+- Attach Gaia GeoJSON when reporting export import behavior or marker
+  placement.
 - Did the itinerary feel plausible for a real Long Trail hike?
 - Were any overnight stops missing, misplaced, or unrealistic?
 - Did the resupply strategy match how you would plan food carries?
