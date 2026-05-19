@@ -331,10 +331,11 @@ gain and loss. This keeps dense DEM/profile samples closer to route-planning
 tools that smooth small elevation reversals instead of counting every tiny
 sample fluctuation.
 
-Operational feasibility classification now treats small, sparse preference
-overages as minor exceptions instead of automatically escalating a reasonable
-plan to aggressive. Larger or repeated mileage/elevation exceptions still raise
-the classification.
+Operational feasibility now separates the original requested target from the
+generated itinerary. If CairnOS extends a plan, the requested target keeps its
+own classification while the generated plan is scored separately. Sparse
+preference exceptions can remain comfortable; repeated, compound, or major
+mileage/elevation pressure raises the generated-plan classification.
 
 ## Elevation calibration
 

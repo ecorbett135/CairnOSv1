@@ -533,16 +533,138 @@ class PlannerV2:
             return "minor"
 
         if (
-            overage_ratio <= 0.25
+            overage_ratio <= 0.30
             and count_ratio <= 0.25
         ):
             return "moderate"
 
         return "major"
 
-    def classify_itinerary_exceptions(
+    def summarize_exception_pressure(
+        self,
+        daily_plan,
+    ):
+
+        moving_rows = [
+            row for row in daily_plan
+            if row.get(
+                "daily_miles",
+                0,
+            ) > 0
+        ]
+
+        moving_day_count = len(
+            moving_rows
+        )
+
+        combined_days = []
+        compound_days = []
+        day_pressures = []
+        max_mileage_ratio = 0.0
+        max_elevation_ratio = 0.0
+
+        for row in moving_rows:
+
+            mileage_ratio = 0.0
+            elevation_ratio = 0.0
+
+            if self.max_daily_miles:
+                mileage_ratio = max(
+                    0.0,
+                    (
+                        row.get(
+                            "daily_miles",
+                            0,
+                        )
+                        - self.max_daily_miles
+                    )
+                    / self.max_daily_miles,
+                )
+
+            if self.max_daily_elevation:
+                elevation_ratio = max(
+                    0.0,
+                    (
+                        row.get(
+                            "daily_elevation_gain",
+                            0,
+                        )
+                        - self.max_daily_elevation
+                    )
+                    / self.max_daily_elevation,
+                )
+
+            max_mileage_ratio = max(
+                max_mileage_ratio,
+                mileage_ratio,
+            )
+            max_elevation_ratio = max(
+                max_elevation_ratio,
+                elevation_ratio,
+            )
+
+            if (
+                mileage_ratio <= 0
+                and elevation_ratio <= 0
+            ):
+                continue
+
+            day = row.get("day")
+            combined_days.append(day)
+
+            day_pressure = (
+                mileage_ratio
+                + elevation_ratio
+            )
+
+            if (
+                mileage_ratio > 0
+                and elevation_ratio > 0
+            ):
+                compound_days.append(day)
+                day_pressure += (
+                    0.10
+                    + min(
+                        mileage_ratio,
+                        elevation_ratio,
+                    )
+                )
+
+            day_pressures.append(
+                day_pressure
+            )
+
+        pressure_score = 0.0
+
+        if moving_day_count:
+            pressure_score = (
+                sum(day_pressures)
+                / moving_day_count
+                * 100
+            )
+
+        return {
+            "combined_exception_days": combined_days,
+            "compound_exception_days": compound_days,
+            "exception_pressure_score": round(
+                pressure_score,
+                1,
+            ),
+            "moving_day_count": moving_day_count,
+            "max_mileage_overage_percent": round(
+                max_mileage_ratio * 100,
+                1,
+            ),
+            "max_elevation_overage_percent": round(
+                max_elevation_ratio * 100,
+                1,
+            ),
+        }
+
+    def classify_exception_pressure(
         self,
         exceptions,
+        pressure,
     ):
 
         severities = {
@@ -554,17 +676,225 @@ class PlannerV2:
         }
 
         if not severities:
-            return "comfortable"
+            return (
+                "comfortable",
+                "no_preference_exceptions",
+            )
 
         if severities == {
             "minor",
         }:
-            return "comfortable"
+            return (
+                "comfortable",
+                "sparse_preference_exceptions",
+            )
+
+        pressure_score = pressure.get(
+            "exception_pressure_score",
+            0.0,
+        )
+        combined_count = len(
+            pressure.get(
+                "combined_exception_days",
+                [],
+            )
+        )
+        compound_count = len(
+            pressure.get(
+                "compound_exception_days",
+                [],
+            )
+        )
 
         if "major" in severities:
-            return "aggressive"
+            return (
+                "aggressive",
+                "major_preference_overage",
+            )
 
-        return "challenging"
+        if (
+            pressure_score <= 3.0
+            and combined_count <= 2
+            and compound_count <= 1
+        ):
+            return (
+                "comfortable",
+                "sparse_preference_exceptions",
+            )
+
+        if (
+            pressure_score <= 8.0
+            and compound_count <= 2
+        ):
+            return (
+                "challenging",
+                "repeated_preference_pressure",
+            )
+
+        return (
+            "aggressive",
+            "compound_exception_pressure",
+        )
+
+    def classify_generated_base(
+        self,
+        daily_plan,
+    ):
+
+        moving_rows = [
+            row for row in daily_plan
+            if row.get(
+                "daily_miles",
+                0,
+            ) > 0
+        ]
+
+        if not moving_rows:
+            return {
+                "classification": "unrealistic",
+                "feasible": False,
+                "classification_reason": (
+                    "no_moving_days"
+                ),
+                "moving_days": 0,
+                "average_daily_miles": 0.0,
+                "average_daily_elevation": 0.0,
+            }
+
+        average_miles = mean([
+            row.get(
+                "daily_miles",
+                0,
+            )
+            for row in moving_rows
+        ])
+        average_elevation = mean([
+            row.get(
+                "daily_elevation_gain",
+                0,
+            )
+            for row in moving_rows
+        ])
+
+        mileage_ratio = (
+            average_miles / self.max_daily_miles
+            if self.max_daily_miles
+            else 0
+        )
+        elevation_ratio = (
+            average_elevation
+            / self.max_daily_elevation
+            if self.max_daily_elevation
+            else 0
+        )
+        generated_ratio = max(
+            mileage_ratio,
+            elevation_ratio,
+        )
+
+        if generated_ratio <= 0.85:
+            classification = "comfortable"
+        elif generated_ratio <= 1.0:
+            classification = "challenging"
+        elif generated_ratio <= 1.25:
+            classification = "aggressive"
+        else:
+            classification = "unrealistic"
+
+        return {
+            "classification": classification,
+            "feasible": (
+                classification
+                != "unrealistic"
+            ),
+            "classification_reason": (
+                "generated_average_effort"
+            ),
+            "moving_days": len(
+                moving_rows
+            ),
+            "average_daily_miles": round(
+                average_miles,
+                1,
+            ),
+            "average_daily_elevation": round(
+                average_elevation,
+                0,
+            ),
+            "generated_effort_ratio": round(
+                generated_ratio,
+                2,
+            ),
+        }
+
+    def build_generated_evaluation(
+        self,
+        daily_plan,
+        exceptions,
+    ):
+
+        generated = (
+            self.classify_generated_base(
+                daily_plan
+            )
+        )
+        pressure = (
+            self.summarize_exception_pressure(
+                daily_plan
+            )
+        )
+        (
+            exception_classification,
+            exception_reason,
+        ) = self.classify_exception_pressure(
+            exceptions,
+            pressure,
+        )
+
+        final_classification = (
+            self.max_classification(
+                generated[
+                    "classification"
+                ],
+                exception_classification,
+            )
+        )
+
+        if (
+            self.classification_rank(
+                exception_classification
+            )
+            >= self.classification_rank(
+                generated[
+                    "classification"
+                ]
+            )
+        ):
+            classification_reason = (
+                exception_reason
+            )
+        else:
+            classification_reason = (
+                generated.get(
+                    "classification_reason",
+                    "generated_average_effort",
+                )
+            )
+
+        return {
+            **generated,
+            **pressure,
+            "classification": (
+                final_classification
+            ),
+            "feasible": (
+                final_classification
+                != "unrealistic"
+            ),
+            "classification_reason": (
+                classification_reason
+            ),
+        }
 
     def apply_itinerary_exceptions(
         self,
@@ -578,45 +908,68 @@ class PlannerV2:
             )
         )
 
-        if not exceptions:
-            return completion_analysis
-
         updated = {
             **completion_analysis,
         }
 
-        evaluation = {
+        requested_evaluation = {
             **updated.get(
-                "evaluation",
-                {},
+                "requested_evaluation",
+                updated.get(
+                    "evaluation",
+                    {},
+                ),
             )
         }
 
-        exception_classification = (
-            self.classify_itinerary_exceptions(
-                exceptions
+        generated_evaluation = (
+            self.build_generated_evaluation(
+                daily_plan,
+                exceptions,
             )
         )
-
-        evaluation["classification"] = (
-            self.max_classification(
-                evaluation.get(
-                    "classification",
-                    "comfortable",
-                ),
-                exception_classification,
-            )
-        )
-
-        evaluation["feasible"] = True
 
         updated["accepted"] = not updated.get(
             "completion_extended",
             False,
         )
-        updated["evaluation"] = evaluation
-        updated["has_itinerary_exceptions"] = True
+        updated["requested_evaluation"] = (
+            requested_evaluation
+        )
+        updated["generated_evaluation"] = (
+            generated_evaluation
+        )
+        updated["evaluation"] = (
+            generated_evaluation
+        )
+        updated["has_itinerary_exceptions"] = bool(
+            exceptions
+        )
         updated["itinerary_exceptions"] = exceptions
+        updated["combined_exception_days"] = (
+            generated_evaluation.get(
+                "combined_exception_days",
+                [],
+            )
+        )
+        updated["compound_exception_days"] = (
+            generated_evaluation.get(
+                "compound_exception_days",
+                [],
+            )
+        )
+        updated["exception_pressure_score"] = (
+            generated_evaluation.get(
+                "exception_pressure_score",
+                0.0,
+            )
+        )
+        updated["classification_reason"] = (
+            generated_evaluation.get(
+                "classification_reason",
+                "generated_average_effort",
+            )
+        )
 
         if updated.get(
             "completion_extended",
@@ -624,27 +977,51 @@ class PlannerV2:
         ):
             updated["recommendation"] = (
                 "Requested completion target would require unrealistic "
-                "catch-up days, so an extended itinerary was generated."
+                "catch-up days, so an extended itinerary was generated. "
+                "The generated plan is classified separately."
             )
             updated["exception_guidance"] = (
                 "Use the recommended day count or adjust mileage, "
                 "recovery, and elevation preferences for a gentler plan."
             )
         else:
-            if (
-                exception_classification
+            if not exceptions:
+                updated["recommendation"] = (
+                    "Requested completion target is operationally "
+                    "feasible."
+                )
+                updated["exception_guidance"] = (
+                    "No daily mileage or elevation preference "
+                    "exceptions were detected."
+                )
+
+            elif (
+                generated_evaluation[
+                    "classification"
+                ]
                 == "comfortable"
             ):
                 updated["recommendation"] = (
                     "Requested completion target is achievable. "
-                    "The generated itinerary has only minor daily "
+                    "The generated itinerary has only sparse daily "
                     "preference exceptions."
+                )
+            elif (
+                generated_evaluation[
+                    "classification"
+                ]
+                == "challenging"
+            ):
+                updated["recommendation"] = (
+                    "Requested completion target is achievable, but the "
+                    "generated itinerary has repeated or moderate daily "
+                    "preference pressure."
                 )
             else:
                 updated["recommendation"] = (
                     "Requested completion target is achievable, but the "
-                    "generated itinerary exceeds one or more daily "
-                    "preferences to finish in the requested time."
+                    "generated itinerary has major or frequent daily "
+                    "preference pressure."
                 )
 
             updated["exception_guidance"] = (
@@ -706,10 +1083,21 @@ class PlannerV2:
                 "aggressive",
             )
         )
-        evaluation["feasible"] = True
+        evaluation["feasible"] = (
+            evaluation[
+                "classification"
+            ]
+            != "unrealistic"
+        )
+        evaluation["classification_reason"] = (
+            "extended_requested_target"
+        )
 
         updated["accepted"] = False
         updated["evaluation"] = evaluation
+        updated["requested_evaluation"] = (
+            evaluation
+        )
         updated["completion_extended"] = True
         updated["requested_days"] = expected_days
         updated["recommended_days"] = max(
@@ -842,6 +1230,9 @@ class PlannerV2:
             return {
                 "accepted": True,
                 "evaluation": evaluation,
+                "requested_evaluation": (
+                    evaluation
+                ),
                 "recommendation": (
                     "Requested completion "
                     "target is operationally "
@@ -872,6 +1263,9 @@ class PlannerV2:
         return {
             "accepted": False,
             "evaluation": evaluation,
+            "requested_evaluation": (
+                evaluation
+            ),
             "recommended_days": (
                 recommended_days
             ),

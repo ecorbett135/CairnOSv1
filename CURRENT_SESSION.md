@@ -43,7 +43,7 @@ PlannerV2 now supports:
 - configurable nero-mile bounds
 - terrain interval analysis from compiled elevation samples
 - explicit terrain mile-domain reconciliation
-- minor-exception-aware feasibility classification
+- requested-target and generated-plan feasibility classification
 - resupply strategy output tied to amenity-backed access points
 - structured resupply access-friction fields and user-tunable convenient
   resupply-only distance
