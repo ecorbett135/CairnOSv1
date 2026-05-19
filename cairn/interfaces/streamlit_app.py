@@ -45,10 +45,17 @@ GITHUB_FEEDBACK_URL = (
 )
 
 ALPHA_FEEDBACK_GUIDANCE = (
-    "Include direction, requested days, mileage/elevation limits, "
-    "resupply/recovery settings, screenshots when useful, the "
-    "Developer Diagnostics ZIP for reproducible planner output, "
-    "and Gaia GeoJSON when reporting export or marker issues."
+    "For generated plans, attach the Developer Diagnostics ZIP; "
+    "it already includes planner settings, generated output, "
+    "warnings, Gaia export, and runtime data fingerprints. "
+    "If you are not attaching the ZIP, include direction, "
+    "requested days, mileage/elevation limits, and "
+    "resupply/recovery settings."
+)
+
+ALPHA_FEEDBACK_ATTACHMENT_GUIDANCE = (
+    "Add screenshots when useful. If you are not attaching the ZIP, "
+    "include Gaia GeoJSON when reporting export or marker issues."
 )
 
 AVAILABLE_TRAILS = sorted([
@@ -175,6 +182,9 @@ def render_alpha_feedback_panel(
 
     target.caption(
         ALPHA_FEEDBACK_GUIDANCE
+    )
+    target.caption(
+        ALPHA_FEEDBACK_ATTACHMENT_GUIDANCE
     )
     target.caption(
         (
@@ -987,9 +997,9 @@ def render_planner_result(
         (
             "Reporting this generated plan? "
             f"{ALPHA_FEEDBACK_GUIDANCE} "
-            "The diagnostics ZIP is the preferred artifact for "
-            "reproducing planner output; Gaia GeoJSON is most useful "
-            "for export and marker-location reports."
+            f"{ALPHA_FEEDBACK_ATTACHMENT_GUIDANCE} "
+            "Manual settings are only needed when you are not "
+            "attaching the diagnostics ZIP."
         )
     )
 

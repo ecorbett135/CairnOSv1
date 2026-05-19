@@ -271,7 +271,11 @@ def test_alpha_feedback_panel_exposes_routing_and_repro_guidance():
         "https://github.com/ecorbett135/CairnOSv1/issues/new/choose"
         in source
     )
-    assert "direction, requested days" in source
+    assert "it already includes planner settings" in source
+    assert "runtime data fingerprints" in source
+    assert "Manual settings are only needed" in source
+    assert "direction" in source
+    assert "requested days" in source
     assert "mileage/elevation limits" in source
     assert "resupply/recovery settings" in source
     assert "Developer Diagnostics ZIP" in source
