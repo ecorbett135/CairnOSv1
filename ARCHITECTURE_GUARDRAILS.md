@@ -84,6 +84,7 @@ PlannerV2 MUST reason about:
 - cumulative stress
 - recovery
 - logistics access
+- town-access friction
 - cadence sustainability
 - realistic pacing
 - operational feasibility

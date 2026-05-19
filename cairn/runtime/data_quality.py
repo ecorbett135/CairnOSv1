@@ -37,6 +37,11 @@ RESUPPLY_COLUMNS = {
     "trail_mile",
     "town_access",
     "canonical_hint",
+    "access_distance_miles",
+    "access_distance_qualifier",
+    "access_direction",
+    "access_mode",
+    "resupply_convenience",
     "grocery",
     "post_office",
     "outfitter",
@@ -45,6 +50,40 @@ RESUPPLY_COLUMNS = {
     "zero_candidate",
     "latitude",
     "longitude",
+}
+
+ACCESS_DISTANCE_QUALIFIERS = {
+    "exact",
+    "less_than",
+    "about",
+    "at_least",
+    "unknown",
+}
+
+ACCESS_DIRECTIONS = {
+    "east",
+    "west",
+    "mixed",
+    "pre_trail",
+    "post_trail",
+    "unknown",
+}
+
+ACCESS_MODES = {
+    "road_access",
+    "approach_access",
+    "terminus_access",
+    "unknown",
+}
+
+RESUPPLY_CONVENIENCE_VALUES = {
+    "on_trail",
+    "near_trail",
+    "moderate_side_trip",
+    "long_side_trip",
+    "approach",
+    "terminus",
+    "unknown",
 }
 
 APPROACH_COLUMNS = {
@@ -723,6 +762,80 @@ def validate_resupply_amenities_rows(
                 row=idx + 2,
                 trail_mile=mile,
             )
+
+        access_distance = to_float(
+            row.get(
+                "access_distance_miles"
+            )
+        )
+        if access_distance is None:
+            add_finding(
+                findings,
+                "warning",
+                "missing_resupply_access_distance",
+                "Resupply row has no structured access distance.",
+                path,
+                row=idx + 2,
+                trail_mile=mile,
+            )
+        elif access_distance < 0:
+            add_finding(
+                findings,
+                "error",
+                "invalid_resupply_access_distance",
+                "Resupply access_distance_miles must be nonnegative.",
+                path,
+                row=idx + 2,
+                trail_mile=mile,
+                access_distance_miles=access_distance,
+            )
+
+        enum_checks = [
+            (
+                "access_distance_qualifier",
+                ACCESS_DISTANCE_QUALIFIERS,
+                "invalid_access_distance_qualifier",
+            ),
+            (
+                "access_direction",
+                ACCESS_DIRECTIONS,
+                "invalid_access_direction",
+            ),
+            (
+                "access_mode",
+                ACCESS_MODES,
+                "invalid_access_mode",
+            ),
+            (
+                "resupply_convenience",
+                RESUPPLY_CONVENIENCE_VALUES,
+                "invalid_resupply_convenience",
+            ),
+        ]
+
+        for field_name, allowed_values, code in enum_checks:
+            value = str(
+                row.get(
+                    field_name,
+                    "",
+                )
+                or ""
+            ).strip()
+
+            if value not in allowed_values:
+                add_finding(
+                    findings,
+                    "error",
+                    code,
+                    "Resupply structured access field has an invalid value.",
+                    path,
+                    row=idx + 2,
+                    field=field_name,
+                    value=value,
+                    allowed=sorted(
+                        allowed_values
+                    ),
+                )
 
         latitude = to_float(
             row.get(

@@ -99,6 +99,11 @@ Future data-quality work should promote this into structured source fields so
 the planner can reason about shuttle friction, town distance, and short
 resupply-only stops without depending on prose parsing.
 
+Structured resupply friction should remain user-tunable. The default convenient
+resupply-only threshold is 1 mile from trail, but the UI should let hikers
+choose their own access-distance tolerance while still treating longer town
+trips as better suited to zero/nero recovery or unavoidable food-carry gaps.
+
 Itinerary display should separate operational identity from presentation.
 Compiled overlay names remain canonical traversal/provenance fields, but
 overnight rows should show concise shelter/camp names and move short spur notes

@@ -469,6 +469,12 @@ def test_resupply_plan_exposes_recovery_and_access_distance(
         ]
         == 1.0
     )
+    assert (
+        inn_at_long_trail[
+            "resupply_convenience"
+        ]
+        == "near_trail"
+    )
     assert "Less than 1 mile" in (
         inn_at_long_trail[
             "access_notes"
@@ -477,7 +483,7 @@ def test_resupply_plan_exposes_recovery_and_access_distance(
 
 
 def test_access_distance_parser_extracts_nearest_town_miles(planner):
-    """Test resupply access notes become lightweight friction data."""
+    """Test prose parsing remains as a fallback for legacy rows."""
     assert (
         planner.logistics.parse_access_distance_miles(
             "Less than 1 mile east to Inn at Long Trail"
@@ -489,6 +495,54 @@ def test_access_distance_parser_extracts_nearest_town_miles(planner):
             "4+ miles east to Warren and 5 miles west to Lincoln"
         )
         == 4.0
+    )
+
+
+def test_structured_access_distance_precedes_prose_parser(planner):
+    """Test structured friction data wins over access note prose."""
+    node = {
+        "access_distance_miles": 2.0,
+        "access_notes": (
+            "Less than 1 mile to one service "
+            "and 9 miles to another"
+        ),
+    }
+
+    assert (
+        planner.logistics.access_distance_miles(
+            node
+        )
+        == 2.0
+    )
+
+
+def test_convenient_resupply_distance_is_user_configurable(
+    planner_factory,
+):
+    """Test user preference controls extra resupply convenience."""
+    strict_planner = planner_factory(
+        user_profile={
+            "convenient_resupply_distance_miles": 1.0,
+        },
+    )
+    flexible_planner = planner_factory(
+        user_profile={
+            "convenient_resupply_distance_miles": 2.5,
+        },
+    )
+    node = {
+        "access_distance_miles": 2.0,
+    }
+
+    assert (
+        strict_planner.logistics
+        .is_convenient_extra_resupply(node)
+        is False
+    )
+    assert (
+        flexible_planner.logistics
+        .is_convenient_extra_resupply(node)
+        is True
     )
 
 
@@ -1549,11 +1603,22 @@ def test_avoid_long_food_carry_prefers_access_before_long_gap(
     ]
 
     assert "Vt. 15 at cemetery" in locations
+    assert "Vt. 242 at Jay Pass" not in locations
     assert max(
         row["days_to_next_resupply"]
         for row in itinerary["resupply_plan"]
         if row["days_to_next_resupply"]
     ) <= 6
+    assert not [
+        row
+        for row in itinerary["resupply_plan"]
+        if (
+            row["notes"] == "resupply"
+            and row["days_to_next_resupply"]
+            is not None
+            and row["days_to_next_resupply"] <= 1
+        )
+    ]
 
 
 def test_overlay_authoritative_miles_override_enriched_stop_drift(

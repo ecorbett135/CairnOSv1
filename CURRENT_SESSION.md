@@ -45,6 +45,8 @@ PlannerV2 now supports:
 - explicit terrain mile-domain reconciliation
 - minor-exception-aware feasibility classification
 - resupply strategy output tied to amenity-backed access points
+- structured resupply access-friction fields and user-tunable convenient
+  resupply-only distance
 - clean overnight stop display names with side-spur notes separated from
   canonical overlay names
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
@@ -143,6 +145,7 @@ The Streamlit UI currently supports:
 - minimum nero miles
 - maximum nero miles
 - optional extra resupply-only stops
+- convenient resupply-only access distance
 - explicit plan regeneration
 - Gaia GeoJSON download
 - developer diagnostics ZIP download for reproducible alpha tester reports,

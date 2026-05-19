@@ -46,6 +46,11 @@ Manually curated Cairn datasets should record:
 Manual edits based on maps, guidebooks, Gaia exports, OSM, or trail websites
 must still cite those sources. "Manual" does not mean source-free.
 
+Structured resupply access-friction fields, such as access distance and
+convenience class, are curated data. They must retain source notes and should
+not be treated as independently Apache licensed unless the upstream source
+chain has been reviewed.
+
 ## Generated Reports And Exports
 
 Generated reports, cached files, planner exports, and temporary outputs should
