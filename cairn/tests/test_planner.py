@@ -1118,6 +1118,190 @@ def test_summary_average_daily_miles_excludes_zero_days(planner_factory):
     )
 
 
+def _daily_rows(
+    miles,
+    elevation,
+):
+    return [
+        {
+            "day": index + 1,
+            "daily_miles": mile,
+            "daily_elevation_gain": gain,
+        }
+        for index, (
+            mile,
+            gain,
+        ) in enumerate(
+            zip(
+                miles,
+                elevation,
+            )
+        )
+    ]
+
+
+def test_sparse_mileage_exception_remains_comfortable(planner_factory):
+    """Test one minor mileage overage does not overclassify a plan."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [7, 7, 7, 11, 7, 7, 7, 7, 7, 7],
+        [700] * 10,
+    )
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert evaluation["classification"] == "comfortable"
+    assert (
+        evaluation["classification_reason"]
+        == "sparse_preference_exceptions"
+    )
+    assert evaluation["combined_exception_days"] == [
+        4
+    ]
+
+
+def test_sparse_moderate_elevation_exception_can_remain_comfortable(
+    planner_factory,
+):
+    """Test one moderate elevation overage can remain comfortable."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800, 800, 1250, 800, 800, 800, 800, 800, 800, 800],
+    )
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert exceptions[0]["severity"] == "moderate"
+    assert evaluation["classification"] == "comfortable"
+    assert evaluation["exception_pressure_score"] <= 3.0
+
+
+def test_repeated_moderate_exceptions_become_challenging(
+    planner_factory,
+):
+    """Test repeated moderate pressure escalates generated difficulty."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 12,
+        [1250, 800, 800, 1250, 800, 800, 1250, 800, 800, 800, 800, 800],
+    )
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert exceptions[0]["severity"] == "moderate"
+    assert evaluation["classification"] == "challenging"
+    assert (
+        evaluation["classification_reason"]
+        == "repeated_preference_pressure"
+    )
+
+
+def test_compound_same_day_exceptions_increase_pressure(
+    planner_factory,
+):
+    """Test same-day mileage and elevation overages add stress."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    separate_rows = _daily_rows(
+        [12, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+        [800, 1250, 800, 800, 800, 800, 800, 800, 800, 800],
+    )
+    compound_rows = _daily_rows(
+        [12, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+        [1250, 800, 800, 800, 800, 800, 800, 800, 800, 800],
+    )
+
+    separate = planner.build_generated_evaluation(
+        separate_rows,
+        planner.summarize_itinerary_exceptions(
+            separate_rows
+        ),
+    )
+    compound = planner.build_generated_evaluation(
+        compound_rows,
+        planner.summarize_itinerary_exceptions(
+            compound_rows
+        ),
+    )
+
+    assert compound["compound_exception_days"] == [
+        1
+    ]
+    assert (
+        compound["exception_pressure_score"]
+        > separate["exception_pressure_score"]
+    )
+
+
+def test_major_overage_classifies_generated_plan_aggressive(
+    planner_factory,
+):
+    """Test major preference overages classify generated plans aggressive."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800, 800, 1400, 800, 800, 800, 800, 800, 800, 800],
+    )
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert exceptions[0]["severity"] == "major"
+    assert evaluation["classification"] == "aggressive"
+    assert (
+        evaluation["classification_reason"]
+        == "major_preference_overage"
+    )
+
+
 def test_elevation_exceptions_raise_feasibility_pressure(planner_factory):
     """Test fixed-duration plans complete and flag elevation exceptions."""
     planner = planner_factory(
@@ -1128,7 +1312,7 @@ def test_elevation_exceptions_raise_feasibility_pressure(planner_factory):
             "egress_route": "Journey's End Trail",
             "min_daily_miles": 9,
             "max_daily_miles": 15,
-            "max_daily_elevation": 3500,
+            "max_daily_elevation": 3000,
             "resupply_cadence": 99,
             "recovery_cadence": 99,
             "allow_extra_resupply_only": False,
@@ -1171,8 +1355,8 @@ def test_elevation_exceptions_raise_feasibility_pressure(planner_factory):
         if row["constraint"] == "daily_elevation_gain"
     )
 
-    assert elevation_exception["limit"] == 3500
-    assert elevation_exception["observed_max"] > 3500
+    assert elevation_exception["limit"] == 3000
+    assert elevation_exception["observed_max"] > 3000
     assert elevation_exception["count"] > 0
     assert elevation_exception["severity"] in {
         "moderate",
@@ -1212,12 +1396,26 @@ def test_minor_preference_exceptions_do_not_force_aggressive_label(
     assert completion[
         "has_itinerary_exceptions"
     ] is True
+    assert completion[
+        "evaluation"
+    ] == completion[
+        "generated_evaluation"
+    ]
     assert (
-        completion["evaluation"]["classification"]
-        in {
-            "comfortable",
-            "challenging",
-        }
+        completion["requested_evaluation"][
+            "classification"
+        ]
+        == "comfortable"
+    )
+    assert (
+        completion["generated_evaluation"][
+            "classification"
+        ]
+        == "comfortable"
+    )
+    assert (
+        completion["classification_reason"]
+        == "sparse_preference_exceptions"
     )
     assert {
         row["severity"]
@@ -1228,6 +1426,106 @@ def test_minor_preference_exceptions_do_not_force_aggressive_label(
         "minor",
         "moderate",
     }
+
+
+def test_extended_requested_target_has_separate_generated_evaluation(
+    planner_factory,
+):
+    """Test extended requests do not overwrite generated-plan class."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 12,
+            "max_daily_elevation": 4000,
+        },
+    )
+    completion = planner.negotiate_completion_target(
+        desired_days=21
+    )
+    extended = planner.apply_completion_extension(
+        completion,
+        actual_days=29,
+    )
+    rows = _daily_rows(
+        [10] * 29,
+        [2000] * 29,
+    )
+
+    final = planner.apply_itinerary_exceptions(
+        extended,
+        rows,
+    )
+
+    assert final["completion_extended"] is True
+    assert final["requested_evaluation"][
+        "classification"
+    ] in {
+        "aggressive",
+        "unrealistic",
+    }
+    assert (
+        final["requested_evaluation"][
+            "classification_reason"
+        ]
+        == "extended_requested_target"
+    )
+    assert (
+        final["generated_evaluation"][
+            "classification"
+        ]
+        == "comfortable"
+    )
+    assert final["evaluation"] == final[
+        "generated_evaluation"
+    ]
+
+
+def test_sobo_uses_same_generated_feasibility_rules(
+    planner_factory,
+):
+    """Test SOBO sparse exceptions use the same generated classifier."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "Williamstown Approach",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "min_nero_miles": 5,
+            "max_nero_miles": 8,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+    completion = itinerary[
+        "completion_analysis"
+    ]
+
+    assert completion["evaluation"] == completion[
+        "generated_evaluation"
+    ]
+    assert (
+        completion["requested_evaluation"][
+            "classification"
+        ]
+        == "comfortable"
+    )
+    assert (
+        completion["generated_evaluation"][
+            "classification"
+        ]
+        == "comfortable"
+    )
+    assert (
+        completion["classification_reason"]
+        == "sparse_preference_exceptions"
+    )
 
 
 def test_late_recovery_zero_does_not_replace_final_egress(

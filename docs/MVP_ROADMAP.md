@@ -92,10 +92,11 @@ without an explicit mapper.
 
 ## Feasibility And Logistics Calibration
 
-The alpha planner should distinguish minor preference exceptions from truly
-aggressive plans. Small, sparse mileage or elevation overages can remain
-comfortable when the base effort model and recovery pattern support that
-classification; larger or repeated exceptions should escalate to challenging or
+The alpha planner should distinguish the original requested target from the
+generated itinerary. A request that requires extension can remain classified as
+aggressive or unrealistic while the generated plan is evaluated separately.
+Sparse mileage or elevation exceptions can remain comfortable, while repeated,
+compound same-day, or major overages should escalate to challenging or
 aggressive.
 
 Current resupply convenience scoring may parse town-access distance from notes.

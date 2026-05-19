@@ -235,6 +235,17 @@ def test_sidebar_exposes_alpha_build_fingerprint():
     )
 
 
+def test_feasibility_view_separates_requested_and_generated_labels():
+    """Test feasibility UI distinguishes requested and generated plans."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Generated Plan" in source
+    assert "Requested Target" in source
+    assert "requested_evaluation" in source
+
+
 def test_generated_plan_exposes_developer_diagnostics_download():
     """Test generated plans expose a diagnostic bundle download."""
     source = Path(
