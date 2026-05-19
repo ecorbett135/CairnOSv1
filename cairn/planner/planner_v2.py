@@ -140,6 +140,16 @@ class PlannerV2:
             )
         )
 
+        self.convenient_resupply_distance_miles = max(
+            0.0,
+            float(
+                self.user_profile.get(
+                    "convenient_resupply_distance_miles",
+                    1.0,
+                )
+            ),
+        )
+
         self.direction = (
             self.user_profile.get(
                 "direction",
@@ -1551,6 +1561,7 @@ class PlannerV2:
         last_resupply_day,
         resupply_nodes,
         used_resupply_ids,
+        terminal_mile=None,
     ):
         return (
             self.logistics
@@ -1561,6 +1572,7 @@ class PlannerV2:
                 last_resupply_day,
                 resupply_nodes,
                 used_resupply_ids,
+                terminal_mile=terminal_mile,
             )
         )
 

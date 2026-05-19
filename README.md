@@ -202,6 +202,12 @@ The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. A future
 HikerLogix companion integration concept is tracked in
 `docs/HIKERLOGIX_COMPANION.md`.
 
+The current open-source and intellectual-property posture is tracked in
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. In short: CairnOSv1 stays public and
+Apache 2.0 for alpha testing and planning-engine interoperability, while the
+future HikerLogix mobile app can remain private/proprietary unless separately
+opened.
+
 ## Project structure
 
 - `build_topo/` — topology compiler and operational graph generation
@@ -230,6 +236,7 @@ Typical input parameters include:
 - preferred zero/nero recovery cadence
 - configurable minimum and maximum nero mileage
 - optional extra resupply-only stops
+- convenient resupply-only access distance
 
 The output includes:
 
@@ -280,10 +287,15 @@ window is 5-8 miles, and the Streamlit UI exposes minimum and maximum nero-mile
 controls so recovery semantics can match the user's planning style.
 
 The resupply strategy table includes the trip start as the first carry segment
-anchor, then lists planned resupply access points, parsed town access distance,
-access notes, days until the next resupply segment or finish, and days until
-the next recovery stop. Terminal-day resupply stops are suppressed because they
-do not reduce a future food carry.
+anchor, then lists planned resupply access points, structured town-access
+distance, access notes, days until the next resupply segment or finish, and
+days until the next recovery stop. Terminal-day resupply stops are suppressed
+because they do not reduce a future food carry.
+
+Resupply access friction is stored as structured data in addition to the human
+access notes. The Streamlit UI exposes a `Convenient Resupply-Only Access
+(miles)` preference, defaulting to 1 mile, so hikers can decide how far off
+trail they are willing to go for an extra resupply-only stop.
 
 The current Long Trail resupply layer is sourced from:
 
@@ -505,6 +517,12 @@ Data files are not automatically Apache licensed. Trail datasets, OSM-derived
 layers, Gaia exports, DEMs, screenshots, generated reports, and manually
 curated data may carry separate provenance and license obligations. See
 `docs/DATA_PROVENANCE.md` and `data/DATASETS.md` before reusing datasets.
+
+Apache 2.0 is intentionally permissive and compatible with future commercial
+use, including a proprietary HikerLogix companion app. It does not prevent
+forks or competing deployments of the public CairnOSv1 code. See
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md` for the current project guidance on open
+source, copyright, patent, data, and HikerLogix boundaries.
 
 ## Current repository goals
 

@@ -353,6 +353,20 @@ def render_planner_controls(
         ),
     )
 
+    convenient_resupply_distance_miles = target.slider(
+        "Convenient Resupply-Only Access (miles)",
+        min_value=0.5,
+        max_value=5.0,
+        value=1.0,
+        step=0.5,
+        help=(
+            "Maximum off-trail access distance the planner treats "
+            "as convenient for an extra resupply-only stop. Longer "
+            "town trips are still considered for zeros, neros, or "
+            "avoiding excessive food carries."
+        ),
+    )
+
     trail_root = (
         TRAILS_ROOT /
         selected_trail
@@ -376,6 +390,9 @@ def render_planner_controls(
         ),
         "avoid_long_food_carry": (
             avoid_long_food_carry
+        ),
+        "convenient_resupply_distance_miles": (
+            convenient_resupply_distance_miles
         ),
         "ingress_route": ingress_route,
         "egress_route": egress_route,
@@ -434,6 +451,11 @@ def synthesize_planner_result(
             "avoid_long_food_carry": (
                 planner_config[
                     "avoid_long_food_carry"
+                ]
+            ),
+            "convenient_resupply_distance_miles": (
+                planner_config[
+                    "convenient_resupply_distance_miles"
                 ]
             ),
             "trip_type": planner_config[

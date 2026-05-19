@@ -53,6 +53,11 @@ sequence. It should begin as export interoperability and later become personal
 calibration once CairnOS has a stable plan JSON export and SECTION semantics
 are further along. See `docs/HIKERLOGIX_COMPANION.md`.
 
+Open-source and commercial-product boundaries are tracked in
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. The current posture is to keep CairnOSv1
+public and Apache 2.0 licensed while keeping HikerLogix private/proprietary
+unless a separate licensing decision is made.
+
 Legacy development-agent cleanup is tracked as MVP hardening work, not product
 AI-agent architecture. The pre-Codex coding-agent scaffold should be retired or
 quarantined, while useful validation helpers should live under stable CairnOS
@@ -93,6 +98,11 @@ Current resupply convenience scoring may parse town-access distance from notes.
 Future data-quality work should promote this into structured source fields so
 the planner can reason about shuttle friction, town distance, and short
 resupply-only stops without depending on prose parsing.
+
+Structured resupply friction should remain user-tunable. The default convenient
+resupply-only threshold is 1 mile from trail, but the UI should let hikers
+choose their own access-distance tolerance while still treating longer town
+trips as better suited to zero/nero recovery or unavoidable food-carry gaps.
 
 Itinerary display should separate operational identity from presentation.
 Compiled overlay names remain canonical traversal/provenance fields, but
