@@ -10,6 +10,8 @@ SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
 - Verify routes, shelters, services, road access, closures, weather, and safety
   decisions against official sources before using anything in the field.
 - Try both NOBO and SOBO THRU plans.
+- On phones, use `View Mode` -> `Mobile` if the Streamlit sidebar controls are
+  hard to find.
 - Export the Gaia GeoJSON and check whether the markers land where expected.
 - Use the developer diagnostics download when reporting a specific planner
   result. It includes the generated plan, resupply table, Gaia export, warnings,

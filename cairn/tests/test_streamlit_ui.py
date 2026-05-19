@@ -53,6 +53,71 @@ def test_sidebar_exposes_thru_trip_type_and_direction():
     ]
 
 
+def test_view_mode_control_exposes_mobile_fallback():
+    """Test mobile users can switch away from sidebar controls."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    radios = {
+        widget.label: widget
+        for widget in app.radio
+    }
+
+    assert "View Mode" in radios
+    assert radios["View Mode"].options == [
+        "Auto",
+        "Mobile",
+        "Desktop",
+    ]
+    assert radios["View Mode"].value == "Auto"
+
+
+def test_mobile_view_renders_controls_without_sidebar():
+    """Test mobile planner controls render in the page body."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    app.radio[0].set_value(
+        "Mobile"
+    ).run(
+        timeout=15
+    )
+
+    selectboxes = {
+        widget.label: widget
+        for widget in app.selectbox
+    }
+    sliders = {
+        widget.label: widget
+        for widget in app.slider
+    }
+    checkboxes = {
+        widget.label: widget
+        for widget in app.checkbox
+    }
+
+    assert app.sidebar.selectbox == []
+    assert app.sidebar.slider == []
+    assert app.sidebar.checkbox == []
+    assert "Trail" in selectboxes
+    assert "Trip Type" in selectboxes
+    assert "Direction" in selectboxes
+    assert "Desired Completion Days" in sliders
+    assert "Preferred Resupply Cadence (days)" in sliders
+    assert "Allow Extra Resupply-Only Stops" in checkboxes
+    assert "Avoid Long Food Carry" in checkboxes
+
+
 def test_sidebar_exposes_configurable_nero_window():
     """Test recovery planning exposes nero-mile bounds."""
     app = AppTest.from_file(
