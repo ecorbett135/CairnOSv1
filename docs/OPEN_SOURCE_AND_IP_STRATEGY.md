@@ -164,4 +164,3 @@ Revisit this posture if:
 - premium curated datasets become a major product asset
 - a truly novel personalization, calibration, or feasibility method emerges
 - investors, partners, or App Store distribution create new IP requirements
-
