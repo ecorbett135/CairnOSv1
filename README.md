@@ -29,6 +29,11 @@ diagnostics download so the run can be reproduced without screenshots. Please
 read the Alpha Status And Safety Notice before using any generated plan in the
 real world.
 
+Use the app's Alpha Feedback panel to report confusing output, unrealistic
+stops, UI problems, export marker issues, or data corrections. The panel uses
+the maintainer-configured feedback form when available and falls back to the
+GitHub issue templates.
+
 ## Quick Start For Developers
 
 Use Python 3.11 or newer.
@@ -83,6 +88,9 @@ When reporting planner output, include direction, requested days, mileage and
 elevation settings, and resupply/recovery settings. The preferred artifact is
 the developer diagnostics ZIP from the app because it includes the generated
 plan, resupply strategy, Gaia export, warnings, and runtime data fingerprints.
+For export or marker-location issues, also attach the Gaia GeoJSON when useful.
+Do not include Streamlit secrets, private tester data, proprietary guidebook
+text, or unreviewed vendor exports.
 
 ## Product positioning
 

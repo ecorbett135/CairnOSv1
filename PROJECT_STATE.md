@@ -531,6 +531,15 @@ runtime data fingerprints, and per-day elevation confidence diagnostics so
 alpha tester reports can be reproduced without screenshots or raw/source
 datasets.
 
+The hosted alpha feedback loop is intentionally separate from planner behavior.
+The UI routes testers to the configured Alpha feedback form when
+`alpha_feedback_url` is present in Streamlit secrets, otherwise it falls back to
+the public GitHub issue-template chooser. Feedback guidance asks for planner
+settings, screenshots when useful, Developer Diagnostics ZIPs for reproducible
+planner output, and Gaia GeoJSON for export or marker-location reports. The app
+does not store tester feedback, append planner settings to the feedback URL, or
+treat feedback as planner input.
+
 Future semantics should still reason more deeply about:
 
 - structured town access distance and shuttle friction
