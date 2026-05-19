@@ -62,6 +62,7 @@ dataset. Runtime planning currently requires:
 - `trails/vermont_long_trail/raw/csv/approach_trails.csv`
 - `trails/vermont_long_trail/raw/csv/route_master.csv`
 - `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`
+- `trails/vermont_long_trail/raw/csv/overnight_amenities.csv`
 
 The hosted Alpha should not need:
 

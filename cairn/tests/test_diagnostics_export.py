@@ -191,6 +191,10 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             "trails/vermont_long_trail/raw/csv/resupply_amenities.csv"
             in fingerprint_paths
         )
+        assert (
+            "trails/vermont_long_trail/raw/csv/overnight_amenities.csv"
+            in fingerprint_paths
+        )
         assert not any(
             "elevation_calibration" in path
             or "Downloads" in path
