@@ -557,17 +557,46 @@ def render_planner_result(
     evaluation = completion[
         "evaluation"
     ]
+    requested_evaluation = completion.get(
+        "requested_evaluation",
+        evaluation,
+    )
+    show_requested_evaluation = (
+        completion.get(
+            "completion_extended",
+            False,
+        )
+        or requested_evaluation.get(
+            "classification"
+        )
+        != evaluation.get(
+            "classification"
+        )
+    )
 
-    col1, col2, col3 = st.columns(3)
+    feasibility_columns = st.columns(
+        4 if show_requested_evaluation else 3
+    )
 
-    col1.metric(
-        "Classification",
+    feasibility_columns[0].metric(
+        "Generated Plan",
         evaluation[
             "classification"
         ].title(),
     )
 
-    col2.metric(
+    column_offset = 1
+
+    if show_requested_evaluation:
+        feasibility_columns[1].metric(
+            "Requested Target",
+            requested_evaluation[
+                "classification"
+            ].title(),
+        )
+        column_offset = 2
+
+    feasibility_columns[column_offset].metric(
         "Requested Days",
         desired_days_for_result,
     )
@@ -577,7 +606,9 @@ def render_planner_result(
         desired_days_for_result,
     )
 
-    col3.metric(
+    feasibility_columns[
+        column_offset + 1
+    ].metric(
         "Recommended Days",
         recommended_days,
     )

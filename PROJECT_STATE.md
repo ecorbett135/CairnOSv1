@@ -479,6 +479,12 @@ Terrain now influences:
 Expedition summary effort averages now use moving days, excluding zero-mile
 recovery rows from average daily mileage and elevation calculations.
 
+Operational feasibility now separates the original requested completion target
+from the generated itinerary. The requested target can remain aggressive or
+unrealistic when CairnOS extends the plan, while the generated plan is scored
+from actual daily mileage, elevation, repeated exceptions, and compound
+same-day stress.
+
 Eventually terrain should also materially influence:
 
 - overnight selection
