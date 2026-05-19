@@ -15,7 +15,8 @@ SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
 - Export the Gaia GeoJSON and check whether the markers land where expected.
 - Use the developer diagnostics download when reporting a specific planner
   result. It includes the generated plan, resupply table, Gaia export, warnings,
-  and runtime data fingerprints without bundling raw/source datasets.
+  runtime data fingerprints, and elevation confidence diagnostics without
+  bundling raw/source datasets.
 - Note any day that feels unrealistic, confusing, too aggressive, or oddly
   conservative.
 - Submit feedback through the configured Alpha feedback form.
@@ -77,7 +78,9 @@ third-party datasets, or Streamlit secrets as part of an alpha report.
 
 The developer diagnostics ZIP is designed to be safe to share with the project
 maintainer. It records checksums and sizes for runtime data files instead of
-copying raw trail datasets or local calibration exports.
+copying raw trail datasets or local calibration exports. It also includes
+per-day elevation confidence details so suspect elevation rows can be inspected
+without changing the user-facing plan.
 
 The app-specific dependency file lives beside the Streamlit entrypoint:
 

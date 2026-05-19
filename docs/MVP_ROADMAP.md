@@ -116,6 +116,11 @@ reference route files. These warnings help separate true terrain-calibration
 issues from reference routes that temporarily follow side trails, access routes,
 or other non-LT geometry.
 
+Developer diagnostics now include per-day elevation confidence details so
+reported elevation rows can be inspected for dense terrain coverage,
+route-master fallback, estimated fallback, or recomputation mismatch without
+changing the planner's user-facing elevation output.
+
 ## Future Overnight Amenities
 
 Bear-box availability should become a structured overnight-site amenity, not a
