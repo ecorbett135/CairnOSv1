@@ -29,6 +29,31 @@ HikerLogix should own:
 Neither project should try to replace Gaia, FarOut, HiiKER, Garmin, paper maps,
 guidebooks, official sources, or field judgment.
 
+## Licensing And Repository Posture
+
+CairnOSv1 is public and Apache 2.0 licensed because the alpha needs public
+deployment, tester trust, reproducibility, and export interoperability.
+
+HikerLogix does not need to inherit that posture. The mobile app can remain
+private and proprietary while it imports CairnOS plan JSON or uses
+Apache-licensed CairnOS contracts. CairnOS being public for Streamlit hosting
+does not require mobile UI, local persistence, HealthKit permissions,
+monetization logic, or App Store packaging to become public.
+
+Commercial value should live primarily in HikerLogix execution and user-owned
+actuals workflows:
+
+- polished mobile UX
+- offline field journaling
+- planned-versus-actual review
+- personal calibration
+- optional cloud backup or sync
+- paid exports, analytics, or curated trail packs with clean rights
+
+Do not commit HikerLogix proprietary implementation details, private tester
+actuals, App Store monetization experiments, or patent-sensitive design notes to
+CairnOSv1 simply because this repository is public.
+
 ## Roadmap Placement
 
 Track this as export interoperability first and personal calibration later.
@@ -108,3 +133,6 @@ terrain reconciliation, route overlay authority, or operational truth.
 
 The mitigation is to keep v1 file-based, read-only on import, and explicit about
 planned values versus actual values.
+
+See `docs/OPEN_SOURCE_AND_IP_STRATEGY.md` for the broader CairnOS/HikerLogix
+open-source, commercial-use, copyright, and patent posture.

@@ -202,6 +202,12 @@ The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. A future
 HikerLogix companion integration concept is tracked in
 `docs/HIKERLOGIX_COMPANION.md`.
 
+The current open-source and intellectual-property posture is tracked in
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. In short: CairnOSv1 stays public and
+Apache 2.0 for alpha testing and planning-engine interoperability, while the
+future HikerLogix mobile app can remain private/proprietary unless separately
+opened.
+
 ## Project structure
 
 - `build_topo/` — topology compiler and operational graph generation
@@ -505,6 +511,12 @@ Data files are not automatically Apache licensed. Trail datasets, OSM-derived
 layers, Gaia exports, DEMs, screenshots, generated reports, and manually
 curated data may carry separate provenance and license obligations. See
 `docs/DATA_PROVENANCE.md` and `data/DATASETS.md` before reusing datasets.
+
+Apache 2.0 is intentionally permissive and compatible with future commercial
+use, including a proprietary HikerLogix companion app. It does not prevent
+forks or competing deployments of the public CairnOSv1 code. See
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md` for the current project guidance on open
+source, copyright, patent, data, and HikerLogix boundaries.
 
 ## Current repository goals
 

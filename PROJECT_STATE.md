@@ -53,6 +53,16 @@ Current execution order:
 SECTION mode remains deferred and hidden from the Streamlit menu for the MVP,
 while the internal code path remains available for later implementation.
 
+Open-source, HikerLogix, and intellectual-property posture is documented in
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. The working boundary is:
+
+- CairnOSv1 remains public and Apache 2.0 licensed as the planning/export
+  engine.
+- HikerLogix can remain private/proprietary as the future mobile field journal,
+  actuals, and product packaging layer.
+- Trail data provenance and commercial reuse rights are separate from the
+  CairnOS source-code license.
+
 ---
 
 # Architectural Philosophy
