@@ -1,6 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
+import csv
 import subprocess
 import sys
 
@@ -136,6 +137,72 @@ def planner_button_label():
     )
 
 
+def load_validated_side_trip_options(
+    trail_root,
+):
+    path = (
+        Path(trail_root) /
+        "raw" /
+        "csv" /
+        "side_trip_options.csv"
+    )
+
+    if not path.exists():
+        return []
+
+    options = []
+
+    with open(
+        path,
+        newline="",
+    ) as handle:
+
+        reader = csv.DictReader(handle)
+
+        for row in reader:
+
+            if (
+                str(
+                    row.get(
+                        "validation_status",
+                        "",
+                    )
+                )
+                .strip()
+                .casefold()
+                != "validated"
+            ):
+                continue
+
+            options.append(row)
+
+    return options
+
+
+def side_trip_option_label(
+    option,
+):
+    pieces = [
+        option.get(
+            "name",
+            "",
+        ),
+        option.get(
+            "town_access",
+            "",
+        ),
+        option.get(
+            "estimated_time",
+            "",
+        ),
+    ]
+
+    return " - ".join([
+        piece for piece in pieces
+        if piece
+    ])
+
+
 def directional_access_help(
     trip_type,
     direction,
@@ -207,6 +274,10 @@ def render_planner_controls(
     selected_trail = target.selectbox(
         "Trail",
         AVAILABLE_TRAILS,
+    )
+    trail_root = (
+        TRAILS_ROOT /
+        selected_trail
     )
 
     trip_type = target.selectbox(
@@ -377,10 +448,38 @@ def render_planner_controls(
         ),
     )
 
-    trail_root = (
-        TRAILS_ROOT /
-        selected_trail
+    target.subheader(
+        "Town And Experience Preferences"
     )
+    side_trip_options = (
+        load_validated_side_trip_options(
+            trail_root
+        )
+    )
+    side_trip_label_to_id = {
+        side_trip_option_label(option): (
+            option.get("side_trip_id")
+        )
+        for option in side_trip_options
+    }
+    selected_side_trip_labels = (
+        target.multiselect(
+            "Optional Side Trips",
+            options=list(
+                side_trip_label_to_id.keys()
+            ),
+            help=(
+                "Validated side trips are annotation-only. "
+                "They do not change itinerary miles, days, "
+                "feasibility, resupply scoring, or Gaia export."
+            ),
+        )
+    )
+    selected_side_trip_ids = [
+        side_trip_label_to_id[label]
+        for label in selected_side_trip_labels
+        if side_trip_label_to_id.get(label)
+    ]
 
     planner_config = {
         "selected_trail": selected_trail,
@@ -406,6 +505,9 @@ def render_planner_controls(
         ),
         "convenient_resupply_distance_miles": (
             convenient_resupply_distance_miles
+        ),
+        "selected_side_trip_ids": (
+            selected_side_trip_ids
         ),
         "ingress_route": ingress_route,
         "egress_route": egress_route,
@@ -469,6 +571,11 @@ def synthesize_planner_result(
             "prefer_bear_box_sites": (
                 planner_config[
                     "prefer_bear_box_sites"
+                ]
+            ),
+            "selected_side_trip_ids": (
+                planner_config[
+                    "selected_side_trip_ids"
                 ]
             ),
             "convenient_resupply_distance_miles": (
@@ -684,6 +791,43 @@ def render_planner_result(
             width="stretch",
         )
 
+    town_detail_rows = itinerary.get(
+        "resupply_town_details",
+        [],
+    )
+
+    if town_detail_rows:
+        st.subheader("Town Details")
+        st.caption(
+            "Town service categories are planning context only. "
+            "Verify current businesses, mail drops, hours, shuttles, "
+            "lodging, closures, and conditions directly before relying "
+            "on them."
+        )
+        st.dataframe(
+            town_detail_rows,
+            width="stretch",
+            hide_index=True,
+            column_order=[
+                "day",
+                "resupply_location",
+                "mile",
+                "town_access",
+                "access_distance_miles",
+                "access_notes",
+                "service_categories",
+                "validated_lodging",
+                "validated_food",
+                "validated_outfitters",
+                "validated_mail_drop",
+                "zero_support",
+                "selected_side_trips",
+                "zero_candidate",
+                "source_name",
+                "business_detail_status",
+            ],
+        )
+
     st.header("Operational Itinerary")
 
     itinerary_rows = itinerary[
@@ -730,6 +874,7 @@ def render_planner_result(
             "resupply_mile",
             "town_access",
             "notes",
+            "selected_side_trips",
         ],
     )
 

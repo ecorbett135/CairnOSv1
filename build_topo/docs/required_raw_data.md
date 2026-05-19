@@ -246,7 +246,34 @@ emit red `gaia-car` road-access markers at the listed coordinates.
 
 ---
 
-## 7. gaia_reference.geojson
+## 7. town_service_options.csv and side_trip_options.csv
+
+Directory:
+
+```text
+raw/csv/
+```
+
+Optional:
+
+```text
+town_service_options.csv
+side_trip_options.csv
+```
+
+Purpose:
+
+Provides validated advisory context for town stops and user-selected side
+trips. These files are runtime enrichment only. They do not change route
+overlay authority, resupply scoring, itinerary mileage, feasibility, or Gaia
+export behavior.
+
+Named businesses and named side trips must include independent current-source
+validation metadata before they appear in user-facing output.
+
+---
+
+## 8. gaia_reference.geojson
 
 Directory:
 
@@ -279,7 +306,7 @@ Expected semantics include:
 - matched and unmatched waypoint records
 - summary counts for shelters, campsites, and approach references
 
-## 8. shelters.geojson and campsites.geojson
+## 9. shelters.geojson and campsites.geojson
 
 Directory:
 
@@ -330,7 +357,13 @@ Optional future layers may include:
 - seasonal closures
 - transportation networks
 
-## 9. overnight_amenities.csv
+Season, current-condition, transportation, and water-source layers should start
+as advisory metadata with explicit provenance. They must prefer official trail
+organizations, public agencies, business/town sources, or clearly licensed open
+data, and they must not copy third-party guide tables, route reviews, maps, or
+business lists into committed CairnOS data without reuse review.
+
+## 10. overnight_amenities.csv
 
 Directory:
 

@@ -14,6 +14,8 @@ planning before expanding into broader route modes.
 - minor-exception-aware feasibility classification
 - resupply strategy rows with recovery timing and town-access friction context
 - optional bear-box overnight-site preference based on curated amenity metadata
+- resupply town-detail review rows with service categories and validation status
+- annotation-only side-trip preferences for validated experience options
 - Gaia-compatible GeoJSON export
 
 SECTION planning is intentionally deferred. The underlying planner branches
@@ -62,6 +64,12 @@ unless a separate licensing decision is made.
 External research sources that influence roadmap decisions, planner behavior,
 or data modeling are tracked in `docs/RESEARCH_LOG.md`. Community research is
 qualitative signal unless it is separately promoted into a provenanced dataset.
+The 2026-05-19 Long Trail guide/source review reinforces that CairnOS should
+stay provenance-aware while improving experience-aware planning. Active roadmap
+items now track validated town details, optional side-trip annotations,
+date-aware season/current-condition advisories, access/transportation friction,
+and future water-source reliability evaluation. The related GitHub roadmap
+items are #38, #41, #42, #43, and #44.
 
 Legacy development-agent cleanup is tracked as MVP hardening work, not product
 AI-agent architecture. The pre-Codex coding-agent scaffold should be retired or
@@ -104,6 +112,32 @@ Current resupply convenience scoring may parse town-access distance from notes.
 Future data-quality work should promote this into structured source fields so
 the planner can reason about shuttle friction, town distance, and short
 resupply-only stops without depending on prose parsing.
+
+Town-detail output should remain a review aid for planned resupply stops, not a
+guidebook replacement. Business-level lodging, outfitter, shuttle, and mail-drop
+data should remain out of planner scoring until each listing has independent
+current-source validation and documented provenance.
+
+Side-trip preferences should remain annotation-only in MVP hardening. Selected
+side trips can show estimated time context near relevant town/access rows, but
+they must not change daily mileage, completion days, feasibility, resupply
+scoring, or Gaia export behavior until a separate planner-time model exists.
+
+Date-aware season and current-condition advisories should be informational in
+MVP hardening. Start date can drive prompts about mud season, insects, hunting
+season, shoulder-season weather, and checking official trail updates, but those
+prompts must not become safety determinations or live trail-condition claims.
+
+Transportation and access friction should become explicit advisory logistics
+context for town stops, termini, road crossings, and future SECTION endpoints.
+This should extend structured resupply access metadata without depending on
+prose parsing or guaranteeing current shuttle, transit, parking, or business
+availability.
+
+Water-source reliability remains future advisory data, not MVP feasibility
+logic. Official and clearly licensed sources should be reviewed before adding
+water metadata, and any output must remind hikers to verify current conditions
+and treat water.
 
 Structured resupply friction should remain user-tunable. The default convenient
 resupply-only threshold is 1 mile from trail, but the UI should let hikers
