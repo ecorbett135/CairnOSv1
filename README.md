@@ -375,6 +375,13 @@ elevation, and raw embedded track elevation when available. A row may be a
 elevations; treat that as an inspection cue rather than an automatic planner
 override.
 
+Manifest rows that include a route file also report `route_alignment`, which
+samples the local reference route against the compiled Long Trail spine. A
+`reference_route_deviates_from_compiled_spine` warning usually means the
+reference route followed a side trail, access route, alternate path, or bad
+vendor geometry and should be fixed or excluded before using it to judge
+elevation accuracy.
+
 To audit the trail-wide anchor mapping without using third-party reference
 files:
 

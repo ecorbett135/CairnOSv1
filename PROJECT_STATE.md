@@ -643,6 +643,8 @@ Immediate operational objectives:
   terrain-mile mapping accuracy
 - use local ignored elevation calibration manifests to recheck known reference
   segments as diagnostics
+- flag local elevation reference routes that deviate from the compiled trail
+  spine before treating their elevation deltas as Cairn terrain issues
 - keep overlay canonical miles authoritative when enriched reference stops
   share the same canonical name
 - add provenanced overnight amenity metadata such as bear-box availability
