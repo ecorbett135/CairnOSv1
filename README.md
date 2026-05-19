@@ -236,6 +236,7 @@ Typical input parameters include:
 - preferred zero/nero recovery cadence
 - configurable minimum and maximum nero mileage
 - optional extra resupply-only stops
+- convenient resupply-only access distance
 
 The output includes:
 
@@ -286,10 +287,15 @@ window is 5-8 miles, and the Streamlit UI exposes minimum and maximum nero-mile
 controls so recovery semantics can match the user's planning style.
 
 The resupply strategy table includes the trip start as the first carry segment
-anchor, then lists planned resupply access points, parsed town access distance,
-access notes, days until the next resupply segment or finish, and days until
-the next recovery stop. Terminal-day resupply stops are suppressed because they
-do not reduce a future food carry.
+anchor, then lists planned resupply access points, structured town-access
+distance, access notes, days until the next resupply segment or finish, and
+days until the next recovery stop. Terminal-day resupply stops are suppressed
+because they do not reduce a future food carry.
+
+Resupply access friction is stored as structured data in addition to the human
+access notes. The Streamlit UI exposes a `Convenient Resupply-Only Access
+(miles)` preference, defaulting to 1 mile, so hikers can decide how far off
+trail they are willing to go for an extra resupply-only stop.
 
 The current Long Trail resupply layer is sourced from:
 

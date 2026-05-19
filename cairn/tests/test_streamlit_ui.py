@@ -114,6 +114,10 @@ def test_mobile_view_renders_controls_without_sidebar():
     assert "Direction" in selectboxes
     assert "Desired Completion Days" in sliders
     assert "Preferred Resupply Cadence (days)" in sliders
+    assert (
+        "Convenient Resupply-Only Access (miles)"
+        in sliders
+    )
     assert "Allow Extra Resupply-Only Stops" in checkboxes
     assert "Avoid Long Food Carry" in checkboxes
 
@@ -160,6 +164,33 @@ def test_sidebar_exposes_food_carry_preference():
             "Avoid Long Food Carry"
         ].value
         is True
+    )
+
+
+def test_sidebar_exposes_convenient_resupply_access_range():
+    """Test resupply-only convenience is user configurable."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    sliders = {
+        widget.label: widget
+        for widget in app.sidebar.slider
+    }
+
+    assert (
+        "Convenient Resupply-Only Access (miles)"
+        in sliders
+    )
+    assert (
+        sliders[
+            "Convenient Resupply-Only Access (miles)"
+        ].value
+        == 1.0
     )
 
 

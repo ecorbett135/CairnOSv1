@@ -72,6 +72,11 @@ def test_resupply_validation_flags_rows_without_nearby_logistics_node():
         "trail_mile": "50.0",
         "town_access": "Example Town",
         "canonical_hint": "Example Road",
+        "access_distance_miles": "2.0",
+        "access_distance_qualifier": "exact",
+        "access_direction": "east",
+        "access_mode": "road_access",
+        "resupply_convenience": "moderate_side_trip",
         "grocery": "TRUE",
         "post_office": "FALSE",
         "outfitter": "FALSE",
@@ -104,6 +109,46 @@ def test_resupply_validation_flags_rows_without_nearby_logistics_node():
             findings
         )
     )
+
+
+def test_resupply_validation_flags_invalid_structured_access_fields():
+    row = {
+        "trail_mile": "50.0",
+        "town_access": "Example Town",
+        "canonical_hint": "Example Road",
+        "access_distance_miles": "-1",
+        "access_distance_qualifier": "nearish",
+        "access_direction": "northwest",
+        "access_mode": "shuttle",
+        "resupply_convenience": "easy",
+        "grocery": "TRUE",
+        "post_office": "FALSE",
+        "outfitter": "FALSE",
+        "lodging": "TRUE",
+        "restaurants": "TRUE",
+        "zero_candidate": "FALSE",
+        "latitude": "44.0",
+        "longitude": "-72.0",
+    }
+
+    findings = validate_resupply_amenities_rows([
+        row,
+    ])
+    codes = finding_codes(
+        findings
+    )
+
+    assert (
+        "invalid_resupply_access_distance"
+        in codes
+    )
+    assert (
+        "invalid_access_distance_qualifier"
+        in codes
+    )
+    assert "invalid_access_direction" in codes
+    assert "invalid_access_mode" in codes
+    assert "invalid_resupply_convenience" in codes
 
 
 def test_overnight_reference_validation_flags_summary_count_mismatch():

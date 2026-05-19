@@ -20,6 +20,7 @@ and toward:
 - logistics-aware expedition planning
 - ingress / egress continuity
 - overlay-authoritative progression modeling
+- structured resupply access-friction modeling
 
 The planner should reason about:
 
@@ -28,6 +29,7 @@ The planner should reason about:
 - terrain fatigue
 - recovery
 - logistics access
+- town-access friction
 - realistic pacing
 - cadence sustainability
 - the difference between mainline traversal and side-spur overnight access
