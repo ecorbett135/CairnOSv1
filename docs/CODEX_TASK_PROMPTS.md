@@ -11,7 +11,7 @@ Review the current CairnOS planner behavior for regressions. Read README.md, PRO
 ## Trail Data Source Audit
 
 ```text
-Audit candidate public data sources for adding or improving a trail in CairnOS. Prefer official trail organizations, USFS/NPS/state agencies, ArcGIS portals, and clearly licensed open repositories. For each source, record URL, owner, license/provenance status, update cadence if visible, data types, likely fields, and operational risks. Do not scrape proprietary guidebooks, EPUBs, paid apps, or copyrighted curated tables. Return a source-quality ranking and recommended ingestion path.
+Audit candidate public data sources for adding or improving a trail in CairnOS. Prefer official trail organizations, USFS/NPS/state agencies, ArcGIS portals, and clearly licensed open repositories. For each source, record URL, owner, license/provenance status, update cadence if visible, data types, likely fields, and operational risks. Update docs/RESEARCH_LOG.md for sources reviewed, and update data/DATASETS.md only if the source becomes committed data. Do not scrape proprietary guidebooks, EPUBs, paid apps, or copyrighted curated tables. Return a source-quality ranking and recommended ingestion path.
 ```
 
 ## Roadmap Update

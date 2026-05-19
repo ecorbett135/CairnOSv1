@@ -42,6 +42,7 @@ If the venv is missing or stale, use Python 3.11 or newer and install from `requ
 - Prefer official trail organizations, public agencies, and clearly licensed open datasets.
 - Do not scrape or reconstruct proprietary guidebooks, EPUBs, paid apps, or copyrighted curated tables.
 - Treat community datasets and third-party exports as candidate inputs until license, provenance, and operational accuracy are reviewed.
+- Record external research sources in `docs/RESEARCH_LOG.md` when they influence planner behavior, data modeling, UI language, roadmap priority, or alpha-feedback interpretation.
 - Do not commit secrets, private Streamlit settings, private tester data, private route exports, local calibration inputs, or generated reports unless explicitly intended.
 - User-owned actuals from future HikerLogix imports should be calibration inputs only; they must not override CairnOS trail data or operational truth.
 

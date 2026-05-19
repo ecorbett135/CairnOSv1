@@ -208,6 +208,9 @@ Apache 2.0 for alpha testing and planning-engine interoperability, while the
 future HikerLogix mobile app can remain private/proprietary unless separately
 opened.
 
+External research sources that inform planning behavior, data modeling, or
+roadmap decisions are tracked in `docs/RESEARCH_LOG.md`.
+
 ## Project structure
 
 - `build_topo/` — topology compiler and operational graph generation

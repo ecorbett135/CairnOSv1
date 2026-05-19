@@ -21,6 +21,17 @@ or redistribution limits depending on the source.
 Every reusable dataset should have a provenance row in `data/DATASETS.md`
 before it is treated as reusable project material.
 
+## Research Sources Are Separate
+
+External research that influences planning behavior, scoring, UI copy, roadmap
+priority, or data-modeling decisions should be recorded in
+`docs/RESEARCH_LOG.md`.
+
+The research log is separate from the dataset registry. A source can be useful
+qualitative research without becoming reusable data. If research material later
+becomes committed raw, derived, manual, or generated data, also update
+`data/DATASETS.md`.
+
 ## OSM-Derived Data
 
 OpenStreetMap-derived data may be subject to Open Database License (ODbL)

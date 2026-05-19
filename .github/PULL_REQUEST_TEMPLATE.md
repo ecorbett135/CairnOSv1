@@ -33,6 +33,15 @@ git diff --check
 If data changed, describe source, license/provenance, transformation steps, and
 whether `data/DATASETS.md` or `docs/DATA_PROVENANCE.md` needs an update.
 
+## Research Sources Used
+
+- [ ] No external research sources influenced this change
+- [ ] `docs/RESEARCH_LOG.md` was updated for external research used
+- [ ] Existing research-log entries already cover the sources used
+
+If web, community, app-comparison, map, guidebook, or user-export research
+influenced this change, list the sources and how they were used.
+
 ## Screenshots / Output Examples
 
 Attach screenshots, CSV snippets, Gaia GeoJSON examples, or calibration reports
