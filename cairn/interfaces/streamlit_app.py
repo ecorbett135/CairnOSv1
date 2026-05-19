@@ -40,6 +40,17 @@ st.set_page_config(
 
 TRAILS_ROOT = PROJECT_ROOT / "trails"
 
+GITHUB_FEEDBACK_URL = (
+    "https://github.com/ecorbett135/CairnOSv1/issues/new/choose"
+)
+
+ALPHA_FEEDBACK_GUIDANCE = (
+    "Include direction, requested days, mileage/elevation limits, "
+    "resupply/recovery settings, screenshots when useful, the "
+    "Developer Diagnostics ZIP for reproducible planner output, "
+    "and Gaia GeoJSON when reporting export or marker issues."
+)
+
 AVAILABLE_TRAILS = sorted([
     p.name
     for p in TRAILS_ROOT.iterdir()
@@ -134,6 +145,43 @@ def planner_button_label():
             "planner_result"
         ]
         else "Generate Plan"
+    )
+
+
+def render_alpha_feedback_panel(
+    target,
+    alpha_feedback_url,
+):
+    target.subheader("Alpha Feedback")
+    target.caption(
+        (
+            "Use feedback for confusing output, unrealistic stops, "
+            "UI problems, export marker issues, or data corrections. "
+            "Do not include private tester data, secrets, or proprietary "
+            "guidebook/export content."
+        )
+    )
+
+    if alpha_feedback_url:
+        target.link_button(
+            "Share Alpha Feedback",
+            alpha_feedback_url,
+        )
+    else:
+        target.link_button(
+            "Open GitHub Feedback Templates",
+            GITHUB_FEEDBACK_URL,
+        )
+
+    target.caption(
+        ALPHA_FEEDBACK_GUIDANCE
+    )
+    target.caption(
+        (
+            "CairnOS output is advisory planning context only. "
+            "Verify routes, services, closures, weather, water, "
+            "and backcountry decisions with official sources."
+        )
     )
 
 
@@ -935,6 +983,16 @@ def render_planner_result(
         key="developer_diagnostics_download",
     )
 
+    st.info(
+        (
+            "Reporting this generated plan? "
+            f"{ALPHA_FEEDBACK_GUIDANCE} "
+            "The diagnostics ZIP is the preferred artifact for "
+            "reproducing planner output; Gaia GeoJSON is most useful "
+            "for export and marker-location reports."
+        )
+    )
+
 
 if "planner_result" not in st.session_state:
     st.session_state["planner_result"] = None
@@ -958,8 +1016,14 @@ alpha_feedback_url = streamlit_secret(
 )
 
 if alpha_feedback_url:
-    st.markdown(
-        f"[Share Alpha feedback]({alpha_feedback_url})"
+    render_alpha_feedback_panel(
+        st,
+        alpha_feedback_url,
+    )
+else:
+    render_alpha_feedback_panel(
+        st,
+        "",
     )
 
 selected_view_mode = st.radio(
