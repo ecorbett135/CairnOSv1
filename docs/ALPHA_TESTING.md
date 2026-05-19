@@ -98,12 +98,14 @@ root, so the hosted app can install lean runtime dependencies while the root
 
 ## Feedback Prompts
 
-- Include direction, requested days, mileage/elevation limits,
-  resupply/recovery cadence, and nero-mile window when reporting planner output.
+- Attach the developer diagnostics ZIP for reproducible generated-plan reports.
+  It already includes planner settings, generated output, warnings, Gaia export,
+  and runtime data fingerprints.
+- If you are not attaching a diagnostics ZIP, include direction, requested days,
+  mileage/elevation limits, resupply/recovery cadence, and nero-mile window.
 - Attach screenshots only when they make the report easier to understand.
-- Attach the developer diagnostics ZIP for reproducible planner output.
-- Attach Gaia GeoJSON when reporting export import behavior or marker
-  placement.
+- If you are not attaching a diagnostics ZIP, attach Gaia GeoJSON when reporting
+  export import behavior or marker placement.
 - Did the itinerary feel plausible for a real Long Trail hike?
 - Were any overnight stops missing, misplaced, or unrealistic?
 - Did the resupply strategy match how you would plan food carries?
