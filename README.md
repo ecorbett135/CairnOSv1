@@ -19,6 +19,10 @@ range, elevation preference, resupply cadence, and recovery cadence. Then
 generate a plan and review the expedition summary, resupply strategy, and daily
 itinerary.
 
+On phones or small tablets, use `View Mode` -> `Mobile` if Streamlit does not
+show the sidebar. Mobile mode places planner controls at the top of the page
+and renders results below them.
+
 You can export the itinerary as Gaia-compatible GeoJSON for review in other
 tools. If you are reporting a confusing planner result, use the developer
 diagnostics download so the run can be reproduced without screenshots. Please
@@ -104,7 +108,7 @@ navigation, social trail database, or map subscription platform.
 
 The current Streamlit workflow supports planner configuration, generated
 expedition summaries, resupply strategy output, operational itinerary review,
-and Gaia GeoJSON export.
+Gaia GeoJSON export, and a mobile-friendly in-page control layout.
 
 ![CairnOSv1 Streamlit UI](docs/images/CairnOSv1-streamlit-ui.png)
 
@@ -216,6 +220,7 @@ The Streamlit app provides a user-facing interface for requesting expedition pla
 
 Typical input parameters include:
 
+- view mode selection for automatic, mobile, or desktop layout
 - trip type selection (THRU for MVP; SECTION is deferred)
 - direction selection (NOBO / SOBO)
 - ingress / egress approaches

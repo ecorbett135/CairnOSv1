@@ -351,6 +351,7 @@ Daily rows should communicate:
 The Streamlit UI currently supports:
 
 - trail selection
+- view mode selection for automatic, mobile, or desktop layout
 - trip type selection (`THRU` visible for MVP; `SECTION` deferred)
 - direction selection (NOBO / SOBO)
 - ingress route selection
