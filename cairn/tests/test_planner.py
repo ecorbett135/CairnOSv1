@@ -482,6 +482,163 @@ def test_resupply_plan_exposes_recovery_and_access_distance(
     )
 
 
+def test_resupply_town_details_expose_service_context_and_validation(
+    planner_factory,
+):
+    """Test town detail rows expose validated options without scoring."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+
+    town_details = itinerary[
+        "resupply_town_details"
+    ]
+
+    assert town_details
+
+    inn_at_long_trail = next(
+        row for row in town_details
+        if row["town_access"]
+        == "Inn at Long Trail / Rutland"
+    )
+
+    assert (
+        inn_at_long_trail[
+            "business_detail_status"
+        ]
+        == "validated named options available"
+    )
+    assert (
+        inn_at_long_trail[
+            "zero_support"
+        ]
+        == "validated_lodging_and_food"
+    )
+    assert "Inn at Long Trail" in (
+        inn_at_long_trail[
+            "validated_lodging"
+        ]
+    )
+    assert "McGrath's Irish Pub" in (
+        inn_at_long_trail[
+            "validated_food"
+        ]
+    )
+    assert any(
+        row["business_detail_status"]
+        == (
+            "category-only; named options require "
+            "independent current validation"
+        )
+        for row in town_details
+    )
+    assert any(
+        "Outfitter" in row[
+            "service_categories"
+        ]
+        for row in town_details
+    )
+    assert any(
+        row["source_name"]
+        == "Long Trail Planning Guide"
+        for row in town_details
+    )
+
+
+def test_selected_side_trips_annotate_without_changing_plan_time(
+    planner_factory,
+):
+    """Test side trips are advisory annotations only."""
+    user_profile = {
+        "direction": "NOBO",
+        "ingress_route": "North Adams Approach",
+        "egress_route": "Journey's End Trail",
+        "resupply_cadence": 5,
+        "recovery_cadence": 5,
+        "min_daily_miles": 9,
+        "max_daily_miles": 15,
+        "max_daily_elevation": 4000,
+        "allow_extra_resupply_only": True,
+    }
+    base_planner = planner_factory(
+        user_profile=user_profile,
+    )
+    side_trip_planner = planner_factory(
+        user_profile={
+            **user_profile,
+            "selected_side_trip_ids": [
+                "ben_jerrys_factory",
+            ],
+        },
+    )
+
+    base_itinerary = (
+        base_planner.synthesize_itinerary(
+            desired_days=28
+        )
+    )
+    side_trip_itinerary = (
+        side_trip_planner.synthesize_itinerary(
+            desired_days=28
+        )
+    )
+
+    assert (
+        side_trip_itinerary[
+            "expedition_summary"
+        ]["completion_days"]
+        == base_itinerary[
+            "expedition_summary"
+        ]["completion_days"]
+    )
+    assert [
+        row["daily_miles"]
+        for row in side_trip_itinerary[
+            "daily_plan"
+        ]
+    ] == [
+        row["daily_miles"]
+        for row in base_itinerary[
+            "daily_plan"
+        ]
+    ]
+
+    waterbury = next(
+        row for row in side_trip_itinerary[
+            "resupply_town_details"
+        ]
+        if row["town_access"]
+        == "Waterbury / Waterbury Center"
+    )
+
+    assert "Ben & Jerry's Factory Experience" in (
+        waterbury["selected_side_trips"]
+    )
+    assert any(
+        "Ben & Jerry's Factory Experience" in row.get(
+            "selected_side_trips",
+            "",
+        )
+        for row in side_trip_itinerary[
+            "daily_plan"
+        ]
+    )
+
+
 def test_access_distance_parser_extracts_nearest_town_miles(planner):
     """Test prose parsing remains as a fallback for legacy rows."""
     assert (

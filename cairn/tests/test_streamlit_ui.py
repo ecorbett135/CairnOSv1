@@ -266,3 +266,28 @@ def test_itinerary_table_exposes_stop_access_notes():
     assert "daily_stop_access_notes" in source
     assert "daily_stop_canonical_location" in source
     assert "daily_stop_spine_alignment" in source
+
+
+def test_resupply_town_details_render_with_validation_notice():
+    """Test UI surfaces advisory town-service context."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Town Details" in source
+    assert "town service categories are planning context only" in (
+        source.lower()
+    )
+    assert "business_detail_status" in source
+    assert "zero_support" in source
+
+
+def test_side_trip_preferences_are_annotation_only():
+    """Test optional side trips do not imply itinerary mutation."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Optional Side Trips" in source
+    assert "annotation-only" in source
+    assert "selected_side_trip_ids" in source
