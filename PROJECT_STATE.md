@@ -520,6 +520,8 @@ The resupply strategy table now includes:
 - days until the next resupply segment or finish
 - days until the next recovery opportunity
 - parsed town access distance and access notes
+- validated town-service context where current independent sources exist
+- annotation-only side-trip preferences for validated experience options
 
 Terminal-day resupply is avoided because it does not reduce a future food carry.
 
@@ -533,6 +535,11 @@ Future semantics should still reason more deeply about:
 
 - structured town access distance and shuttle friction
 - realistic recovery opportunities
+- validated lodging / food confidence for zero stops
+- optional experience stops without treating them as required miles
+- date-aware trail-season and current-condition advisory prompts
+- access/transportation friction for town stops, termini, and section endpoints
+- water-source reliability as future advisory metadata only
 - terrain reset points
 - logistics viability
 - expedition sustainability
@@ -552,6 +559,8 @@ Future implementation must support:
 - partial overlay traversal
 - partial cadence synthesis
 - partial logistics optimization
+- endpoint access and transportation-friction context
+- section-level town, resupply, and recovery viability
 
 ---
 
@@ -672,6 +681,8 @@ Immediate operational objectives:
   share the same canonical name
 - add provenanced overnight amenity metadata such as bear-box availability
   before exposing related route preferences
+- keep town-service and side-trip enrichment provenanced, independently
+  validated, and separate from route authority
 - make overlay traversal authoritative
 - implement section traversal substrate after THRU behavior is stable
 

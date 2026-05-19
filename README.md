@@ -142,6 +142,8 @@ data is currently:
 - `trails/vermont_long_trail/raw/csv/route_master.csv`
 - `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`
 - `trails/vermont_long_trail/raw/csv/overnight_amenities.csv`
+- `trails/vermont_long_trail/raw/csv/town_service_options.csv`
+- `trails/vermont_long_trail/raw/csv/side_trip_options.csv`
 
 The topology compiler, raw SHP/DEM inputs, raw enrichment exports, and
 build-time GIS dependencies are development assets and should not be treated as
@@ -165,6 +167,10 @@ hosted Alpha runtime requirements.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
 - Produces a resupply strategy table with trip-start carry segment, town access,
   access-distance context, and days to next resupply and recovery.
+- Shows validated town-service context for planned resupply stops, including
+  zero-support status where lodging and food have current independent sources.
+- Lets users select validated side trips as annotation-only experience notes;
+  selected side trips do not change miles, days, feasibility, or Gaia export.
 - Uses terrain interval analysis to bias daily pacing and report terrain-derived
   elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
@@ -180,9 +186,9 @@ hosted Alpha runtime requirements.
   deferred.
 - Trail data, shelter/campsite metadata, terrain, road access, and resupply
   information continue to need provenance review and field validation.
-- Feasibility does not yet model food weight, weather, seasonal service
-  changes, injuries, water reliability, personal pace variation, or group
-  dynamics.
+- Feasibility does not yet model food weight, weather, trail closures,
+  seasonal service changes, transportation/shuttle availability, injuries,
+  water reliability, personal pace variation, or group dynamics.
 - Elevation calibration is improving, but reference tools may report different
   ascent totals depending on smoothing and route geometry.
 - Gaia export is intended for review/import convenience, not as replacement for
@@ -309,6 +315,22 @@ The current Long Trail resupply layer is sourced from:
 - `trails/vermont_long_trail/compiled/route_overlay.json`
 
 The raw CSV preserves town access, available services, zero-day suitability, source provenance, and road/trailhead coordinates. The planner still relies on route overlay semantics for operational truth; the CSV enriches access points with practical resupply metadata.
+
+The Streamlit result also includes a town-details table for planned resupply
+stops. That table surfaces town-level service categories, validated named
+lodging/food/outfitter options where available, and zero-support context. It is
+not a business directory: business-level lodging, outfitter, shuttle, food, and
+mail-drop listings must be independently validated against current business or
+official/town sources before they are promoted into committed CairnOS data.
+
+Optional side trips are stored separately from resupply scoring. If selected,
+they annotate nearby town or daily rows with estimated time context, but they do
+not change itinerary duration, daily mileage, feasibility, or Gaia export.
+
+Current roadmap research also tracks date-aware trail-season advisories,
+transportation/access friction, SECTION endpoint logistics, and future
+water-source reliability metadata. These remain advisory planning context unless
+future planner behavior explicitly models their effect.
 
 ## Terrain-aware pacing
 
