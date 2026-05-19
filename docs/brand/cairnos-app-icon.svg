@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">CairnOS app icon concept</title>
+  <desc id="desc">A square CairnOS icon concept with a pale blue trail-planning badge on a deep Hiker Logix blue field.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f78a8"/>
+      <stop offset="1" stop-color="#4a86ad"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b2dff5"/>
+      <stop offset="1" stop-color="#98c8e8"/>
+    </linearGradient>
+    <clipPath id="badgeClip">
+      <circle cx="512" cy="448" r="280"/>
+    </clipPath>
+  </defs>
+
+  <rect width="1024" height="1024" rx="192" fill="url(#bg)"/>
+  <circle cx="512" cy="448" r="280" fill="url(#badge)"/>
+
+  <g clip-path="url(#badgeClip)">
+    <path d="M173 681 333 397l105 139 116-255 298 400H173z" fill="#2f719d"/>
+    <path d="M305 694c107-133 253-174 415-36" fill="none" stroke="#2f719d" stroke-width="22" stroke-linecap="round"/>
+    <path d="M238 627c105-55 176-155 279-119 91 32 119 171 226 136 56-19 104-19 159 11v118H238z" fill="#98c8e8"/>
+    <path d="M340 683c105-116 216-154 329-10" fill="none" stroke="#2f719d" stroke-width="18" stroke-linecap="round"/>
+
+    <g transform="translate(512 456) scale(1.08)">
+      <path d="M-110 150c61-37 161-37 220 0 19 12 11 34-13 41-66 18-128 18-194 0-24-7-32-29-13-41z" fill="#2a668f"/>
+      <path d="M-84 90c47-27 123-27 168 0 18 11 12 33-10 39-50 14-98 14-148 0-22-6-28-28-10-39z" fill="#3379a5"/>
+      <path d="M-62 36c36-22 90-22 124 0 16 10 12 30-7 36-38 11-72 11-110 0-19-6-23-26-7-36z" fill="#2a668f"/>
+      <path d="M-42-12c26-18 58-18 84 0 13 9 10 26-5 31-25 8-49 8-74 0-15-5-18-22-5-31z" fill="#3379a5"/>
+      <path d="M-20-54c13-14 29-14 40 0 10 12 5 26-6 32-9 5-19 5-28 0-11-6-16-20-6-32z" fill="#2a668f"/>
+    </g>
+
+    <path d="M322 548c120 40 244 40 366 0" fill="none" stroke="#b2dff5" stroke-width="12" stroke-linecap="round" opacity="0.88"/>
+    <path d="M381 603c111 28 223 27 333-2" fill="none" stroke="#b2dff5" stroke-width="12" stroke-linecap="round" opacity="0.75"/>
+  </g>
+
+  <text x="512" y="856" text-anchor="middle" font-family="Avenir Next, Montserrat, Helvetica Neue, Arial, sans-serif" font-size="98" font-weight="900" letter-spacing="2">
+    <tspan fill="#f8fafc">CAIRN</tspan><tspan fill="#b2dff5">OS</tspan>
+  </text>
+</svg>
