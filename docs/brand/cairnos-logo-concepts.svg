@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">CairnOS logo concept sheet</title>
+  <desc id="desc">Three CairnOS logo directions based on the Hiker Logix cool blue palette.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f78a8"/>
+      <stop offset="1" stop-color="#4a86ad"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#246f9f"/>
+      <stop offset="1" stop-color="#4d8ab0"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b2dff5"/>
+      <stop offset="1" stop-color="#98c8e8"/>
+    </linearGradient>
+    <clipPath id="badgeClip">
+      <circle cx="0" cy="0" r="112"/>
+    </clipPath>
+    <symbol id="cairnBadge" viewBox="-130 -130 260 260">
+      <circle cx="0" cy="0" r="112" fill="url(#badge)"/>
+      <g clip-path="url(#badgeClip)">
+        <path d="M-140 98-67-44-24 28 28-92 142 98H-140z" fill="#2f719d"/>
+        <path d="M-92 104C-37 35 46 27 102 89" fill="none" stroke="#2f719d" stroke-width="8" stroke-linecap="round"/>
+        <path d="M-118 69c42-21 72-61 113-47 38 13 52 65 94 51 22-7 42-7 65 4v48h-272z" fill="#98c8e8"/>
+        <path d="M-82 88C-33 42 34 38 79 86" fill="none" stroke="#2f719d" stroke-width="6" stroke-linecap="round"/>
+        <g transform="translate(0 8)">
+          <path d="M-43 56c24-14 64-14 86 0 8 5 4 14-5 17-26 7-50 7-76 0-9-3-13-12-5-17z" fill="#2a668f"/>
+          <path d="M-34 31c19-11 50-11 68 0 7 4 5 13-4 16-20 6-40 6-60 0-9-3-11-12-4-16z" fill="#3379a5"/>
+          <path d="M-24 9c14-8 36-8 48 0 6 4 5 12-2 14-15 4-29 4-44 0-7-2-8-10-2-14z" fill="#2a668f"/>
+          <path d="M-15-10c10-7 20-7 30 0 5 3 4 10-1 12-10 3-18 3-28 0-5-2-6-9-1-12z" fill="#3379a5"/>
+          <path d="M-7-24c5-5 10-5 14 0 4 4 2 9-2 11-3 2-7 2-10 0-4-2-6-7-2-11z" fill="#2a668f"/>
+        </g>
+        <path d="M-76 52c51 14 103 14 154-1" fill="none" stroke="#b2dff5" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+        <path d="M-48 72c43 9 86 9 129-1" fill="none" stroke="#b2dff5" stroke-width="4" stroke-linecap="round" opacity="0.72"/>
+      </g>
+    </symbol>
+    <style>
+      .word { font-family: Avenir Next, Montserrat, Helvetica Neue, Arial, sans-serif; font-weight: 900; letter-spacing: 1px; }
+      .tag { font-family: Avenir Next, Montserrat, Helvetica Neue, Arial, sans-serif; font-weight: 800; letter-spacing: 5px; }
+      .body { font-family: Avenir Next, Montserrat, Helvetica Neue, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="900" fill="#f4f8fb"/>
+  <text x="80" y="82" class="body" font-size="44" font-weight="900" fill="#1f5f86">CairnOS logo directions</text>
+  <text x="80" y="122" class="body" font-size="22" font-weight="700" fill="#4a6f84">Sibling to Hiker Logix: same blue weather, more planning-engine geometry.</text>
+
+  <g transform="translate(80 165)">
+    <rect width="440" height="610" rx="22" fill="url(#panel)"/>
+    <use href="#cairnBadge" x="91" y="80" width="258" height="258"/>
+    <text x="220" y="405" text-anchor="middle" class="word" font-size="58">
+      <tspan fill="#f8fafc">CAIRN</tspan><tspan fill="#b2dff5">OS</tspan>
+    </text>
+    <text x="220" y="449" text-anchor="middle" class="tag" font-size="18" fill="#b2dff5">EXPEDITION PLANNING ENGINE</text>
+    <text x="40" y="525" class="body" font-size="25" font-weight="900" fill="#f8fafc">A. Recommended</text>
+    <text x="40" y="560" class="body" font-size="18" font-weight="700" fill="#c9e9f8">Cairn stack plus route/contour lines.</text>
+  </g>
+
+  <g transform="translate(580 165)">
+    <rect width="440" height="610" rx="22" fill="url(#bg)"/>
+    <g transform="translate(220 209)">
+      <path d="M0-162v42M0 162v-42M-162 0h42M162 0h-42M-115-115l30 30M115 115l-30-30M-115 115l30-30M115-115l-30 30" fill="none" stroke="#b2dff5" stroke-width="8" stroke-linecap="round" opacity="0.72"/>
+    </g>
+    <use href="#cairnBadge" x="91" y="80" width="258" height="258"/>
+    <text x="220" y="405" text-anchor="middle" class="word" font-size="58">
+      <tspan fill="#f8fafc">CAIRN</tspan><tspan fill="#b2dff5">OS</tspan>
+    </text>
+    <text x="220" y="449" text-anchor="middle" class="tag" font-size="18" fill="#b2dff5">ROUTE REASONING SYSTEM</text>
+    <text x="40" y="525" class="body" font-size="25" font-weight="900" fill="#f8fafc">B. More technical</text>
+    <text x="40" y="560" class="body" font-size="18" font-weight="700" fill="#c9e9f8">Compass ticks push the OS/platform feel.</text>
+  </g>
+
+  <g transform="translate(1080 165)">
+    <rect width="440" height="610" rx="22" fill="#245f86"/>
+    <use href="#cairnBadge" x="91" y="80" width="258" height="258"/>
+    <text x="220" y="405" text-anchor="middle" class="word" font-size="58">
+      <tspan fill="#f8fafc">CAIRN</tspan><tspan fill="#b2dff5">OS</tspan>
+    </text>
+    <text x="220" y="449" text-anchor="middle" class="tag" font-size="18" fill="#b2dff5">PLAN THE TRAIL</text>
+    <text x="40" y="525" class="body" font-size="25" font-weight="900" fill="#f8fafc">C. Suite refresh</text>
+    <text x="40" y="560" class="body" font-size="18" font-weight="700" fill="#c9e9f8">If both brands move forward, share the</text>
+    <text x="40" y="586" class="body" font-size="18" font-weight="700" fill="#c9e9f8">badge grammar and change the symbol job.</text>
+  </g>
+
+  <g transform="translate(80 835)">
+    <rect x="0" y="-28" width="46" height="46" rx="8" fill="#1f78a8"/>
+    <rect x="62" y="-28" width="46" height="46" rx="8" fill="#4a86ad"/>
+    <rect x="124" y="-28" width="46" height="46" rx="8" fill="#98c8e8"/>
+    <rect x="186" y="-28" width="46" height="46" rx="8" fill="#b2dff5"/>
+    <rect x="248" y="-28" width="46" height="46" rx="8" fill="#f8fafc" stroke="#d6e5ee"/>
+    <text x="328" y="3" class="body" font-size="19" font-weight="800" fill="#4a6f84">Palette sampled from the existing Hiker Logix assets, tightened for a shared product family.</text>
+  </g>
+</svg>
