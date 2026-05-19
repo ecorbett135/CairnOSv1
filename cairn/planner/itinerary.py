@@ -776,6 +776,14 @@ class ItineraryBuilder:
             if (
                 recovery_node
                 and recovery_kind == "zero"
+                and day + 1 >= completion_days
+            ):
+                recovery_node = None
+                recovery_kind = None
+
+            if (
+                recovery_node
+                and recovery_kind == "zero"
             ):
                 recovery_mile = (
                     self.node_mile(
@@ -819,6 +827,7 @@ class ItineraryBuilder:
                         last_resupply_day,
                         resupply_nodes,
                         used_resupply_ids,
+                        terminal_mile=terminal_mile,
                     )
                 )
 
@@ -1141,8 +1150,31 @@ class ItineraryBuilder:
                         last_resupply_day,
                         resupply_nodes,
                         used_resupply_ids,
+                        terminal_mile=terminal_mile,
                     )
                 )
+
+            if (
+                resupply_node
+                and not recovery_kind
+                and terminal_mile is not None
+            ):
+                resupply_mile_for_terminal = (
+                    self.node_mile(
+                        resupply_node
+                    )
+                )
+
+                if (
+                    resupply_mile_for_terminal
+                    is not None
+                    and self.travel_distance(
+                        resupply_mile_for_terminal,
+                        terminal_mile,
+                    )
+                    <= final_day_extension_limit
+                ):
+                    resupply_node = None
 
             if (
                 recovery_node
@@ -1178,6 +1210,7 @@ class ItineraryBuilder:
             town_access = ""
             resupply_access_distance = None
             resupply_access_notes = ""
+            resupply_convenience = ""
 
             if resupply_node:
 
@@ -1228,6 +1261,13 @@ class ItineraryBuilder:
                 resupply_access_notes = (
                     resupply_node.get(
                         "access_notes",
+                        ""
+                    )
+                )
+
+                resupply_convenience = (
+                    resupply_node.get(
+                        "resupply_convenience",
                         ""
                     )
                 )
@@ -1291,6 +1331,9 @@ class ItineraryBuilder:
                 ),
                 "resupply_access_notes": (
                     resupply_access_notes
+                ),
+                "resupply_convenience": (
+                    resupply_convenience
                 ),
                 "food_carry_days_since_last_resupply": (
                     food_carry_days
@@ -1356,6 +1399,7 @@ class ItineraryBuilder:
                 zero_town_access = ""
                 zero_access_distance = None
                 zero_access_notes = ""
+                zero_resupply_convenience = ""
 
                 if zero_resupply_node:
 
@@ -1406,6 +1450,13 @@ class ItineraryBuilder:
                     zero_access_notes = (
                         zero_resupply_node.get(
                             "access_notes",
+                            ""
+                        )
+                    )
+
+                    zero_resupply_convenience = (
+                        zero_resupply_node.get(
+                            "resupply_convenience",
                             ""
                         )
                     )
@@ -1478,6 +1529,9 @@ class ItineraryBuilder:
                     ),
                     "resupply_access_notes": (
                         zero_access_notes
+                    ),
+                    "resupply_convenience": (
+                        zero_resupply_convenience
                     ),
                     "food_carry_days_since_last_resupply": (
                         zero_food_carry_days

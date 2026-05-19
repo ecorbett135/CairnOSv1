@@ -192,6 +192,17 @@ class LogisticsPlanner:
                     row.get("longitude")
                 )
 
+                access_distance_miles = self.parse_float(
+                    row.get("access_distance_miles")
+                )
+
+                if access_distance_miles is None:
+                    access_distance_miles = (
+                        self.parse_access_distance_miles(
+                            row.get("access_notes")
+                        )
+                    )
+
                 amenities.append({
                     "trail_mile": trail_mile,
                     "town_access": (
@@ -207,9 +218,27 @@ class LogisticsPlanner:
                         or ""
                     ),
                     "access_distance_miles": (
-                        self.parse_access_distance_miles(
-                            row.get("access_notes")
+                        access_distance_miles
+                    ),
+                    "access_distance_qualifier": (
+                        row.get(
+                            "access_distance_qualifier"
                         )
+                        or ""
+                    ),
+                    "access_direction": (
+                        row.get("access_direction")
+                        or ""
+                    ),
+                    "access_mode": (
+                        row.get("access_mode")
+                        or ""
+                    ),
+                    "resupply_convenience": (
+                        row.get(
+                            "resupply_convenience"
+                        )
+                        or ""
                     ),
                     "grocery": self.parse_bool(
                         row.get("grocery")
@@ -430,6 +459,17 @@ class LogisticsPlanner:
                 "access_distance_miles"
             )
 
+            for key in [
+                "access_distance_qualifier",
+                "access_direction",
+                "access_mode",
+                "resupply_convenience",
+            ]:
+                node[key] = amenity.get(
+                    key,
+                    "",
+                )
+
             node[
                 "resupply_services"
             ] = self.services_from_amenity(
@@ -606,7 +646,10 @@ class LogisticsPlanner:
         if distance is None:
             return 0
 
-        if distance <= 1.0:
+        if (
+            distance
+            <= self.convenient_resupply_distance_miles
+        ):
             return 35
 
         if distance <= 3.0:
@@ -628,7 +671,8 @@ class LogisticsPlanner:
 
         return (
             distance is None
-            or distance <= 1.0
+            or distance
+            <= self.convenient_resupply_distance_miles
         )
 
     def forward_resupply_gap_after(
@@ -745,6 +789,7 @@ class LogisticsPlanner:
         last_resupply_day,
         resupply_nodes,
         used_resupply_ids,
+        terminal_mile=None,
     ):
 
         cadence = max(
@@ -788,6 +833,20 @@ class LogisticsPlanner:
                 mile,
             ):
                 continue
+
+            if terminal_mile is not None:
+                terminal_distance = (
+                    self.travel_distance(
+                        mile,
+                        terminal_mile,
+                    )
+                )
+
+                if (
+                    terminal_distance
+                    <= self.max_daily_miles * 1.3
+                ):
+                    continue
 
             candidate_distance = (
                 self.travel_distance(
@@ -838,9 +897,18 @@ class LogisticsPlanner:
                     )
                 )
 
-                long_gap_ahead = (
+                if (
                     forward_gap is None
-                    or forward_gap
+                    and terminal_mile is not None
+                ):
+                    forward_gap = self.travel_distance(
+                        self.node_mile(node),
+                        terminal_mile,
+                    )
+
+                long_gap_ahead = bool(
+                    forward_gap is not None
+                    and forward_gap
                     > (
                         self.max_daily_miles
                         * 2
@@ -872,7 +940,8 @@ class LogisticsPlanner:
 
             if (
                 access_distance is not None
-                and access_distance > 1.0
+                and access_distance
+                > self.convenient_resupply_distance_miles
                 and not (
                     days_due
                     or self.is_recovery_candidate(
@@ -1190,6 +1259,14 @@ class LogisticsPlanner:
                         if matched_start
                         else ""
                     ),
+                    "resupply_convenience": (
+                        matched_start.get(
+                            "resupply_convenience",
+                            ""
+                        )
+                        if matched_start
+                        else ""
+                    ),
                     "access_type": first_day.get(
                         "daily_start_location_type",
                         "trailhead",
@@ -1236,6 +1313,9 @@ class LogisticsPlanner:
                     ),
                     "access_notes": day.get(
                         "resupply_access_notes"
+                    ),
+                    "resupply_convenience": day.get(
+                        "resupply_convenience"
                     ),
                     "access_type": day.get(
                         "resupply_location_type",
@@ -1398,6 +1478,10 @@ class LogisticsPlanner:
                 ),
                 "access_notes": node.get(
                     "access_notes",
+                    "",
+                ),
+                "resupply_convenience": node.get(
+                    "resupply_convenience",
                     "",
                 ),
                 "access_type": node.get(

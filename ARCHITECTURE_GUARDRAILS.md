@@ -84,6 +84,7 @@ PlannerV2 MUST reason about:
 - cumulative stress
 - recovery
 - logistics access
+- town-access friction
 - cadence sustainability
 - realistic pacing
 - operational feasibility
@@ -127,6 +128,20 @@ CairnOSv1 MUST NOT drift into:
 
 Prefer clean exports and integrations over rebuilding mature navigation
 ecosystems.
+
+### Open Source Boundary Is Deliberate
+
+CairnOSv1 may remain public and Apache 2.0 licensed as the planning,
+validation, and export engine. That does not require every related product
+surface to be public or open source.
+
+HikerLogix should remain a separate product boundary unless intentionally
+relicensed. Do not move proprietary mobile UX, App Store packaging, HealthKit
+permissions, monetization logic, private user actuals, or patent-sensitive
+implementation notes into CairnOSv1.
+
+Treat CairnOS-to-HikerLogix integration as file-based export interoperability
+first, not as a reason to collapse the repositories or licensing models.
 
 ---
 

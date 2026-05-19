@@ -20,6 +20,7 @@ and toward:
 - logistics-aware expedition planning
 - ingress / egress continuity
 - overlay-authoritative progression modeling
+- structured resupply access-friction modeling
 
 The planner should reason about:
 
@@ -28,6 +29,7 @@ The planner should reason about:
 - terrain fatigue
 - recovery
 - logistics access
+- town-access friction
 - realistic pacing
 - cadence sustainability
 - the difference between mainline traversal and side-spur overnight access
@@ -52,6 +54,16 @@ Current execution order:
 
 SECTION mode remains deferred and hidden from the Streamlit menu for the MVP,
 while the internal code path remains available for later implementation.
+
+Open-source, HikerLogix, and intellectual-property posture is documented in
+`docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. The working boundary is:
+
+- CairnOSv1 remains public and Apache 2.0 licensed as the planning/export
+  engine.
+- HikerLogix can remain private/proprietary as the future mobile field journal,
+  actuals, and product packaging layer.
+- Trail data provenance and commercial reuse rights are separate from the
+  CairnOS source-code license.
 
 ---
 
