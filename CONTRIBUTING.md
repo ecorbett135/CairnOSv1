@@ -109,6 +109,25 @@ Update `data/DATASETS.md` for any new dataset or meaningful data edit. If
 provenance is incomplete, mark fields as `UNKNOWN — needs review` rather than
 guessing.
 
+## Research Source Rules
+
+Update `docs/RESEARCH_LOG.md` when a contribution uses external research to
+justify planner behavior, scoring, UI language, roadmap priority, or data-model
+changes.
+
+Examples include:
+
+- official trail organization pages
+- land-manager or agency pages
+- Reddit, forums, and community discussions
+- hiking blogs and public planning guides
+- Gaia, Garmin, HiiKER, FarOut, or other app comparisons
+- user-owned GPX, KML, GeoJSON, FIT, TCX, CSV, or diagnostic exports
+
+Research sources are not automatically reusable data. Treat community threads
+as qualitative signal, and treat proprietary navigation or guidebook tools as
+comparison references unless reuse rights have been reviewed.
+
 ## Reporting Trail-Data Corrections
 
 Use the Trail or Data Issue template when reporting:
