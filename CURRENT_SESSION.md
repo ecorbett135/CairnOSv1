@@ -13,6 +13,7 @@ This session stabilized the PlannerV2 THRU workflow around three related areas:
 - terrain profile and mile-system reconciliation
 - itinerary display-name normalization and off-spine overnight-access
   diagnostics
+- open-source, HikerLogix, and IP boundary clarification
 
 The current implementation is intentionally incremental. PlannerV2 is still
 not a full overlay traversal engine, but the primary THRU workflow now behaves
@@ -178,6 +179,20 @@ canonical fields for diagnostics and export resolution, while immediate spur
 details such as `600 ft S via Stratton Pond Trail and spur` live in access-note
 fields. Longer town-access prose belongs in resupply or logistics context, not
 ordinary shelter location fields.
+
+---
+
+## Open Source And HikerLogix Boundary
+
+CairnOSv1 remains public and Apache 2.0 licensed for alpha deployment,
+community review, and planning/export interoperability. HikerLogix remains a
+separate future mobile companion boundary and can stay private/proprietary
+unless deliberately opened later.
+
+Do not commit HikerLogix proprietary implementation details, private user
+actuals, monetization experiments, or patent-sensitive implementation notes to
+CairnOSv1. See `docs/OPEN_SOURCE_AND_IP_STRATEGY.md` and
+`docs/HIKERLOGIX_COMPANION.md`.
 
 NOBO example:
 

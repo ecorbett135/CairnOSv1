@@ -56,6 +56,26 @@ Generated files should generally go under `data/generated/` or another ignored
 output directory unless they are deliberate release artifacts with documented
 provenance.
 
+## Commercial And Companion-App Boundary
+
+Future HikerLogix work may use CairnOS exports or Apache-licensed CairnOS code,
+but that does not convert external trail datasets into proprietary mobile-app
+assets, and it does not convert HikerLogix user actuals into CairnOS trail
+truth.
+
+Before using any dataset in a paid app, hosted service, premium trail pack, or
+commercial export, record:
+
+- source owner
+- source license or terms
+- attribution requirements
+- redistribution limits
+- whether the data can be used commercially
+- whether share-alike obligations apply
+
+If the answer is unclear, mark the dataset as `UNKNOWN — needs review` and do
+not treat it as a reusable commercial asset.
+
 ## Runtime Data Validation
 
 CairnOS includes a lightweight runtime data-quality validator:

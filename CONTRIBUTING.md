@@ -61,6 +61,12 @@ unless provenance and reuse rights have been reviewed.
 - Do not treat planner output as safety-critical guidance.
 - Do not commit secrets, private Streamlit settings, private tester data, or
   unreviewed vendor exports.
+- Do not commit private HikerLogix implementation details, mobile monetization
+  experiments, private user actuals, or patent-sensitive notes to CairnOSv1.
+
+Unless otherwise stated, source-code contributions to CairnOSv1 are made under
+the Apache 2.0 license used by the project. Data contributions remain subject
+to the data provenance rules below.
 
 ## Alpha Scope Boundaries
 
