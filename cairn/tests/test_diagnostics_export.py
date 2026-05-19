@@ -24,6 +24,7 @@ EXPECTED_ZIP_FILES = {
     "gaia.geojson",
     "gaia_warnings.json",
     "data_fingerprints.json",
+    "elevation_confidence.json",
 }
 
 
@@ -97,6 +98,10 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             archive,
             "completion_analysis.json",
         )
+        elevation_confidence = read_zip_json(
+            archive,
+            "elevation_confidence.json",
+        )
         fingerprints = read_zip_json(
             archive,
             "data_fingerprints.json",
@@ -128,6 +133,33 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
         assert completion == itinerary[
             "completion_analysis"
         ]
+        assert (
+            elevation_confidence["schema_version"]
+            == "cairnos_elevation_confidence_v1"
+        )
+        assert (
+            elevation_confidence["summary"][
+                "total_days"
+            ]
+            == len(itinerary["daily_plan"])
+        )
+        assert (
+            elevation_confidence["summary"][
+                "moving_days"
+            ]
+            > 0
+        )
+        assert elevation_confidence["days"]
+        assert {
+            "day",
+            "confidence",
+            "terrain_source",
+            "reported_elevation_gain_ft",
+            "recomputed_elevation_gain_ft",
+            "reasons",
+        } <= set(
+            elevation_confidence["days"][0]
+        )
 
         text_payload = "\n".join(
             archive.read(name).decode("utf-8")
@@ -137,6 +169,7 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
                 "completion_analysis.json",
                 "gaia_warnings.json",
                 "data_fingerprints.json",
+                "elevation_confidence.json",
             ]
         )
         assert "/Users/" not in text_payload
