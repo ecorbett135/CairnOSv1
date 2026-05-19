@@ -58,6 +58,10 @@ Open-source and commercial-product boundaries are tracked in
 public and Apache 2.0 licensed while keeping HikerLogix private/proprietary
 unless a separate licensing decision is made.
 
+External research sources that influence roadmap decisions, planner behavior,
+or data modeling are tracked in `docs/RESEARCH_LOG.md`. Community research is
+qualitative signal unless it is separately promoted into a provenanced dataset.
+
 Legacy development-agent cleanup is tracked as MVP hardening work, not product
 AI-agent architecture. The pre-Codex coding-agent scaffold should be retired or
 quarantined, while useful validation helpers should live under stable CairnOS
