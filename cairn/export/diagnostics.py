@@ -34,6 +34,7 @@ RUNTIME_INPUTS = [
     "raw/csv/route_master.csv",
     "raw/csv/approach_trails.csv",
     "raw/csv/resupply_amenities.csv",
+    "raw/csv/overnight_amenities.csv",
 ]
 
 

@@ -141,6 +141,7 @@ data is currently:
 - `trails/vermont_long_trail/raw/csv/approach_trails.csv`
 - `trails/vermont_long_trail/raw/csv/route_master.csv`
 - `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`
+- `trails/vermont_long_trail/raw/csv/overnight_amenities.csv`
 
 The topology compiler, raw SHP/DEM inputs, raw enrichment exports, and
 build-time GIS dependencies are development assets and should not be treated as
@@ -158,6 +159,8 @@ hosted Alpha runtime requirements.
 - Preserves NOBO and SOBO ingress/egress semantics over northbound-reference guidebook miles.
 - Prioritizes real shelter and campsite stops over synthetic labels, including
   compiled overnight reference candidates.
+- Tracks curated bear-box availability as overnight-site metadata and offers an
+  optional soft preference for sites with bear boxes.
 - Separates resupply cadence from zero/nero recovery cadence.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
 - Produces a resupply strategy table with trip-start carry segment, town access,

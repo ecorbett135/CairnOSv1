@@ -139,6 +139,86 @@ class OperationalQueries:
         with open(path) as handle:
             return json.load(handle)
 
+    def overnight_reference_lookup(self):
+
+        payload = (
+            self.load_overnight_reference()
+        )
+        lookup = {}
+
+        for row in payload.get(
+            "matched_overnight_sites",
+            [],
+        ):
+
+            for key in [
+                row.get("overlay_id"),
+                row.get("canonical_name"),
+                row.get("title"),
+            ]:
+
+                if key:
+                    lookup[
+                        str(key).casefold()
+                    ] = row
+
+        return lookup
+
+    def apply_overnight_amenities(
+        self,
+        node,
+        lookup,
+    ):
+
+        enriched = dict(
+            node
+        )
+
+        for key in [
+            node.get("overlay_id"),
+            node.get("canonical_name"),
+            node.get("title"),
+        ]:
+
+            if not key:
+                continue
+
+            reference = lookup.get(
+                str(key).casefold()
+            )
+
+            if not reference:
+                continue
+
+            enriched["bear_box"] = bool(
+                reference.get("bear_box")
+            )
+            enriched[
+                "amenity_source_name"
+            ] = reference.get(
+                "amenity_source_name",
+                "",
+            )
+            enriched[
+                "amenity_source_url"
+            ] = reference.get(
+                "amenity_source_url",
+                "",
+            )
+            enriched[
+                "amenity_source_accessed"
+            ] = reference.get(
+                "amenity_source_accessed",
+                "",
+            )
+            return enriched
+
+        enriched.setdefault(
+            "bear_box",
+            False,
+        )
+        return enriched
+
     def get_overnight_reference_candidates(self):
 
         payload = (
@@ -199,6 +279,21 @@ class OperationalQueries:
                         "distance_to_spine_miles"
                     )
                 ),
+                "bear_box": bool(
+                    row.get("bear_box")
+                ),
+                "amenity_source_name": row.get(
+                    "amenity_source_name",
+                    "",
+                ),
+                "amenity_source_url": row.get(
+                    "amenity_source_url",
+                    "",
+                ),
+                "amenity_source_accessed": row.get(
+                    "amenity_source_accessed",
+                    "",
+                ),
             }
 
             if not (
@@ -235,14 +330,23 @@ class OperationalQueries:
         3. Other overnight nodes (overnight: true)
         """
         overlay_nodes = self.runtime.get_overlay_nodes()
+        overnight_lookup = (
+            self.overnight_reference_lookup()
+        )
 
         operational_overnight = []
 
         # Add shelters first (highest priority)
         for node in overlay_nodes:
             if node.get("shelter"):
+                enriched_node = (
+                    self.apply_overnight_amenities(
+                        node,
+                        overnight_lookup,
+                    )
+                )
                 operational_overnight.append({
-                    "node": node,
+                    "node": enriched_node,
                     "priority": 1,  # Highest priority
                     "type": "shelter"
                 })
@@ -250,8 +354,14 @@ class OperationalQueries:
         # Add designated campsites
         for node in overlay_nodes:
             if node.get("camping") and not node.get("shelter"):
+                enriched_node = (
+                    self.apply_overnight_amenities(
+                        node,
+                        overnight_lookup,
+                    )
+                )
                 operational_overnight.append({
-                    "node": node,
+                    "node": enriched_node,
                     "priority": 2,  # Medium priority
                     "type": "camp"
                 })
@@ -263,8 +373,14 @@ class OperationalQueries:
                 and not node.get("shelter")
                 and not node.get("camping")
             ):
+                enriched_node = (
+                    self.apply_overnight_amenities(
+                        node,
+                        overnight_lookup,
+                    )
+                )
                 operational_overnight.append({
-                    "node": node,
+                    "node": enriched_node,
                     "priority": 3,  # Lower priority
                     "type": "overnight"
                 })

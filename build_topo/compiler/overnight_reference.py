@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from difflib import SequenceMatcher
 from pathlib import Path
+import csv
 import json
 import math
 import sys
@@ -30,6 +31,23 @@ def raw_geojson_dir(trail_root):
         Path(trail_root) /
         "raw" /
         "geojson"
+    )
+
+
+def raw_csv_dir(trail_root):
+
+    return (
+        Path(trail_root) /
+        "raw" /
+        "csv"
+    )
+
+
+def overnight_amenities_path(trail_root):
+
+    return (
+        raw_csv_dir(trail_root) /
+        "overnight_amenities.csv"
     )
 
 
@@ -116,6 +134,136 @@ def normalize_match_text(value):
     return " ".join(
         text.split()
     )
+
+
+def amenity_lookup_keys(value):
+
+    normalized = normalize_match_text(
+        value
+    )
+
+    keys = {
+        normalized,
+    }
+
+    simplified = normalized
+
+    for suffix in [
+        " at",
+        " shelter",
+        " lodge",
+        " camp",
+        " campsite",
+        " camping area",
+        " tenting area",
+        " tent site",
+    ]:
+        if simplified.endswith(
+            suffix
+        ):
+            keys.add(
+                simplified[
+                    : -len(suffix)
+                ].strip()
+            )
+
+    if simplified.endswith(
+        " stony brook shelter at"
+    ):
+        keys.add(
+            "stony brook shelter"
+        )
+
+    return {
+        key for key in keys
+        if key
+    }
+
+
+def parse_bool(value):
+
+    return str(
+        value or ""
+    ).strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "y",
+    }
+
+
+def load_overnight_amenities(
+    trail_root=None,
+):
+
+    trail_root = resolve_trail_root(
+        trail_root
+    )
+    path = overnight_amenities_path(
+        trail_root
+    )
+
+    if not path.exists():
+        return {}
+
+    amenities = {}
+
+    with open(
+        path,
+        newline="",
+    ) as handle:
+        reader = csv.DictReader(
+            handle
+        )
+
+        for row in reader:
+            canonical_name = normalize_text(
+                row.get("canonical_name")
+            )
+
+            if not canonical_name:
+                continue
+
+            record = {
+                "bear_box": parse_bool(
+                    row.get("bear_box")
+                ),
+                "amenity_source_name": normalize_text(
+                    row.get("source_name")
+                ),
+                "amenity_source_url": normalize_text(
+                    row.get("source_url")
+                ),
+                "amenity_source_accessed": normalize_text(
+                    row.get("source_accessed")
+                ),
+                "amenity_curation_notes": normalize_text(
+                    row.get("curation_notes")
+                ),
+            }
+
+            for key in amenity_lookup_keys(
+                canonical_name
+            ):
+                amenities[key] = record
+
+    return amenities
+
+
+def amenities_for_name(
+    value,
+    amenities,
+):
+
+    for key in amenity_lookup_keys(
+        value
+    ):
+        if key in amenities:
+            return dict(
+                amenities[key]
+            )
+
+    return {}
 
 
 def match_tokens(value):
@@ -839,7 +987,10 @@ def build_reference_records(
     references,
     overlay_nodes,
     spine_index,
+    amenities=None,
 ):
+
+    amenities = amenities or {}
 
     matched = []
     unmatched = []
@@ -871,11 +1022,23 @@ def build_reference_records(
             overlay_nodes,
         )
 
+        amenity_record = (
+            amenities_for_name(
+                match.get("canonical_name"),
+                amenities,
+            )
+            or amenities_for_name(
+                reference.get("title"),
+                amenities,
+            )
+        )
+
         record = {
             **reference,
             **match,
             **estimate,
             **context,
+            **amenity_record,
             "schema_version": SCHEMA_VERSION,
         }
 
@@ -939,6 +1102,25 @@ def build_reference_records(
                 ),
                 "reference_class": record.get(
                     "overnight_class"
+                ),
+                "bear_box": bool(
+                    record.get("bear_box")
+                ),
+                "amenity_source_name": record.get(
+                    "amenity_source_name",
+                    "",
+                ),
+                "amenity_source_url": record.get(
+                    "amenity_source_url",
+                    "",
+                ),
+                "amenity_source_accessed": record.get(
+                    "amenity_source_accessed",
+                    "",
+                ),
+                "amenity_curation_notes": record.get(
+                    "amenity_curation_notes",
+                    "",
                 ),
             }
 
@@ -1006,6 +1188,17 @@ def build_summary(
         "planner_candidates": len(
             planner_candidates
         ),
+        "bear_box_sites": len([
+            record for record in [
+                *matched,
+                *unmatched,
+            ]
+            if record.get("bear_box")
+        ]),
+        "bear_box_planner_candidates": len([
+            record for record in planner_candidates
+            if record.get("bear_box")
+        ]),
         "excluded_generic_titles": len([
             record for record in references
             if record.get(
@@ -1032,9 +1225,14 @@ def export_overnight_reference(
         "trail": trail_root.name,
         "sources": [
             str(path)
-            for path in source_paths(
-                trail_root
-            )
+            for path in [
+                *source_paths(
+                    trail_root
+                ),
+                overnight_amenities_path(
+                    trail_root
+                ),
+            ]
             if path.exists()
         ],
         "purpose": (
@@ -1083,11 +1281,16 @@ def build_overnight_reference(
         trail_root
     )
 
+    amenities = load_overnight_amenities(
+        trail_root
+    )
+
     matched, unmatched, planner_candidates = (
         build_reference_records(
             references,
             overlay_nodes,
             spine_index,
+            amenities=amenities,
         )
     )
 

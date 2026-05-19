@@ -13,6 +13,7 @@ planning before expanding into broader route modes.
 - configurable nero-mile rules
 - minor-exception-aware feasibility classification
 - resupply strategy rows with recovery timing and town-access friction context
+- optional bear-box overnight-site preference based on curated amenity metadata
 - Gaia-compatible GeoJSON export
 
 SECTION planning is intentionally deferred. The underlying planner branches
@@ -149,8 +150,8 @@ Long Trail spine.
 
 ## Future Overnight Amenities
 
-Bear-box availability should become a structured overnight-site amenity, not a
-planner note. The source should be recorded as Green Mountain Club's bear-box
+Bear-box availability is tracked as structured overnight-site amenity metadata,
+not as a planner note. The source is recorded as Green Mountain Club's bear-box
 location page:
 
 ```text
@@ -180,11 +181,10 @@ Candidate Long Trail / Vermont AT overnight sites currently listed by GMC:
 - Sterling Pond Shelter
 - Tillotson Camp
 
-Implementation should add a curated/provenanced overnight amenity source with a
-boolean such as `bear_box`, compile it into overnight/reference metadata, and
-optionally expose a Streamlit preference like "Prefer sites with bear boxes."
-The preference should bias shelter/camp selection, not make bear boxes a hard
-requirement unless a later UI explicitly asks for that mode.
+The curated `overnight_amenities.csv` source compiles into overnight reference
+metadata with a `bear_box` boolean. The Streamlit preference "Prefer Sites With
+Bear Boxes" softly biases shelter/camp selection, but does not make bear boxes a
+hard requirement.
 
 ## Near-Term Stabilization Notes
 

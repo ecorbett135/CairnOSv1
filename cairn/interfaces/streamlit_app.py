@@ -353,6 +353,16 @@ def render_planner_controls(
         ),
     )
 
+    prefer_bear_box_sites = target.checkbox(
+        "Prefer Sites With Bear Boxes",
+        value=False,
+        help=(
+            "Softly bias overnight stop selection toward shelters "
+            "and campsites with documented bear boxes. This is not "
+            "a hard requirement."
+        ),
+    )
+
     convenient_resupply_distance_miles = target.slider(
         "Convenient Resupply-Only Access (miles)",
         min_value=0.5,
@@ -390,6 +400,9 @@ def render_planner_controls(
         ),
         "avoid_long_food_carry": (
             avoid_long_food_carry
+        ),
+        "prefer_bear_box_sites": (
+            prefer_bear_box_sites
         ),
         "convenient_resupply_distance_miles": (
             convenient_resupply_distance_miles
@@ -451,6 +464,11 @@ def synthesize_planner_result(
             "avoid_long_food_carry": (
                 planner_config[
                     "avoid_long_food_carry"
+                ]
+            ),
+            "prefer_bear_box_sites": (
+                planner_config[
+                    "prefer_bear_box_sites"
                 ]
             ),
             "convenient_resupply_distance_miles": (

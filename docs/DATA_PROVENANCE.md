@@ -62,6 +62,10 @@ convenience class, are curated data. They must retain source notes and should
 not be treated as independently Apache licensed unless the upstream source
 chain has been reviewed.
 
+Structured overnight amenity fields, such as bear-box availability, are
+manually curated trail data. They must retain source, access date, and curation
+notes, and should be treated as planning context rather than a field guarantee.
+
 ## Generated Reports And Exports
 
 Generated reports, cached files, planner exports, and temporary outputs should
