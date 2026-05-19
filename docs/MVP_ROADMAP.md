@@ -111,6 +111,11 @@ Elevation calibration also supports a local ignored manifest CSV so known Gaia
 or Garmin reference segments can be rechecked as pass/warn/fail diagnostics
 without committing third-party route exports.
 
+Calibration reports now include route-to-spine alignment diagnostics for local
+reference route files. These warnings help separate true terrain-calibration
+issues from reference routes that temporarily follow side trails, access routes,
+or other non-LT geometry.
+
 ## Future Overnight Amenities
 
 Bear-box availability should become a structured overnight-site amenity, not a

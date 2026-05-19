@@ -3,11 +3,14 @@
 import json
 
 from cairn.runtime.elevation_calibration import (
+    ReferenceRoute,
+    apply_route_alignment_status,
     build_anchor_audit_report,
     build_gain_check,
     build_calibration_report,
     build_manifest_calibration_report,
     build_reference_gain_checks,
+    build_route_spine_alignment,
     calculate_gain_loss,
     classify_reference_delta,
     load_calibration_manifest,
@@ -242,6 +245,43 @@ def test_anchor_audit_report_surfaces_mapping_deltas(
     )
 
 
+def test_route_spine_alignment_flags_reference_route_detour(
+    planner,
+):
+    route = ReferenceRoute(
+        path="local-reference.geojson",
+        title="Local Reference",
+        source_format="geojson",
+        points=[
+            (
+                -73.155535,
+                42.743819,
+                None,
+            ),
+            (
+                -72.0,
+                44.0,
+                None,
+            ),
+        ],
+    )
+
+    alignment = build_route_spine_alignment(
+        route,
+        planner,
+        sample_limit=10,
+    )
+
+    assert alignment["status"] == "warn"
+    assert (
+        alignment[
+            "severe_off_spine_sample_count"
+        ]
+        > 0
+    )
+    assert alignment["worst_points"]
+
+
 def test_calibration_manifest_parses_core_fields(
     tmp_path,
 ):
@@ -356,6 +396,22 @@ def test_manifest_reference_gain_is_not_overridden_by_track_gain():
     assert status == "fail"
     assert reason == "manifest_reference_gain"
     assert best == primary
+
+
+def test_route_alignment_warning_overrides_reference_pass():
+    status, reason = apply_route_alignment_status(
+        "pass",
+        "primary_reference_gain",
+        {
+            "status": "warn",
+        },
+    )
+
+    assert status == "warn"
+    assert (
+        reason
+        == "reference_route_deviates_from_compiled_spine"
+    )
 
 
 def test_manifest_calibration_report_compares_reference_rows(

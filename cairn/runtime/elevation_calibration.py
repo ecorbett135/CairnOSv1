@@ -25,6 +25,11 @@ FEET_PER_METER = 3.280839895
 METERS_PER_MILE = 1609.344
 EARTH_RADIUS_MILES = 3958.7613
 DEFAULT_ELEVATION_THRESHOLD_FT = 50.0
+DEFAULT_ALIGNMENT_SAMPLE_LIMIT = 400
+DEFAULT_ALIGNMENT_OFF_SPINE_MILES = 0.15
+DEFAULT_ALIGNMENT_SEVERE_OFF_SPINE_MILES = 1.0
+DEFAULT_ALIGNMENT_WARN_PERCENT = 5.0
+SPINE_GRID_DEGREES = 0.02
 
 
 @dataclass
@@ -180,6 +185,368 @@ def path_distance_miles(
             points[1:],
         )
     )
+
+
+def sample_route_points(
+    points,
+    sample_limit=DEFAULT_ALIGNMENT_SAMPLE_LIMIT,
+):
+    if len(points) <= sample_limit:
+        return list(
+            enumerate(points)
+        )
+
+    step = max(
+        1,
+        math.ceil(
+            len(points) / sample_limit
+        ),
+    )
+    sampled = list(
+        enumerate(
+            points[::step]
+        )
+    )
+    sampled = [
+        (
+            index * step,
+            point,
+        )
+        for index, point in sampled
+    ]
+
+    last_item = (
+        len(points) - 1,
+        points[-1],
+    )
+
+    if sampled[-1][0] != last_item[0]:
+        sampled.append(
+            last_item
+        )
+
+    return sampled
+
+
+def spine_grid_key(
+    coordinates,
+    cell_degrees=SPINE_GRID_DEGREES,
+):
+    return (
+        math.floor(
+            coordinates[0] / cell_degrees
+        ),
+        math.floor(
+            coordinates[1] / cell_degrees
+        ),
+    )
+
+
+def build_spine_grid(
+    spine_points,
+    cell_degrees=SPINE_GRID_DEGREES,
+):
+    grid = {}
+
+    for point in spine_points:
+        key = spine_grid_key(
+            point["coordinates"],
+            cell_degrees=cell_degrees,
+        )
+        grid.setdefault(
+            key,
+            [],
+        ).append(point)
+
+    return grid
+
+
+def nearest_spine_point(
+    coordinates,
+    spine_points,
+    spine_grid,
+    cell_degrees=SPINE_GRID_DEGREES,
+):
+    key = spine_grid_key(
+        coordinates,
+        cell_degrees=cell_degrees,
+    )
+
+    candidates = []
+
+    for radius in range(0, 5):
+        for lon_offset in range(
+            -radius,
+            radius + 1,
+        ):
+            for lat_offset in range(
+                -radius,
+                radius + 1,
+            ):
+                candidates.extend(
+                    spine_grid.get(
+                        (
+                            key[0] + lon_offset,
+                            key[1] + lat_offset,
+                        ),
+                        [],
+                    )
+                )
+
+        if candidates:
+            break
+
+    if not candidates:
+        candidates = spine_points
+
+    best_point = min(
+        candidates,
+        key=lambda point: haversine_miles(
+            coordinates,
+            point["coordinates"],
+        ),
+    )
+
+    return {
+        "terrain_mile": best_point[
+            "terrain_mile"
+        ],
+        "distance_from_spine_miles": (
+            haversine_miles(
+                coordinates,
+                best_point["coordinates"],
+            )
+        ),
+    }
+
+
+def should_check_route_spine_alignment(
+    interval,
+    planner,
+):
+    guidebook_min, guidebook_max = (
+        planner.guidebook_mainline_range()
+    )
+    start_mile, stop_mile = interval
+    low_mile = min(
+        start_mile,
+        stop_mile,
+    )
+    high_mile = max(
+        start_mile,
+        stop_mile,
+    )
+    overlap_start = max(
+        low_mile,
+        guidebook_min,
+    )
+    overlap_stop = min(
+        high_mile,
+        guidebook_max,
+    )
+
+    return (
+        overlap_stop - overlap_start
+    ) >= 1.0
+
+
+def build_route_spine_alignment(
+    route,
+    planner,
+    sample_limit=DEFAULT_ALIGNMENT_SAMPLE_LIMIT,
+    off_spine_threshold_miles=DEFAULT_ALIGNMENT_OFF_SPINE_MILES,
+    severe_threshold_miles=(
+        DEFAULT_ALIGNMENT_SEVERE_OFF_SPINE_MILES
+    ),
+    warn_percent=DEFAULT_ALIGNMENT_WARN_PERCENT,
+) -> dict | None:
+    spine_points = (
+        planner.terrain.load_spine_mile_points()
+    )
+
+    if (
+        route is None
+        or not route.points
+        or not spine_points
+    ):
+        return None
+
+    spine_grid = build_spine_grid(
+        spine_points
+    )
+    sampled_distances = []
+
+    for point_index, point in sample_route_points(
+        route.points,
+        sample_limit=sample_limit,
+    ):
+        coordinates = (
+            float(point[0]),
+            float(point[1]),
+        )
+        projection = nearest_spine_point(
+            coordinates,
+            spine_points,
+            spine_grid,
+        )
+        sampled_distances.append({
+            "route_point_index": point_index,
+            "route_progress_percent": round(
+                (
+                    point_index
+                    / max(
+                        len(route.points) - 1,
+                        1,
+                    )
+                    * 100.0
+                ),
+                1,
+            ),
+            "distance_from_spine_miles": (
+                projection[
+                    "distance_from_spine_miles"
+                ]
+            ),
+            "nearest_terrain_mile": (
+                projection["terrain_mile"]
+            ),
+            "coordinates": coordinates,
+        })
+
+    distances = [
+        item["distance_from_spine_miles"]
+        for item in sampled_distances
+    ]
+
+    if not distances:
+        return None
+
+    sorted_distances = sorted(
+        distances
+    )
+    p95_index = min(
+        len(sorted_distances) - 1,
+        math.ceil(
+            len(sorted_distances) * 0.95
+        )
+        - 1,
+    )
+    off_spine_items = [
+        item for item in sampled_distances
+        if item["distance_from_spine_miles"]
+        > off_spine_threshold_miles
+    ]
+    severe_items = [
+        item for item in sampled_distances
+        if item["distance_from_spine_miles"]
+        > severe_threshold_miles
+    ]
+    off_spine_percent = (
+        len(off_spine_items)
+        / len(sampled_distances)
+        * 100.0
+    )
+    severe_percent = (
+        len(severe_items)
+        / len(sampled_distances)
+        * 100.0
+    )
+    max_distance = max(
+        distances
+    )
+    status = "pass"
+
+    if (
+        off_spine_percent >= warn_percent
+        or severe_percent >= 1.0
+        or max_distance >= (
+            severe_threshold_miles * 3
+        )
+    ):
+        status = "warn"
+
+    worst_points = sorted(
+        sampled_distances,
+        key=lambda item: (
+            item["distance_from_spine_miles"]
+        ),
+        reverse=True,
+    )[:5]
+
+    return {
+        "status": status,
+        "sample_count": len(sampled_distances),
+        "off_spine_sample_count": len(
+            off_spine_items
+        ),
+        "severe_off_spine_sample_count": len(
+            severe_items
+        ),
+        "off_spine_sample_percent": round(
+            off_spine_percent,
+            1,
+        ),
+        "severe_off_spine_sample_percent": round(
+            severe_percent,
+            1,
+        ),
+        "max_distance_from_spine_miles": round(
+            max_distance,
+            3,
+        ),
+        "p95_distance_from_spine_miles": round(
+            sorted_distances[p95_index],
+            3,
+        ),
+        "mean_distance_from_spine_miles": round(
+            sum(distances) / len(distances),
+            3,
+        ),
+        "thresholds": {
+            "off_spine_miles": (
+                off_spine_threshold_miles
+            ),
+            "severe_off_spine_miles": (
+                severe_threshold_miles
+            ),
+            "warn_percent": warn_percent,
+        },
+        "worst_points": [
+            {
+                "route_point_index": (
+                    item["route_point_index"]
+                ),
+                "route_progress_percent": (
+                    item[
+                        "route_progress_percent"
+                    ]
+                ),
+                "distance_from_spine_miles": round(
+                    item[
+                        "distance_from_spine_miles"
+                    ],
+                    3,
+                ),
+                "nearest_terrain_mile": round(
+                    item[
+                        "nearest_terrain_mile"
+                    ],
+                    2,
+                ),
+                "coordinates": [
+                    round(
+                        item["coordinates"][0],
+                        6,
+                    ),
+                    round(
+                        item["coordinates"][1],
+                        6,
+                    ),
+                ],
+            }
+            for item in worst_points
+        ],
+    }
 
 
 def calculate_gain_loss(
@@ -994,6 +1361,27 @@ def resolve_manifest_status(
     )
 
 
+def apply_route_alignment_status(
+    status,
+    status_reason,
+    route_alignment,
+):
+    if (
+        route_alignment
+        and route_alignment.get("status")
+        == "warn"
+    ):
+        return (
+            "warn",
+            "reference_route_deviates_from_compiled_spine",
+        )
+
+    return (
+        status,
+        status_reason,
+    )
+
+
 def infer_cairn_interval(
     route,
     planner,
@@ -1061,6 +1449,7 @@ def compare_route_to_cairn(
         summary["linear_cairn"] = None
         summary["linear_terrain_interval"] = None
         summary["anchor_terrain_interval"] = None
+        summary["route_alignment"] = None
         return summary
 
     terrain_stats = planner.analyze_terrain_interval(
@@ -1128,6 +1517,18 @@ def compare_route_to_cairn(
         gain_delta_percent,
         1,
     )
+    summary["route_alignment"] = None
+
+    if should_check_route_spine_alignment(
+        interval,
+        planner,
+    ):
+        summary["route_alignment"] = (
+            build_route_spine_alignment(
+                route,
+                planner,
+            )
+        )
 
     return summary
 
@@ -1446,6 +1847,29 @@ def compare_manifest_row_to_cairn(
             manifest_row.reference_gain_ft,
         )
     )
+    route_alignment = None
+
+    if (
+        reference_route
+        and should_check_route_spine_alignment(
+            interval,
+            planner,
+        )
+    ):
+        route_alignment = (
+            build_route_spine_alignment(
+                reference_route,
+                planner,
+            )
+        )
+
+    status, status_reason = (
+        apply_route_alignment_status(
+            status,
+            status_reason,
+            route_alignment,
+        )
+    )
 
     return {
         "name": manifest_row.name,
@@ -1518,6 +1942,7 @@ def compare_manifest_row_to_cairn(
         "primary_gain_check": primary_check,
         "best_gain_check": best_check,
         "reference_gain_checks": gain_checks,
+        "route_alignment": route_alignment,
         "notes": manifest_row.notes,
         "route_summary": route_summary,
     }
