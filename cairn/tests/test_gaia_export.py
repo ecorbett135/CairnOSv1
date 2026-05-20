@@ -112,6 +112,51 @@ def test_gaia_export_builds_point_features(
         assert key not in first_feature["properties"]
 
 
+def test_gaia_export_excludes_season_advisory_fields(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "start_date": "2026-10-10",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=21
+    )
+
+    assert itinerary["season_advisories"]
+
+    export = export_itinerary_to_gaia_geojson(
+        itinerary["daily_plan"],
+        trail_root,
+        itinerary["resupply_plan"],
+    )
+
+    excluded_keys = {
+        "season_advisories",
+        "advisory_id",
+        "trip_start_date",
+        "trip_end_date",
+        "matched_window",
+        "start_date",
+    }
+
+    for feature in export["geojson"]["features"]:
+        properties = feature.get(
+            "properties",
+            {},
+        )
+        assert excluded_keys.isdisjoint(
+            properties
+        )
+
+
 def test_gaia_export_uses_clean_names_and_canonical_lookup(
     planner_factory,
     trail_root,

@@ -74,9 +74,9 @@ qualitative signal unless it is separately promoted into a provenanced dataset.
 The 2026-05-19 Long Trail guide/source review reinforces that CairnOS should
 stay provenance-aware while improving experience-aware planning. Active roadmap
 items now track validated town details, optional side-trip annotations,
-date-aware season/current-condition advisories, access/transportation friction,
-and future water-source reliability evaluation. The related GitHub roadmap
-items are #38, #41, #42, #43, and #44.
+implemented date-aware season/current-condition advisories,
+access/transportation friction, and future water-source reliability evaluation.
+The related GitHub roadmap items are #38, #41, #42, #43, and #44.
 
 Legacy development-agent cleanup is tracked as MVP hardening work, not product
 AI-agent architecture. The pre-Codex coding-agent scaffold should be retired or
@@ -134,10 +134,12 @@ side trips can show estimated time context near relevant town/access rows, but
 they must not change daily mileage, completion days, feasibility, resupply
 scoring, or Gaia export behavior until a separate planner-time model exists.
 
-Date-aware season and current-condition advisories should be informational in
-MVP hardening. Start date can drive prompts about mud season, insects, hunting
-season, shoulder-season weather, and checking official trail updates, but those
-prompts must not become safety determinations or live trail-condition claims.
+Date-aware season and current-condition advisories are informational in MVP
+hardening. `PlannerV2` accepts an optional planned start date and returns
+advisory records for the generated trip window covering official trail-update
+verification, mud season, insects, hunting season, and shoulder-season weather.
+Those prompts must not become safety determinations, live trail-condition
+claims, feasibility scoring inputs, or Gaia export properties.
 
 Transportation and access friction should become explicit advisory logistics
 context for town stops, termini, road crossings, and future SECTION endpoints.

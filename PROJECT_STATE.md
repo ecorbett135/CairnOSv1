@@ -546,13 +546,21 @@ marker-location reports when the diagnostics ZIP is not attached. The app does
 not store tester feedback, append planner settings to the feedback URL, or treat
 feedback as planner input.
 
+PlannerV2 now accepts an optional `start_date` in `user_profile` and returns
+`season_advisories` for the generated trip window. The Streamlit UI exposes this
+as `Planned Start Date` near trip settings and renders compact season/current
+condition prompts near the expedition summary. These prompts are advisory only:
+they ask users to verify official trail updates, closures, weather, hunting
+seasons, and field conditions, but they do not affect completion negotiation,
+daily stops, feasibility scoring, resupply/recovery behavior, side-trip
+annotations, or Gaia export.
+
 Future semantics should still reason more deeply about:
 
 - structured town access distance and shuttle friction
 - realistic recovery opportunities
 - validated lodging / food confidence for zero stops
 - optional experience stops without treating them as required miles
-- date-aware trail-season and current-condition advisory prompts
 - access/transportation friction for town stops, termini, and section endpoints
 - water-source reliability as future advisory metadata only
 - terrain reset points

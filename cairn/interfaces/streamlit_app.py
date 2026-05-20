@@ -201,6 +201,46 @@ def render_itinerary_exception_table(
         )
 
 
+def render_season_advisories(
+    season_advisories,
+):
+    if not season_advisories:
+        return
+
+    st.header(
+        "Season And Current Conditions"
+    )
+    st.caption(
+        (
+            "Date-aware advisory prompts only. Verify official trail "
+            "updates, closures, weather, hunting seasons, and field "
+            "conditions before hiking."
+        )
+    )
+
+    for advisory in season_advisories:
+        source_name = advisory.get(
+            "source_name",
+            "Source",
+        )
+        source_url = advisory.get(
+            "source_url",
+            "",
+        )
+        source = (
+            f"[{source_name}]({source_url})"
+            if source_url
+            else source_name
+        )
+        st.info(
+            (
+                f"**{advisory.get('label', 'Season advisory')}**  \n"
+                f"{advisory.get('message', '')}  \n"
+                f"Source: {source}"
+            )
+        )
+
+
 def current_build_sha():
     try:
         result = subprocess.run(
@@ -476,6 +516,16 @@ def render_planner_controls(
         ],
     )
 
+    planned_start_date = target.date_input(
+        "Planned Start Date",
+        value=None,
+        help=(
+            "Optional date for advisory-only Long Trail season "
+            "prompts. This does not change feasibility, daily "
+            "mileage, resupply, recovery, or export geometry."
+        ),
+    )
+
     ingress_help, egress_help = (
         directional_access_help(
             trip_type,
@@ -668,6 +718,11 @@ def render_planner_controls(
         "desired_days": desired_days,
         "trip_type": trip_type,
         "direction": direction,
+        "start_date": (
+            planned_start_date.isoformat()
+            if planned_start_date
+            else None
+        ),
         "min_daily_miles": min_daily_miles,
         "max_daily_miles": max_daily_miles,
         "max_daily_elevation": max_daily_elevation,
@@ -776,6 +831,9 @@ def synthesize_planner_result(
             "egress_route": planner_config[
                 "egress_route"
             ],
+            "start_date": planner_config[
+                "start_date"
+            ],
         },
     )
 
@@ -856,6 +914,13 @@ def render_planner_result(
         summary[
             "average_daily_elevation"
         ],
+    )
+
+    render_season_advisories(
+        itinerary.get(
+            "season_advisories",
+            [],
+        )
     )
 
     st.header("Operational Feasibility")

@@ -53,6 +53,25 @@ def test_sidebar_exposes_thru_trip_type_and_direction():
     ]
 
 
+def test_sidebar_exposes_planned_start_date_control():
+    """Test date-aware advisories are configurable in trip settings."""
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    date_inputs = {
+        widget.label: widget
+        for widget in app.sidebar.date_input
+    }
+
+    assert "Planned Start Date" in date_inputs
+    assert date_inputs["Planned Start Date"].value is None
+
+
 def test_view_mode_control_exposes_mobile_fallback():
     """Test mobile users can switch away from sidebar controls."""
     app = AppTest.from_file(
@@ -269,6 +288,21 @@ def test_generated_plan_exposes_developer_diagnostics_download():
     assert "Download Developer Diagnostics" in source
     assert "developer_diagnostics_download" in source
     assert "build_diagnostic_package" in source
+
+
+def test_season_advisory_section_preserves_safety_boundary():
+    """Test date-aware advisory copy stays informational."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "render_season_advisories" in source
+    assert "Season And Current Conditions" in source
+    assert "Date-aware advisory prompts only" in source
+    assert "Verify official trail" in source
+    assert "updates" in source
+    assert "does not change feasibility" in source
+    assert "season_advisories" in source
 
 
 def test_alpha_feedback_panel_exposes_routing_and_repro_guidance():
