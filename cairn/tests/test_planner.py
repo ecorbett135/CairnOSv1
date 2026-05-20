@@ -2023,6 +2023,121 @@ def test_recovery_target_kind_spreads_zero_and_nero_requests(
     ]
 
 
+def test_target_count_recovery_advances_past_missed_windows(
+    planner_factory,
+):
+    """Test count mode does not let one missed target block later neros."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 3,
+            "target_nero_days": 2,
+            "min_nero_miles": 4,
+            "max_nero_miles": 7,
+            "allow_extra_resupply_only": True,
+            "avoid_long_food_carry": True,
+            "convenient_resupply_distance_miles": 1.0,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28,
+    )
+    daily_plan = itinerary["daily_plan"]
+    notes = [
+        row.get("notes", "")
+        for row in daily_plan
+    ]
+
+    assert sum(
+        "zero" in note
+        for note in notes
+    ) >= 3
+    assert sum(
+        "nero" in note
+        for note in notes
+    ) >= 2
+    assert "recovery_count_days" not in {
+        row["constraint"]
+        for row in itinerary[
+            "completion_analysis"
+        ]["itinerary_exceptions"]
+    }
+
+    recovery_days = [
+        row["day"]
+        for row in daily_plan
+        if (
+            "zero" in row.get("notes", "")
+            or "nero" in row.get("notes", "")
+        )
+    ]
+    assert max(
+        later - earlier
+        for earlier, later in zip(
+            recovery_days,
+            recovery_days[1:],
+        )
+    ) <= 6
+
+
+def test_resupply_annotations_stay_inside_daily_travel_window(
+    planner_factory,
+):
+    """Test future resupply nodes are not annotated before the day reaches them."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 3,
+            "target_nero_days": 2,
+            "min_nero_miles": 4,
+            "max_nero_miles": 7,
+            "allow_extra_resupply_only": True,
+            "avoid_long_food_carry": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28,
+    )
+
+    for row in itinerary["daily_plan"]:
+        resupply_mile = row.get(
+            "resupply_mile"
+        )
+        if resupply_mile is None:
+            continue
+
+        lower = min(
+            row["daily_start_mile"],
+            row["daily_stop_mile"],
+        )
+        upper = max(
+            row["daily_start_mile"],
+            row["daily_stop_mile"],
+        )
+
+        assert lower - 0.1 <= resupply_mile <= upper + 0.1
+
+
 def test_lodging_backed_recovery_can_be_zero_without_zero_candidate(
     planner_factory,
 ):

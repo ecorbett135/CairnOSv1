@@ -2288,6 +2288,103 @@ class LogisticsPlanner:
 
         return "nero"
 
+    def recovery_target_slots(
+        self,
+        completion_days,
+    ):
+
+        total = self.target_recovery_total()
+
+        if (
+            not completion_days
+            or total <= 0
+        ):
+            return []
+
+        return [
+            {
+                "index": index,
+                "day": self.recovery_target_day(
+                    completion_days,
+                    index,
+                ),
+                "kind": self.recovery_target_kind(
+                    index
+                ),
+            }
+            for index in range(
+                1,
+                total + 1,
+            )
+        ]
+
+    def pending_recovery_slots(
+        self,
+        completion_days,
+        kind,
+        placed_zero_count,
+        placed_nero_count,
+    ):
+
+        placed_count = (
+            placed_zero_count
+            if kind == "zero"
+            else placed_nero_count
+        )
+
+        slots = [
+            slot
+            for slot in self.recovery_target_slots(
+                completion_days
+            )
+            if slot["kind"] == kind
+        ]
+
+        return slots[
+            placed_count:
+        ]
+
+    def best_recovery_slot_for_day(
+        self,
+        completion_days,
+        kind,
+        effective_recovery_day,
+        placed_zero_count,
+        placed_nero_count,
+    ):
+
+        slots = self.pending_recovery_slots(
+            completion_days,
+            kind,
+            placed_zero_count,
+            placed_nero_count,
+        )
+
+        eligible = [
+            slot
+            for slot in slots
+            if (
+                slot.get("day")
+                is not None
+                and effective_recovery_day
+                >= slot["day"] - 2
+            )
+        ]
+
+        if not eligible:
+            return None
+
+        return sorted(
+            eligible,
+            key=lambda slot: (
+                abs(
+                    effective_recovery_day
+                    - slot["day"]
+                ),
+                slot["day"],
+            ),
+        )[0]
+
     def select_resupply_for_day(
         self,
         start_mile,
@@ -2525,11 +2622,12 @@ class LogisticsPlanner:
 
         target_recovery_day = None
         target_recovery_kind = None
-
-        if (
+        count_mode = (
             self.recovery_planning_mode
             == "target_counts"
-        ):
+        )
+
+        if count_mode:
             placed_total = (
                 placed_zero_count
                 + placed_nero_count
@@ -2542,30 +2640,6 @@ class LogisticsPlanner:
                 target_total <= 0
                 or placed_total >= target_total
                 or days_since_recovery < 2
-            ):
-                return (
-                    None,
-                    None,
-                )
-
-            target_index = (
-                placed_total + 1
-            )
-            target_recovery_day = (
-                self.recovery_target_day(
-                    completion_days,
-                    target_index,
-                )
-            )
-            target_recovery_kind = (
-                self.recovery_target_kind(
-                    target_index
-                )
-            )
-
-            if (
-                target_recovery_day
-                and day < target_recovery_day - 1
             ):
                 return (
                     None,
@@ -2655,60 +2729,140 @@ class LogisticsPlanner:
                 )
             )
 
-            candidate_kind = "nero"
+            candidate_recovery_options = []
 
-            if (
-                target_recovery_kind == "zero"
-                or (
-                    target_recovery_kind is None
-                    and zero_capable
-                )
-            ):
+            if count_mode:
                 if (
-                    zero_capable
+                    placed_zero_count
+                    < self.target_zero_days
+                    and zero_capable
                     and candidate_distance
                     >= self.min_daily_miles
                 ):
-                    candidate_kind = "zero"
-                elif (
-                    target_recovery_kind
-                    == "zero"
+                    zero_slot = (
+                        self.best_recovery_slot_for_day(
+                            completion_days,
+                            "zero",
+                            day + 1,
+                            placed_zero_count,
+                            placed_nero_count,
+                        )
+                    )
+                    if zero_slot:
+                        candidate_recovery_options.append(
+                            {
+                                "kind": "zero",
+                                "slot": zero_slot,
+                                "effective_day": day + 1,
+                            }
+                        )
+
+                if (
+                    placed_nero_count
+                    < self.target_nero_days
+                    and self.is_nero_distance(
+                        candidate_distance
+                    )
+                ):
+                    nero_slot = (
+                        self.best_recovery_slot_for_day(
+                            completion_days,
+                            "nero",
+                            day,
+                            placed_zero_count,
+                            placed_nero_count,
+                        )
+                    )
+                    if nero_slot:
+                        candidate_recovery_options.append(
+                            {
+                                "kind": "nero",
+                                "slot": nero_slot,
+                                "effective_day": day,
+                            }
+                        )
+
+            else:
+                candidate_kind = "nero"
+
+                if (
+                    target_recovery_kind == "zero"
+                    or (
+                        target_recovery_kind is None
+                        and zero_capable
+                    )
+                ):
+                    if (
+                        zero_capable
+                        and candidate_distance
+                        >= self.min_daily_miles
+                    ):
+                        candidate_kind = "zero"
+                    elif (
+                        target_recovery_kind
+                        == "zero"
+                    ):
+                        continue
+
+                if (
+                    candidate_kind == "nero"
+                    and not self.is_nero_distance(
+                        candidate_distance
+                    )
                 ):
                     continue
 
-            if (
-                candidate_kind == "nero"
-                and not self.is_nero_distance(
-                    candidate_distance
+                candidate_recovery_options.append(
+                    {
+                        "kind": candidate_kind,
+                        "slot": None,
+                        "effective_day": day,
+                    }
                 )
-            ):
-                continue
 
-            kind_penalty = 0
+            for option in candidate_recovery_options:
+                slot = option.get("slot")
+                candidate_kind = option["kind"]
+                effective_day = option[
+                    "effective_day"
+                ]
 
-            if (
-                target_recovery_kind
-                and candidate_kind
-                != target_recovery_kind
-            ):
-                kind_penalty = 1
+                kind_penalty = 0
 
-            candidates.append({
-                "node": node,
-                "score": score,
-                "kind": candidate_kind,
-                "kind_penalty": kind_penalty,
-                "distance_to_target": abs(
-                    target_mile - mile
-                ),
-                "distance_to_recovery_day": abs(
-                    (
+                if (
+                    target_recovery_kind
+                    and candidate_kind
+                    != target_recovery_kind
+                ):
+                    kind_penalty = 1
+
+                recovery_day_target = (
+                    slot.get("day")
+                    if slot
+                    else (
                         target_recovery_day
                         or day
                     )
-                    - day
-                ),
-            })
+                )
+
+                candidates.append({
+                    "node": node,
+                    "score": score,
+                    "kind": candidate_kind,
+                    "kind_penalty": kind_penalty,
+                    "distance_to_target": abs(
+                        target_mile - mile
+                    ),
+                    "distance_to_recovery_day": abs(
+                        recovery_day_target
+                        - effective_day
+                    ),
+                    "slot_index": (
+                        slot.get("index")
+                        if slot
+                        else 0
+                    ),
+                })
 
         if not candidates:
             return (
@@ -2721,6 +2875,9 @@ class LogisticsPlanner:
             key=lambda item: (
                 item[
                     "distance_to_recovery_day"
+                ],
+                item[
+                    "slot_index"
                 ],
                 abs(
                     days_since_recovery

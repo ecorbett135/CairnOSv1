@@ -1474,6 +1474,22 @@ class ItineraryBuilder:
                     )
                 )
 
+            if resupply_node:
+                resupply_mile_for_day = (
+                    self.node_mile(
+                        resupply_node
+                    )
+                )
+                if (
+                    resupply_mile_for_day is None
+                    or not self.mile_in_travel_window(
+                        current_mile,
+                        next_mile,
+                        resupply_mile_for_day,
+                    )
+                ):
+                    resupply_node = None
+
             if (
                 resupply_node
                 and not recovery_kind
