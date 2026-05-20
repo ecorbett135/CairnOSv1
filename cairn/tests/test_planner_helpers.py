@@ -46,6 +46,69 @@ def test_logistics_helper_matches_planner_facade(planner):
     )
 
 
+def test_validated_lodging_rows_cover_key_recovery_towns(planner):
+    """Test curated lodging includes high-value recovery corridors."""
+    lodging_names = {
+        option["display_name"]
+        for option in (
+            planner.logistics
+            .load_town_lodging_options()
+        )
+    }
+
+    assert "The Inn at Long Trail" in lodging_names
+    assert "Old Stagecoach Inn" in lodging_names
+    assert "Hotel Downstreet" in lodging_names
+    assert "Hampton Inn Bennington" in lodging_names
+
+
+def test_validated_lodging_strength_improves_recovery_score(planner):
+    """Test validated lodging has more recovery weight than generic lodging."""
+    logistics = planner.logistics
+    candidates = logistics.build_logistics_candidates()
+    waterbury = next(
+        node for node in candidates
+        if (
+            logistics.resupply_node_id(node)
+            == "Duxbury Road:181.6"
+        )
+    )
+    generic = {
+        "canonical_name": "Generic Lodging Access",
+        "town_access": "Generic Town",
+        "resupply_services": [
+            "lodging",
+            "restaurants",
+        ],
+        "resupply_amenity": {
+            "lodging": True,
+            "restaurants": True,
+            "zero_candidate": False,
+        },
+    }
+
+    assert (
+        logistics.has_validated_lodging(
+            waterbury
+        )
+        is True
+    )
+    assert (
+        logistics.validated_lodging_strength_bonus(
+            waterbury
+        )
+        > 0
+    )
+    assert (
+        logistics.score_recovery_candidate(
+            waterbury
+        )
+        > logistics.score_recovery_candidate(
+            generic
+        )
+    )
+
+
 def test_itinerary_builder_matches_planner_facade_stop_selection(planner):
     """Test extracted itinerary stop selection stays behind facade."""
     operational_nodes = (
