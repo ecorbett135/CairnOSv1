@@ -28,6 +28,23 @@ venv/bin/streamlit run cairn/interfaces/streamlit_app.py
 
 If the venv is missing or stale, use Python 3.11 or newer and install from `requirements.txt` for full local development. The hosted Streamlit app uses `cairn/interfaces/requirements.txt`.
 
+## Research And Browser Automation
+
+Node REPL may be used for read-only inspection, temporary structured-data
+analysis, and browser automation.
+
+Do not use Node REPL to edit CairnOS files, install npm packages into this
+repository, create `package.json` or `package-lock.json`, or write generated
+artifacts into the repository unless explicitly requested.
+
+Temporary Node REPL research artifacts should go under:
+
+- `~/.codex/scratch/cairnos-research`
+- `~/.codex/scratch/hikerlogix-research`
+
+Anything worth preserving should become a GitHub issue, documented research
+note, implementation plan, or intentional repository artifact.
+
 ## Architecture Rules
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, exports, and future HikerLogix interoperability.
