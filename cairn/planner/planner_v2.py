@@ -1781,6 +1781,8 @@ class PlannerV2:
         start_mile,
         stop_mile,
         candidate_mile,
+        include_start=False,
+        include_stop=True,
     ):
 
         return self.traversal.mile_in_travel_window(
@@ -1788,18 +1790,24 @@ class PlannerV2:
             start_mile,
             stop_mile,
             candidate_mile,
+            include_start=include_start,
+            include_stop=include_stop,
         )
 
     def build_overlay_corridor(
         self,
         start_mile=None,
         stop_mile=None,
+        start_overlay_id=None,
+        stop_overlay_id=None,
     ):
 
         return self.traversal.build_overlay_corridor(
             self.direction,
             start_mile=start_mile,
             stop_mile=stop_mile,
+            start_overlay_id=start_overlay_id,
+            stop_overlay_id=stop_overlay_id,
         )
 
     def corridor_nodes_between(
@@ -1808,6 +1816,8 @@ class PlannerV2:
         stop_mile,
         include_start=False,
         include_stop=True,
+        start_overlay_id=None,
+        stop_overlay_id=None,
     ):
 
         return self.traversal.corridor_nodes_between(
@@ -1816,6 +1826,49 @@ class PlannerV2:
             stop_mile,
             include_start=include_start,
             include_stop=include_stop,
+            start_overlay_id=start_overlay_id,
+            stop_overlay_id=stop_overlay_id,
+        )
+
+    def resolve_overlay_reference(
+        self,
+        node=None,
+        mile=None,
+        canonical_name=None,
+        corridor_nodes=None,
+        max_mile_delta=0.15,
+    ):
+
+        return self.traversal.resolve_overlay_reference(
+            node=node,
+            mile=mile,
+            canonical_name=canonical_name,
+            corridor_nodes=corridor_nodes,
+            max_mile_delta=max_mile_delta,
+        )
+
+    def overlay_index(
+        self,
+        node_or_id,
+    ):
+
+        return self.traversal.overlay_index(
+            node_or_id
+        )
+
+    def is_forward_overlay_progress(
+        self,
+        current_overlay_id,
+        candidate_overlay_id,
+    ):
+
+        return (
+            self.traversal
+            .is_forward_overlay_progress(
+                self.direction,
+                current_overlay_id,
+                candidate_overlay_id,
+            )
         )
 
     def extended_target_mile(
@@ -2064,6 +2117,7 @@ class PlannerV2:
         operational_overnight_nodes,
         logistics_nodes,
         current_mile=None,
+        corridor_nodes=None,
     ):
         return (
             self.itinerary_builder
@@ -2072,6 +2126,7 @@ class PlannerV2:
                 operational_overnight_nodes,
                 logistics_nodes,
                 current_mile=current_mile,
+                corridor_nodes=corridor_nodes,
             )
         )
 

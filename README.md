@@ -162,6 +162,9 @@ hosted Alpha runtime requirements.
 
 - Builds a trail topology and operational graph from compiled trail data.
 - Loads route overlay metadata and operational node semantics at runtime.
+- Uses compiled operational progression order as the traversal authority for
+  THRU itinerary synthesis, with hidden per-day overlay provenance retained for
+  diagnostics.
 - Synthesizes expedition itineraries through the `PlannerV2` facade, with
   terrain, logistics, and itinerary responsibilities split into focused helper
   modules under `cairn/planner/`.
