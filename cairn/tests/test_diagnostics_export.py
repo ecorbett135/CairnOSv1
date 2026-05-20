@@ -69,6 +69,7 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             ),
         },
         "itinerary": itinerary,
+        "build_sha": "abcdef123456",
     }
 
     package = build_diagnostic_package(
@@ -112,6 +113,15 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             == DIAGNOSTIC_SCHEMA_VERSION
         )
         assert manifest["build_sha"] == "abcdef123456"
+        assert manifest[
+            "plan_build_sha"
+        ] == "abcdef123456"
+        assert (
+            manifest[
+                "plan_build_matches_manifest"
+            ]
+            is True
+        )
         assert (
             manifest["planner_settings"]["trail_root"]
             == "trails/vermont_long_trail"

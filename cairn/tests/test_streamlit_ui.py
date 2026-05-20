@@ -254,6 +254,17 @@ def test_sidebar_exposes_alpha_build_fingerprint():
     )
 
 
+def test_alpha_build_fingerprint_is_import_time_constant():
+    """Test footer cannot claim a newer checkout from stale imports."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "APP_BUILD_SHA = read_build_sha()" in source
+    assert "def current_build_sha()" in source
+    assert "return APP_BUILD_SHA" in source
+
+
 def test_feasibility_view_separates_requested_and_generated_labels():
     """Test feasibility UI distinguishes requested and generated plans."""
     source = Path(
@@ -288,6 +299,18 @@ def test_generated_plan_exposes_developer_diagnostics_download():
     assert "Download Developer Diagnostics" in source
     assert "developer_diagnostics_download" in source
     assert "build_diagnostic_package" in source
+
+
+def test_generated_plan_is_build_aware_after_redeploy():
+    """Test stale session plans are refreshed after Alpha build changes."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "build_sha" in source
+    assert "refresh_stale_planner_result" in source
+    assert "planner_result_build_sha" in source
+    assert "regenerated with the same settings" in source
 
 
 def test_season_advisory_section_preserves_safety_boundary():

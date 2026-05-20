@@ -237,11 +237,23 @@ def build_manifest(
         "config",
         {},
     )
+    plan_build_sha = planner_result.get(
+        "build_sha"
+    )
 
     return {
         "schema_version": DIAGNOSTIC_SCHEMA_VERSION,
         "generated_at": generated_at,
         "build_sha": build_sha or "unknown",
+        "plan_build_sha": (
+            plan_build_sha
+            or "unknown"
+        ),
+        "plan_build_matches_manifest": (
+            plan_build_sha == build_sha
+            if plan_build_sha
+            else False
+        ),
         "python": {
             "version": sys.version.split()[0],
             "implementation": platform.python_implementation(),

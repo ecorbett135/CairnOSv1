@@ -195,6 +195,11 @@ route deviation. A shelter reached by a short spur can be displayed as the
 overnight site while traversal mileage and elevation remain tied to the main
 Long Trail spine.
 
+Hosted Alpha diagnostics should be build-consistent. Generated plans record the
+build that created them, stale session-state plans are refreshed after redeploy,
+and diagnostic manifests expose whether the plan build matches the current app
+build.
+
 Planner terrain smoothing should retain real rolling gain on rugged trail.
 The current default suppresses small DEM jitter without flattening repeated
 20-40 ft climbs, which matters in the Stratton Mountain / Stratton Pond area
