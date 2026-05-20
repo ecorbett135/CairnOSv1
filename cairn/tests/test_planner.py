@@ -1428,6 +1428,129 @@ def test_compound_same_day_exceptions_increase_pressure(
     )
 
 
+def test_moderate_weighted_exception_pressure_is_challenging(
+    planner_factory,
+):
+    """Test alpha diagnostic scenario does not overclassify as aggressive."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+        },
+    )
+    miles = [10.0] * 28
+    elevation = [2500.0] * 28
+    miles[15] = 15.5
+    miles[21] = 15.6
+    miles[25] = 18.0
+    miles[26] = 14.5
+    miles[27] = 12.9
+    elevation[15] = 3783.0
+    elevation[21] = 4636.0
+    elevation[25] = 4515.0
+    elevation[26] = 4263.0
+    elevation[27] = 4094.0
+    rows = _daily_rows(
+        miles,
+        elevation,
+    )
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows
+    )
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert [
+        row["constraint"]
+        for row in exceptions
+    ] == [
+        "daily_miles",
+        "daily_elevation_gain",
+    ]
+    assert exceptions[0]["overage_percent"] == 20.0
+    assert exceptions[1]["overage_percent"] == 15.9
+    assert evaluation["classification"] == "challenging"
+    assert (
+        evaluation["classification_reason"]
+        == "moderate_weighted_preference_pressure"
+    )
+    assert evaluation["compound_exception_days"] == [
+        22,
+        26,
+    ]
+    assert (
+        evaluation["weighted_exception_pressure_percent"]
+        == 26.9
+    )
+
+
+def test_more_than_two_compound_exception_days_are_aggressive(
+    planner_factory,
+):
+    """Test repeated combined mileage/elevation overages escalate."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [12, 12, 12, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+        [1250, 1250, 1250, 800, 800, 800, 800, 800, 800, 800, 800, 800],
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        planner.summarize_itinerary_exceptions(
+            rows
+        ),
+    )
+
+    assert evaluation["compound_exception_days"] == [
+        1,
+        2,
+        3,
+    ]
+    assert evaluation["classification"] == "aggressive"
+    assert (
+        evaluation["classification_reason"]
+        == "compound_exception_pressure"
+    )
+
+
+def test_frequent_exception_days_are_aggressive(
+    planner_factory,
+):
+    """Test frequent preference misses remain visible even if small."""
+    planner = planner_factory(
+        user_profile={
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [10.5, 10.5, 10.5, 10.5, 8, 8, 8, 8, 8, 8],
+        [800] * 10,
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        planner.summarize_itinerary_exceptions(
+            rows
+        ),
+    )
+
+    assert evaluation["exception_day_ratio"] == 0.4
+    assert evaluation["classification"] == "aggressive"
+    assert (
+        evaluation["classification_reason"]
+        == "frequent_preference_pressure"
+    )
+
+
 def test_major_overage_classifies_generated_plan_aggressive(
     planner_factory,
 ):
@@ -1455,7 +1578,7 @@ def test_major_overage_classifies_generated_plan_aggressive(
     assert evaluation["classification"] == "aggressive"
     assert (
         evaluation["classification_reason"]
-        == "major_preference_overage"
+        == "extreme_preference_overage"
     )
 
 

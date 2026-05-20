@@ -246,6 +246,20 @@ def test_feasibility_view_separates_requested_and_generated_labels():
     assert "requested_evaluation" in source
 
 
+def test_feasibility_exception_view_marks_compound_days():
+    """Test exception table calls out combined mileage/elevation days."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "render_itinerary_exception_table" in source
+    assert "compound-exception-day" in source
+    assert (
+        "Red day chips exceed both mileage and elevation preferences."
+        in source
+    )
+
+
 def test_generated_plan_exposes_developer_diagnostics_download():
     """Test generated plans expose a diagnostic bundle download."""
     source = Path(
