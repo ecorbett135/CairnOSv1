@@ -241,7 +241,7 @@ def render_season_advisories(
         )
 
 
-def current_build_sha():
+def read_build_sha():
     try:
         result = subprocess.run(
             [
@@ -259,6 +259,13 @@ def current_build_sha():
         return result.stdout.strip() or "unknown"
     except Exception:
         return "unknown"
+
+
+APP_BUILD_SHA = read_build_sha()
+
+
+def current_build_sha():
+    return APP_BUILD_SHA
 
 
 def user_agent():
@@ -316,6 +323,77 @@ def planner_button_label():
         ]
         else "Generate Plan"
     )
+
+
+def planner_result_build_sha(
+    planner_result,
+):
+    if not planner_result:
+        return None
+
+    return planner_result.get(
+        "build_sha"
+    )
+
+
+def refresh_stale_planner_result(
+    build_sha,
+):
+    planner_result = st.session_state.get(
+        "planner_result"
+    )
+
+    if not planner_result:
+        return False
+
+    if (
+        planner_result_build_sha(
+            planner_result
+        )
+        == build_sha
+    ):
+        return False
+
+    planner_config = planner_result.get(
+        "config"
+    )
+
+    if not planner_config:
+        st.session_state["planner_result"] = None
+        st.session_state[
+            "planner_refresh_notice"
+        ] = (
+            "The app updated and an older generated plan "
+            "was cleared. Generate a new plan before "
+            "downloading diagnostics."
+        )
+        return True
+
+    try:
+        st.session_state["planner_result"] = (
+            synthesize_planner_result(
+                planner_config,
+                build_sha,
+            )
+        )
+        st.session_state[
+            "planner_refresh_notice"
+        ] = (
+            "The app updated and the displayed plan was "
+            "regenerated with the same settings so output "
+            "and diagnostics match the current Alpha build."
+        )
+    except Exception:
+        st.session_state["planner_result"] = None
+        st.session_state[
+            "planner_refresh_notice"
+        ] = (
+            "The app updated and an older generated plan "
+            "could not be regenerated. Generate a new plan "
+            "before downloading diagnostics."
+        )
+
+    return True
 
 
 def render_alpha_feedback_panel(
@@ -483,6 +561,7 @@ def directional_access_options(
 def render_planner_controls(
     target,
     layout_mode,
+    build_sha,
 ):
     target.header("Planner Configuration")
 
@@ -755,7 +834,7 @@ def render_planner_controls(
     )
 
     target.caption(
-        f"Alpha build: {current_build_sha()}"
+        f"Alpha build: {build_sha}"
     )
 
     return planner_config, run_planner
@@ -763,6 +842,7 @@ def render_planner_controls(
 
 def synthesize_planner_result(
     planner_config,
+    build_sha=None,
 ):
     trail_root = Path(
         planner_config[
@@ -846,6 +926,10 @@ def synthesize_planner_result(
     return {
         "config": planner_config,
         "itinerary": itinerary,
+        "build_sha": (
+            build_sha
+            or current_build_sha()
+        ),
     }
 
 
@@ -1194,6 +1278,8 @@ def render_planner_result(
 if "planner_result" not in st.session_state:
     st.session_state["planner_result"] = None
 
+active_build_sha = current_build_sha()
+
 st.title("🥾 CairnOSv1")
 st.subheader(
     "Operational Expedition Planning"
@@ -1245,21 +1331,39 @@ if layout_mode == "mobile":
     planner_config, run_planner = render_planner_controls(
         st,
         layout_mode,
+        active_build_sha,
     )
 else:
     with st.sidebar:
         planner_config, run_planner = render_planner_controls(
             st,
             layout_mode,
+            active_build_sha,
         )
 
 if run_planner:
     st.session_state["planner_result"] = (
         synthesize_planner_result(
-            planner_config
+            planner_config,
+            active_build_sha,
         )
     )
     st.rerun()
+
+if refresh_stale_planner_result(
+    active_build_sha
+):
+    st.rerun()
+
+planner_refresh_notice = st.session_state.pop(
+    "planner_refresh_notice",
+    None,
+)
+
+if planner_refresh_notice:
+    st.info(
+        planner_refresh_notice
+    )
 
 planner_result = st.session_state.get(
     "planner_result"

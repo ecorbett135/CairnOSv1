@@ -55,6 +55,8 @@ PlannerV2 now supports:
 - Gaia GeoJSON export with itinerary points, resupply road-access markers, and
   trail spine geometry
 - Streamlit operational UI integration
+- build-aware Streamlit plan refresh so a hosted redeploy cannot pair stale
+  session-state plans with current Alpha diagnostics
 - a THRU-only MVP Streamlit trip type menu, with SECTION deferred but not
   removed from the underlying planner path
 
