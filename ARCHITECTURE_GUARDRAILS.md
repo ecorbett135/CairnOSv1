@@ -143,6 +143,17 @@ implementation notes into CairnOSv1.
 Treat CairnOS-to-HikerLogix integration as file-based export interoperability
 first, not as a reason to collapse the repositories or licensing models.
 
+### HikerLogix Adaptive Guidance Is Advisory
+
+Future HikerLogix recommendations may use an imported CairnOS itinerary plus
+user-owned actuals to explain schedule pressure, remaining-mileage options, and
+simple plan adjustments.
+
+Those recommendations MUST remain advisory and explainable. They MUST NOT be
+treated as live safety authority, current-conditions authority, trail-data
+truth, or a replacement for official sources, navigation tools, field
+judgment, closures, weather services, or business/service verification.
+
 ---
 
 ## Overlay Authority Guardrails

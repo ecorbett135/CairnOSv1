@@ -434,5 +434,18 @@ def test_side_trip_preferences_are_annotation_only():
     ).read_text()
 
     assert "Optional Side Trips" in source
+    assert 'f"{town_access} - {name}"' in source
     assert "annotation-only" in source
     assert "selected_side_trip_ids" in source
+
+
+def test_selected_experiences_table_is_rendered_conditionally():
+    """Test selected side trips get a dedicated output table."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Selected Experiences" in source
+    assert "selected_experiences" in source
+    assert "experience_name" in source
+    assert "town_access" in source

@@ -59,9 +59,21 @@ ingress and egress endpoints. SECTION planning remains a later slice; this
 work does not add user-facing SECTION controls.
 
 Future HikerLogix companion integration is tracked separately from the core MVP
-sequence. It should begin as export interoperability and later become personal
-calibration once CairnOS has a stable plan JSON export and SECTION semantics
-are further along. See `docs/HIKERLOGIX_COMPANION.md`.
+sequence. HikerLogix should become the mobile field execution layer, not
+"CairnOS on a phone": offline itinerary use, daily journal, actuals capture,
+planned-versus-actual review, and lightweight advisory adjustments. See
+`docs/HIKERLOGIX_COMPANION.md`.
+
+Roadmap sequencing should stay export-first:
+
+- #12 deterministic plan JSON export is the key CairnOS unlock for HikerLogix
+  offline itinerary import.
+- #13 read-only HikerLogix import path is the near-term interoperability step.
+- #14 actuals import and personal calibration remains Post-MVP until
+  HikerLogix proves its mobile journal, actuals, and review workflow.
+
+Do not add live town-hour, post-office-hour, store-hour, weather automation, or
+product AI-agent epics before the offline plan and actuals loop is stable.
 
 Open-source and commercial-product boundaries are tracked in
 `docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. The current posture is to keep CairnOSv1
@@ -130,9 +142,15 @@ data should remain out of planner scoring until each listing has independent
 current-source validation and documented provenance.
 
 Side-trip preferences should remain annotation-only in MVP hardening. Selected
-side trips can show estimated time context near relevant town/access rows, but
-they must not change daily mileage, completion days, feasibility, resupply
-scoring, or Gaia export behavior until a separate planner-time model exists.
+side trips should show town context in the selector and a dedicated selected
+experiences table near the generated plan, but they must not change daily
+mileage, completion days, feasibility, resupply scoring, or Gaia export
+behavior until a separate planner-time model exists.
+
+Food-carry cadence overages should be visible as feasibility exceptions when a
+generated plan exceeds the user's preferred resupply cadence. These exceptions
+should carry less feasibility pressure than mileage or elevation exceptions,
+and much less pressure than same-day mileage plus elevation overages.
 
 Date-aware season and current-condition advisories are informational in MVP
 hardening. `PlannerV2` accepts an optional planned start date and returns

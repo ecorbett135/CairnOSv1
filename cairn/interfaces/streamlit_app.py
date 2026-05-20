@@ -481,25 +481,28 @@ def load_validated_side_trip_options(
 def side_trip_option_label(
     option,
 ):
-    pieces = [
-        option.get(
-            "name",
-            "",
-        ),
-        option.get(
-            "town_access",
-            "",
-        ),
-        option.get(
-            "estimated_time",
-            "",
-        ),
-    ]
+    town_access = option.get(
+        "town_access",
+        "",
+    )
+    name = option.get(
+        "name",
+        "",
+    )
+    estimated_time = option.get(
+        "estimated_time",
+        "",
+    )
 
-    return " - ".join([
-        piece for piece in pieces
-        if piece
-    ])
+    if town_access and name:
+        label = f"{town_access} - {name}"
+    else:
+        label = town_access or name
+
+    if estimated_time:
+        label = f"{label} ({estimated_time})"
+
+    return label
 
 
 def directional_access_help(
@@ -1151,6 +1154,37 @@ def render_planner_result(
                 "zero_candidate",
                 "source_name",
                 "business_detail_status",
+            ],
+        )
+
+    selected_experience_rows = itinerary.get(
+        "selected_experiences",
+        [],
+    )
+
+    if selected_experience_rows:
+        st.subheader("Selected Experiences")
+        st.caption(
+            "Selected experiences are advisory town context only. "
+            "They do not change miles, days, feasibility, resupply "
+            "scoring, or Gaia export geometry."
+        )
+        st.dataframe(
+            selected_experience_rows,
+            width="stretch",
+            hide_index=True,
+            column_order=[
+                "day",
+                "location",
+                "mile",
+                "town_access",
+                "experience_name",
+                "category",
+                "estimated_time",
+                "planning_notes",
+                "access_distance_miles",
+                "access_notes",
+                "validation_status",
             ],
         )
 

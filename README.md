@@ -182,7 +182,8 @@ hosted Alpha runtime requirements.
 - Shows validated town-service context for planned resupply stops, including
   zero-support status where lodging and food have current independent sources.
 - Lets users select validated side trips as annotation-only experience notes;
-  selected side trips do not change miles, days, feasibility, or Gaia export.
+  selected side trips appear with town context in a dedicated experience table
+  and do not change miles, days, feasibility, or Gaia export.
 - Accepts an optional planned start date and returns date-aware Long Trail
   season/current-condition advisory prompts without changing feasibility,
   itinerary synthesis, resupply, recovery, or export geometry.
@@ -227,7 +228,9 @@ CairnOSv1 is evolving toward:
 
 The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. A future
 HikerLogix companion integration concept is tracked in
-`docs/HIKERLOGIX_COMPANION.md`.
+`docs/HIKERLOGIX_COMPANION.md`: CairnOS plans and exports, while HikerLogix
+executes in the field with offline itinerary use, journal entries, actuals,
+planned-versus-actual review, and advisory adjustments.
 
 The current open-source and intellectual-property posture is tracked in
 `docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. In short: CairnOSv1 stays public and

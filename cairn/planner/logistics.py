@@ -1074,6 +1074,126 @@ class LogisticsPlanner:
 
         return rows
 
+    def build_selected_experiences(
+        self,
+        resupply_plan=None,
+    ):
+
+        rows = []
+
+        if not self.selected_side_trip_ids():
+            return rows
+
+        source_plan = (
+            resupply_plan
+            if resupply_plan is not None
+            else self.build_resupply_plan()
+        )
+
+        for row in source_plan:
+
+            node = (
+                self.match_logistics_candidate_for_resupply_row(
+                    row
+                )
+            )
+            side_trip_options = (
+                self.side_trip_options_for_node(
+                    node
+                )
+            )
+
+            if not side_trip_options:
+                continue
+
+            town_access = (
+                row.get("town_access")
+                or (
+                    node.get("town_access")
+                    if node
+                    else ""
+                )
+            )
+            access_distance = (
+                self.access_distance_miles(
+                    node
+                )
+                if node
+                else row.get(
+                    "access_distance_miles"
+                )
+            )
+            access_notes = (
+                row.get("access_notes")
+                or (
+                    node.get(
+                        "access_notes",
+                        "",
+                    )
+                    if node
+                    else ""
+                )
+            )
+
+            for option in side_trip_options:
+                rows.append({
+                    "day": row.get("day"),
+                    "location": row.get(
+                        "location"
+                    ),
+                    "mile": row.get("mile"),
+                    "town_access": town_access,
+                    "experience_name": (
+                        option.get("name", "")
+                    ),
+                    "category": option.get(
+                        "category",
+                        "",
+                    ),
+                    "estimated_time": (
+                        option.get(
+                            "estimated_time",
+                            "",
+                        )
+                    ),
+                    "planning_notes": (
+                        option.get(
+                            "planning_notes",
+                            "",
+                        )
+                    ),
+                    "access_distance_miles": (
+                        access_distance
+                    ),
+                    "access_notes": access_notes,
+                    "validation_status": (
+                        option.get(
+                            "validation_status",
+                            "",
+                        )
+                    ),
+                    "validation_source_name": (
+                        option.get(
+                            "validation_source_name",
+                            "",
+                        )
+                    ),
+                    "validation_source_url": (
+                        option.get(
+                            "validation_source_url",
+                            "",
+                        )
+                    ),
+                    "validation_date": (
+                        option.get(
+                            "validation_date",
+                            "",
+                        )
+                    ),
+                })
+
+        return rows
+
     def annotate_daily_plan_with_side_trips(
         self,
         daily_plan,

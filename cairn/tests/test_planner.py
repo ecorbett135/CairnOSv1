@@ -628,6 +628,25 @@ def test_selected_side_trips_annotate_without_changing_plan_time(
     assert "Ben & Jerry's Factory Experience" in (
         waterbury["selected_side_trips"]
     )
+    selected_experience = next(
+        row for row in side_trip_itinerary[
+            "selected_experiences"
+        ]
+        if row["experience_name"]
+        == "Ben & Jerry's Factory Experience"
+    )
+    assert (
+        selected_experience["town_access"]
+        == "Waterbury / Waterbury Center"
+    )
+    assert selected_experience["day"] == waterbury["day"]
+    assert selected_experience[
+        "access_distance_miles"
+    ] == waterbury["access_distance_miles"]
+    assert (
+        selected_experience["validation_status"]
+        == "validated"
+    )
     assert any(
         "Ben & Jerry's Factory Experience" in row.get(
             "selected_side_trips",
@@ -1590,6 +1609,148 @@ def test_more_than_two_compound_exception_days_are_aggressive(
         evaluation["classification_reason"]
         == "compound_exception_pressure"
     )
+
+
+def test_food_carry_exception_added_when_resupply_cadence_exceeded(
+    planner_factory,
+):
+    """Test food carry gaps appear as lower-weight constraints."""
+    planner = planner_factory(
+        user_profile={
+            "resupply_cadence": 5,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800] * 10,
+    )
+    resupply_plan = [
+        {
+            "day": 1,
+            "days_to_next_resupply": 6,
+        },
+        {
+            "day": 7,
+            "days_to_next_resupply": 3,
+        },
+    ]
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows,
+        resupply_plan,
+    )
+    food_exception = next(
+        row for row in exceptions
+        if row["constraint"] == "food_carry_days"
+    )
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert food_exception["limit"] == 5
+    assert food_exception["observed_max"] == 6
+    assert food_exception["count"] == 1
+    assert food_exception["days"] == [1]
+    assert food_exception["overage_percent"] == 20.0
+    assert (
+        evaluation["max_food_carry_overage_percent"]
+        == 20.0
+    )
+    assert evaluation[
+        "food_carry_pressure_percent"
+    ] == 2.0
+    assert evaluation["classification"] != "aggressive"
+
+
+def test_food_carry_exception_absent_when_within_cadence(
+    planner_factory,
+):
+    """Test food carry constraint remains sparse when cadence is met."""
+    planner = planner_factory(
+        user_profile={
+            "resupply_cadence": 5,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800] * 10,
+    )
+    resupply_plan = [
+        {
+            "day": 1,
+            "days_to_next_resupply": 5,
+        },
+        {
+            "day": 6,
+            "days_to_next_resupply": None,
+        },
+    ]
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows,
+        resupply_plan,
+    )
+
+    assert [
+        row["constraint"]
+        for row in exceptions
+    ] == []
+
+
+def test_food_carry_pressure_is_lower_than_daily_pressure(
+    planner_factory,
+):
+    """Test food carry preference pressure is intentionally lower weight."""
+    planner = planner_factory(
+        user_profile={
+            "resupply_cadence": 5,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    food_rows = _daily_rows(
+        [8] * 10,
+        [800] * 10,
+    )
+    daily_rows = _daily_rows(
+        [12] + [8] * 9,
+        [800] * 10,
+    )
+    food_exceptions = (
+        planner.summarize_itinerary_exceptions(
+            food_rows,
+            [
+                {
+                    "day": 1,
+                    "days_to_next_resupply": 6,
+                },
+            ],
+        )
+    )
+    daily_exceptions = (
+        planner.summarize_itinerary_exceptions(
+            daily_rows,
+        )
+    )
+    food_evaluation = planner.build_generated_evaluation(
+        food_rows,
+        food_exceptions,
+    )
+    daily_evaluation = planner.build_generated_evaluation(
+        daily_rows,
+        daily_exceptions,
+    )
+
+    assert food_evaluation[
+        "weighted_exception_pressure_percent"
+    ] < daily_evaluation[
+        "weighted_exception_pressure_percent"
+    ]
 
 
 def test_frequent_exception_days_are_aggressive(

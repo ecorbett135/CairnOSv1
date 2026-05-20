@@ -140,6 +140,9 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             plan["config"]["external_debug_path"]
             == "[redacted_path]"
         )
+        assert "selected_experiences" in plan[
+            "itinerary"
+        ]
         assert completion == itinerary[
             "completion_analysis"
         ]

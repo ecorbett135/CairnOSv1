@@ -393,6 +393,7 @@ class PlannerV2:
     def summarize_itinerary_exceptions(
         self,
         daily_plan,
+        resupply_plan=None,
     ):
 
         moving_rows = [
@@ -505,7 +506,85 @@ class PlannerV2:
                 ),
             })
 
+        food_carry_exception = (
+            self.summarize_food_carry_exception(
+                resupply_plan,
+                moving_day_count,
+            )
+        )
+
+        if food_carry_exception:
+            exceptions.append(
+                food_carry_exception
+            )
+
         return exceptions
+
+    def summarize_food_carry_exception(
+        self,
+        resupply_plan,
+        moving_day_count,
+    ):
+
+        if (
+            not resupply_plan
+            or not self.resupply_cadence
+        ):
+            return None
+
+        overage_rows = [
+            row for row in resupply_plan
+            if (
+                row.get(
+                    "days_to_next_resupply"
+                )
+                is not None
+                and row.get(
+                    "days_to_next_resupply"
+                )
+                > self.resupply_cadence
+            )
+        ]
+
+        if not overage_rows:
+            return None
+
+        observed_max = max(
+            row.get(
+                "days_to_next_resupply",
+                0,
+            )
+            for row in overage_rows
+        )
+
+        return {
+            "constraint": "food_carry_days",
+            "limit": self.resupply_cadence,
+            "observed_max": observed_max,
+            "count": len(
+                overage_rows
+            ),
+            "days": [
+                row.get("day")
+                for row in overage_rows
+            ],
+            "overage_percent": (
+                self.exception_overage_percent(
+                    observed_max,
+                    self.resupply_cadence,
+                )
+            ),
+            "severity": (
+                self.exception_severity(
+                    observed_max,
+                    self.resupply_cadence,
+                    len(
+                        overage_rows
+                    ),
+                    moving_day_count,
+                )
+            ),
+        }
 
     def exception_overage_percent(
         self,
@@ -572,6 +651,7 @@ class PlannerV2:
     def summarize_exception_pressure(
         self,
         daily_plan,
+        exceptions=None,
     ):
 
         moving_rows = [
@@ -591,6 +671,8 @@ class PlannerV2:
         day_pressures = []
         max_mileage_ratio = 0.0
         max_elevation_ratio = 0.0
+        max_food_carry_percent = 0.0
+        food_carry_exception_count = 0
 
         for row in moving_rows:
 
@@ -687,12 +769,42 @@ class PlannerV2:
         max_elevation_percent = (
             max_elevation_ratio * 100
         )
+
+        for exception in exceptions or []:
+            if (
+                exception.get("constraint")
+                != "food_carry_days"
+            ):
+                continue
+
+            max_food_carry_percent = max(
+                max_food_carry_percent,
+                float(
+                    exception.get(
+                        "overage_percent",
+                        0.0,
+                    )
+                    or 0.0
+                ),
+            )
+            food_carry_exception_count += int(
+                exception.get(
+                    "count",
+                    0,
+                )
+                or 0
+            )
+
+        food_carry_pressure = (
+            max_food_carry_percent * 0.10
+        )
         weighted_exception_pressure = (
             (
                 max_mileage_percent
                 + max_elevation_percent
             )
             * 0.75
+            + food_carry_pressure
         )
 
         return {
@@ -720,6 +832,17 @@ class PlannerV2:
                 max_elevation_percent,
                 1,
             ),
+            "max_food_carry_overage_percent": round(
+                max_food_carry_percent,
+                1,
+            ),
+            "food_carry_exception_count": (
+                food_carry_exception_count
+            ),
+            "food_carry_pressure_percent": round(
+                food_carry_pressure,
+                1,
+            ),
         }
 
     def classify_exception_pressure(
@@ -740,6 +863,52 @@ class PlannerV2:
             return (
                 "comfortable",
                 "no_preference_exceptions",
+            )
+
+        constraint_names = {
+            exception.get(
+                "constraint",
+                "",
+            )
+            for exception in exceptions
+        }
+        food_only = (
+            constraint_names
+            == {
+                "food_carry_days",
+            }
+        )
+
+        if food_only:
+            food_overage = pressure.get(
+                "max_food_carry_overage_percent",
+                0.0,
+            )
+            food_count = pressure.get(
+                "food_carry_exception_count",
+                0,
+            )
+
+            if severities == {
+                "minor",
+            }:
+                return (
+                    "comfortable",
+                    "sparse_food_carry_pressure",
+                )
+
+            if (
+                food_overage >= 100.0
+                and food_count >= 3
+            ):
+                return (
+                    "aggressive",
+                    "extreme_food_carry_pressure",
+                )
+
+            return (
+                "challenging",
+                "food_carry_preference_pressure",
             )
 
         if severities == {
@@ -944,7 +1113,8 @@ class PlannerV2:
         )
         pressure = (
             self.summarize_exception_pressure(
-                daily_plan
+                daily_plan,
+                exceptions,
             )
         )
         (
@@ -1004,11 +1174,13 @@ class PlannerV2:
         self,
         completion_analysis,
         daily_plan,
+        resupply_plan=None,
     ):
 
         exceptions = (
             self.summarize_itinerary_exceptions(
-                daily_plan
+                daily_plan,
+                resupply_plan,
             )
         )
 
@@ -1113,8 +1285,8 @@ class PlannerV2:
                     "feasible."
                 )
                 updated["exception_guidance"] = (
-                    "No daily mileage or elevation preference "
-                    "exceptions were detected."
+                    "No daily mileage, elevation, or food-carry "
+                    "preference exceptions were detected."
                 )
 
             elif (
@@ -1125,7 +1297,7 @@ class PlannerV2:
             ):
                 updated["recommendation"] = (
                     "Requested completion target is achievable. "
-                    "The generated itinerary has only sparse daily "
+                    "The generated itinerary has only sparse "
                     "preference exceptions."
                 )
             elif (
@@ -1136,13 +1308,13 @@ class PlannerV2:
             ):
                 updated["recommendation"] = (
                     "Requested completion target is achievable, but the "
-                    "generated itinerary has repeated or moderate daily "
+                    "generated itinerary has repeated or moderate "
                     "preference pressure."
                 )
             else:
                 updated["recommendation"] = (
                     "Requested completion target is achievable, but the "
-                    "generated itinerary has major or frequent daily "
+                    "generated itinerary has major or frequent "
                     "preference pressure."
                 )
 
@@ -2207,6 +2379,17 @@ class PlannerV2:
             )
         )
 
+    def build_selected_experiences(
+        self,
+        resupply_plan=None,
+    ):
+        return (
+            self.logistics
+            .build_selected_experiences(
+                resupply_plan=resupply_plan,
+            )
+        )
+
     def annotate_daily_plan_with_side_trips(
         self,
         daily_plan,
@@ -2326,20 +2509,26 @@ class PlannerV2:
             )
         )
 
-        completion_analysis = (
-            self.apply_itinerary_exceptions(
-                completion_analysis,
-                daily_plan,
-            )
-        )
-
         resupply_plan = (
             self.build_resupply_plan(
                 daily_plan
             )
         )
+
+        completion_analysis = (
+            self.apply_itinerary_exceptions(
+                completion_analysis,
+                daily_plan,
+                resupply_plan,
+            )
+        )
         resupply_town_details = (
             self.build_resupply_town_details(
+                resupply_plan
+            )
+        )
+        selected_experiences = (
+            self.build_selected_experiences(
                 resupply_plan
             )
         )
@@ -2367,6 +2556,9 @@ class PlannerV2:
             ),
             "resupply_town_details": (
                 resupply_town_details
+            ),
+            "selected_experiences": (
+                selected_experiences
             ),
             "directional_access": (
                 directional_access

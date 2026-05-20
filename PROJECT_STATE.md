@@ -30,6 +30,7 @@ The planner should reason about:
 - recovery
 - logistics access
 - town-access friction
+- food-carry cadence pressure
 - overnight amenity preferences such as bear-box availability
 - realistic pacing
 - cadence sustainability
@@ -61,8 +62,10 @@ Open-source, HikerLogix, and intellectual-property posture is documented in
 
 - CairnOSv1 remains public and Apache 2.0 licensed as the planning/export
   engine.
-- HikerLogix can remain private/proprietary as the future mobile field journal,
-  actuals, and product packaging layer.
+- HikerLogix can remain private/proprietary as the future mobile field
+  execution layer: offline itinerary use, journal, actuals,
+  planned-versus-actual review, lightweight advisory adjustments, and product
+  packaging.
 - Trail data provenance and commercial reuse rights are separate from the
   CairnOS source-code license.
 
