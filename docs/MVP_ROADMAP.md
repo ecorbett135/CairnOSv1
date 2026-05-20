@@ -153,6 +153,18 @@ generated plan exceeds the user's preferred resupply cadence. These exceptions
 should carry less feasibility pressure than mileage or elevation exceptions,
 and much less pressure than same-day mileage plus elevation overages.
 
+Recovery-cadence overages should also be visible as feasibility exceptions.
+They represent missed zero/nero timing preferences, not physical trail effort,
+so they should affect classification less than mileage/elevation pressure but
+remain visible when the generated plan cannot place recovery near the requested
+cadence.
+
+Long Trail THRU feasibility classification should include a broad
+duration-baseline calibration from public planning sources: under 20 days is
+unrealistic, 20-24 days is aggressive, 25-28 days is challenging, and 29+ days
+is comfortable before itinerary-specific exceptions are applied. This is a
+planning heuristic, not an official pace standard.
+
 Date-aware season and current-condition advisories are informational in MVP
 hardening. `PlannerV2` accepts an optional planned start date and returns
 advisory records for the generated trip window covering official trail-update

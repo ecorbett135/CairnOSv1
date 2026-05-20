@@ -1741,6 +1741,77 @@ def test_food_carry_exception_added_when_resupply_cadence_exceeded(
     assert evaluation["classification"] != "aggressive"
 
 
+def test_recovery_cadence_exception_added_when_recovery_gap_exceeded(
+    planner_factory,
+):
+    """Test recovery cadence gaps appear as lower-weight constraints."""
+    planner = planner_factory(
+        user_profile={
+            "recovery_cadence": 5,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 12,
+        [800] * 12,
+    )
+    resupply_plan = [
+        {
+            "day": 1,
+            "days_to_next_recovery": 6,
+        },
+        {
+            "day": 7,
+            "days_to_next_recovery": 8,
+        },
+        {
+            "day": 15,
+            "days_to_next_recovery": 4,
+        },
+    ]
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows,
+        resupply_plan,
+    )
+    recovery_exception = next(
+        row for row in exceptions
+        if row[
+            "constraint"
+        ] == "recovery_cadence_days"
+    )
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert recovery_exception["limit"] == 5
+    assert recovery_exception["observed_max"] == 8
+    assert recovery_exception["count"] == 2
+    assert recovery_exception["days"] == [
+        1,
+        7,
+    ]
+    assert (
+        recovery_exception["overage_percent"]
+        == 60.0
+    )
+    assert (
+        evaluation[
+            "max_recovery_cadence_overage_percent"
+        ]
+        == 60.0
+    )
+    assert (
+        evaluation[
+            "recovery_cadence_pressure_percent"
+        ]
+        == 9.0
+    )
+    assert evaluation["classification"] != "aggressive"
+
+
 def test_food_carry_exception_absent_when_within_cadence(
     planner_factory,
 ):
@@ -1764,6 +1835,43 @@ def test_food_carry_exception_absent_when_within_cadence(
         {
             "day": 6,
             "days_to_next_resupply": None,
+        },
+    ]
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows,
+        resupply_plan,
+    )
+
+    assert [
+        row["constraint"]
+        for row in exceptions
+    ] == []
+
+
+def test_recovery_cadence_exception_absent_when_within_cadence(
+    planner_factory,
+):
+    """Test recovery cadence constraint remains sparse when cadence is met."""
+    planner = planner_factory(
+        user_profile={
+            "recovery_cadence": 5,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800] * 10,
+    )
+    resupply_plan = [
+        {
+            "day": 1,
+            "days_to_next_recovery": 5,
+        },
+        {
+            "day": 6,
+            "days_to_next_recovery": None,
         },
     ]
 
@@ -1829,6 +1937,68 @@ def test_food_carry_pressure_is_lower_than_daily_pressure(
     ]
 
 
+def test_long_trail_duration_baseline_classifies_thru_targets(
+    planner_factory,
+):
+    """Test Long Trail THRU timing uses public trail-duration norms."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "max_daily_miles": 16,
+        },
+    )
+
+    assert planner.trail_duration_baseline(
+        19
+    )["classification"] == "unrealistic"
+    assert planner.trail_duration_baseline(
+        24
+    )["classification"] == "aggressive"
+    assert planner.trail_duration_baseline(
+        28
+    )["classification"] == "challenging"
+    assert planner.trail_duration_baseline(
+        29
+    )["classification"] == "comfortable"
+
+
+def test_twenty_eight_day_long_trail_plan_uses_challenging_baseline(
+    planner_factory,
+):
+    """Test a 28-day Long Trail THRU plan is not labeled comfortable."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+        },
+    )
+    rows = _daily_rows(
+        [10.0] * 28,
+        [2500.0] * 28,
+    )
+
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        planner.summarize_itinerary_exceptions(
+            rows,
+        ),
+    )
+
+    assert evaluation["classification"] == "challenging"
+    assert (
+        evaluation[
+            "duration_baseline_classification"
+        ]
+        == "challenging"
+    )
+    assert (
+        evaluation["classification_reason"]
+        == "long_trail_duration_baseline"
+    )
+
+
 def test_frequent_exception_days_are_aggressive(
     planner_factory,
 ):
@@ -1862,7 +2032,7 @@ def test_frequent_exception_days_are_aggressive(
 def test_major_overage_classifies_generated_plan_aggressive(
     planner_factory,
 ):
-    """Test major preference overages classify generated plans aggressive."""
+    """Test extreme preference overages classify generated plans aggressive."""
     planner = planner_factory(
         user_profile={
             "max_daily_miles": 10,
@@ -1871,7 +2041,7 @@ def test_major_overage_classifies_generated_plan_aggressive(
     )
     rows = _daily_rows(
         [8] * 10,
-        [800, 800, 1400, 800, 800, 800, 800, 800, 800, 800],
+        [800, 800, 1700, 800, 800, 800, 800, 800, 800, 800],
     )
     exceptions = planner.summarize_itinerary_exceptions(
         rows
@@ -1993,7 +2163,7 @@ def test_sparse_preference_exceptions_do_not_force_aggressive_label(
         completion["requested_evaluation"][
             "classification"
         ]
-        == "comfortable"
+        == "challenging"
     )
     assert (
         completion["generated_evaluation"][
@@ -2093,7 +2263,7 @@ def test_sobo_uses_same_generated_feasibility_rules(
         completion["requested_evaluation"][
             "classification"
         ]
-        == "comfortable"
+        == "challenging"
     )
     assert (
         completion["generated_evaluation"][

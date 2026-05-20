@@ -392,8 +392,11 @@ own classification while the generated plan is scored separately. Sparse
 preference exceptions can remain comfortable. Generated-plan classification now
 uses weighted combined mileage/elevation pressure so moderate overages can
 read as challenging instead of aggressive, while repeated compound or extreme
-overages still escalate. The feasibility table highlights days that exceed
-both mileage and elevation preferences.
+overages still escalate. Food-carry and recovery-cadence misses are visible in
+the same exception table at lower weight. Long Trail THRU classification also
+uses a broad public planning baseline for completion duration before
+itinerary-specific exceptions are applied. The feasibility table highlights
+days that exceed both mileage and elevation preferences.
 
 ## Elevation calibration
 

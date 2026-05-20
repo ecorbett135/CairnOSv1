@@ -398,6 +398,69 @@ class PlannerV2:
 
         return first
 
+    def trail_duration_baseline(
+        self,
+        completion_days,
+    ):
+
+        trail_name = (
+            getattr(
+                self.runtime,
+                "trail_root",
+                None,
+            )
+        )
+
+        if trail_name is not None:
+            trail_name = trail_name.name
+
+        if (
+            trail_name
+            != "vermont_long_trail"
+            or self.user_profile.get(
+                "trip_type"
+            )
+            != "THRU"
+            or not completion_days
+        ):
+            return {
+                "classification": "comfortable",
+                "classification_reason": (
+                    "no_trail_duration_baseline"
+                ),
+            }
+
+        if completion_days < 20:
+            return {
+                "classification": "unrealistic",
+                "classification_reason": (
+                    "long_trail_duration_baseline"
+                ),
+            }
+
+        if completion_days <= 24:
+            return {
+                "classification": "aggressive",
+                "classification_reason": (
+                    "long_trail_duration_baseline"
+                ),
+            }
+
+        if completion_days <= 28:
+            return {
+                "classification": "challenging",
+                "classification_reason": (
+                    "long_trail_duration_baseline"
+                ),
+            }
+
+        return {
+            "classification": "comfortable",
+            "classification_reason": (
+                "long_trail_duration_baseline"
+            ),
+        }
+
     def summarize_itinerary_exceptions(
         self,
         daily_plan,
@@ -526,6 +589,18 @@ class PlannerV2:
                 food_carry_exception
             )
 
+        recovery_exception = (
+            self.summarize_recovery_cadence_exception(
+                resupply_plan,
+                moving_day_count,
+            )
+        )
+
+        if recovery_exception:
+            exceptions.append(
+                recovery_exception
+            )
+
         return exceptions
 
     def summarize_food_carry_exception(
@@ -586,6 +661,72 @@ class PlannerV2:
                 self.exception_severity(
                     observed_max,
                     self.resupply_cadence,
+                    len(
+                        overage_rows
+                    ),
+                    moving_day_count,
+                )
+            ),
+        }
+
+    def summarize_recovery_cadence_exception(
+        self,
+        resupply_plan,
+        moving_day_count,
+    ):
+
+        if (
+            not resupply_plan
+            or not self.recovery_cadence
+        ):
+            return None
+
+        overage_rows = [
+            row for row in resupply_plan
+            if (
+                row.get(
+                    "days_to_next_recovery"
+                )
+                is not None
+                and row.get(
+                    "days_to_next_recovery"
+                )
+                > self.recovery_cadence
+            )
+        ]
+
+        if not overage_rows:
+            return None
+
+        observed_max = max(
+            row.get(
+                "days_to_next_recovery",
+                0,
+            )
+            for row in overage_rows
+        )
+
+        return {
+            "constraint": "recovery_cadence_days",
+            "limit": self.recovery_cadence,
+            "observed_max": observed_max,
+            "count": len(
+                overage_rows
+            ),
+            "days": [
+                row.get("day")
+                for row in overage_rows
+            ],
+            "overage_percent": (
+                self.exception_overage_percent(
+                    observed_max,
+                    self.recovery_cadence,
+                )
+            ),
+            "severity": (
+                self.exception_severity(
+                    observed_max,
+                    self.recovery_cadence,
                     len(
                         overage_rows
                     ),
@@ -681,6 +822,8 @@ class PlannerV2:
         max_elevation_ratio = 0.0
         max_food_carry_percent = 0.0
         food_carry_exception_count = 0
+        max_recovery_cadence_percent = 0.0
+        recovery_cadence_exception_count = 0
 
         for row in moving_rows:
 
@@ -803,16 +946,48 @@ class PlannerV2:
                 or 0
             )
 
+        for exception in exceptions or []:
+            if (
+                exception.get("constraint")
+                != "recovery_cadence_days"
+            ):
+                continue
+
+            max_recovery_cadence_percent = max(
+                max_recovery_cadence_percent,
+                float(
+                    exception.get(
+                        "overage_percent",
+                        0.0,
+                    )
+                    or 0.0
+                ),
+            )
+            recovery_cadence_exception_count += int(
+                exception.get(
+                    "count",
+                    0,
+                )
+                or 0
+            )
+
         food_carry_pressure = (
             max_food_carry_percent * 0.10
         )
-        weighted_exception_pressure = (
+        recovery_cadence_pressure = (
+            max_recovery_cadence_percent * 0.15
+        )
+        daily_preference_pressure = (
             (
                 max_mileage_percent
                 + max_elevation_percent
             )
             * 0.75
+        )
+        weighted_exception_pressure = (
+            daily_preference_pressure
             + food_carry_pressure
+            + recovery_cadence_pressure
         )
 
         return {
@@ -824,6 +999,10 @@ class PlannerV2:
             ),
             "weighted_exception_pressure_percent": round(
                 weighted_exception_pressure,
+                1,
+            ),
+            "daily_preference_pressure_percent": round(
+                daily_preference_pressure,
                 1,
             ),
             "exception_day_count": exception_day_count,
@@ -849,6 +1028,17 @@ class PlannerV2:
             ),
             "food_carry_pressure_percent": round(
                 food_carry_pressure,
+                1,
+            ),
+            "max_recovery_cadence_overage_percent": round(
+                max_recovery_cadence_percent,
+                1,
+            ),
+            "recovery_cadence_exception_count": (
+                recovery_cadence_exception_count
+            ),
+            "recovery_cadence_pressure_percent": round(
+                recovery_cadence_pressure,
                 1,
             ),
         }
@@ -880,21 +1070,36 @@ class PlannerV2:
             )
             for exception in exceptions
         }
-        food_only = (
+        cadence_constraints = {
+            "food_carry_days",
+            "recovery_cadence_days",
+        }
+        cadence_only = bool(
             constraint_names
-            == {
-                "food_carry_days",
-            }
+        ) and constraint_names.issubset(
+            cadence_constraints
         )
 
-        if food_only:
-            food_overage = pressure.get(
-                "max_food_carry_overage_percent",
-                0.0,
+        if cadence_only:
+            cadence_overage = max(
+                pressure.get(
+                    "max_food_carry_overage_percent",
+                    0.0,
+                ),
+                pressure.get(
+                    "max_recovery_cadence_overage_percent",
+                    0.0,
+                ),
             )
-            food_count = pressure.get(
-                "food_carry_exception_count",
-                0,
+            cadence_count = (
+                pressure.get(
+                    "food_carry_exception_count",
+                    0,
+                )
+                + pressure.get(
+                    "recovery_cadence_exception_count",
+                    0,
+                )
             )
 
             if severities == {
@@ -902,21 +1107,21 @@ class PlannerV2:
             }:
                 return (
                     "comfortable",
-                    "sparse_food_carry_pressure",
+                    "sparse_cadence_pressure",
                 )
 
             if (
-                food_overage >= 100.0
-                and food_count >= 3
+                cadence_overage >= 100.0
+                and cadence_count >= 4
             ):
                 return (
                     "aggressive",
-                    "extreme_food_carry_pressure",
+                    "extreme_cadence_pressure",
                 )
 
             return (
                 "challenging",
-                "food_carry_preference_pressure",
+                "cadence_preference_pressure",
             )
 
         if severities == {
@@ -934,6 +1139,10 @@ class PlannerV2:
         weighted_pressure = pressure.get(
             "weighted_exception_pressure_percent",
             pressure_score,
+        )
+        daily_pressure = pressure.get(
+            "daily_preference_pressure_percent",
+            weighted_pressure,
         )
         max_single_overage = max(
             pressure.get(
@@ -962,7 +1171,7 @@ class PlannerV2:
             )
         )
 
-        if max_single_overage > 35.0:
+        if max_single_overage > 60.0:
             return (
                 "aggressive",
                 "extreme_preference_overage",
@@ -980,7 +1189,7 @@ class PlannerV2:
                 "compound_exception_pressure",
             )
 
-        if weighted_pressure > 35.0:
+        if daily_pressure > 35.0:
             return (
                 "aggressive",
                 "high_weighted_preference_pressure",
@@ -1082,15 +1291,68 @@ class PlannerV2:
         else:
             classification = "unrealistic"
 
+        completion_days = (
+            daily_plan[-1].get(
+                "day",
+                len(daily_plan),
+            )
+            if daily_plan
+            else len(moving_rows)
+        )
+        duration_baseline = (
+            self.trail_duration_baseline(
+                completion_days
+            )
+        )
+        final_classification = (
+            self.max_classification(
+                classification,
+                duration_baseline[
+                    "classification"
+                ],
+            )
+        )
+        classification_reason = (
+            duration_baseline[
+                "classification_reason"
+            ]
+            if (
+                self.classification_rank(
+                    duration_baseline[
+                        "classification"
+                    ]
+                )
+                >= self.classification_rank(
+                    classification
+                )
+                and duration_baseline[
+                    "classification_reason"
+                ]
+                != "no_trail_duration_baseline"
+            )
+            else "generated_average_effort"
+        )
+
         return {
-            "classification": classification,
+            "classification": (
+                final_classification
+            ),
             "feasible": (
-                classification
+                final_classification
                 != "unrealistic"
             ),
             "classification_reason": (
-                "generated_average_effort"
+                classification_reason
             ),
+            "effort_classification": (
+                classification
+            ),
+            "duration_baseline_classification": (
+                duration_baseline[
+                    "classification"
+                ]
+            ),
+            "completion_days": completion_days,
             "moving_days": len(
                 moving_rows
             ),
@@ -1496,8 +1758,43 @@ class PlannerV2:
         else:
             classification = "unrealistic"
 
+        duration_baseline = (
+            self.trail_duration_baseline(
+                desired_days
+            )
+        )
+        final_classification = (
+            self.max_classification(
+                classification,
+                duration_baseline[
+                    "classification"
+                ],
+            )
+        )
+        classification_reason = (
+            duration_baseline[
+                "classification_reason"
+            ]
+            if (
+                self.classification_rank(
+                    duration_baseline[
+                        "classification"
+                    ]
+                )
+                >= self.classification_rank(
+                    classification
+                )
+                and duration_baseline[
+                    "classification_reason"
+                ]
+                != "no_trail_duration_baseline"
+            )
+            else "requested_effort_ratio"
+        )
+
         feasible = (
-            classification != "unrealistic"
+            final_classification
+            != "unrealistic"
         )
 
         return {
@@ -1512,7 +1809,20 @@ class PlannerV2:
                 ratio,
                 2,
             ),
-            "classification": classification,
+            "classification": (
+                final_classification
+            ),
+            "effort_classification": (
+                classification
+            ),
+            "duration_baseline_classification": (
+                duration_baseline[
+                    "classification"
+                ]
+            ),
+            "classification_reason": (
+                classification_reason
+            ),
             "feasible": feasible,
         }
 

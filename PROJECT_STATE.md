@@ -31,6 +31,8 @@ The planner should reason about:
 - logistics access
 - town-access friction
 - food-carry cadence pressure
+- recovery-cadence pressure
+- trail-duration baseline pressure
 - overnight amenity preferences such as bear-box availability
 - realistic pacing
 - cadence sustainability
