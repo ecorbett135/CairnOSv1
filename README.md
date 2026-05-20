@@ -183,6 +183,9 @@ hosted Alpha runtime requirements.
   zero-support status where lodging and food have current independent sources.
 - Lets users select validated side trips as annotation-only experience notes;
   selected side trips do not change miles, days, feasibility, or Gaia export.
+- Accepts an optional planned start date and returns date-aware Long Trail
+  season/current-condition advisory prompts without changing feasibility,
+  itinerary synthesis, resupply, recovery, or export geometry.
 - Uses terrain interval analysis to bias daily pacing and report terrain-derived
   elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
@@ -205,6 +208,9 @@ hosted Alpha runtime requirements.
   ascent totals depending on smoothing and route geometry.
 - Gaia export is intended for review/import convenience, not as replacement for
   navigation or official maps.
+- Date-aware season/current-condition advisories are deterministic planning
+  prompts, not live condition status, official trail guidance, or safety
+  determinations.
 
 ## What it is working toward
 
@@ -339,10 +345,17 @@ Optional side trips are stored separately from resupply scoring. If selected,
 they annotate nearby town or daily rows with estimated time context, but they do
 not change itinerary duration, daily mileage, feasibility, or Gaia export.
 
-Current roadmap research also tracks date-aware trail-season advisories,
-transportation/access friction, SECTION endpoint logistics, and future
-water-source reliability metadata. These remain advisory planning context unless
-future planner behavior explicitly models their effect.
+PlannerV2 also accepts an optional `start_date` and returns advisory-only
+season/current-condition prompts for the generated trip window. Current prompts
+cover official trail-update verification, mud season, peak bugs,
+shoulder-season snow/weather timing, and hunting-season visibility. These
+advisories do not change itinerary duration, daily mileage, feasibility,
+resupply, recovery, side-trip annotations, or Gaia export.
+
+Current roadmap research still tracks transportation/access friction, SECTION
+endpoint logistics, and future water-source reliability metadata. These remain
+advisory planning context unless future planner behavior explicitly models their
+effect.
 
 ## Terrain-aware pacing
 
