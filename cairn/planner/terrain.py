@@ -6,7 +6,9 @@ import math
 from statistics import median
 
 
-ELEVATION_NOISE_THRESHOLD_FT = 50.0
+# Keep smoothing low enough to retain real rolling trail gain while still
+# ignoring small DEM jitter between adjacent terrain samples.
+ELEVATION_NOISE_THRESHOLD_FT = 20.0
 EARTH_RADIUS_MILES = 3958.7613
 ANCHOR_PROJECTION_MAX_MILES = 0.25
 ANCHOR_MIN_MATCH_SCORE = 0.9
