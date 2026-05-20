@@ -1365,7 +1365,7 @@ def render_planner_result(
         st.subheader("Town Details")
         st.caption(
             "Town service categories are planning context only. "
-            "Verify current businesses, mail drops, hours, shuttles, "
+            "Verify current businesses, mail drops, hours, "
             "lodging, closures, and conditions directly before relying "
             "on them."
         )
@@ -1382,6 +1382,7 @@ def render_planner_result(
                 "access_notes",
                 "service_categories",
                 "validated_lodging",
+                "hiker_focused_lodging",
                 "validated_food",
                 "validated_outfitters",
                 "validated_mail_drop",

@@ -36,6 +36,7 @@ class LogisticsPlanner:
         if name in {
             "_resupply_amenities",
             "_town_service_options",
+            "_town_lodging_options",
             "_side_trip_options",
             "_logistics_candidates",
         }:
@@ -408,6 +409,23 @@ class LogisticsPlanner:
             == "validated"
         )
 
+    def is_validated_lodging_option(
+        self,
+        row,
+    ):
+
+        return (
+            str(
+                row.get("validation_status", "")
+            )
+            .strip()
+            .casefold()
+            in {
+                "validated",
+                "current",
+            }
+        )
+
     def load_town_service_options(
         self,
     ):
@@ -510,6 +528,140 @@ class LogisticsPlanner:
 
         self._town_service_options = options
         return self._town_service_options
+
+    def load_town_lodging_options(
+        self,
+    ):
+
+        if hasattr(
+            self,
+            "_town_lodging_options",
+        ):
+            return self._town_lodging_options
+
+        path = (
+            self.runtime.trail_root /
+            "raw" /
+            "csv" /
+            "town_lodging_options.csv"
+        )
+
+        if not path.exists():
+            self._town_lodging_options = []
+            return self._town_lodging_options
+
+        options = []
+
+        with open(
+            path,
+            newline="",
+        ) as handle:
+
+            reader = csv.DictReader(handle)
+
+            for row in reader:
+
+                if not self.is_validated_lodging_option(
+                    row
+                ):
+                    continue
+
+                options.append({
+                    "lodging_id": (
+                        row.get("lodging_id")
+                        or ""
+                    ),
+                    "resupply_amenity_id": (
+                        row.get(
+                            "resupply_amenity_id"
+                        )
+                        or ""
+                    ),
+                    "town_access": (
+                        row.get("town_access")
+                        or ""
+                    ),
+                    "town": (
+                        row.get("town")
+                        or ""
+                    ),
+                    "display_name": (
+                        row.get("display_name")
+                        or ""
+                    ),
+                    "lodging_type": (
+                        row.get("lodging_type")
+                        or ""
+                    ),
+                    "is_hiker_focused": (
+                        self.parse_bool(
+                            row.get("is_hiker_focused")
+                        )
+                    ),
+                    "validation_status": (
+                        row.get(
+                            "validation_status"
+                        )
+                        or ""
+                    ),
+                    "validation_confidence": (
+                        row.get(
+                            "validation_confidence"
+                        )
+                        or ""
+                    ),
+                    "source_name": (
+                        row.get("source_name")
+                        or ""
+                    ),
+                    "source_url": (
+                        row.get("source_url")
+                        or ""
+                    ),
+                    "validation_source_name": (
+                        row.get(
+                            "validation_source_name"
+                        )
+                        or ""
+                    ),
+                    "validation_source_url": (
+                        row.get(
+                            "validation_source_url"
+                        )
+                        or ""
+                    ),
+                    "validation_date": (
+                        row.get(
+                            "validation_date"
+                        )
+                        or ""
+                    ),
+                    "lodging_notes": (
+                        row.get("lodging_notes")
+                        or ""
+                    ),
+                    "food_on_site": (
+                        self.parse_bool(
+                            row.get("food_on_site")
+                        )
+                    ),
+                    "laundry": (
+                        self.parse_bool(
+                            row.get("laundry")
+                        )
+                    ),
+                    "mail_drop_status": (
+                        row.get("mail_drop_status")
+                        or ""
+                    ),
+                    "booking_notes": (
+                        row.get("booking_notes")
+                        or ""
+                    ),
+                })
+
+        self._town_lodging_options = options
+        return self._town_lodging_options
 
     def load_side_trip_options(
         self,
@@ -664,6 +816,17 @@ class LogisticsPlanner:
         return self.options_for_resupply_node(
             node,
             self.load_town_service_options(),
+            "resupply_amenity_id",
+        )
+
+    def town_lodging_options_for_node(
+        self,
+        node,
+    ):
+
+        return self.options_for_resupply_node(
+            node,
+            self.load_town_lodging_options(),
             "resupply_amenity_id",
         )
 
@@ -876,7 +1039,13 @@ class LogisticsPlanner:
         self,
         node,
         service_options,
+        lodging_options=None,
     ):
+
+        lodging_options = (
+            lodging_options
+            or []
+        )
 
         categories = {
             option.get(
@@ -888,6 +1057,7 @@ class LogisticsPlanner:
 
         has_validated_lodging = (
             "lodging" in categories
+            or bool(lodging_options)
         )
         has_validated_food = bool(
             categories & {
@@ -903,6 +1073,9 @@ class LogisticsPlanner:
             and has_validated_food
         ):
             return "validated_lodging_and_food"
+
+        if has_validated_lodging:
+            return "validated_lodging"
 
         services = set(
             node.get(
@@ -1085,6 +1258,11 @@ class LogisticsPlanner:
                     node
                 )
             )
+            town_lodging_options = (
+                self.town_lodging_options_for_node(
+                    node
+                )
+            )
             side_trip_options = (
                 self.side_trip_options_for_node(
                     node
@@ -1112,6 +1290,17 @@ class LogisticsPlanner:
                 if option.get(
                     "service_category"
                 ) == "lodging"
+            ]
+            lodging_options = [
+                *lodging_options,
+                *town_lodging_options,
+            ]
+            hiker_focused_lodging = [
+                option for option
+                in town_lodging_options
+                if option.get(
+                    "is_hiker_focused"
+                )
             ]
             food_options = [
                 option for option
@@ -1182,6 +1371,12 @@ class LogisticsPlanner:
                         "display_name",
                     )
                 ),
+                "hiker_focused_lodging": (
+                    self.format_option_names(
+                        hiker_focused_lodging,
+                        "display_name",
+                    )
+                ),
                 "validated_food": (
                     self.format_option_names(
                         food_options,
@@ -1204,6 +1399,7 @@ class LogisticsPlanner:
                     self.zero_support_status(
                         node,
                         service_options,
+                        town_lodging_options,
                     )
                 ),
                 "selected_side_trips": (
@@ -1237,7 +1433,10 @@ class LogisticsPlanner:
                         "validated named options "
                         "available"
                     )
-                    if service_options
+                    if (
+                        service_options
+                        or town_lodging_options
+                    )
                     else (
                         "category-only; named "
                         "options require "
@@ -2144,6 +2343,11 @@ class LogisticsPlanner:
         ):
             score += 65
 
+        if self.has_hiker_focused_lodging(
+            node
+        ):
+            score += 15
+
         if amenity.get("lodging"):
             score += 35
 
@@ -2163,13 +2367,36 @@ class LogisticsPlanner:
         node,
     ):
 
+        return (
+            any(
+                option.get(
+                    "service_category"
+                )
+                == "lodging"
+                for option in (
+                    self.town_service_options_for_node(
+                        node
+                    )
+                )
+            )
+            or bool(
+                self.town_lodging_options_for_node(
+                    node
+                )
+            )
+        )
+
+    def has_hiker_focused_lodging(
+        self,
+        node,
+    ):
+
         return any(
             option.get(
-                "service_category"
+                "is_hiker_focused"
             )
-            == "lodging"
             for option in (
-                self.town_service_options_for_node(
+                self.town_lodging_options_for_node(
                     node
                 )
             )

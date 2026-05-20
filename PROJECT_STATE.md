@@ -541,6 +541,14 @@ lodging can now support recovery selection under pressure, but verified lodging
 remains higher confidence and broader lodging enrichment still needs
 independent current-source validation.
 
+Validated town lodging support is now split into a dedicated curated CSV. The
+planner uses it to strengthen zero/recovery confidence and the town-details
+table exposes named lodging options, including hiker-focused lodging where
+known. Shuttle and transportation specifics are intentionally not displayed;
+those details change too often for MVP output and should remain a future
+ontology/data-quality concern. Continued lodging revalidation is tracked in
+GitHub issue #60.
+
 Terminal-day resupply is avoided because it does not reduce a future food carry.
 
 The Streamlit app also exposes a developer diagnostics ZIP for generated plans.

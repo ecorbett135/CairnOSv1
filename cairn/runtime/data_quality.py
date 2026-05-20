@@ -18,6 +18,7 @@ REQUIRED_RUNTIME_FILES = [
     "raw/csv/route_master.csv",
     "raw/csv/approach_trails.csv",
     "raw/csv/resupply_amenities.csv",
+    "raw/csv/town_lodging_options.csv",
     "compiled/route_overlay.json",
     "compiled/terrain.geojson",
     "compiled/spine.geojson",
@@ -50,6 +51,33 @@ RESUPPLY_COLUMNS = {
     "zero_candidate",
     "latitude",
     "longitude",
+}
+
+TOWN_LODGING_COLUMNS = {
+    "lodging_id",
+    "resupply_amenity_id",
+    "town_access",
+    "town",
+    "display_name",
+    "lodging_type",
+    "is_hiker_focused",
+    "validation_status",
+    "validation_confidence",
+    "source_name",
+    "source_url",
+    "validation_source_name",
+    "validation_source_url",
+    "validation_date",
+    "lodging_notes",
+    "food_on_site",
+    "laundry",
+    "mail_drop_status",
+    "booking_notes",
+}
+
+TOWN_LODGING_STATUSES = {
+    "validated",
+    "current",
 }
 
 ACCESS_DISTANCE_QUALIFIERS = {
@@ -947,6 +975,220 @@ def validate_resupply_amenities_rows(
                         "canonical_hint"
                     ),
                 )
+
+    return findings
+
+
+def resupply_amenity_ids(
+    rows: list[dict[str, str]],
+) -> set[str]:
+    ids = set()
+
+    for row in rows:
+        canonical_hint = str(
+            row.get(
+                "canonical_hint",
+                "",
+            )
+        ).strip()
+        trail_mile = str(
+            row.get(
+                "trail_mile",
+                "",
+            )
+        ).strip()
+
+        if canonical_hint and trail_mile:
+            ids.add(
+                f"{canonical_hint}:{trail_mile}"
+            )
+
+    return ids
+
+
+def validate_town_lodging_options_rows(
+    rows: list[dict[str, str]],
+    resupply_rows: list[dict[str, str]],
+    path: str = "raw/csv/town_lodging_options.csv",
+) -> list[DataQualityFinding]:
+    findings = validate_required_columns(
+        rows,
+        TOWN_LODGING_COLUMNS,
+        path,
+    )
+
+    if findings:
+        return findings
+
+    valid_resupply_ids = resupply_amenity_ids(
+        resupply_rows
+    )
+    seen_lodging_ids: set[str] = set()
+
+    add_finding(
+        findings,
+        "info",
+        "town_lodging_options_summary",
+        "Town lodging options loaded.",
+        path,
+        rows=len(rows),
+    )
+
+    for idx, row in enumerate(rows):
+        row_number = idx + 2
+        lodging_id = str(
+            row.get(
+                "lodging_id",
+                "",
+            )
+        ).strip()
+        resupply_id = str(
+            row.get(
+                "resupply_amenity_id",
+                "",
+            )
+        ).strip()
+        display_name = str(
+            row.get(
+                "display_name",
+                "",
+            )
+        ).strip()
+        status = str(
+            row.get(
+                "validation_status",
+                "",
+            )
+        ).strip().casefold()
+
+        if not lodging_id:
+            add_finding(
+                findings,
+                "error",
+                "missing_lodging_id",
+                "Town lodging row is missing lodging_id.",
+                path,
+                row=row_number,
+            )
+        elif lodging_id in seen_lodging_ids:
+            add_finding(
+                findings,
+                "error",
+                "duplicate_lodging_id",
+                "Town lodging row has a duplicate lodging_id.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+            )
+        seen_lodging_ids.add(
+            lodging_id
+        )
+
+        if not resupply_id:
+            add_finding(
+                findings,
+                "error",
+                "missing_lodging_resupply_amenity_id",
+                "Town lodging row is missing resupply_amenity_id.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+            )
+        elif resupply_id not in valid_resupply_ids:
+            add_finding(
+                findings,
+                "error",
+                "lodging_bad_resupply_amenity_id",
+                "Town lodging row references an unknown resupply amenity.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+                resupply_amenity_id=resupply_id,
+            )
+
+        if not display_name:
+            add_finding(
+                findings,
+                "error",
+                "missing_lodging_display_name",
+                "Town lodging row is missing display_name.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+            )
+
+        if status not in TOWN_LODGING_STATUSES:
+            add_finding(
+                findings,
+                "error",
+                "invalid_lodging_validation_status",
+                "Town lodging row has an invalid validation_status.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+                validation_status=row.get(
+                    "validation_status"
+                ),
+                allowed=sorted(
+                    TOWN_LODGING_STATUSES
+                ),
+            )
+
+        for field_name in [
+            "is_hiker_focused",
+            "food_on_site",
+            "laundry",
+        ]:
+            if is_truthy_text(
+                row.get(
+                    field_name
+                )
+            ) is None:
+                add_finding(
+                    findings,
+                    "error",
+                    "invalid_lodging_boolean",
+                    "Town lodging boolean field must use TRUE/FALSE style values.",
+                    path,
+                    row=row_number,
+                    lodging_id=lodging_id,
+                    field=field_name,
+                    value=row.get(
+                        field_name
+                    ),
+                )
+
+        if not str(
+            row.get(
+                "validation_source_url",
+                "",
+            )
+        ).strip():
+            add_finding(
+                findings,
+                "warning",
+                "missing_lodging_validation_source_url",
+                "Town lodging row should include a current validation source URL.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+            )
+
+        if not str(
+            row.get(
+                "validation_date",
+                "",
+            )
+        ).strip():
+            add_finding(
+                findings,
+                "warning",
+                "missing_lodging_validation_date",
+                "Town lodging row should include a validation date.",
+                path,
+                row=row_number,
+                lodging_id=lodging_id,
+            )
 
     return findings
 
@@ -1858,6 +2100,18 @@ def validate_runtime_dataset(
         trail_root / "raw/csv/resupply_amenities.csv",
         findings,
     )
+    town_lodging_path = (
+        trail_root /
+        "raw/csv/town_lodging_options.csv"
+    )
+    town_lodging_rows = (
+        read_csv_file(
+            town_lodging_path,
+            findings,
+        )
+        if town_lodging_path.exists()
+        else None
+    )
     raw_approach_rows = read_csv_file(
         trail_root / "raw/csv/approach_trails.csv",
         findings,
@@ -1992,6 +2246,17 @@ def validate_runtime_dataset(
             validate_resupply_amenities_rows(
                 resupply_rows,
                 overlay_nodes,
+            )
+        )
+
+    if (
+        town_lodging_rows is not None
+        and resupply_rows is not None
+    ):
+        findings.extend(
+            validate_town_lodging_options_rows(
+                town_lodging_rows,
+                resupply_rows,
             )
         )
 

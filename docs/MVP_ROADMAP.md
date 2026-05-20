@@ -167,10 +167,11 @@ Recovery planning now supports two MVP modes. Cadence mode keeps recovery as a
 soft day-window preference. Target-count mode lets a hiker request a target
 number of zero and nero days, spreads those targets across the generated trip,
 and reports low-weight recovery-count exceptions when suitable recovery nodes
-cannot satisfy the requested counts. Generic lodging metadata can support
-recovery scoring when cadence or count pressure is high, but verified lodging
-must remain higher confidence than category-only lodging until broader lodging
-research is independently validated.
+cannot satisfy the requested counts. Curated lodging-support rows can improve
+recovery confidence at town access points, but transportation and shuttle
+precision remains out of the user-facing MVP output because it changes too
+often and needs separate source validation. Broader revalidation and expansion
+of lodging support is tracked in GitHub issue #60.
 
 Long Trail THRU feasibility classification should include a broad
 duration-baseline calibration from public planning sources: under 20 days is

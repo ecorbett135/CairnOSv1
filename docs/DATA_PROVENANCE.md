@@ -73,6 +73,12 @@ committed CairnOS data. Each listing should be checked against an independent
 current source, preferably the business site or an official/town tourism
 source, before it becomes reusable data.
 
+Curated lodging-support rows may improve recovery confidence, but they remain
+advisory business metadata. Shuttle, pickup, reservation, and transportation
+precision changes too frequently for the MVP planner output and should remain
+out of user-facing tables unless a future source-validation model explicitly
+supports it.
+
 Side-trip options are also volatile experience data. A side trip may depend on
 hours, reservations, transportation, season, age restrictions, or personal
 interest. Treat side-trip rows as advisory annotations only unless future

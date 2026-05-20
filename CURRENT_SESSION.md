@@ -326,6 +326,10 @@ The current data-quality hardening branch adds:
 - bear-box availability is recorded as structured overnight amenity metadata,
   sourced from Green Mountain Club, and available as an optional soft planner
   preference
+- curated town lodging support is split into
+  `raw/csv/town_lodging_options.csv`, validates against resupply amenity IDs,
+  and strengthens recovery confidence without exposing shuttle or
+  transportation precision in the planner output
 
 Supporting follow-on work includes reducing synthetic stop generation, adding
 food-weight effort modeling, hardening Gaia export regression coverage, and

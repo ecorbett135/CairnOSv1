@@ -559,6 +559,62 @@ def test_resupply_town_details_expose_service_context_and_validation(
     )
 
 
+def test_curated_lodging_options_support_recovery_scoring(
+    planner_factory,
+):
+    """Test independently validated lodging enriches recovery support."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    lincoln_gap = next(
+        node for node in (
+            planner.logistics.build_logistics_candidates()
+        )
+        if (
+            planner.logistics.resupply_node_id(
+                node
+            )
+            == "Lincoln Gap:151.3"
+        )
+    )
+
+    lodging_options = (
+        planner.logistics.town_lodging_options_for_node(
+            lincoln_gap
+        )
+    )
+
+    assert any(
+        option["display_name"] == "Hostel Tevere"
+        for option in lodging_options
+    )
+    assert planner.logistics.has_validated_lodging(
+        lincoln_gap
+    )
+    assert planner.logistics.has_hiker_focused_lodging(
+        lincoln_gap
+    )
+    assert (
+        planner.logistics.zero_support_status(
+            lincoln_gap,
+            [],
+            lodging_options,
+        )
+        == "validated_lodging"
+    )
+
+
 def test_selected_side_trips_annotate_without_changing_plan_time(
     planner_factory,
 ):

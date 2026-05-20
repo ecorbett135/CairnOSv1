@@ -153,6 +153,7 @@ data is currently:
 - `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`
 - `trails/vermont_long_trail/raw/csv/overnight_amenities.csv`
 - `trails/vermont_long_trail/raw/csv/town_service_options.csv`
+- `trails/vermont_long_trail/raw/csv/town_lodging_options.csv`
 - `trails/vermont_long_trail/raw/csv/side_trip_options.csv`
 
 The topology compiler, raw SHP/DEM inputs, raw enrichment exports, and
@@ -184,6 +185,9 @@ hosted Alpha runtime requirements.
   access-distance context, and days to next resupply and recovery.
 - Shows validated town-service context for planned resupply stops, including
   zero-support status where lodging and food have current independent sources.
+- Uses a curated lodging-support layer to improve recovery confidence at town
+  access points while keeping transportation and shuttle precision out of the
+  user-facing plan.
 - Lets users select town stops and validated side trips as annotation-only
   experience notes; selected towns and experiences appear with town context in
   a dedicated table even when the generated plan does not stop there. These
@@ -356,6 +360,10 @@ lodging/food/outfitter options where available, and zero-support context. It is
 not a business directory: business-level lodging, outfitter, shuttle, food, and
 mail-drop listings must be independently validated against current business or
 official/town sources before they are promoted into committed CairnOS data.
+Curated lodging options that support recovery scoring live in
+`trails/vermont_long_trail/raw/csv/town_lodging_options.csv`; they are advisory
+planning context only and intentionally avoid displaying shuttle or
+transportation logistics.
 
 Optional side trips are stored separately from resupply scoring. If selected,
 they annotate nearby town or daily rows with estimated time context, but they do
@@ -544,6 +552,8 @@ amenity is compiled into structured metadata.
   licenses and obligations.
 - Compiled outputs are stored under `trails/vermont_long_trail/compiled/` and `trails/vermont_long_trail/intermediate/`.
 - Curated resupply access metadata is stored in `trails/vermont_long_trail/raw/csv/resupply_amenities.csv`.
+- Curated town lodging support metadata is stored in
+  `trails/vermont_long_trail/raw/csv/town_lodging_options.csv`.
 - Optional Gaia reference waypoint data is stored in `trails/vermont_long_trail/raw/geojson/gaia_reference.geojson`.
 - Optional overnight shelter/campsite reference exports are stored in
   `trails/vermont_long_trail/raw/geojson/`.

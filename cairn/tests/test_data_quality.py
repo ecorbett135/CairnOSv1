@@ -8,6 +8,7 @@ from cairn.runtime.data_quality import (
     validate_route_overlay_payload,
     validate_runtime_dataset,
     validate_terrain_payload,
+    validate_town_lodging_options_rows,
 )
 
 
@@ -186,6 +187,50 @@ def test_resupply_validation_flags_grouped_town_access_gap():
     assert (
         "resupply_town_access_note_incomplete"
         in warnings
+    )
+
+
+def test_town_lodging_validation_flags_bad_resupply_id():
+    resupply_rows = [
+        {
+            "trail_mile": "151.3",
+            "canonical_hint": "Lincoln Gap",
+        }
+    ]
+    lodging_row = {
+        "lodging_id": "example_lodging",
+        "resupply_amenity_id": "Missing:1.0",
+        "town_access": "Example Town",
+        "town": "Example Town",
+        "display_name": "Example Lodging",
+        "lodging_type": "hostel",
+        "is_hiker_focused": "TRUE",
+        "validation_status": "validated",
+        "validation_confidence": "high",
+        "source_name": "Example",
+        "source_url": "https://example.com",
+        "validation_source_name": "Example",
+        "validation_source_url": "https://example.com",
+        "validation_date": "2026-05-20",
+        "lodging_notes": "Example only",
+        "food_on_site": "FALSE",
+        "laundry": "FALSE",
+        "mail_drop_status": "unknown",
+        "booking_notes": "Verify directly",
+    }
+
+    findings = validate_town_lodging_options_rows(
+        [
+            lodging_row,
+        ],
+        resupply_rows,
+    )
+
+    assert (
+        "lodging_bad_resupply_amenity_id"
+        in finding_codes(
+            findings
+        )
     )
 
 
