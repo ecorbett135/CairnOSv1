@@ -46,6 +46,10 @@ st.set_page_config(
 TRAILS_ROOT = PROJECT_ROOT / "trails"
 
 CAIRN_RELOAD_MODULES = [
+    "cairn.export.elevation_confidence",
+    "cairn.export.gaia_geojson",
+    "cairn.export.plan_json",
+    "cairn.export.diagnostics",
     "cairn.planner.terrain",
     "cairn.planner.logistics",
     "cairn.planner.itinerary",
@@ -288,9 +292,39 @@ def ensure_current_cairn_modules(
             )
 
     global planner_v2_module
+    global build_diagnostic_package
+    global build_plan_export
+    global diagnostic_filename
+    global dumps_geojson
+    global dumps_plan_export
+    global export_itinerary_to_gaia_geojson
+    global plan_export_filename
+
+    gaia_geojson_module = sys.modules[
+        "cairn.export.gaia_geojson"
+    ]
+    diagnostics_module = sys.modules[
+        "cairn.export.diagnostics"
+    ]
+    plan_json_module = sys.modules[
+        "cairn.export.plan_json"
+    ]
     planner_v2_module = sys.modules[
         "cairn.planner.planner_v2"
     ]
+    dumps_geojson = gaia_geojson_module.dumps_geojson
+    export_itinerary_to_gaia_geojson = (
+        gaia_geojson_module.export_itinerary_to_gaia_geojson
+    )
+    build_diagnostic_package = (
+        diagnostics_module.build_diagnostic_package
+    )
+    diagnostic_filename = (
+        diagnostics_module.diagnostic_filename
+    )
+    build_plan_export = plan_json_module.build_plan_export
+    dumps_plan_export = plan_json_module.dumps_plan_export
+    plan_export_filename = plan_json_module.plan_export_filename
     st.session_state[
         "loaded_cairn_build_sha"
     ] = build_sha

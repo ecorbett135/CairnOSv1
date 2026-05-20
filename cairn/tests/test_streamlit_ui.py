@@ -314,6 +314,11 @@ def test_generated_plan_is_build_aware_after_redeploy():
     assert "build_sha" in source
     assert "ensure_current_cairn_modules" in source
     assert "importlib.reload" in source
+    assert '"cairn.export.diagnostics"' in source
+    assert '"cairn.export.plan_json"' in source
+    assert '"cairn.export.gaia_geojson"' in source
+    assert "build_diagnostic_package = (" in source
+    assert "build_plan_export = plan_json_module.build_plan_export" in source
     assert "loaded_cairn_build_sha" in source
     assert "refresh_stale_planner_result" in source
     assert "planner_result_build_sha" in source
