@@ -658,6 +658,29 @@ class PlannerV2:
                 * 100
             )
 
+        exception_day_count = len(
+            combined_days
+        )
+        exception_day_ratio = (
+            exception_day_count
+            / moving_day_count
+            if moving_day_count
+            else 0.0
+        )
+        max_mileage_percent = (
+            max_mileage_ratio * 100
+        )
+        max_elevation_percent = (
+            max_elevation_ratio * 100
+        )
+        weighted_exception_pressure = (
+            (
+                max_mileage_percent
+                + max_elevation_percent
+            )
+            * 0.75
+        )
+
         return {
             "combined_exception_days": combined_days,
             "compound_exception_days": compound_days,
@@ -665,13 +688,22 @@ class PlannerV2:
                 pressure_score,
                 1,
             ),
+            "weighted_exception_pressure_percent": round(
+                weighted_exception_pressure,
+                1,
+            ),
+            "exception_day_count": exception_day_count,
+            "exception_day_ratio": round(
+                exception_day_ratio,
+                3,
+            ),
             "moving_day_count": moving_day_count,
             "max_mileage_overage_percent": round(
-                max_mileage_ratio * 100,
+                max_mileage_percent,
                 1,
             ),
             "max_elevation_overage_percent": round(
-                max_elevation_ratio * 100,
+                max_elevation_percent,
                 1,
             ),
         }
@@ -708,6 +740,24 @@ class PlannerV2:
             "exception_pressure_score",
             0.0,
         )
+        weighted_pressure = pressure.get(
+            "weighted_exception_pressure_percent",
+            pressure_score,
+        )
+        max_single_overage = max(
+            pressure.get(
+                "max_mileage_overage_percent",
+                0.0,
+            ),
+            pressure.get(
+                "max_elevation_overage_percent",
+                0.0,
+            ),
+        )
+        exception_day_ratio = pressure.get(
+            "exception_day_ratio",
+            0.0,
+        )
         combined_count = len(
             pressure.get(
                 "combined_exception_days",
@@ -721,16 +771,34 @@ class PlannerV2:
             )
         )
 
-        if "major" in severities:
+        if max_single_overage > 35.0:
             return (
                 "aggressive",
-                "major_preference_overage",
+                "extreme_preference_overage",
+            )
+
+        if exception_day_ratio > 0.30:
+            return (
+                "aggressive",
+                "frequent_preference_pressure",
+            )
+
+        if compound_count > 2:
+            return (
+                "aggressive",
+                "compound_exception_pressure",
+            )
+
+        if weighted_pressure > 35.0:
+            return (
+                "aggressive",
+                "high_weighted_preference_pressure",
             )
 
         if (
-            pressure_score <= 3.0
-            and combined_count <= 2
-            and compound_count <= 1
+            combined_count <= 1
+            and compound_count == 0
+            and max_single_overage <= 30.0
         ):
             return (
                 "comfortable",
@@ -738,17 +806,24 @@ class PlannerV2:
             )
 
         if (
-            pressure_score <= 8.0
+            pressure_score <= 3.0
+            and combined_count <= 2
             and compound_count <= 2
         ):
             return (
+                "comfortable",
+                "sparse_preference_exceptions",
+            )
+
+        if compound_count:
+            return (
                 "challenging",
-                "repeated_preference_pressure",
+                "moderate_weighted_preference_pressure",
             )
 
         return (
-            "aggressive",
-            "compound_exception_pressure",
+            "challenging",
+            "repeated_preference_pressure",
         )
 
     def classify_generated_base(
@@ -976,6 +1051,24 @@ class PlannerV2:
         updated["exception_pressure_score"] = (
             generated_evaluation.get(
                 "exception_pressure_score",
+                0.0,
+            )
+        )
+        updated["weighted_exception_pressure_percent"] = (
+            generated_evaluation.get(
+                "weighted_exception_pressure_percent",
+                0.0,
+            )
+        )
+        updated["exception_day_count"] = (
+            generated_evaluation.get(
+                "exception_day_count",
+                0,
+            )
+        )
+        updated["exception_day_ratio"] = (
+            generated_evaluation.get(
+                "exception_day_ratio",
                 0.0,
             )
         )

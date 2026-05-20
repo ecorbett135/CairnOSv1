@@ -111,9 +111,13 @@ without an explicit mapper.
 The alpha planner should distinguish the original requested target from the
 generated itinerary. A request that requires extension can remain classified as
 aggressive or unrealistic while the generated plan is evaluated separately.
-Sparse mileage or elevation exceptions can remain comfortable, while repeated,
-compound same-day, or major overages should escalate to challenging or
-aggressive.
+Sparse mileage or elevation exceptions can remain comfortable. Moderate
+combined mileage/elevation pressure should generally classify as challenging,
+not aggressive, unless the weighted pressure is high, exception days are
+frequent, compound same-day exceptions repeat, or a single overage is extreme.
+The UI should visually distinguish compound exception days so testers can spot
+days that exceed both mileage and elevation preferences without scanning the
+full itinerary.
 
 Current resupply convenience scoring may parse town-access distance from notes.
 Future data-quality work should promote this into structured source fields so
