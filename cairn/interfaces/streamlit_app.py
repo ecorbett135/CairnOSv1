@@ -1005,7 +1005,7 @@ def synthesize_planner_result(
         ]
     )
 
-    planner = PlannerV2(
+    planner = planner_v2_module.PlannerV2(
         trail_root=trail_root,
         user_profile={
             "min_daily_miles": planner_config[
