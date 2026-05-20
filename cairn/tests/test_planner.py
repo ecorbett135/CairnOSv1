@@ -658,6 +658,82 @@ def test_selected_side_trips_annotate_without_changing_plan_time(
     )
 
 
+def test_selected_towns_appear_as_annotation_only_experiences(
+    planner_factory,
+):
+    """Test town preferences appear without changing plan time."""
+    user_profile = {
+        "direction": "NOBO",
+        "ingress_route": "North Adams Approach",
+        "egress_route": "Journey's End Trail",
+        "resupply_cadence": 5,
+        "recovery_cadence": 6,
+        "min_daily_miles": 10,
+        "max_daily_miles": 15,
+        "max_daily_elevation": 4000,
+        "allow_extra_resupply_only": True,
+    }
+    base_planner = planner_factory(
+        user_profile=user_profile,
+    )
+    town_planner = planner_factory(
+        user_profile={
+            **user_profile,
+            "selected_town_ids": [
+                "Duxbury Road:181.6",
+            ],
+        },
+    )
+
+    base_itinerary = (
+        base_planner.synthesize_itinerary(
+            desired_days=28
+        )
+    )
+    town_itinerary = (
+        town_planner.synthesize_itinerary(
+            desired_days=28
+        )
+    )
+
+    assert (
+        town_itinerary[
+            "expedition_summary"
+        ]["completion_days"]
+        == base_itinerary[
+            "expedition_summary"
+        ]["completion_days"]
+    )
+    assert [
+        row["daily_miles"]
+        for row in town_itinerary[
+            "daily_plan"
+        ]
+    ] == [
+        row["daily_miles"]
+        for row in base_itinerary[
+            "daily_plan"
+        ]
+    ]
+
+    selected_town = next(
+        row for row in town_itinerary[
+            "selected_experiences"
+        ]
+        if row["category"]
+        == "town_preference"
+    )
+
+    assert (
+        selected_town["town_access"]
+        == "Waterbury / Waterbury Center"
+    )
+    assert selected_town[
+        "experience_name"
+    ] == "Waterbury / Waterbury Center town stop"
+    assert selected_town["day"] == 21
+
+
 def test_access_distance_parser_extracts_nearest_town_miles(planner):
     """Test prose parsing remains as a fallback for legacy rows."""
     assert (

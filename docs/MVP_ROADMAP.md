@@ -141,11 +141,12 @@ guidebook replacement. Business-level lodging, outfitter, shuttle, and mail-drop
 data should remain out of planner scoring until each listing has independent
 current-source validation and documented provenance.
 
-Side-trip preferences should remain annotation-only in MVP hardening. Selected
-side trips should show town context in the selector and a dedicated selected
-experiences table near the generated plan, but they must not change daily
-mileage, completion days, feasibility, resupply scoring, or Gaia export
-behavior until a separate planner-time model exists.
+Town and side-trip preferences should remain annotation-only in MVP hardening.
+The selector should include standalone town stops as well as named experiences,
+and selected preferences should show town context in a dedicated selected
+experiences table near the generated plan. They must not change daily mileage,
+completion days, feasibility, resupply scoring, or Gaia export behavior until a
+separate planner-time model exists.
 
 Food-carry cadence overages should be visible as feasibility exceptions when a
 generated plan exceeds the user's preferred resupply cadence. These exceptions

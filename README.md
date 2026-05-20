@@ -181,9 +181,10 @@ hosted Alpha runtime requirements.
   access-distance context, and days to next resupply and recovery.
 - Shows validated town-service context for planned resupply stops, including
   zero-support status where lodging and food have current independent sources.
-- Lets users select validated side trips as annotation-only experience notes;
-  selected side trips appear with town context in a dedicated experience table
-  and do not change miles, days, feasibility, or Gaia export.
+- Lets users select town stops and validated side trips as annotation-only
+  experience notes; selected preferences appear with town context in a
+  dedicated experience table and do not change miles, days, feasibility, or
+  Gaia export.
 - Accepts an optional planned start date and returns date-aware Long Trail
   season/current-condition advisory prompts without changing feasibility,
   itinerary synthesis, resupply, recovery, or export geometry.

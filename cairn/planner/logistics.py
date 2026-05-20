@@ -661,6 +661,22 @@ class LogisticsPlanner:
             if str(value)
         )
 
+    def selected_town_ids(
+        self,
+    ):
+
+        return set(
+            str(value)
+            for value in (
+                self.user_profile.get(
+                    "selected_town_ids",
+                    [],
+                )
+                or []
+            )
+            if str(value)
+        )
+
     def side_trip_options_for_node(
         self,
         node,
@@ -684,6 +700,21 @@ class LogisticsPlanner:
             if option.get("side_trip_id")
             in selected_ids
         ]
+
+    def selected_town_matches_node(
+        self,
+        node,
+    ):
+
+        if not node:
+            return False
+
+        return (
+            self.resupply_node_id(
+                node
+            )
+            in self.selected_town_ids()
+        )
 
     def format_option_names(
         self,
@@ -1081,7 +1112,10 @@ class LogisticsPlanner:
 
         rows = []
 
-        if not self.selected_side_trip_ids():
+        if (
+            not self.selected_side_trip_ids()
+            and not self.selected_town_ids()
+        ):
             return rows
 
         source_plan = (
@@ -1104,7 +1138,7 @@ class LogisticsPlanner:
             )
 
             if not side_trip_options:
-                continue
+                side_trip_options = []
 
             town_access = (
                 row.get("town_access")
@@ -1134,6 +1168,54 @@ class LogisticsPlanner:
                     else ""
                 )
             )
+
+            if self.selected_town_matches_node(
+                node
+            ):
+                rows.append({
+                    "day": row.get("day"),
+                    "location": row.get(
+                        "location"
+                    ),
+                    "mile": row.get("mile"),
+                    "town_access": town_access,
+                    "experience_name": (
+                        f"{town_access} town stop"
+                    ),
+                    "category": (
+                        "town_preference"
+                    ),
+                    "estimated_time": "",
+                    "planning_notes": (
+                        "Selected town preference; "
+                        "annotation only and not "
+                        "included in itinerary time."
+                    ),
+                    "access_distance_miles": (
+                        access_distance
+                    ),
+                    "access_notes": access_notes,
+                    "validation_status": (
+                        "curated"
+                    ),
+                    "validation_source_name": (
+                        node.get(
+                            "resupply_source",
+                            "",
+                        )
+                        if node
+                        else ""
+                    ),
+                    "validation_source_url": (
+                        node.get(
+                            "resupply_source_url",
+                            "",
+                        )
+                        if node
+                        else ""
+                    ),
+                    "validation_date": "",
+                })
 
             for option in side_trip_options:
                 rows.append({

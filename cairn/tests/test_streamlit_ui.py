@@ -308,6 +308,9 @@ def test_generated_plan_is_build_aware_after_redeploy():
     ).read_text()
 
     assert "build_sha" in source
+    assert "ensure_current_cairn_modules" in source
+    assert "importlib.reload" in source
+    assert "loaded_cairn_build_sha" in source
     assert "refresh_stale_planner_result" in source
     assert "planner_result_build_sha" in source
     assert "regenerated with the same settings" in source
@@ -433,10 +436,12 @@ def test_side_trip_preferences_are_annotation_only():
         "cairn/interfaces/streamlit_app.py"
     ).read_text()
 
-    assert "Optional Side Trips" in source
-    assert 'f"{town_access} - {name}"' in source
+    assert "Optional Towns And Side Trips" in source
+    assert 'f"{name} - {town_access}"' in source
+    assert "town_preference_option_label" in source
     assert "annotation-only" in source
     assert "selected_side_trip_ids" in source
+    assert "selected_town_ids" in source
 
 
 def test_selected_experiences_table_is_rendered_conditionally():

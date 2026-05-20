@@ -169,6 +169,14 @@ class PlannerV2:
             or []
         )
 
+        self.selected_town_ids = (
+            self.user_profile.get(
+                "selected_town_ids",
+                [],
+            )
+            or []
+        )
+
         self.start_date = (
             self.user_profile.get(
                 "start_date",

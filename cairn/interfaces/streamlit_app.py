@@ -3,6 +3,7 @@
 from pathlib import Path
 import csv
 import html
+import importlib
 import subprocess
 import sys
 
@@ -20,9 +21,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 import streamlit as st
 
-from cairn.planner.planner_v2 import (
-    PlannerV2,
-)
+import cairn.planner.planner_v2 as planner_v2_module
 
 from cairn.export.gaia_geojson import (
     dumps_geojson,
@@ -40,6 +39,14 @@ st.set_page_config(
 )
 
 TRAILS_ROOT = PROJECT_ROOT / "trails"
+
+CAIRN_RELOAD_MODULES = [
+    "cairn.planner.terrain",
+    "cairn.planner.logistics",
+    "cairn.planner.itinerary",
+    "cairn.planner.season",
+    "cairn.planner.planner_v2",
+]
 
 GITHUB_FEEDBACK_URL = (
     "https://github.com/ecorbett135/CairnOSv1/issues/new/choose"
@@ -268,6 +275,35 @@ def current_build_sha():
     return APP_BUILD_SHA
 
 
+def ensure_current_cairn_modules(
+    build_sha,
+):
+    loaded_build_sha = st.session_state.get(
+        "loaded_cairn_build_sha"
+    )
+
+    if loaded_build_sha == build_sha:
+        return
+
+    for module_name in CAIRN_RELOAD_MODULES:
+        module = sys.modules.get(
+            module_name
+        )
+
+        if module is not None:
+            importlib.reload(
+                module
+            )
+
+    global planner_v2_module
+    planner_v2_module = sys.modules[
+        "cairn.planner.planner_v2"
+    ]
+    st.session_state[
+        "loaded_cairn_build_sha"
+    ] = build_sha
+
+
 def user_agent():
     try:
         return str(
@@ -478,6 +514,69 @@ def load_validated_side_trip_options(
     return options
 
 
+def town_preference_id(
+    option,
+):
+    return (
+        f"{option.get('canonical_hint', '')}:"
+        f"{option.get('trail_mile', '')}"
+    )
+
+
+def load_town_preference_options(
+    trail_root,
+):
+    path = (
+        Path(trail_root) /
+        "raw" /
+        "csv" /
+        "resupply_amenities.csv"
+    )
+
+    if not path.exists():
+        return []
+
+    options = []
+
+    with open(
+        path,
+        newline="",
+    ) as handle:
+
+        reader = csv.DictReader(handle)
+
+        for row in reader:
+
+            if not row.get(
+                "town_access"
+            ):
+                continue
+
+            options.append({
+                "town_id": town_preference_id(
+                    row
+                ),
+                "town_access": row.get(
+                    "town_access",
+                    "",
+                ),
+                "canonical_hint": row.get(
+                    "canonical_hint",
+                    "",
+                ),
+                "access_distance_miles": row.get(
+                    "access_distance_miles",
+                    "",
+                ),
+                "resupply_convenience": row.get(
+                    "resupply_convenience",
+                    "",
+                ),
+            })
+
+    return options
+
+
 def side_trip_option_label(
     option,
 ):
@@ -495,7 +594,7 @@ def side_trip_option_label(
     )
 
     if town_access and name:
-        label = f"{town_access} - {name}"
+        label = f"{name} - {town_access}"
     else:
         label = town_access or name
 
@@ -503,6 +602,27 @@ def side_trip_option_label(
         label = f"{label} ({estimated_time})"
 
     return label
+
+
+def town_preference_option_label(
+    option,
+):
+    town_access = option.get(
+        "town_access",
+        "",
+    )
+    canonical_hint = option.get(
+        "canonical_hint",
+        "",
+    )
+
+    if canonical_hint:
+        return (
+            f"{town_access} - town stop "
+            f"({canonical_hint})"
+        )
+
+    return f"{town_access} - town stop"
 
 
 def directional_access_help(
@@ -769,29 +889,58 @@ def render_planner_controls(
             trail_root
         )
     )
-    side_trip_label_to_id = {
+    town_preference_options = (
+        load_town_preference_options(
+            trail_root
+        )
+    )
+    preference_label_to_selection = {
         side_trip_option_label(option): (
+            "side_trip",
             option.get("side_trip_id")
         )
         for option in side_trip_options
     }
-    selected_side_trip_labels = (
+    preference_label_to_selection.update({
+        town_preference_option_label(option): (
+            "town",
+            option.get("town_id")
+        )
+        for option in town_preference_options
+    })
+    selected_preference_labels = (
         target.multiselect(
-            "Optional Side Trips",
+            "Optional Towns And Side Trips",
             options=list(
-                side_trip_label_to_id.keys()
+                preference_label_to_selection.keys()
             ),
             help=(
-                "Validated side trips are annotation-only. "
-                "They do not change itinerary miles, days, "
-                "feasibility, resupply scoring, or Gaia export."
+                "Town and side-trip preferences are annotation-only. "
+                "They do not change itinerary miles, days, feasibility, "
+                "resupply scoring, or Gaia export."
             ),
         )
     )
+    selected_preferences = [
+        preference_label_to_selection[label]
+        for label in selected_preference_labels
+        if preference_label_to_selection.get(label)
+    ]
     selected_side_trip_ids = [
-        side_trip_label_to_id[label]
-        for label in selected_side_trip_labels
-        if side_trip_label_to_id.get(label)
+        value for preference_type, value
+        in selected_preferences
+        if (
+            preference_type == "side_trip"
+            and value
+        )
+    ]
+    selected_town_ids = [
+        value for preference_type, value
+        in selected_preferences
+        if (
+            preference_type == "town"
+            and value
+        )
     ]
 
     planner_config = {
@@ -826,6 +975,9 @@ def render_planner_controls(
         ),
         "selected_side_trip_ids": (
             selected_side_trip_ids
+        ),
+        "selected_town_ids": (
+            selected_town_ids
         ),
         "ingress_route": ingress_route,
         "egress_route": egress_route,
@@ -896,6 +1048,12 @@ def synthesize_planner_result(
                 planner_config[
                     "selected_side_trip_ids"
                 ]
+            ),
+            "selected_town_ids": (
+                planner_config.get(
+                    "selected_town_ids",
+                    [],
+                )
             ),
             "convenient_resupply_distance_miles": (
                 planner_config[
@@ -1313,6 +1471,9 @@ if "planner_result" not in st.session_state:
     st.session_state["planner_result"] = None
 
 active_build_sha = current_build_sha()
+ensure_current_cairn_modules(
+    active_build_sha
+)
 
 st.title("🥾 CairnOSv1")
 st.subheader(
