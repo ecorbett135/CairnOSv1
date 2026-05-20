@@ -177,15 +177,17 @@ hosted Alpha runtime requirements.
 - Tracks curated bear-box availability as overnight-site metadata and offers an
   optional soft preference for sites with bear boxes.
 - Separates resupply cadence from zero/nero recovery cadence.
+- Supports cadence-based recovery planning and an optional target-count mode
+  for hikers who want to ask for a specific number of zero and nero days.
 - Adds resupply-aware itinerary annotations from operational logistics nodes and curated Long Trail town-access data.
 - Produces a resupply strategy table with trip-start carry segment, town access,
   access-distance context, and days to next resupply and recovery.
 - Shows validated town-service context for planned resupply stops, including
   zero-support status where lodging and food have current independent sources.
 - Lets users select town stops and validated side trips as annotation-only
-  experience notes; selected preferences appear with town context in a
-  dedicated experience table and do not change miles, days, feasibility, or
-  Gaia export.
+  experience notes; selected towns and experiences appear with town context in
+  a dedicated table even when the generated plan does not stop there. These
+  preferences do not change miles, days, feasibility, or Gaia export.
 - Accepts an optional planned start date and returns date-aware Long Trail
   season/current-condition advisory prompts without changing feasibility,
   itinerary synthesis, resupply, recovery, or export geometry.
@@ -268,7 +270,9 @@ Typical input parameters include:
 - daily cadence or target mileage preferences
 - operational constraints such as shelter/campsite preferences
 - preferred resupply cadence
-- preferred zero/nero recovery cadence
+- recovery planning mode: cadence or target zero/nero counts
+- preferred zero/nero recovery cadence when using cadence mode
+- target zero and nero day counts when using target-count mode
 - configurable minimum and maximum nero mileage
 - optional extra resupply-only stops
 - convenient resupply-only access distance
@@ -284,6 +288,7 @@ The output includes:
   reported directly rather than capped to the elevation preference
 - a resupply strategy table tied to real road crossings, trailheads, and town-access points
 - days until the next resupply segment or finish
+- selected town and experience rows with planned or unplanned status
 - operational feasibility warnings when the requested timeline is achievable
   only by exceeding daily mileage or elevation preferences
 - Gaia GeoJSON download with a hot-pink trail spine, lime shelter/campsite markers, and red car markers for planned resupply crossings
@@ -317,6 +322,12 @@ Daily stop coordinates are resolved from compiled and enriched trail data, prefe
 
 PlannerV2 treats resupply cadence as a food-carry planning target and zero/nero cadence as a separate recovery planning target. Both are soft windows, not fixed intervals. Resupply notes are added only when the itinerary crosses an operationally meaningful logistics/access node, while zero and nero notes are reserved for recovery stops.
 
+Recovery can be planned in two modes. `Cadence` keeps the current behavior:
+place recovery near the requested day window when suitable town/logistics
+support exists. `Target Counts` asks for a target number of zero and nero days
+and spreads those targets across the generated trip, but still refuses to force
+bad recovery stops when no reasonable access point exists.
+
 Nero annotations are constrained by a configurable mileage window. The default
 window is 5-8 miles, and the Streamlit UI exposes minimum and maximum nero-mile
 controls so recovery semantics can match the user's planning style.
@@ -349,6 +360,10 @@ official/town sources before they are promoted into committed CairnOS data.
 Optional side trips are stored separately from resupply scoring. If selected,
 they annotate nearby town or daily rows with estimated time context, but they do
 not change itinerary duration, daily mileage, feasibility, or Gaia export.
+Standalone town preferences use individual town labels in the selector while
+remaining tied to the stable underlying access node. Unplanned selections remain
+visible in `Selected Towns And Experiences` so testers can see when a preferred
+town did not fit the generated itinerary.
 
 PlannerV2 also accepts an optional `start_date` and returns advisory-only
 season/current-condition prompts for the generated trip window. Current prompts

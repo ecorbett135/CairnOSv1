@@ -129,6 +129,27 @@ class LogisticsPlanner:
 
         return min(distances)
 
+    def format_access_notes(
+        self,
+        value,
+    ):
+
+        text = str(
+            value or ""
+        ).strip()
+
+        if not text:
+            return ""
+
+        return re.sub(
+            (
+                r"\s+and\s+"
+                r"(?=(?:\d|[Ll]ess than|[Aa]bout|[Mm]ore than))"
+            ),
+            "; ",
+            text,
+        )
+
     def normalize_match_tokens(
         self,
         value,
@@ -216,8 +237,9 @@ class LogisticsPlanner:
                         or ""
                     ),
                     "access_notes": (
-                        row.get("access_notes")
-                        or ""
+                        self.format_access_notes(
+                            row.get("access_notes")
+                        )
                     ),
                     "access_distance_miles": (
                         access_distance_miles
@@ -677,6 +699,94 @@ class LogisticsPlanner:
             if str(value)
         )
 
+    def town_preference_node_id(
+        self,
+        value,
+    ):
+
+        return str(
+            value or ""
+        ).split(
+            "::",
+            1,
+        )[0]
+
+    def town_preference_town_name(
+        self,
+        value,
+    ):
+
+        parts = str(
+            value or ""
+        ).split(
+            "::",
+            1,
+        )
+
+        if len(parts) < 2:
+            return ""
+
+        return parts[1].strip()
+
+    def selected_town_ids_for_node(
+        self,
+        node,
+    ):
+
+        if not node:
+            return []
+
+        node_id = self.resupply_node_id(
+            node
+        )
+
+        return [
+            selected_id
+            for selected_id in (
+                self.selected_town_ids()
+            )
+            if (
+                self.town_preference_node_id(
+                    selected_id
+                )
+                == node_id
+            )
+        ]
+
+    def selected_town_names_for_node(
+        self,
+        node,
+    ):
+
+        selected_ids = (
+            self.selected_town_ids_for_node(
+                node
+            )
+        )
+
+        names = [
+            self.town_preference_town_name(
+                selected_id
+            )
+            for selected_id in selected_ids
+            if self.town_preference_town_name(
+                selected_id
+            )
+        ]
+
+        if names:
+            return names
+
+        if selected_ids:
+            return [
+                node.get(
+                    "town_access",
+                    "",
+                )
+            ]
+
+        return []
+
     def side_trip_options_for_node(
         self,
         node,
@@ -706,14 +816,48 @@ class LogisticsPlanner:
         node,
     ):
 
-        if not node:
-            return False
-
-        return (
-            self.resupply_node_id(
+        return bool(
+            self.selected_town_ids_for_node(
                 node
             )
-            in self.selected_town_ids()
+        )
+
+    def access_detail_for_selected_town(
+        self,
+        node,
+        town_name,
+        access_distance,
+        access_notes,
+    ):
+
+        grouped_town_access = (
+            node.get(
+                "town_access",
+                "",
+            )
+            if node
+            else ""
+        )
+
+        if (
+            town_name
+            and "/" in grouped_town_access
+            and town_name.lower()
+            not in str(
+                access_notes or ""
+            ).lower()
+        ):
+            return (
+                None,
+                (
+                    f"Access distance to {town_name} "
+                    "needs source validation."
+                ),
+            )
+
+        return (
+            access_distance,
+            access_notes,
         )
 
     def format_option_names(
@@ -1111,6 +1255,8 @@ class LogisticsPlanner:
     ):
 
         rows = []
+        planned_side_trip_ids = set()
+        planned_town_ids = set()
 
         if (
             not self.selected_side_trip_ids()
@@ -1172,52 +1318,84 @@ class LogisticsPlanner:
             if self.selected_town_matches_node(
                 node
             ):
-                rows.append({
-                    "day": row.get("day"),
-                    "location": row.get(
-                        "location"
-                    ),
-                    "mile": row.get("mile"),
-                    "town_access": town_access,
-                    "experience_name": (
-                        f"{town_access} town stop"
-                    ),
-                    "category": (
-                        "town_preference"
-                    ),
-                    "estimated_time": "",
-                    "planning_notes": (
-                        "Selected town preference; "
-                        "annotation only and not "
-                        "included in itinerary time."
-                    ),
-                    "access_distance_miles": (
-                        access_distance
-                    ),
-                    "access_notes": access_notes,
-                    "validation_status": (
-                        "curated"
-                    ),
-                    "validation_source_name": (
-                        node.get(
-                            "resupply_source",
-                            "",
+
+                for town_name in (
+                    self.selected_town_names_for_node(
+                        node
+                    )
+                ):
+                    (
+                        town_access_distance,
+                        town_access_notes,
+                    ) = (
+                        self.access_detail_for_selected_town(
+                            node,
+                            town_name,
+                            access_distance,
+                            access_notes,
                         )
-                        if node
-                        else ""
-                    ),
-                    "validation_source_url": (
-                        node.get(
-                            "resupply_source_url",
-                            "",
-                        )
-                        if node
-                        else ""
-                    ),
-                    "validation_date": "",
-                })
+                    )
+                    town_id = (
+                        f"{self.resupply_node_id(node)}"
+                        f"::{town_name}"
+                    )
+                    planned_town_ids.add(town_id)
+
+                    rows.append({
+                        "day": row.get("day"),
+                        "location": row.get(
+                            "location"
+                        ),
+                        "mile": row.get("mile"),
+                        "town_access": town_name,
+                        "experience_name": (
+                            f"{town_name} town stop"
+                        ),
+                        "category": (
+                            "town_preference"
+                        ),
+                        "estimated_time": "",
+                        "planning_notes": (
+                            "Selected town preference; "
+                            "annotation only and not "
+                            "included in itinerary time."
+                        ),
+                        "access_distance_miles": (
+                            town_access_distance
+                        ),
+                        "access_notes": (
+                            town_access_notes
+                        ),
+                        "validation_status": (
+                            "curated"
+                        ),
+                        "validation_source_name": (
+                            node.get(
+                                "resupply_source",
+                                "",
+                            )
+                            if node
+                            else ""
+                        ),
+                        "validation_source_url": (
+                            node.get(
+                                "resupply_source_url",
+                                "",
+                            )
+                            if node
+                            else ""
+                        ),
+                        "validation_date": "",
+                        "planning_status": "planned",
+                    })
 
             for option in side_trip_options:
+                planned_side_trip_ids.add(
+                    option.get(
+                        "side_trip_id",
+                        "",
+                    )
+                )
                 rows.append({
                     "day": row.get("day"),
                     "location": row.get(
@@ -1272,9 +1450,252 @@ class LogisticsPlanner:
                             "",
                         )
                     ),
+                    "planning_status": "planned",
                 })
 
+        rows.extend(
+            self.unplanned_selected_preference_rows(
+                planned_side_trip_ids,
+                planned_town_ids,
+            )
+        )
+
         return rows
+
+    def unplanned_selected_preference_rows(
+        self,
+        planned_side_trip_ids,
+        planned_town_ids,
+    ):
+
+        rows = []
+
+        for selected_id in sorted(
+            self.selected_side_trip_ids()
+        ):
+            if selected_id in planned_side_trip_ids:
+                continue
+
+            option = next(
+                (
+                    candidate
+                    for candidate in (
+                        self.load_side_trip_options()
+                    )
+                    if candidate.get(
+                        "side_trip_id"
+                    )
+                    == selected_id
+                ),
+                None,
+            )
+
+            if not option:
+                rows.append(
+                    self.unmatched_selected_preference_row(
+                        selected_id,
+                        "side_trip",
+                    )
+                )
+                continue
+
+            rows.append({
+                "day": None,
+                "location": "",
+                "mile": None,
+                "town_access": option.get(
+                    "town_access",
+                    "",
+                ),
+                "experience_name": option.get(
+                    "name",
+                    "",
+                ),
+                "category": option.get(
+                    "category",
+                    "",
+                ),
+                "estimated_time": option.get(
+                    "estimated_time",
+                    "",
+                ),
+                "planning_notes": option.get(
+                    "planning_notes",
+                    "",
+                ),
+                "access_distance_miles": None,
+                "access_notes": "",
+                "validation_status": option.get(
+                    "validation_status",
+                    "",
+                ),
+                "validation_source_name": (
+                    option.get(
+                        "validation_source_name",
+                        "",
+                    )
+                ),
+                "validation_source_url": option.get(
+                    "validation_source_url",
+                    "",
+                ),
+                "validation_date": option.get(
+                    "validation_date",
+                    "",
+                ),
+                "planning_status": (
+                    "not_in_generated_plan"
+                ),
+            })
+
+        candidates_by_id = {
+            self.resupply_node_id(node): node
+            for node in (
+                self.build_logistics_candidates()
+            )
+        }
+
+        for selected_id in sorted(
+            self.selected_town_ids()
+        ):
+            node_id = (
+                self.town_preference_node_id(
+                    selected_id
+                )
+            )
+            town_name = (
+                self.town_preference_town_name(
+                    selected_id
+                )
+            )
+
+            if not town_name:
+                node = candidates_by_id.get(
+                    node_id
+                )
+                town_name = (
+                    node.get(
+                        "town_access",
+                        "",
+                    )
+                    if node
+                    else node_id
+                )
+
+            canonical_selected_id = (
+                f"{node_id}::{town_name}"
+            )
+
+            if (
+                canonical_selected_id
+                in planned_town_ids
+            ):
+                continue
+
+            node = candidates_by_id.get(
+                node_id
+            )
+
+            if not node:
+                rows.append(
+                    self.unmatched_selected_preference_row(
+                        selected_id,
+                        "town_preference",
+                    )
+                )
+                continue
+
+            access_distance = (
+                self.access_distance_miles(
+                    node
+                )
+            )
+            access_notes = node.get(
+                "access_notes",
+                "",
+            )
+            (
+                town_access_distance,
+                town_access_notes,
+            ) = (
+                self.access_detail_for_selected_town(
+                    node,
+                    town_name,
+                    access_distance,
+                    access_notes,
+                )
+            )
+
+            rows.append({
+                "day": None,
+                "location": node.get(
+                    "canonical_name",
+                    "",
+                ),
+                "mile": round(
+                    self.node_mile(node),
+                    1,
+                )
+                if self.node_mile(node)
+                is not None
+                else None,
+                "town_access": town_name,
+                "experience_name": (
+                    f"{town_name} town stop"
+                ),
+                "category": "town_preference",
+                "estimated_time": "",
+                "planning_notes": (
+                    "Selected town preference was not "
+                    "part of the generated plan."
+                ),
+                "access_distance_miles": (
+                    town_access_distance
+                ),
+                "access_notes": town_access_notes,
+                "validation_status": "curated",
+                "validation_source_name": node.get(
+                    "resupply_source",
+                    "",
+                ),
+                "validation_source_url": node.get(
+                    "resupply_source_url",
+                    "",
+                ),
+                "validation_date": "",
+                "planning_status": (
+                    "not_in_generated_plan"
+                ),
+            })
+
+        return rows
+
+    def unmatched_selected_preference_row(
+        self,
+        selected_id,
+        category,
+    ):
+
+        return {
+            "day": None,
+            "location": "",
+            "mile": None,
+            "town_access": "",
+            "experience_name": selected_id,
+            "category": category,
+            "estimated_time": "",
+            "planning_notes": (
+                "Selected preference could not be matched "
+                "to current runtime data."
+            ),
+            "access_distance_miles": None,
+            "access_notes": "",
+            "validation_status": "unmatched",
+            "validation_source_name": "",
+            "validation_source_url": "",
+            "validation_date": "",
+            "planning_status": "unmatched",
+        }
 
     def annotate_daily_plan_with_side_trips(
         self,
@@ -1397,9 +1818,11 @@ class LogisticsPlanner:
             node[
                 "access_notes"
             ] = (
-                node.get("access_notes")
-                or amenity.get("access_notes")
-                or ""
+                self.format_access_notes(
+                    node.get("access_notes")
+                    or amenity.get("access_notes")
+                    or ""
+                )
             )
 
             node[
@@ -1716,6 +2139,11 @@ class LogisticsPlanner:
         if amenity.get("zero_candidate"):
             score += 100
 
+        if self.has_validated_lodging(
+            node
+        ):
+            score += 65
+
         if amenity.get("lodging"):
             score += 35
 
@@ -1729,6 +2157,136 @@ class LogisticsPlanner:
             score += 5
 
         return score
+
+    def has_validated_lodging(
+        self,
+        node,
+    ):
+
+        return any(
+            option.get(
+                "service_category"
+            )
+            == "lodging"
+            for option in (
+                self.town_service_options_for_node(
+                    node
+                )
+            )
+        )
+
+    def has_lodging_support(
+        self,
+        node,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+        services = set(
+            node.get(
+                "resupply_services",
+                [],
+            )
+            or []
+        )
+
+        return bool(
+            self.has_validated_lodging(
+                node
+            )
+            or amenity.get("lodging")
+            or "lodging" in services
+        )
+
+    def zero_recovery_capable(
+        self,
+        node,
+        days_since_recovery,
+        cadence,
+    ):
+
+        amenity = node.get(
+            "resupply_amenity",
+            {},
+        )
+
+        if (
+            amenity.get("zero_candidate")
+            or node.get("zero_candidate")
+        ):
+            return True
+
+        return (
+            days_since_recovery
+            >= cadence - 1
+            and self.has_lodging_support(
+                node
+            )
+        )
+
+    def target_recovery_total(
+        self,
+    ):
+
+        return (
+            self.target_zero_days
+            + self.target_nero_days
+        )
+
+    def recovery_target_day(
+        self,
+        completion_days,
+        target_index,
+    ):
+
+        total = self.target_recovery_total()
+
+        if (
+            not completion_days
+            or total <= 0
+        ):
+            return None
+
+        return max(
+            1,
+            round(
+                target_index
+                * completion_days
+                / (
+                    total + 1
+                )
+            ),
+        )
+
+    def recovery_target_kind(
+        self,
+        target_index,
+    ):
+
+        total = self.target_recovery_total()
+
+        if total <= 0:
+            return "zero"
+
+        zero_before = round(
+            (
+                target_index - 1
+            )
+            * self.target_zero_days
+            / total
+        )
+        zero_through = round(
+            target_index
+            * self.target_zero_days
+            / total
+        )
+
+        if zero_through > zero_before:
+            return "zero"
+
+        return "nero"
 
     def select_resupply_for_day(
         self,
@@ -1951,6 +2509,9 @@ class LogisticsPlanner:
         last_recovery_day,
         logistics_candidates,
         used_recovery_ids,
+        completion_days=None,
+        placed_zero_count=0,
+        placed_nero_count=0,
     ):
 
         cadence = max(
@@ -1962,7 +2523,55 @@ class LogisticsPlanner:
             day - last_recovery_day
         )
 
-        if days_since_recovery < (
+        target_recovery_day = None
+        target_recovery_kind = None
+
+        if (
+            self.recovery_planning_mode
+            == "target_counts"
+        ):
+            placed_total = (
+                placed_zero_count
+                + placed_nero_count
+            )
+            target_total = (
+                self.target_recovery_total()
+            )
+
+            if (
+                target_total <= 0
+                or placed_total >= target_total
+                or days_since_recovery < 2
+            ):
+                return (
+                    None,
+                    None,
+                )
+
+            target_index = (
+                placed_total + 1
+            )
+            target_recovery_day = (
+                self.recovery_target_day(
+                    completion_days,
+                    target_index,
+                )
+            )
+            target_recovery_kind = (
+                self.recovery_target_kind(
+                    target_index
+                )
+            )
+
+            if (
+                target_recovery_day
+                and day < target_recovery_day - 1
+            ):
+                return (
+                    None,
+                    None,
+                )
+        elif days_since_recovery < (
             cadence - 1
         ):
             return (
@@ -2038,24 +2647,34 @@ class LogisticsPlanner:
                 )
             )
 
-            candidate_kind = (
-                "zero"
+            zero_capable = (
+                self.zero_recovery_capable(
+                    node,
+                    days_since_recovery,
+                    cadence,
+                )
+            )
+
+            candidate_kind = "nero"
+
+            if (
+                target_recovery_kind == "zero"
+                or (
+                    target_recovery_kind is None
+                    and zero_capable
+                )
+            ):
                 if (
-                    (
-                        amenity.get(
-                            "zero_candidate"
-                        )
-                        or node.get(
-                            "zero_candidate"
-                        )
-                    )
-                    and days_since_recovery
-                    >= cadence - 1
+                    zero_capable
                     and candidate_distance
                     >= self.min_daily_miles
-                )
-                else "nero"
-            )
+                ):
+                    candidate_kind = "zero"
+                elif (
+                    target_recovery_kind
+                    == "zero"
+                ):
+                    continue
 
             if (
                 candidate_kind == "nero"
@@ -2065,12 +2684,29 @@ class LogisticsPlanner:
             ):
                 continue
 
+            kind_penalty = 0
+
+            if (
+                target_recovery_kind
+                and candidate_kind
+                != target_recovery_kind
+            ):
+                kind_penalty = 1
+
             candidates.append({
                 "node": node,
                 "score": score,
                 "kind": candidate_kind,
+                "kind_penalty": kind_penalty,
                 "distance_to_target": abs(
                     target_mile - mile
+                ),
+                "distance_to_recovery_day": abs(
+                    (
+                        target_recovery_day
+                        or day
+                    )
+                    - day
                 ),
             })
 
@@ -2083,10 +2719,14 @@ class LogisticsPlanner:
         candidates = sorted(
             candidates,
             key=lambda item: (
+                item[
+                    "distance_to_recovery_day"
+                ],
                 abs(
                     days_since_recovery
                     - cadence
                 ),
+                item["kind_penalty"],
                 -item["score"],
                 item[
                     "distance_to_target"

@@ -13,11 +13,13 @@ planning before expanding into broader route modes.
 - terrain-aware pacing with feasibility exceptions
 - resupply and recovery cadence separation
 - configurable nero-mile rules
+- cadence-based and target-count recovery planning modes
 - minor-exception-aware feasibility classification
 - resupply strategy rows with recovery timing and town-access friction context
 - optional bear-box overnight-site preference based on curated amenity metadata
 - resupply town-detail review rows with service categories and validation status
-- annotation-only side-trip preferences for validated experience options
+- annotation-only town and side-trip preferences for selected town stops and
+  validated experience options
 - Gaia-compatible GeoJSON export
 
 SECTION planning is intentionally deferred. The underlying planner branches
@@ -143,10 +145,12 @@ current-source validation and documented provenance.
 
 Town and side-trip preferences should remain annotation-only in MVP hardening.
 The selector should include standalone town stops as well as named experiences,
-and selected preferences should show town context in a dedicated selected
-experiences table near the generated plan. They must not change daily mileage,
-completion days, feasibility, resupply scoring, or Gaia export behavior until a
-separate planner-time model exists.
+and selected preferences should show town context in a dedicated selected towns
+and experiences table near the generated plan. Selected rows should remain
+visible even when the generated plan does not stop at that town/access node, so
+alpha testers can distinguish "planned" from "not in generated plan." They must
+not change daily mileage, completion days, feasibility, resupply scoring, or
+Gaia export behavior until a separate planner-time model exists.
 
 Food-carry cadence overages should be visible as feasibility exceptions when a
 generated plan exceeds the user's preferred resupply cadence. These exceptions
@@ -158,6 +162,15 @@ They represent missed zero/nero timing preferences, not physical trail effort,
 so they should affect classification less than mileage/elevation pressure but
 remain visible when the generated plan cannot place recovery near the requested
 cadence.
+
+Recovery planning now supports two MVP modes. Cadence mode keeps recovery as a
+soft day-window preference. Target-count mode lets a hiker request a target
+number of zero and nero days, spreads those targets across the generated trip,
+and reports low-weight recovery-count exceptions when suitable recovery nodes
+cannot satisfy the requested counts. Generic lodging metadata can support
+recovery scoring when cadence or count pressure is high, but verified lodging
+must remain higher confidence than category-only lodging until broader lodging
+research is independently validated.
 
 Long Trail THRU feasibility classification should include a broad
 duration-baseline calibration from public planning sources: under 20 days is
@@ -188,6 +201,12 @@ resupply-only threshold is 1 mile from trail, but the UI should let hikers
 choose their own access-distance tolerance while still treating longer town
 trips as better suited to zero/nero recovery or unavoidable food-carry gaps.
 
+Grouped town-access labels should be split into individual preference options
+for the UI while keeping the stable underlying access node for planner matching.
+If a town name appears in grouped `town_access` but the structured access notes
+do not contain a corresponding distance or direction, runtime data-quality
+checks should flag the gap instead of inventing a distance.
+
 Itinerary display should separate operational identity from presentation.
 Compiled overlay names remain canonical traversal/provenance fields, but
 overnight rows should show concise shelter/camp names and move short spur notes
@@ -196,6 +215,12 @@ zero, nero, and logistics context.
 
 Gaia/manual elevation comparisons should feed back into terrain validation and
 terrain-profile calibration, not ad hoc planner overrides.
+
+Gaia daily-segment export is a separate export-interoperability issue. The
+existing full-trail Gaia export should remain unchanged while a second download
+is designed and manually validated in Gaia. That export should group each
+moving day as a colored LineString segment with start/stop points, but it
+should not ship until folder/color behavior is tested through Gaia import.
 
 Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
 exports can be compared against Cairn intervals from the ignored

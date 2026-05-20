@@ -46,6 +46,7 @@ PlannerV2 now supports:
 - requested-target and generated-plan feasibility classification
 - weighted combined exception pressure for generated-plan feasibility
 - recovery-cadence exception reporting
+- recovery planning modes for cadence-based recovery or target zero/nero counts
 - Long Trail THRU duration-baseline classification
 - resupply strategy output tied to amenity-backed access points
 - structured resupply access-friction fields and user-tunable convenient
@@ -149,11 +150,14 @@ The Streamlit UI currently supports:
 - max elevation gain
 - preferred resupply cadence
 - preferred zero/nero recovery cadence
+- recovery planning mode selection
+- target zero and nero counts when count mode is selected
 - minimum nero miles
 - maximum nero miles
 - optional extra resupply-only stops
 - convenient resupply-only access distance
 - optional bear-box site preference
+- annotation-only individual town and validated experience preferences
 - explicit plan regeneration
 - Gaia GeoJSON download
 - developer diagnostics ZIP download for reproducible alpha tester reports,

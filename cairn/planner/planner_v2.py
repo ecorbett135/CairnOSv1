@@ -108,6 +108,42 @@ class PlannerV2:
             )
         )
 
+        self.recovery_planning_mode = str(
+            self.user_profile.get(
+                "recovery_planning_mode",
+                "cadence",
+            )
+            or "cadence"
+        ).lower()
+
+        if self.recovery_planning_mode not in {
+            "cadence",
+            "target_counts",
+        }:
+            self.recovery_planning_mode = "cadence"
+
+        self.target_zero_days = max(
+            0,
+            int(
+                self.user_profile.get(
+                    "target_zero_days",
+                    3,
+                )
+                or 0
+            ),
+        )
+
+        self.target_nero_days = max(
+            0,
+            int(
+                self.user_profile.get(
+                    "target_nero_days",
+                    2,
+                )
+                or 0
+            ),
+        )
+
         self.min_nero_miles = float(
             self.user_profile.get(
                 "min_nero_miles",
@@ -601,6 +637,18 @@ class PlannerV2:
                 recovery_exception
             )
 
+        recovery_count_exception = (
+            self.summarize_recovery_count_exception(
+                daily_plan,
+                moving_day_count,
+            )
+        )
+
+        if recovery_count_exception:
+            exceptions.append(
+                recovery_count_exception
+            )
+
         return exceptions
 
     def summarize_food_carry_exception(
@@ -676,7 +724,9 @@ class PlannerV2:
     ):
 
         if (
-            not resupply_plan
+            self.recovery_planning_mode
+            != "cadence"
+            or not resupply_plan
             or not self.recovery_cadence
         ):
             return None
@@ -733,6 +783,95 @@ class PlannerV2:
                     moving_day_count,
                 )
             ),
+        }
+
+    def summarize_recovery_count_exception(
+        self,
+        daily_plan,
+        moving_day_count,
+    ):
+
+        if (
+            self.recovery_planning_mode
+            != "target_counts"
+        ):
+            return None
+
+        target_zero = self.target_zero_days
+        target_nero = self.target_nero_days
+        target_total = target_zero + target_nero
+
+        if target_total <= 0:
+            return None
+
+        zero_count = 0
+        nero_count = 0
+
+        for row in daily_plan:
+            notes = str(
+                row.get("notes", "")
+                or ""
+            )
+
+            if "zero" in notes:
+                zero_count += 1
+
+            if "nero" in notes:
+                nero_count += 1
+
+        missing_zero = max(
+            0,
+            target_zero - zero_count,
+        )
+        missing_nero = max(
+            0,
+            target_nero - nero_count,
+        )
+        missing_total = (
+            missing_zero + missing_nero
+        )
+
+        if missing_total <= 0:
+            return None
+
+        observed_total = (
+            zero_count + nero_count
+        )
+
+        missing_percent = round(
+            missing_total
+            / target_total
+            * 100,
+            1,
+        )
+
+        severity = "minor"
+
+        if (
+            missing_percent > 50.0
+            or missing_total >= 3
+        ):
+            severity = "major"
+        elif (
+            missing_percent > 25.0
+            or missing_total >= 2
+        ):
+            severity = "moderate"
+
+        return {
+            "constraint": "recovery_count_days",
+            "limit": target_total,
+            "observed_max": observed_total,
+            "count": missing_total,
+            "days": [],
+            "overage_percent": missing_percent,
+            "severity": severity,
+            "target_zero_days": target_zero,
+            "target_nero_days": target_nero,
+            "actual_zero_days": zero_count,
+            "actual_nero_days": nero_count,
+            "missing_zero_days": missing_zero,
+            "missing_nero_days": missing_nero,
         }
 
     def exception_overage_percent(
@@ -824,6 +963,8 @@ class PlannerV2:
         food_carry_exception_count = 0
         max_recovery_cadence_percent = 0.0
         recovery_cadence_exception_count = 0
+        max_recovery_count_percent = 0.0
+        recovery_count_exception_count = 0
 
         for row in moving_rows:
 
@@ -971,11 +1112,39 @@ class PlannerV2:
                 or 0
             )
 
+        for exception in exceptions or []:
+            if (
+                exception.get("constraint")
+                != "recovery_count_days"
+            ):
+                continue
+
+            max_recovery_count_percent = max(
+                max_recovery_count_percent,
+                float(
+                    exception.get(
+                        "overage_percent",
+                        0.0,
+                    )
+                    or 0.0
+                ),
+            )
+            recovery_count_exception_count += int(
+                exception.get(
+                    "count",
+                    0,
+                )
+                or 0
+            )
+
         food_carry_pressure = (
             max_food_carry_percent * 0.10
         )
         recovery_cadence_pressure = (
             max_recovery_cadence_percent * 0.15
+        )
+        recovery_count_pressure = (
+            max_recovery_count_percent * 0.12
         )
         daily_preference_pressure = (
             (
@@ -988,6 +1157,7 @@ class PlannerV2:
             daily_preference_pressure
             + food_carry_pressure
             + recovery_cadence_pressure
+            + recovery_count_pressure
         )
 
         return {
@@ -1041,6 +1211,17 @@ class PlannerV2:
                 recovery_cadence_pressure,
                 1,
             ),
+            "max_recovery_count_overage_percent": round(
+                max_recovery_count_percent,
+                1,
+            ),
+            "recovery_count_exception_count": (
+                recovery_count_exception_count
+            ),
+            "recovery_count_pressure_percent": round(
+                recovery_count_pressure,
+                1,
+            ),
         }
 
     def classify_exception_pressure(
@@ -1073,6 +1254,7 @@ class PlannerV2:
         cadence_constraints = {
             "food_carry_days",
             "recovery_cadence_days",
+            "recovery_count_days",
         }
         cadence_only = bool(
             constraint_names
@@ -1090,6 +1272,10 @@ class PlannerV2:
                     "max_recovery_cadence_overage_percent",
                     0.0,
                 ),
+                pressure.get(
+                    "max_recovery_count_overage_percent",
+                    0.0,
+                ),
             )
             cadence_count = (
                 pressure.get(
@@ -1098,6 +1284,10 @@ class PlannerV2:
                 )
                 + pressure.get(
                     "recovery_cadence_exception_count",
+                    0,
+                )
+                + pressure.get(
+                    "recovery_count_exception_count",
                     0,
                 )
             )
@@ -2643,6 +2833,9 @@ class PlannerV2:
         last_recovery_day,
         logistics_candidates,
         used_recovery_ids,
+        completion_days=None,
+        placed_zero_count=0,
+        placed_nero_count=0,
     ):
         return (
             self.logistics
@@ -2653,6 +2846,9 @@ class PlannerV2:
                 last_recovery_day,
                 logistics_candidates,
                 used_recovery_ids,
+                completion_days=completion_days,
+                placed_zero_count=placed_zero_count,
+                placed_nero_count=placed_nero_count,
             )
         )
 

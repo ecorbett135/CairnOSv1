@@ -529,7 +529,17 @@ The resupply strategy table now includes:
 - days until the next recovery opportunity
 - parsed town access distance and access notes
 - validated town-service context where current independent sources exist
-- annotation-only side-trip preferences for validated experience options
+- annotation-only town and side-trip preferences with planned or unplanned
+  status in the selected towns/experiences output
+
+Recovery planning now supports cadence mode and target-count mode. Cadence mode
+keeps recovery near the user's preferred day window when good access exists.
+Target-count mode lets the user request zero and nero counts; PlannerV2 spreads
+those targets across the generated trip but records a `recovery_count_days`
+exception if suitable recovery nodes cannot satisfy the request. Generic
+lodging can now support recovery selection under pressure, but verified lodging
+remains higher confidence and broader lodging enrichment still needs
+independent current-source validation.
 
 Terminal-day resupply is avoided because it does not reduce a future food carry.
 

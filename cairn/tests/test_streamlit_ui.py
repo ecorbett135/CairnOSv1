@@ -439,6 +439,7 @@ def test_side_trip_preferences_are_annotation_only():
     assert "Optional Towns And Side Trips" in source
     assert 'f"{name} - {town_access}"' in source
     assert "town_preference_option_label" in source
+    assert "split_town_access_names" in source
     assert "annotation-only" in source
     assert "selected_side_trip_ids" in source
     assert "selected_town_ids" in source
@@ -450,7 +451,23 @@ def test_selected_experiences_table_is_rendered_conditionally():
         "cairn/interfaces/streamlit_app.py"
     ).read_text()
 
-    assert "Selected Experiences" in source
+    assert "Selected Towns And Experiences" in source
     assert "selected_experiences" in source
     assert "experience_name" in source
     assert "town_access" in source
+    assert "planning_status" in source
+
+
+def test_recovery_planning_mode_controls_are_present():
+    """Test UI exposes cadence and count-based recovery modes."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+
+    assert "Recovery Planning Mode" in source
+    assert "Target Counts" in source
+    assert "Target Zero Days" in source
+    assert "Target Nero Days" in source
+    assert "recovery_planning_mode" in source
+    assert "target_zero_days" in source
+    assert "target_nero_days" in source

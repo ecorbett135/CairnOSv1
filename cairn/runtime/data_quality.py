@@ -200,6 +200,18 @@ def is_truthy_text(
     return None
 
 
+def split_town_access_names(
+    value: Any,
+) -> list[str]:
+    return [
+        town.strip()
+        for town in str(
+            value or ""
+        ).split("/")
+        if town.strip()
+    ]
+
+
 def read_json_file(
     path: Path,
     findings: list[DataQualityFinding],
@@ -745,6 +757,44 @@ def validate_resupply_amenities_rows(
                 path,
                 row=idx + 2,
                 trail_mile=mile,
+            )
+
+        access_notes = str(
+            row.get(
+                "access_notes",
+                "",
+            )
+            or ""
+        )
+        town_names = split_town_access_names(
+            row.get(
+                "town_access",
+                "",
+            )
+        )
+        missing_towns = [
+            town
+            for town in town_names
+            if town.lower()
+            not in access_notes.lower()
+        ]
+
+        if (
+            len(town_names) > 1
+            and missing_towns
+        ):
+            add_finding(
+                findings,
+                "warning",
+                "resupply_town_access_note_incomplete",
+                "Grouped town_access includes towns not represented in access_notes.",
+                path,
+                row=idx + 2,
+                trail_mile=mile,
+                town_access=row.get(
+                    "town_access"
+                ),
+                missing_towns=missing_towns,
             )
 
         if not str(

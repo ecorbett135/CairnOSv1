@@ -803,6 +803,8 @@ class ItineraryBuilder:
         last_recovery_day = 0
         used_resupply_ids = set()
         used_recovery_ids = set()
+        placed_zero_count = 0
+        placed_nero_count = 0
 
         ingress_resolved = (
             self._resolve_ingress_node()
@@ -1003,6 +1005,9 @@ class ItineraryBuilder:
                     last_recovery_day,
                     logistics_candidates,
                     used_recovery_ids,
+                    completion_days=completion_days,
+                    placed_zero_count=placed_zero_count,
+                    placed_nero_count=placed_nero_count,
                 )
             )
 
@@ -1503,6 +1508,7 @@ class ItineraryBuilder:
                 )
 
                 last_recovery_day = day
+                placed_nero_count += 1
 
             notes = (
                 self.build_logistics_note(
@@ -1799,6 +1805,7 @@ class ItineraryBuilder:
                 )
 
                 last_recovery_day = zero_day
+                placed_zero_count += 1
 
                 rows.append({
                     "day": zero_day,

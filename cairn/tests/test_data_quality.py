@@ -151,6 +151,44 @@ def test_resupply_validation_flags_invalid_structured_access_fields():
     assert "invalid_resupply_convenience" in codes
 
 
+def test_resupply_validation_flags_grouped_town_access_gap():
+    row = {
+        "trail_mile": "151.3",
+        "town_access": "Lincoln / Warren / Bristol",
+        "canonical_hint": "Lincoln Gap",
+        "access_distance_miles": "4",
+        "access_distance_qualifier": "at_least",
+        "access_direction": "mixed",
+        "access_mode": "road_access",
+        "resupply_convenience": "long_side_trip",
+        "grocery": "TRUE",
+        "post_office": "TRUE",
+        "outfitter": "FALSE",
+        "lodging": "TRUE",
+        "restaurants": "TRUE",
+        "zero_candidate": "FALSE",
+        "latitude": "44.0",
+        "longitude": "-72.0",
+        "access_notes": (
+            "4+ miles east to Warren and "
+            "5 miles west to Lincoln"
+        ),
+    }
+
+    findings = validate_resupply_amenities_rows([
+        row,
+    ])
+    warnings = finding_codes(
+        findings,
+        severity="warning",
+    )
+
+    assert (
+        "resupply_town_access_note_incomplete"
+        in warnings
+    )
+
+
 def test_overnight_reference_validation_flags_summary_count_mismatch():
     findings = validate_overnight_reference_payload(
         {

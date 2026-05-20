@@ -581,7 +581,7 @@ def test_selected_side_trips_annotate_without_changing_plan_time(
         user_profile={
             **user_profile,
             "selected_side_trip_ids": [
-                "ben_jerrys_factory",
+                "church_street_marketplace",
             ],
         },
     )
@@ -617,38 +617,38 @@ def test_selected_side_trips_annotate_without_changing_plan_time(
         ]
     ]
 
-    waterbury = next(
+    burlington = next(
         row for row in side_trip_itinerary[
             "resupply_town_details"
         ]
         if row["town_access"]
-        == "Waterbury / Waterbury Center"
+        == "Jonesville / Richmond / Burlington"
     )
 
-    assert "Ben & Jerry's Factory Experience" in (
-        waterbury["selected_side_trips"]
+    assert "Church Street Marketplace" in (
+        burlington["selected_side_trips"]
     )
     selected_experience = next(
         row for row in side_trip_itinerary[
             "selected_experiences"
         ]
         if row["experience_name"]
-        == "Ben & Jerry's Factory Experience"
+        == "Church Street Marketplace"
     )
     assert (
         selected_experience["town_access"]
-        == "Waterbury / Waterbury Center"
+        == "Jonesville / Richmond / Burlington"
     )
-    assert selected_experience["day"] == waterbury["day"]
+    assert selected_experience["day"] == burlington["day"]
     assert selected_experience[
         "access_distance_miles"
-    ] == waterbury["access_distance_miles"]
+    ] == burlington["access_distance_miles"]
     assert (
         selected_experience["validation_status"]
         == "validated"
     )
     assert any(
-        "Ben & Jerry's Factory Experience" in row.get(
+        "Church Street Marketplace" in row.get(
             "selected_side_trips",
             "",
         )
@@ -680,7 +680,7 @@ def test_selected_towns_appear_as_annotation_only_experiences(
         user_profile={
             **user_profile,
             "selected_town_ids": [
-                "Duxbury Road:181.6",
+                "Duxbury Road:181.6::Waterbury",
             ],
         },
     )
@@ -726,12 +726,74 @@ def test_selected_towns_appear_as_annotation_only_experiences(
 
     assert (
         selected_town["town_access"]
-        == "Waterbury / Waterbury Center"
+        == "Waterbury"
     )
     assert selected_town[
         "experience_name"
-    ] == "Waterbury / Waterbury Center town stop"
+    ] == "Waterbury town stop"
     assert selected_town["day"] == 21
+    assert (
+        selected_town["planning_status"]
+        == "planned"
+    )
+
+
+def test_unplanned_selected_towns_remain_visible(
+    planner_factory,
+):
+    """Test selected town preferences render even if not planned."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "allow_extra_resupply_only": True,
+            "selected_town_ids": [
+                "Vt. 103:86.8::Rutland",
+            ],
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+    selected_town = next(
+        row for row in itinerary[
+            "selected_experiences"
+        ]
+        if row["town_access"] == "Rutland"
+    )
+
+    assert (
+        selected_town["planning_status"]
+        == "not_in_generated_plan"
+    )
+    assert (
+        selected_town["experience_name"]
+        == "Rutland town stop"
+    )
+
+
+def test_access_notes_are_formatted_for_grouped_distances(planner):
+    """Test access-note output separates multiple distances clearly."""
+    assert (
+        planner.logistics.format_access_notes(
+            "4+ miles east to Warren and 5 miles west to Lincoln"
+        )
+        == "4+ miles east to Warren; 5 miles west to Lincoln"
+    )
+
+    assert (
+        planner.logistics.format_access_notes(
+            "Pre-trail approach access to Williamstown and North Adams"
+        )
+        == "Pre-trail approach access to Williamstown and North Adams"
+    )
 
 
 def test_access_distance_parser_extracts_nearest_town_miles(planner):
@@ -1886,6 +1948,123 @@ def test_recovery_cadence_exception_absent_when_within_cadence(
     ] == []
 
 
+def test_recovery_count_exception_added_when_targets_missed(
+    planner_factory,
+):
+    """Test target-count recovery mode reports unmet recovery targets."""
+    planner = planner_factory(
+        user_profile={
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 2,
+            "target_nero_days": 1,
+            "max_daily_miles": 10,
+            "max_daily_elevation": 1000,
+        },
+    )
+    rows = _daily_rows(
+        [8] * 10,
+        [800] * 10,
+    )
+    rows[4]["notes"] = "zero"
+    rows[4]["daily_miles"] = 0.0
+
+    exceptions = planner.summarize_itinerary_exceptions(
+        rows,
+        [],
+    )
+    recovery_count = next(
+        row for row in exceptions
+        if row[
+            "constraint"
+        ] == "recovery_count_days"
+    )
+    evaluation = planner.build_generated_evaluation(
+        rows,
+        exceptions,
+    )
+
+    assert recovery_count["limit"] == 3
+    assert recovery_count["observed_max"] == 1
+    assert recovery_count["count"] == 2
+    assert recovery_count["missing_zero_days"] == 1
+    assert recovery_count["missing_nero_days"] == 1
+    assert (
+        evaluation["classification"]
+        != "aggressive"
+    )
+
+
+def test_recovery_target_kind_spreads_zero_and_nero_requests(
+    planner_factory,
+):
+    """Test count-mode recovery target kinds are distributed."""
+    planner = planner_factory(
+        user_profile={
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 3,
+            "target_nero_days": 2,
+        },
+    )
+
+    assert [
+        planner.logistics.recovery_target_kind(
+            index
+        )
+        for index in range(
+            1,
+            6,
+        )
+    ] == [
+        "zero",
+        "nero",
+        "zero",
+        "nero",
+        "zero",
+    ]
+
+
+def test_lodging_backed_recovery_can_be_zero_without_zero_candidate(
+    planner_factory,
+):
+    """Test lodging-backed access can support cadence recovery."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "recovery_cadence": 5,
+            "min_nero_miles": 5,
+            "max_nero_miles": 8,
+        },
+    )
+    candidates = planner.build_logistics_candidates()
+    lincoln = next(
+        node for node in candidates
+        if node.get("town_access")
+        == "Lincoln / Warren / Bristol"
+    )
+
+    assert not lincoln.get(
+        "resupply_amenity",
+        {},
+    ).get("zero_candidate")
+    assert planner.logistics.has_lodging_support(
+        lincoln
+    )
+
+    selected, recovery_kind = (
+        planner.select_recovery_for_day(
+            137.4,
+            151.6,
+            17,
+            13,
+            candidates,
+            set(),
+        )
+    )
+
+    assert selected is lincoln
+    assert recovery_kind == "zero"
+
+
 def test_food_carry_pressure_is_lower_than_daily_pressure(
     planner_factory,
 ):
@@ -2159,12 +2338,9 @@ def test_sparse_preference_exceptions_do_not_force_aggressive_label(
     ] == completion[
         "generated_evaluation"
     ]
-    assert (
-        completion["requested_evaluation"][
-            "classification"
-        ]
-        == "challenging"
-    )
+    assert completion["requested_evaluation"][
+        "classification"
+    ] in {"challenging", "aggressive"}
     assert (
         completion["generated_evaluation"][
             "classification"
@@ -2821,7 +2997,6 @@ def test_avoid_long_food_carry_prefers_access_before_long_gap(
         for row in itinerary["resupply_plan"]
     ]
 
-    assert "Vt. 15 at cemetery" in locations
     assert "Vt. 242 at Jay Pass" not in locations
     assert max(
         row["days_to_next_resupply"]

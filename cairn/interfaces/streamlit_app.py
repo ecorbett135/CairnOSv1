@@ -510,6 +510,18 @@ def town_preference_id(
     )
 
 
+def split_town_access_names(
+    town_access,
+):
+    return [
+        name.strip()
+        for name in str(
+            town_access or ""
+        ).split("/")
+        if name.strip()
+    ]
+
+
 def load_town_preference_options(
     trail_root,
 ):
@@ -539,27 +551,40 @@ def load_town_preference_options(
             ):
                 continue
 
-            options.append({
-                "town_id": town_preference_id(
-                    row
-                ),
-                "town_access": row.get(
-                    "town_access",
-                    "",
-                ),
-                "canonical_hint": row.get(
-                    "canonical_hint",
-                    "",
-                ),
-                "access_distance_miles": row.get(
-                    "access_distance_miles",
-                    "",
-                ),
-                "resupply_convenience": row.get(
-                    "resupply_convenience",
-                    "",
-                ),
-            })
+            base_id = town_preference_id(
+                row
+            )
+
+            for town_name in (
+                split_town_access_names(
+                    row.get(
+                        "town_access",
+                        "",
+                    )
+                )
+            ):
+                options.append({
+                    "town_id": (
+                        f"{base_id}::{town_name}"
+                    ),
+                    "town_name": town_name,
+                    "town_access": row.get(
+                        "town_access",
+                        "",
+                    ),
+                    "canonical_hint": row.get(
+                        "canonical_hint",
+                        "",
+                    ),
+                    "access_distance_miles": row.get(
+                        "access_distance_miles",
+                        "",
+                    ),
+                    "resupply_convenience": row.get(
+                        "resupply_convenience",
+                        "",
+                    ),
+                })
 
     return options
 
@@ -594,7 +619,11 @@ def side_trip_option_label(
 def town_preference_option_label(
     option,
 ):
-    town_access = option.get(
+    town_name = option.get(
+        "town_name",
+        "",
+    )
+    town_access = town_name or option.get(
         "town_access",
         "",
     )
@@ -792,12 +821,58 @@ def render_planner_controls(
         value=5,
     )
 
-    recovery_cadence = target.slider(
-        "Preferred Zero/Nero Cadence (days)",
-        min_value=3,
-        max_value=14,
-        value=6,
+    recovery_planning_mode_label = target.selectbox(
+        "Recovery Planning Mode",
+        [
+            "Cadence",
+            "Target Counts",
+        ],
+        help=(
+            "Cadence asks CairnOS to place recovery near a day "
+            "interval. Target Counts asks for a preferred number "
+            "of zero and nero days across the whole plan."
+        ),
     )
+
+    recovery_planning_mode = (
+        "target_counts"
+        if recovery_planning_mode_label
+        == "Target Counts"
+        else "cadence"
+    )
+
+    recovery_cadence = 6
+    target_zero_days = 3
+    target_nero_days = 2
+
+    if recovery_planning_mode == "cadence":
+        recovery_cadence = target.slider(
+            "Preferred Zero/Nero Cadence (days)",
+            min_value=3,
+            max_value=14,
+            value=6,
+        )
+    else:
+        target_zero_days = target.slider(
+            "Target Zero Days",
+            min_value=0,
+            max_value=10,
+            value=3,
+            help=(
+                "Preferred number of full zero-mile recovery "
+                "days. CairnOS will place as many as reasonable."
+            ),
+        )
+        target_nero_days = target.slider(
+            "Target Nero Days",
+            min_value=0,
+            max_value=10,
+            value=2,
+            help=(
+                "Preferred number of short-mileage recovery "
+                "days within the configured nero mileage window."
+            ),
+        )
 
     min_nero_miles = target.slider(
         "Minimum Nero Miles",
@@ -946,6 +1021,11 @@ def render_planner_controls(
         "max_daily_elevation": max_daily_elevation,
         "resupply_cadence": resupply_cadence,
         "recovery_cadence": recovery_cadence,
+        "recovery_planning_mode": (
+            recovery_planning_mode
+        ),
+        "target_zero_days": target_zero_days,
+        "target_nero_days": target_nero_days,
         "min_nero_miles": min_nero_miles,
         "max_nero_miles": max_nero_miles,
         "allow_extra_resupply_only": (
@@ -1009,6 +1089,17 @@ def synthesize_planner_result(
             ],
             "recovery_cadence": planner_config[
                 "recovery_cadence"
+            ],
+            "recovery_planning_mode": (
+                planner_config[
+                    "recovery_planning_mode"
+                ]
+            ),
+            "target_zero_days": planner_config[
+                "target_zero_days"
+            ],
+            "target_nero_days": planner_config[
+                "target_nero_days"
             ],
             "min_nero_miles": planner_config[
                 "min_nero_miles"
@@ -1308,9 +1399,11 @@ def render_planner_result(
     )
 
     if selected_experience_rows:
-        st.subheader("Selected Experiences")
+        st.subheader(
+            "Selected Towns And Experiences"
+        )
         st.caption(
-            "Selected experiences are advisory town context only. "
+            "Selected towns and experiences are advisory context only. "
             "They do not change miles, days, feasibility, resupply "
             "scoring, or Gaia export geometry."
         )
@@ -1330,6 +1423,7 @@ def render_planner_result(
                 "access_distance_miles",
                 "access_notes",
                 "validation_status",
+                "planning_status",
             ],
         )
 
