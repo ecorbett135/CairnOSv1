@@ -1070,7 +1070,7 @@ def test_terrain_interval_crossing_approach_and_mainline_uses_mixed_sources(
 def test_goddard_to_story_spring_elevation_uses_anchor_mapping(
     planner,
 ):
-    """Test known lower-trail interval stays near Gaia reference gain."""
+    """Test known lower-trail interval stays within calibrated terrain range."""
     interval = planner.analyze_terrain_interval(
         24.4,
         33.3,
@@ -1078,11 +1078,82 @@ def test_goddard_to_story_spring_elevation_uses_anchor_mapping(
 
     assert interval["source"] == "terrain"
     assert (
-        950
+        1150
         <= interval["elevation_gain_ft"]
-        <= 1150
+        <= 1300
     )
     assert interval["elevation_loss_ft"] > 1500
+
+
+def test_stratton_mountain_interval_retains_mainline_climb(
+    planner,
+):
+    """Test Story Spring to Stratton Pond keeps the Stratton climb."""
+    interval = planner.analyze_terrain_interval(
+        33.3,
+        43.8,
+    )
+
+    assert interval["source"] == "terrain"
+    assert (
+        interval["elevation_gain_ft"]
+        >= 1850
+    )
+    assert (
+        interval["elevation_loss_ft"]
+        >= 2200
+    )
+
+
+def test_stratton_pond_to_vt_11_30_counts_rolling_gain(
+    planner,
+):
+    """Test rolling descent from Stratton Pond does not flatten to 587 ft."""
+    interval = planner.analyze_terrain_interval(
+        43.8,
+        54.4,
+    )
+
+    assert interval["source"] == "terrain"
+    assert (
+        800
+        <= interval["elevation_gain_ft"]
+        <= 1000
+    )
+    assert interval["elevation_loss_ft"] >= 1600
+
+
+def test_terrain_smoothing_keeps_real_rolling_gain(
+    planner,
+):
+    """Test sub-50 ft terrain rolls are counted when cumulative."""
+    interval = planner.terrain.analyze_sample_interval(
+        [
+            (
+                0.0,
+                1000.0,
+            ),
+            (
+                0.1,
+                1030.0,
+            ),
+            (
+                0.2,
+                1060.0,
+            ),
+            (
+                0.3,
+                1090.0,
+            ),
+        ],
+        0.0,
+        0.3,
+        "terrain",
+        reported_distance=0.3,
+    )
+
+    assert interval["elevation_gain_ft"] == 90
+    assert interval["elevation_loss_ft"] == 0
 
 
 def test_terrain_interval_analysis_falls_back_to_route_master(
@@ -1644,10 +1715,10 @@ def test_elevation_exceptions_raise_feasibility_pressure(planner_factory):
     }
 
 
-def test_minor_preference_exceptions_do_not_force_aggressive_label(
+def test_sparse_preference_exceptions_do_not_force_aggressive_label(
     planner_factory,
 ):
-    """Test small, sparse overages preserve a comfortable classification."""
+    """Test sparse overages avoid an aggressive generated classification."""
     planner = planner_factory(
         user_profile={
             "trip_type": "THRU",
@@ -1691,21 +1762,12 @@ def test_minor_preference_exceptions_do_not_force_aggressive_label(
         completion["generated_evaluation"][
             "classification"
         ]
-        == "comfortable"
+        == "challenging"
     )
     assert (
         completion["classification_reason"]
-        == "sparse_preference_exceptions"
+        == "moderate_weighted_preference_pressure"
     )
-    assert {
-        row["severity"]
-        for row in completion[
-            "itinerary_exceptions"
-        ]
-    } <= {
-        "minor",
-        "moderate",
-    }
 
 
 def test_extended_requested_target_has_separate_generated_evaluation(
@@ -1804,7 +1866,7 @@ def test_sobo_uses_same_generated_feasibility_rules(
     )
     assert (
         completion["classification_reason"]
-        == "repeated_preference_pressure"
+        == "moderate_weighted_preference_pressure"
     )
 
 

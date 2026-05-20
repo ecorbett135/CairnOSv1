@@ -309,6 +309,9 @@ The current data-quality hardening branch adds:
   with pass/warn/fail diagnostics
 - route-to-spine alignment checks so local reference routes that follow side
   trails or access routes are flagged before their elevation deltas are trusted
+- terrain smoothing tuned to retain real rolling gain over the main Long Trail
+  spine, including the Story Spring / Stratton Mountain / Stratton Pond / Vt.
+  11/30 area
 - itinerary stop resolution now prefers overlay-authoritative miles when an
   enriched overnight reference shares a canonical overlay name
 - whole-trail audit reporting for suspicious local terrain intervals

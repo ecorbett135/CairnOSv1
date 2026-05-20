@@ -195,6 +195,11 @@ route deviation. A shelter reached by a short spur can be displayed as the
 overnight site while traversal mileage and elevation remain tied to the main
 Long Trail spine.
 
+Planner terrain smoothing should retain real rolling gain on rugged trail.
+The current default suppresses small DEM jitter without flattening repeated
+20-40 ft climbs, which matters in the Stratton Mountain / Stratton Pond area
+and other rolling terrain intervals.
+
 ## Future Overnight Amenities
 
 Bear-box availability is tracked as structured overnight-site amenity metadata,
