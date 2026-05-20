@@ -30,9 +30,9 @@ read the Alpha Status And Safety Notice before using any generated plan in the
 real world.
 
 Use the app's Alpha Feedback panel to report confusing output, unrealistic
-stops, UI problems, export marker issues, or data corrections. The panel uses
-the maintainer-configured feedback form when available and falls back to the
-GitHub issue templates.
+stops, UI problems, export marker issues, or data corrections. The panel links
+directly to the GitHub issue templates and explains what to include if a tester
+does not use GitHub.
 
 ## Quick Start For Developers
 
@@ -47,8 +47,8 @@ venv/bin/streamlit run cairn/interfaces/streamlit_app.py
 
 For Streamlit Community Cloud, use `cairn/interfaces/streamlit_app.py` as the
 entrypoint. The hosted app uses the lean dependency file at
-`cairn/interfaces/requirements.txt`. Configure the feedback form URL as a
-Streamlit secret named `alpha_feedback_url`.
+`cairn/interfaces/requirements.txt`. No feedback-form Streamlit secret is
+required; alpha feedback routes through GitHub issue templates.
 
 ## Alpha Status And Safety Notice
 
@@ -81,7 +81,8 @@ Alpha testers can report feedback through:
 
 - GitHub issues, using the bug, feature, trail/data, or alpha-feedback
   templates.
-- The hosted app feedback link when configured by the maintainer.
+- Screenshots plus key settings in the community channel where they found the
+  alpha, if they do not use GitHub.
 - The alpha testing guidance in `docs/ALPHA_TESTING.md`.
 
 When reporting planner output, attach the developer diagnostics ZIP when

@@ -538,16 +538,17 @@ alpha tester reports can be reproduced without screenshots or raw/source
 datasets.
 
 The hosted alpha feedback loop is intentionally separate from planner behavior.
-The UI routes testers to the configured Alpha feedback form when
-`alpha_feedback_url` is present in Streamlit secrets, otherwise it falls back to
-the public GitHub issue-template chooser. Feedback guidance asks for planner
-settings only when the reporter is not attaching a Developer Diagnostics ZIP.
-The ZIP already includes planner settings, generated output, warnings, Gaia
-export, and runtime data fingerprints. The guidance also asks for screenshots
-when useful; standalone Gaia GeoJSON is only requested for export or
-marker-location reports when the diagnostics ZIP is not attached. The app does
-not store tester feedback, append planner settings to the feedback URL, or treat
-feedback as planner input.
+The UI routes testers to the public GitHub issue-template chooser. GitHub is the
+preferred channel because testers can attach the Developer Diagnostics ZIP and
+the report remains tied to a trackable issue. Feedback guidance asks for planner
+settings only when the reporter is not attaching a diagnostics ZIP. The ZIP
+already includes planner settings, generated output, warnings, Gaia export, and
+runtime data fingerprints. The guidance also asks for screenshots when useful;
+standalone Gaia GeoJSON is only requested for export or marker-location reports
+when the diagnostics ZIP is not attached. Testers who do not use GitHub can
+share screenshots plus key settings in the community channel where they found
+the alpha. The app does not store tester feedback, append planner settings to
+the feedback URL, or treat feedback as planner input.
 
 PlannerV2 now accepts an optional `start_date` in `user_profile` and returns
 `season_advisories` for the generated trip window. The Streamlit UI exposes this

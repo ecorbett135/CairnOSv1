@@ -338,13 +338,13 @@ def test_alpha_feedback_panel_exposes_routing_and_repro_guidance():
     ).read_text()
 
     assert "render_alpha_feedback_panel" in source
-    assert "alpha_feedback_url" in source
-    assert "Share Alpha Feedback" in source
     assert "Open GitHub Feedback Templates" in source
     assert (
         "https://github.com/ecorbett135/CairnOSv1/issues/new/choose"
         in source
     )
+    assert "GitHub requires an account" in source
+    assert "channel where you found the alpha" in source
     assert "it already includes planner settings" in source
     assert "runtime data fingerprints" in source
     assert "Manual settings are only needed" in source
@@ -372,7 +372,7 @@ def test_alpha_feedback_does_not_enter_planner_inputs():
         1,
     )[0]
 
-    assert "alpha_feedback_url" not in synthesize_block
+    assert "render_alpha_feedback_panel" not in synthesize_block
     assert "GITHUB_FEEDBACK_URL" not in synthesize_block
 
 

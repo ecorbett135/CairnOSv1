@@ -73,19 +73,6 @@ AVAILABLE_TRAILS = sorted([
 ])
 
 
-def streamlit_secret(
-    key,
-    default="",
-):
-    try:
-        return st.secrets.get(
-            key,
-            default,
-        )
-    except Exception:
-        return default
-
-
 def render_exception_day_chips(
     days,
     compound_days,
@@ -434,7 +421,6 @@ def refresh_stale_planner_result(
 
 def render_alpha_feedback_panel(
     target,
-    alpha_feedback_url,
 ):
     target.subheader("Alpha Feedback")
     target.caption(
@@ -446,22 +432,23 @@ def render_alpha_feedback_panel(
         )
     )
 
-    if alpha_feedback_url:
-        target.link_button(
-            "Share Alpha Feedback",
-            alpha_feedback_url,
-        )
-    else:
-        target.link_button(
-            "Open GitHub Feedback Templates",
-            GITHUB_FEEDBACK_URL,
-        )
+    target.link_button(
+        "Open GitHub Feedback Templates",
+        GITHUB_FEEDBACK_URL,
+    )
 
     target.caption(
         ALPHA_FEEDBACK_GUIDANCE
     )
     target.caption(
         ALPHA_FEEDBACK_ATTACHMENT_GUIDANCE
+    )
+    target.caption(
+        (
+            "GitHub requires an account to open an issue and attach the ZIP. "
+            "If you do not use GitHub, share a screenshot plus the key "
+            "settings in the channel where you found the alpha."
+        )
     )
     target.caption(
         (
@@ -1489,20 +1476,9 @@ st.warning(
     )
 )
 
-alpha_feedback_url = streamlit_secret(
-    "alpha_feedback_url"
+render_alpha_feedback_panel(
+    st,
 )
-
-if alpha_feedback_url:
-    render_alpha_feedback_panel(
-        st,
-        alpha_feedback_url,
-    )
-else:
-    render_alpha_feedback_panel(
-        st,
-        "",
-    )
 
 selected_view_mode = st.radio(
     "View Mode",

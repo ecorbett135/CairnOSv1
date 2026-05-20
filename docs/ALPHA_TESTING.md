@@ -19,9 +19,13 @@ SOBO/NOBO parity, Gaia export usefulness, and trail-data issues.
   bundling raw/source datasets.
 - Note any day that feels unrealistic, confusing, too aggressive, or oddly
   conservative.
-- Submit feedback through the app's Alpha Feedback panel.
-- If using GitHub, choose the bug, trail/data, feature, or alpha-feedback issue
-  template that best matches the report.
+- Submit feedback through the app's Alpha Feedback panel, which links to the
+  GitHub issue-template chooser.
+- GitHub requires an account to open an issue and attach the diagnostics ZIP.
+  If a tester does not use GitHub, screenshots plus key settings in the
+  community channel where they found the alpha are still useful.
+- Choose the bug, trail/data, feature, or alpha-feedback issue template that
+  best matches the report.
 
 ## Known Alpha Limitations
 
@@ -43,16 +47,10 @@ The hosted Alpha should run from the Streamlit entrypoint:
 cairn/interfaces/streamlit_app.py
 ```
 
-Place the Alpha feedback form URL in Streamlit secrets:
-
-```toml
-alpha_feedback_url = "https://example.com/form"
-```
-
-Do not commit private form-management links or credentials to the repository.
-When the secret is configured, the app routes testers to that feedback form. If
-the secret is absent, the app falls back to the public GitHub issue-template
-chooser.
+The hosted app routes alpha feedback to the public GitHub issue-template
+chooser. No feedback-form Streamlit secret is required. Do not commit private
+form-management links, credentials, tester contact information, or other
+feedback-system secrets to the repository.
 
 ## Runtime Data Package
 
