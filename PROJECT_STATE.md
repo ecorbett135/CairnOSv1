@@ -155,7 +155,8 @@ Responsible for:
 
 - graph runtime loading
 - operational queries
-- traversal semantics
+- traversal semantics, including operational-progression edge order as the
+  THRU itinerary traversal authority
 - overlay progression access
 - operational node retrieval
 - runtime substrate APIs
@@ -595,6 +596,24 @@ This layer:
 
 This data remains enrichment, not operational truth. Route overlay semantics
 still win when a conflict exists.
+
+## Overlay-Authoritative THRU Traversal
+
+THRU itinerary synthesis now slices daily movement through ordered overlay
+corridors derived from `operational_progression` edges. NOBO and SOBO still use
+northbound-reference guidebook miles for public output, but candidate stop
+selection and traversal advancement carry overlay identity through each moving
+day.
+
+Planner rows retain internal provenance fields for the selected overlay start,
+selected overlay stop, and traversal authority. These fields are diagnostic
+state for CairnOS and future exports; the Streamlit itinerary table and Gaia
+GeoJSON export continue to present the stable user-facing itinerary fields.
+
+Approach and egress branches remain selected traversal endpoints. Off-spine
+overnight candidates remain displayable overnight access points anchored to the
+mainline overlay; they do not become route deviations or replace the compiled
+route overlay as operational truth.
 
 ---
 
