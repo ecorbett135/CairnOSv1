@@ -31,6 +31,10 @@ from cairn.planner.itinerary import (
     ItineraryBuilder,
 )
 
+from cairn.planner.season import (
+    SeasonAdvisoryPlanner,
+)
+
 
 class PlannerV2:
 
@@ -165,6 +169,13 @@ class PlannerV2:
             or []
         )
 
+        self.start_date = (
+            self.user_profile.get(
+                "start_date",
+                None,
+            )
+        )
+
         self.direction = (
             self.user_profile.get(
                 "direction",
@@ -206,6 +217,9 @@ class PlannerV2:
             self
         )
         self.logistics = LogisticsPlanner(
+            self
+        )
+        self.season = SeasonAdvisoryPlanner(
             self
         )
         self.itinerary_builder = ItineraryBuilder(
@@ -2234,6 +2248,17 @@ class PlannerV2:
             )
         )
 
+    def build_season_advisories(
+        self,
+        completion_days,
+    ):
+        return (
+            self.season
+            .build_season_advisories(
+                completion_days
+            )
+        )
+
     def synthesize_itinerary(
         self,
         desired_days,
@@ -2324,6 +2349,12 @@ class PlannerV2:
             )
         )
 
+        season_advisories = (
+            self.build_season_advisories(
+                actual_completion_days
+            )
+        )
+
         return {
             "completion_analysis": (
                 completion_analysis
@@ -2339,6 +2370,9 @@ class PlannerV2:
             ),
             "directional_access": (
                 directional_access
+            ),
+            "season_advisories": (
+                season_advisories
             ),
             "daily_plan": (
                 daily_plan
