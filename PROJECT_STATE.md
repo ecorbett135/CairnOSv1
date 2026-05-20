@@ -484,8 +484,10 @@ recovery rows from average daily mileage and elevation calculations.
 Operational feasibility now separates the original requested completion target
 from the generated itinerary. The requested target can remain aggressive or
 unrealistic when CairnOS extends the plan, while the generated plan is scored
-from actual daily mileage, elevation, repeated exceptions, and compound
-same-day stress.
+from actual daily mileage, elevation, weighted combined exception pressure,
+repeated exceptions, and compound same-day stress. Moderate preference
+exceptions should classify as challenging unless they are frequent, extreme, or
+compound enough to justify aggressive.
 
 Eventually terrain should also materially influence:
 

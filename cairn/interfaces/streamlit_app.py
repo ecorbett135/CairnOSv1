@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 import csv
+import html
 import subprocess
 import sys
 
@@ -76,6 +77,128 @@ def streamlit_secret(
         )
     except Exception:
         return default
+
+
+def render_exception_day_chips(
+    days,
+    compound_days,
+):
+    chips = []
+
+    for day in days or []:
+        chip_class = (
+            "exception-day-chip compound-exception-day"
+            if day in compound_days
+            else "exception-day-chip"
+        )
+        chips.append(
+            (
+                f'<span class="{chip_class}">'
+                f"{html.escape(str(day))}"
+                "</span>"
+            )
+        )
+
+    return "".join(chips)
+
+
+def render_itinerary_exception_table(
+    completion,
+):
+    exceptions = completion.get(
+        "itinerary_exceptions",
+        [],
+    )
+    compound_days = set(
+        completion.get(
+            "compound_exception_days",
+            [],
+        )
+    )
+
+    if not exceptions:
+        return
+
+    rows = []
+
+    for exception in exceptions:
+        rows.append(
+            "<tr>"
+            f"<td>{html.escape(str(exception.get('constraint', '')))}</td>"
+            f"<td>{html.escape(str(exception.get('limit', '')))}</td>"
+            f"<td>{html.escape(str(exception.get('observed_max', '')))}</td>"
+            f"<td>{html.escape(str(exception.get('count', '')))}</td>"
+            "<td>"
+            f"{render_exception_day_chips(exception.get('days', []), compound_days)}"
+            "</td>"
+            f"<td>{html.escape(str(exception.get('overage_percent', '')))}</td>"
+            f"<td>{html.escape(str(exception.get('severity', '')))}</td>"
+            "</tr>"
+        )
+
+    st.markdown(
+        """
+        <style>
+        .exception-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .exception-table th,
+        .exception-table td {
+            border: 1px solid rgba(250, 250, 250, 0.12);
+            padding: 0.45rem 0.6rem;
+            text-align: left;
+            vertical-align: middle;
+        }
+        .exception-table th {
+            background: rgba(250, 250, 250, 0.06);
+            color: rgba(250, 250, 250, 0.72);
+            font-weight: 600;
+        }
+        .exception-day-chip {
+            display: inline-block;
+            min-width: 1.6rem;
+            margin: 0.1rem 0.15rem 0.1rem 0;
+            padding: 0.15rem 0.45rem;
+            border-radius: 999px;
+            background: rgba(120, 124, 135, 0.45);
+            color: #f5f5f5;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+        .compound-exception-day {
+            background: #b42318;
+            color: #ffffff;
+            font-weight: 700;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        (
+            '<table class="exception-table">'
+            "<thead><tr>"
+            "<th>constraint</th>"
+            "<th>limit</th>"
+            "<th>observed_max</th>"
+            "<th>count</th>"
+            "<th>days</th>"
+            "<th>overage_percent</th>"
+            "<th>severity</th>"
+            "</tr></thead>"
+            "<tbody>"
+            + "".join(rows)
+            + "</tbody></table>"
+        ),
+        unsafe_allow_html=True,
+    )
+
+    if compound_days:
+        st.caption(
+            "Red day chips exceed both mileage and elevation preferences."
+        )
 
 
 def current_build_sha():
@@ -805,12 +928,8 @@ def render_planner_result(
             ]
         )
 
-        st.dataframe(
-            completion[
-                "itinerary_exceptions"
-            ],
-            width="stretch",
-            hide_index=True,
+        render_itinerary_exception_table(
+            completion
         )
 
         st.info(

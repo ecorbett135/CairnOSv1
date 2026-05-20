@@ -371,8 +371,11 @@ sample fluctuation.
 Operational feasibility now separates the original requested target from the
 generated itinerary. If CairnOS extends a plan, the requested target keeps its
 own classification while the generated plan is scored separately. Sparse
-preference exceptions can remain comfortable; repeated, compound, or major
-mileage/elevation pressure raises the generated-plan classification.
+preference exceptions can remain comfortable. Generated-plan classification now
+uses weighted combined mileage/elevation pressure so moderate overages can
+read as challenging instead of aggressive, while repeated compound or extreme
+overages still escalate. The feasibility table highlights days that exceed
+both mileage and elevation preferences.
 
 ## Elevation calibration
 

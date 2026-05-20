@@ -44,6 +44,7 @@ PlannerV2 now supports:
 - terrain interval analysis from compiled elevation samples
 - explicit terrain mile-domain reconciliation
 - requested-target and generated-plan feasibility classification
+- weighted combined exception pressure for generated-plan feasibility
 - resupply strategy output tied to amenity-backed access points
 - structured resupply access-friction fields and user-tunable convenient
   resupply-only distance
