@@ -64,6 +64,11 @@ the imported plan, but actuals should be calibration input only. They should not
 override CairnOS trail data, terrain reconciliation, route overlay authority, or
 operational truth.
 
+The mobile import contract is documented in
+`docs/HIKERLOGIX_IMPORT_CONTRACT.md`. Deterministic NOBO and SOBO fixture exports
+live under `cairn/tests/fixtures/plan_json/` and should be used as the shared
+contract reference for HikerLogix import work.
+
 ## Safety Notice
 
 CairnOS plan JSON is advisory alpha output. Hikers must verify routes, services,

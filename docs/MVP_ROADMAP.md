@@ -74,6 +74,8 @@ Roadmap sequencing should stay export-first:
   offline itinerary import and is implemented as the `cairnos_plan_v1`
   file-based contract.
 - #13 read-only HikerLogix import path is the next interoperability step.
+  It should start with `docs/HIKERLOGIX_IMPORT_CONTRACT.md` and deterministic
+  NOBO/SOBO Plan JSON fixtures, not an iOS importer implementation.
 - #14 actuals import and personal calibration remains Post-MVP until
   HikerLogix proves its mobile journal, actuals, and review workflow.
 
@@ -175,6 +177,11 @@ recovery confidence at town access points, but transportation and shuttle
 precision remains out of the user-facing MVP output because it changes too
 often and needs separate source validation. Broader revalidation and expansion
 of lodging support is tracked in GitHub issue #60.
+Validated lodging support should stay conservative: promote rows only when a
+current business/official source URL, validation date, and source notes are
+recorded. Closed, stale, or shuttle-dependent lodging references can remain in
+local research files, but they should not affect recovery scoring until
+revalidated.
 
 Long Trail THRU feasibility classification should include a broad
 duration-baseline calibration from public planning sources: under 20 days is
