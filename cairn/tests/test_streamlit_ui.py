@@ -296,6 +296,10 @@ def test_generated_plan_exposes_developer_diagnostics_download():
         "cairn/interfaces/streamlit_app.py"
     ).read_text()
 
+    assert "Download CairnOS Plan JSON" in source
+    assert "cairnos_plan_json_download" in source
+    assert "build_plan_export" in source
+    assert "plan_export_filename" in source
     assert "Download Developer Diagnostics" in source
     assert "developer_diagnostics_download" in source
     assert "build_diagnostic_package" in source

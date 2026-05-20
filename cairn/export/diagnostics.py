@@ -19,6 +19,7 @@ from cairn.export.elevation_confidence import (
     build_elevation_confidence_report,
 )
 from cairn.export.gaia_geojson import dumps_geojson
+from cairn.export.plan_json import build_plan_export
 
 
 DIAGNOSTIC_SCHEMA_VERSION = "cairnos_diagnostic_v1"
@@ -379,6 +380,12 @@ def build_diagnostic_package(
             trail_root,
         )
     )
+    cairnos_plan = build_plan_export(
+        planner_result,
+        trail_root,
+        build_sha,
+        generated_at,
+    )
 
     buffer = io.BytesIO()
 
@@ -394,6 +401,10 @@ def build_diagnostic_package(
         archive.writestr(
             "plan.json",
             json_bytes(sanitized_result),
+        )
+        archive.writestr(
+            "cairnos_plan.json",
+            json_bytes(cairnos_plan),
         )
         archive.writestr(
             "itinerary.csv",

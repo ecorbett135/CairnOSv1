@@ -24,10 +24,11 @@ show the sidebar. Mobile mode places planner controls at the top of the page
 and renders results below them.
 
 You can export the itinerary as Gaia-compatible GeoJSON for review in other
-tools. If you are reporting a confusing planner result, use the developer
-diagnostics download so the run can be reproduced without screenshots. Please
-read the Alpha Status And Safety Notice before using any generated plan in the
-real world.
+tools, or as CairnOS Plan JSON for downstream itinerary consumers such as the
+future HikerLogix companion. If you are reporting a confusing planner result,
+use the developer diagnostics download so the run can be reproduced without
+screenshots. Please read the Alpha Status And Safety Notice before using any
+generated plan in the real world.
 
 Use the app's Alpha Feedback panel to report confusing output, unrealistic
 stops, UI problems, export marker issues, or data corrections. The panel links
@@ -198,6 +199,8 @@ hosted Alpha runtime requirements.
 - Uses terrain interval analysis to bias daily pacing and report terrain-derived
   elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
+- Exports schema-versioned CairnOS Plan JSON as the deterministic itinerary
+  and reasoning contract for future companion-app imports.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export

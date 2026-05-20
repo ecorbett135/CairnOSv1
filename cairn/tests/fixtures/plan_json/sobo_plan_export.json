@@ -1,0 +1,54 @@
+{
+  "build_sha": "fixture",
+  "completion_analysis": {
+    "evaluation": {
+      "classification": "comfortable"
+    }
+  },
+  "daily_plan": [
+    {
+      "daily_miles": 9.9,
+      "daily_start_location": "Journey's End Trail",
+      "daily_start_mile": 273.3,
+      "daily_stop_location": "Laura Woodward Shelter",
+      "daily_stop_mile": 263.4,
+      "day": 1
+    }
+  ],
+  "directional_access": {
+    "direction": "SOBO",
+    "egress_route": "Williamstown Approach",
+    "ingress_route": "Journey's End Trail"
+  },
+  "expedition_summary": {
+    "completion_days": 28,
+    "total_miles": 272.0
+  },
+  "export_version": "cairnos_plan_v1",
+  "generated_at": "20260520T120000Z",
+  "planner": {
+    "direction": "SOBO",
+    "facade": "cairn.planner.planner_v2.PlannerV2",
+    "name": "PlannerV2",
+    "trail_root": "trails/vermont_long_trail",
+    "trip_type": "THRU"
+  },
+  "resupply_plan": [],
+  "resupply_town_details": [],
+  "season_advisories": [],
+  "selected_experiences": [],
+  "trail_id": "vermont_long_trail",
+  "user_profile": {
+    "direction": "SOBO",
+    "selected_trail": "vermont_long_trail",
+    "trail_root": "trails/vermont_long_trail",
+    "trip_type": "THRU"
+  },
+  "warnings": [
+    {
+      "code": "alpha_advisory",
+      "message": "Fixture warning.",
+      "severity": "warning"
+    }
+  ]
+}

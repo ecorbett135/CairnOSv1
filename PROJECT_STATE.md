@@ -70,6 +70,9 @@ Open-source, HikerLogix, and intellectual-property posture is documented in
   packaging.
 - Trail data provenance and commercial reuse rights are separate from the
   CairnOS source-code license.
+- CairnOS Plan JSON is the intended deterministic export contract for future
+  HikerLogix read-only itinerary import; Gaia GeoJSON remains
+  navigation-tool-oriented.
 
 ---
 
@@ -193,6 +196,9 @@ Key Files:
 - terrain.py
 - logistics.py
 - itinerary.py
+
+Export integration should consume the `PlannerV2` result contract rather than
+reconstructing planner internals.
 
 IMPORTANT:
 

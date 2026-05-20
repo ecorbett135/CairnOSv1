@@ -160,6 +160,8 @@ The Streamlit UI currently supports:
 - annotation-only individual town and validated experience preferences
 - explicit plan regeneration
 - Gaia GeoJSON download
+- CairnOS Plan JSON download for deterministic downstream itinerary import
+  and future HikerLogix companion work
 - developer diagnostics ZIP download for reproducible alpha tester reports,
   including per-day elevation confidence and off-spine overnight-access
   diagnostics
@@ -167,6 +169,10 @@ The Streamlit UI currently supports:
 Planner output should stay visible until the user regenerates the plan. Slider,
 selector, and download interactions should not implicitly wipe the displayed
 plan.
+
+CairnOS Plan JSON is the file-based export contract for future HikerLogix
+read-only itinerary import. Gaia GeoJSON remains map/navigation oriented, while
+developer diagnostics remain reproducible debugging bundles.
 
 ---
 

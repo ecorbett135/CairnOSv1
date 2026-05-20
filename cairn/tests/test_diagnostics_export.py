@@ -18,6 +18,7 @@ from cairn.export.gaia_geojson import (
 EXPECTED_ZIP_FILES = {
     "manifest.json",
     "plan.json",
+    "cairnos_plan.json",
     "itinerary.csv",
     "resupply_strategy.csv",
     "completion_analysis.json",
@@ -95,6 +96,10 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             archive,
             "plan.json",
         )
+        cairnos_plan = read_zip_json(
+            archive,
+            "cairnos_plan.json",
+        )
         completion = read_zip_json(
             archive,
             "completion_analysis.json",
@@ -140,6 +145,22 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             plan["config"]["external_debug_path"]
             == "[redacted_path]"
         )
+        assert (
+            cairnos_plan["export_version"]
+            == "cairnos_plan_v1"
+        )
+        assert (
+            cairnos_plan["user_profile"]["trail_root"]
+            == "trails/vermont_long_trail"
+        )
+        assert (
+            cairnos_plan["user_profile"][
+                "external_debug_path"
+            ]
+            == "[redacted_path]"
+        )
+        assert cairnos_plan["daily_plan"]
+        assert cairnos_plan["resupply_plan"]
         assert "selected_experiences" in plan[
             "itinerary"
         ]
@@ -179,6 +200,7 @@ def test_diagnostic_package_contains_safe_runtime_bundle(
             for name in [
                 "manifest.json",
                 "plan.json",
+                "cairnos_plan.json",
                 "completion_analysis.json",
                 "gaia_warnings.json",
                 "data_fingerprints.json",

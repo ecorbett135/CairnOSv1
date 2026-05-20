@@ -21,6 +21,8 @@ planning before expanding into broader route modes.
 - annotation-only town and side-trip preferences for selected town stops and
   validated experience options
 - Gaia-compatible GeoJSON export
+- schema-versioned CairnOS Plan JSON export for future HikerLogix read-only
+  itinerary import
 
 SECTION planning is intentionally deferred. The underlying planner branches
 remain in place for later work, but the Streamlit UI hides SECTION mode until
@@ -69,8 +71,9 @@ planned-versus-actual review, and lightweight advisory adjustments. See
 Roadmap sequencing should stay export-first:
 
 - #12 deterministic plan JSON export is the key CairnOS unlock for HikerLogix
-  offline itinerary import.
-- #13 read-only HikerLogix import path is the near-term interoperability step.
+  offline itinerary import and is implemented as the `cairnos_plan_v1`
+  file-based contract.
+- #13 read-only HikerLogix import path is the next interoperability step.
 - #14 actuals import and personal calibration remains Post-MVP until
   HikerLogix proves its mobile journal, actuals, and review workflow.
 

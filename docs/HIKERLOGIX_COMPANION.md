@@ -103,8 +103,8 @@ Recommended order:
 
 The first implementation should be file-based, not network/API-based.
 
-CairnOS should export a deterministic, schema-versioned JSON plan in addition to
-the existing Gaia GeoJSON export. Gaia GeoJSON remains navigation-tool-oriented;
+CairnOS exports a deterministic, schema-versioned JSON plan in addition to the
+existing Gaia GeoJSON export. Gaia GeoJSON remains navigation-tool-oriented;
 CairnOS plan JSON is itinerary-and-reasoning-oriented.
 
 Minimum top-level fields:
@@ -125,6 +125,9 @@ The v1 JSON should preserve existing PlannerV2 field names instead of inventing
 a mobile-specific schema. HikerLogix can store the imported plan as read-only
 JSON first and normalize later only if needed. The primary early consumer is an
 offline itinerary view, not a live planning API.
+
+The current contract is documented in `docs/PLAN_JSON_EXPORT.md` and starts
+with `cairnos_plan_v1`.
 
 ## Future Actuals Loop
 

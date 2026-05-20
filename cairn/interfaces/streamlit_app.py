@@ -31,6 +31,11 @@ from cairn.export.diagnostics import (
     build_diagnostic_package,
     diagnostic_filename,
 )
+from cairn.export.plan_json import (
+    build_plan_export,
+    dumps_plan_export,
+    plan_export_filename,
+)
 
 
 st.set_page_config(
@@ -1518,13 +1523,32 @@ def render_planner_result(
         key="gaia_geojson_download",
     )
 
-    build_sha_for_diagnostics = current_build_sha()
+    build_sha_for_exports = current_build_sha()
+
+    cairnos_plan = build_plan_export(
+        planner_result,
+        trail_root,
+        build_sha_for_exports,
+    )
+
+    st.download_button(
+        "Download CairnOS Plan JSON",
+        data=dumps_plan_export(
+            cairnos_plan
+        ),
+        file_name=plan_export_filename(
+            planner_result,
+            build_sha_for_exports,
+        ),
+        mime="application/json",
+        key="cairnos_plan_json_download",
+    )
 
     diagnostic_package = build_diagnostic_package(
         planner_result,
         trail_root,
         gaia_export,
-        build_sha_for_diagnostics,
+        build_sha_for_exports,
     )
 
     st.download_button(
@@ -1532,7 +1556,7 @@ def render_planner_result(
         data=diagnostic_package,
         file_name=diagnostic_filename(
             planner_result,
-            build_sha_for_diagnostics,
+            build_sha_for_exports,
         ),
         mime="application/zip",
         key="developer_diagnostics_download",
