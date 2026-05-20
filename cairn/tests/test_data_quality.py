@@ -12,6 +12,44 @@ from cairn.runtime.data_quality import (
 )
 
 
+def test_curated_lodging_rows_have_current_validation_sources(
+    trail_root,
+):
+    import csv
+
+    path = (
+        trail_root
+        / "raw"
+        / "csv"
+        / "town_lodging_options.csv"
+    )
+    with open(
+        path,
+        newline="",
+    ) as handle:
+        rows = list(
+            csv.DictReader(handle)
+        )
+
+    by_id = {
+        row["lodging_id"]: row
+        for row in rows
+    }
+
+    for lodging_id in [
+        "inn_at_long_trail",
+        "old_stagecoach_inn",
+        "hotel_downstreet",
+        "williamstown_motel",
+    ]:
+        row = by_id[lodging_id]
+        assert row["validation_status"] == "validated"
+        assert row["validation_source_url"].startswith(
+            "https://"
+        )
+        assert row["validation_date"] == "2026-05-20"
+
+
 def finding_codes(
     findings,
     severity="error",

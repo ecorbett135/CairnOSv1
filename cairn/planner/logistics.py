@@ -2342,6 +2342,11 @@ class LogisticsPlanner:
             node
         ):
             score += 65
+            score += (
+                self.validated_lodging_strength_bonus(
+                    node
+                )
+            )
 
         if self.has_hiker_focused_lodging(
             node
@@ -2367,23 +2372,64 @@ class LogisticsPlanner:
         node,
     ):
 
-        return (
-            any(
-                option.get(
-                    "service_category"
-                )
-                == "lodging"
-                for option in (
-                    self.town_service_options_for_node(
-                        node
-                    )
-                )
+        return bool(
+            self.validated_lodging_options(
+                node
             )
-            or bool(
-                self.town_lodging_options_for_node(
+        )
+
+    def validated_lodging_options(
+        self,
+        node,
+    ):
+
+        service_lodging = [
+            option for option in (
+                self.town_service_options_for_node(
                     node
                 )
             )
+            if option.get(
+                "service_category"
+            )
+            == "lodging"
+        ]
+
+        return [
+            *service_lodging,
+            *self.town_lodging_options_for_node(
+                node
+            ),
+        ]
+
+    def validated_lodging_strength_bonus(
+        self,
+        node,
+    ):
+
+        options = self.validated_lodging_options(
+            node
+        )
+
+        if not options:
+            return 0
+
+        option_count_bonus = min(
+            20,
+            5 * len(options),
+        )
+        food_on_site_bonus = (
+            5
+            if any(
+                option.get("food_on_site")
+                for option in options
+            )
+            else 0
+        )
+
+        return (
+            option_count_bonus
+            + food_on_site_bonus
         )
 
     def has_hiker_focused_lodging(

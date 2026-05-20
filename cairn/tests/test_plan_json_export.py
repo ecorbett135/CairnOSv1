@@ -30,6 +30,22 @@ REQUIRED_TOP_LEVEL_FIELDS = {
 }
 
 
+MOBILE_REQUIRED_FIELDS = {
+    "export_version",
+    "generated_at",
+    "build_sha",
+    "trail_id",
+    "planner",
+    "user_profile",
+    "completion_analysis",
+    "expedition_summary",
+    "directional_access",
+    "resupply_plan",
+    "daily_plan",
+    "warnings",
+}
+
+
 def planner_result_for_export(
     planner_factory,
     trail_root,
@@ -245,3 +261,105 @@ def test_committed_plan_json_fixtures_match_schema():
             payload["export_version"]
             == PLAN_EXPORT_SCHEMA_VERSION
         )
+
+
+def test_committed_plan_json_fixtures_are_mobile_import_ready():
+    fixture_dir = (
+        Path(__file__).parent
+        / "fixtures"
+        / "plan_json"
+    )
+    fixtures = {
+        path.name: json.loads(
+            path.read_text()
+        )
+        for path in fixture_dir.glob("*.json")
+    }
+
+    assert {
+        "nobo_plan_export.json",
+        "sobo_plan_export.json",
+    } <= set(fixtures)
+
+    directions = {
+        payload["planner"]["direction"]
+        for payload in fixtures.values()
+    }
+    assert directions == {
+        "NOBO",
+        "SOBO",
+    }
+
+    for payload in fixtures.values():
+        assert MOBILE_REQUIRED_FIELDS <= set(
+            payload
+        )
+        assert len(
+            payload["daily_plan"]
+        ) >= 20
+        assert payload["resupply_plan"]
+        assert payload["directional_access"]
+        assert payload["completion_analysis"].get(
+            "evaluation"
+        )
+        assert payload["expedition_summary"]
+        assert payload["warnings"]
+        assert (
+            payload["planner"]["trail_root"]
+            == "trails/vermont_long_trail"
+        )
+
+        serialized = json.dumps(
+            payload,
+            sort_keys=True,
+        )
+        assert "/Users/" not in serialized
+        assert "Downloads" not in serialized
+
+
+def test_committed_plan_json_fixtures_preserve_direction_contract():
+    fixture_dir = (
+        Path(__file__).parent
+        / "fixtures"
+        / "plan_json"
+    )
+
+    nobo = json.loads(
+        (
+            fixture_dir / "nobo_plan_export.json"
+        ).read_text()
+    )
+    sobo = json.loads(
+        (
+            fixture_dir / "sobo_plan_export.json"
+        ).read_text()
+    )
+
+    assert nobo["planner"]["direction"] == "NOBO"
+    assert sobo["planner"]["direction"] == "SOBO"
+
+    assert (
+        nobo["daily_plan"][0][
+            "daily_start_mile"
+        ]
+        < nobo["daily_plan"][-1][
+            "daily_stop_mile"
+        ]
+    )
+    assert (
+        sobo["daily_plan"][0][
+            "daily_start_mile"
+        ]
+        > sobo["daily_plan"][-1][
+            "daily_stop_mile"
+        ]
+    )
+
+    assert all(
+        row["daily_miles"] >= 0
+        for row in nobo["daily_plan"]
+    )
+    assert all(
+        row["daily_miles"] >= 0
+        for row in sobo["daily_plan"]
+    )

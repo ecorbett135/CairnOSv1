@@ -127,7 +127,8 @@ JSON first and normalize later only if needed. The primary early consumer is an
 offline itinerary view, not a live planning API.
 
 The current contract is documented in `docs/PLAN_JSON_EXPORT.md` and starts
-with `cairnos_plan_v1`.
+with `cairnos_plan_v1`. The read-only mobile import rules and deterministic
+fixture expectations are documented in `docs/HIKERLOGIX_IMPORT_CONTRACT.md`.
 
 ## Future Actuals Loop
 
