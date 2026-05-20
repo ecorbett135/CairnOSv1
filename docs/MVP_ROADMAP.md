@@ -7,6 +7,8 @@ planning before expanding into broader route modes.
 
 - NOBO and SOBO THRU itinerary generation
 - selected ingress and egress route semantics
+- overlay-authoritative THRU traversal over compiled operational progression
+  order
 - terrain-derived daily elevation reporting
 - terrain-aware pacing with feasibility exceptions
 - resupply and recovery cadence separation
@@ -50,6 +52,11 @@ Do not spend MVP effort on:
 1. terrain profile and mile-system reconciliation
 1. overlay-authoritative traversal
 1. SECTION planning
+
+Overlay-authoritative traversal in the MVP scope means NOBO and SOBO THRU daily
+planning follows ordered overlay corridors for the mainline plus selected
+ingress and egress endpoints. SECTION planning remains a later slice; this
+work does not add user-facing SECTION controls.
 
 Future HikerLogix companion integration is tracked separately from the core MVP
 sequence. It should begin as export interoperability and later become personal
@@ -226,5 +233,7 @@ hard requirement.
   export code.
 - Keep behavior changes separate from refactors whenever possible.
 - Preserve NOBO and SOBO parity for THRU behavior.
+- Keep daily overlay traversal provenance diagnostic-only unless an export
+  contract explicitly opts into it.
 - Treat compiled and curated data provenance as part of feature readiness, not
   cleanup after the fact.

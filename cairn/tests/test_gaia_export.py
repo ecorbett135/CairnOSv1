@@ -1,6 +1,7 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 from cairn.export.gaia_geojson import (
+    EXPORT_PROPERTIES,
     export_itinerary_to_gaia_geojson,
     interpolate_spine_coordinate,
     load_overlay_nodes,
@@ -101,6 +102,14 @@ def test_gaia_export_builds_point_features(
         "notes",
     ]:
         assert key in first_feature["properties"]
+
+    for key in [
+        "daily_start_overlay_id",
+        "daily_stop_overlay_id",
+        "daily_traversal_authority",
+    ]:
+        assert key not in EXPORT_PROPERTIES
+        assert key not in first_feature["properties"]
 
 
 def test_gaia_export_uses_clean_names_and_canonical_lookup(
@@ -286,6 +295,66 @@ def test_gaia_export_uses_reference_coordinates_for_camps(
         corliss["properties"]["marker_color"]
         == "#4ABD32"
     )
+
+
+def test_off_spine_overnight_anchor_exports_without_warnings(
+    planner_factory,
+    trail_root,
+):
+    """Test off-spine overnight stops stay anchored and exportable."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+            "max_daily_elevation": 3500,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=21
+    )
+    taylor_day = next(
+        row
+        for row in itinerary["daily_plan"]
+        if row["daily_stop_location"] == "Taylor Lodge"
+    )
+
+    assert (
+        taylor_day["daily_traversal_authority"]
+        == "off_spine_overlay_anchor"
+    )
+    assert taylor_day["daily_stop_overlay_id"]
+
+    export = export_itinerary_to_gaia_geojson(
+        itinerary["daily_plan"],
+        trail_root,
+        itinerary["resupply_plan"],
+    )
+
+    assert export["warnings"] == []
+
+    taylor_feature = next(
+        feature
+        for feature in export["geojson"]["features"]
+        if feature.get("properties", {}).get(
+            "daily_stop_location"
+        ) == "Taylor Lodge"
+    )
+
+    assert (
+        "daily_stop_overlay_id"
+        not in taylor_feature["properties"]
+    )
+    assert len(
+        taylor_feature["geometry"]["coordinates"]
+    ) == 2
 
 
 def test_gaia_export_uses_curated_access_coordinates_for_resupply_crossings(

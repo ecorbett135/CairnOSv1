@@ -903,6 +903,9 @@ def render_planner_result(
                 "daily_start_spine_alignment",
                 "daily_stop_spine_alignment",
                 "daily_start_access_notes",
+                "daily_start_overlay_id",
+                "daily_stop_overlay_id",
+                "daily_traversal_authority",
             }
         }
         for row in itinerary_rows

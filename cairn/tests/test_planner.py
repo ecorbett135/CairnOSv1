@@ -1677,11 +1677,11 @@ def test_sobo_uses_same_generated_feasibility_rules(
         completion["generated_evaluation"][
             "classification"
         ]
-        == "comfortable"
+        == "challenging"
     )
     assert (
         completion["classification_reason"]
-        == "sparse_preference_exceptions"
+        == "repeated_preference_pressure"
     )
 
 
@@ -1720,10 +1720,10 @@ def test_late_recovery_zero_does_not_replace_final_egress(
     assert last_day["notes"] == ""
 
 
-def test_aggressive_target_extends_instead_of_absurd_final_catchup(
+def test_aggressive_target_avoids_absurd_final_catchup(
     planner_factory,
 ):
-    """Test impossible catch-up days become extended plans."""
+    """Test aggressive plans finish without excessive final catch-up."""
     planner = planner_factory(
         user_profile={
             "trip_type": "THRU",
@@ -1748,19 +1748,21 @@ def test_aggressive_target_extends_instead_of_absurd_final_catchup(
         "completion_analysis"
     ]
 
+    mileage_cap = planner.max_daily_miles * 1.3
+
+    assert completion.get(
+        "completion_extended",
+        False,
+    ) is False
     assert completion[
-        "completion_extended"
-    ] is True
-    assert completion[
-        "recommended_days"
-    ] > 21
-    assert rows[-1]["day"] == completion[
-        "recommended_days"
-    ]
+        "generated_evaluation"
+    ]["classification"] == "aggressive"
+    assert rows[-1]["day"] == 21
     assert (
         rows[-1]["daily_stop_location"]
         == "Journey's End Trail Parking"
     )
+    assert rows[-1]["daily_miles"] <= mileage_cap
     assert max(
         row["daily_miles"]
         for row in rows
@@ -1976,6 +1978,176 @@ def test_overlay_corridor_preserves_directional_order(planner_factory):
     assert sobo_nodes[0][
         "canonical_name"
     ].startswith("U.S.-Canadian Border")
+
+
+def test_ordered_overlay_nodes_follow_operational_edge_order(planner):
+    """Test overlay traversal preserves operational progression edge order."""
+    ordered_ids = [
+        node.get("overlay_id")
+        for node in (
+            planner.traversal
+            .ordered_overlay_nodes()
+        )
+    ]
+    expected_ids = []
+
+    for edge in sorted(
+        planner.queries
+        .get_operational_progression_edges(),
+        key=lambda item: item.get(
+            "edge_id",
+            "",
+        ),
+    ):
+        for overlay_id in [
+            edge.get("from_overlay"),
+            edge.get("to_overlay"),
+        ]:
+            if (
+                overlay_id
+                and overlay_id
+                not in expected_ids
+            ):
+                expected_ids.append(
+                    overlay_id
+                )
+
+    assert ordered_ids[:len(expected_ids)] == expected_ids
+
+
+def test_corridor_slice_handles_duplicate_southern_mile_by_overlay_index(
+    planner_factory,
+):
+    """Test duplicate 0.0-mile nodes use overlay index, not mile sorting."""
+    nobo = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+        },
+    )
+    sobo = planner_factory(
+        user_profile={
+            "direction": "SOBO",
+        },
+    )
+
+    nobo_nodes = nobo.corridor_nodes_between(
+        0.0,
+        3.0,
+        start_overlay_id="overlay_0004",
+    )
+    sobo_nodes = sobo.corridor_nodes_between(
+        3.1,
+        0.0,
+        include_start=True,
+        start_overlay_id="overlay_0007",
+        stop_overlay_id="overlay_0004",
+    )
+
+    assert [
+        node["overlay_id"]
+        for node in nobo_nodes
+    ] == [
+        "overlay_0005",
+        "overlay_0006",
+    ]
+    assert [
+        node["overlay_id"]
+        for node in sobo_nodes
+    ] == [
+        "overlay_0007",
+        "overlay_0006",
+        "overlay_0005",
+        "overlay_0004",
+    ]
+
+
+def test_nobo_itinerary_advances_overlay_ids_in_order(
+    planner_factory,
+):
+    """Test NOBO moving days advance by overlay order."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    rows = planner.synthesize_itinerary(
+        desired_days=28
+    )["daily_plan"]
+
+    assert rows[0]["daily_start_overlay_id"] == "overlay_0000"
+    assert rows[-1]["daily_stop_location"] == (
+        "Journey's End Trail Parking"
+    )
+    assert rows[-1]["daily_stop_overlay_id"] == "overlay_0254"
+
+    for row in rows:
+        if row["daily_miles"] == 0.0:
+            continue
+
+        start_index = planner.overlay_index(
+            row["daily_start_overlay_id"]
+        )
+        stop_index = planner.overlay_index(
+            row["daily_stop_overlay_id"]
+        )
+
+        assert start_index is not None
+        assert stop_index is not None
+        assert stop_index > start_index
+
+
+def test_sobo_itinerary_advances_overlay_ids_in_order(
+    planner_factory,
+):
+    """Test SOBO moving days descend through overlay order."""
+    planner = planner_factory(
+        user_profile={
+            "trip_type": "THRU",
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "Williamstown Approach",
+            "min_daily_miles": 9,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 7,
+            "recovery_cadence": 5,
+            "allow_extra_resupply_only": True,
+        },
+    )
+
+    rows = planner.synthesize_itinerary(
+        desired_days=28
+    )["daily_plan"]
+
+    assert rows[0]["daily_start_overlay_id"] == "overlay_0254"
+    assert rows[-1]["daily_stop_location"] == (
+        "Pine Cobble Road in Williamstown"
+    )
+
+    for row in rows:
+        if row["daily_miles"] == 0.0:
+            continue
+
+        start_index = planner.overlay_index(
+            row["daily_start_overlay_id"]
+        )
+        stop_index = planner.overlay_index(
+            row["daily_stop_overlay_id"]
+        )
+
+        assert start_index is not None
+        assert stop_index is not None
+        assert stop_index < start_index
 
 
 def test_resupply_strategy_counts_moving_food_carry_days(planner_factory):

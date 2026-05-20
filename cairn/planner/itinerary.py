@@ -269,6 +269,11 @@ class ItineraryBuilder:
         """
 
         corridor_nodes = corridor_nodes or []
+        corridor_miles = [
+            self.node_mile(node)
+            for node in corridor_nodes
+            if self.node_mile(node) is not None
+        ]
 
         def corridor_rank(
             mile,
@@ -292,6 +297,50 @@ class ItineraryBuilder:
 
             return len(
                 corridor_nodes
+            )
+
+        def candidate_in_corridor(
+            node,
+        ):
+
+            if not corridor_nodes:
+                return True
+
+            mile = self.node_mile(
+                node
+            )
+            mile_delta = (
+                0.6
+                if node.get(
+                    "overnight_reference"
+                )
+                else 0.15
+            )
+            reference = (
+                self.resolve_overlay_reference(
+                    node=node,
+                    mile=mile,
+                    canonical_name=node.get(
+                        "canonical_name"
+                    ),
+                    corridor_nodes=corridor_nodes,
+                    max_mile_delta=mile_delta,
+                )
+            )
+
+            if reference:
+                return True
+
+            if (
+                mile is None
+                or not corridor_miles
+            ):
+                return False
+
+            return (
+                min(corridor_miles) - 0.05
+                <= mile
+                <= max(corridor_miles) + 0.05
             )
 
         def collect_candidates(search_radius):
@@ -323,6 +372,11 @@ class ItineraryBuilder:
                 )
 
                 if mile is None:
+                    continue
+
+                if not candidate_in_corridor(
+                    node
+                ):
                     continue
 
                 if not self.is_forward_progress(
@@ -381,6 +435,11 @@ class ItineraryBuilder:
                 )
 
                 if mile is None:
+                    continue
+
+                if not candidate_in_corridor(
+                    node
+                ):
                     continue
 
                 if not self.is_forward_progress(
@@ -479,18 +538,122 @@ class ItineraryBuilder:
 
         return overlay_node
 
+    def overlay_authority_for_stop(
+        self,
+        selected_stop,
+        overlay_by_name,
+        current_mile=None,
+        current_overlay_id=None,
+        corridor_nodes=None,
+    ):
+
+        corridor_ids = {
+            node.get("overlay_id")
+            for node in corridor_nodes or []
+            if node.get("overlay_id")
+        }
+
+        authoritative_overlay = (
+            self.overlay_authoritative_match(
+                selected_stop,
+                overlay_by_name,
+                current_mile=current_mile,
+            )
+        )
+
+        if (
+            authoritative_overlay
+            and (
+                not corridor_ids
+                or authoritative_overlay.get(
+                    "overlay_id"
+                )
+                in corridor_ids
+            )
+        ):
+            return (
+                authoritative_overlay,
+                "overlay",
+                True,
+            )
+
+        mile = self.node_mile(
+            selected_stop
+        )
+        max_mile_delta = 0.15
+
+        if selected_stop.get(
+            "overnight_reference"
+        ):
+            max_mile_delta = 0.6
+
+        if selected_stop.get(
+            "egress_route"
+        ):
+            max_mile_delta = 1.5
+
+        overlay_reference = (
+            self.resolve_overlay_reference(
+                node=selected_stop,
+                mile=mile,
+                canonical_name=selected_stop.get(
+                    "canonical_name"
+                ),
+                corridor_nodes=corridor_nodes,
+                max_mile_delta=max_mile_delta,
+            )
+        )
+
+        if not overlay_reference:
+            return (
+                None,
+                "selected_operational_stop",
+                False,
+            )
+
+        overlay_id = overlay_reference.get(
+            "overlay_id"
+        )
+
+        if (
+            current_overlay_id
+            and overlay_id != current_overlay_id
+            and not self.is_forward_overlay_progress(
+                current_overlay_id,
+                overlay_id,
+            )
+        ):
+            return (
+                None,
+                "selected_operational_stop",
+                False,
+            )
+
+        if selected_stop.get(
+            "egress_route"
+        ):
+            authority = "egress_overlay_anchor"
+        elif selected_stop.get(
+            "overnight_reference"
+        ):
+            authority = "off_spine_overlay_anchor"
+        else:
+            authority = "overlay_mile_anchor"
+
+        return (
+            overlay_reference,
+            authority,
+            False,
+        )
+
     def build_daily_itinerary(
         self,
         completion_days,
     ):
 
-        overlay_nodes = sorted(
-            self.queries
-            .list_overlay_progression(),
-            key=lambda x: x.get(
-                "trail_mile",
-                0,
-            )
+        overlay_nodes = list(
+            self.traversal
+            .ordered_overlay_nodes()
         )
         overlay_by_name = {
             node.get(
@@ -562,6 +725,21 @@ class ItineraryBuilder:
         current_spine_alignment = None
         current_location_type = "terminus"
         current_division = "division1"
+        current_overlay_reference = (
+            self.resolve_overlay_reference(
+                mile=current_mile,
+                canonical_name=(
+                    current_canonical_location
+                ),
+            )
+        )
+        current_overlay_id = (
+            current_overlay_reference.get(
+                "overlay_id"
+            )
+            if current_overlay_reference
+            else None
+        )
 
         if self.is_sobo():
 
@@ -598,6 +776,11 @@ class ItineraryBuilder:
             current_division = northern_node.get(
                 "division",
                 "division12",
+            )
+            current_overlay_id = (
+                northern_node.get(
+                    "overlay_id"
+                )
             )
 
         terminal_mile = (
@@ -642,6 +825,9 @@ class ItineraryBuilder:
             current_mile = ingress_mile
 
             current_location = ingress_location_name
+            current_canonical_location = (
+                ingress_location_name
+            )
 
             current_location_type = (
                 ingress_location_type
@@ -655,6 +841,32 @@ class ItineraryBuilder:
                 "division",
                 current_division,
             )
+            current_access_notes = (
+                ingress_node.get(
+                    "access_notes",
+                    "",
+                )
+                or ""
+            )
+            current_spine_alignment = None
+
+            current_overlay_reference = (
+                self.resolve_overlay_reference(
+                    node=ingress_node,
+                    mile=ingress_mile,
+                    canonical_name=(
+                        ingress_location_name
+                    ),
+                    max_mile_delta=1.5,
+                )
+            )
+            current_overlay_id = (
+                current_overlay_reference.get(
+                    "overlay_id"
+                )
+                if current_overlay_reference
+                else None
+            )
 
         day = 1
         max_planning_days = (
@@ -662,6 +874,10 @@ class ItineraryBuilder:
         )
 
         while day <= max_planning_days:
+
+            daily_start_overlay_id = (
+                current_overlay_id
+            )
 
             daily_target = (
                 self.calculate_terrain_adjusted_target(
@@ -756,6 +972,9 @@ class ItineraryBuilder:
                     current_mile,
                     resupply_search_mile,
                     include_stop=True,
+                    start_overlay_id=(
+                        current_overlay_id
+                    ),
                 )
             )
 
@@ -883,16 +1102,32 @@ class ItineraryBuilder:
                     )
 
             if selected_stop:
-                authoritative_overlay = (
-                    self.overlay_authoritative_match(
+                (
+                    overlay_reference,
+                    daily_traversal_authority,
+                    use_overlay_mile,
+                ) = self.overlay_authority_for_stop(
                         selected_stop,
                         overlay_by_name,
                         current_mile=current_mile,
+                        current_overlay_id=(
+                            current_overlay_id
+                        ),
+                        corridor_nodes=(
+                            daily_corridor_nodes
+                        ),
                     )
+                stop_overlay_id = (
+                    overlay_reference.get(
+                        "overlay_id"
+                    )
+                    if overlay_reference
+                    else None
                 )
                 mile_source = (
-                    authoritative_overlay
-                    or selected_stop
+                    overlay_reference
+                    if use_overlay_mile
+                    else selected_stop
                 )
 
                 next_mile = round(
@@ -929,11 +1164,12 @@ class ItineraryBuilder:
                         )
                     )
 
+                    division_source = (
+                        overlay_reference
+                        or selected_stop
+                    )
                     stop_division = (
-                        (
-                            authoritative_overlay
-                            or selected_stop
-                        ).get(
+                        division_source.get(
                             "division",
                             current_division,
                         )
@@ -1026,6 +1262,14 @@ class ItineraryBuilder:
                                 current_division,
                             )
                         )
+                        stop_overlay_id = (
+                            matching_overlay.get(
+                                "overlay_id"
+                            )
+                        )
+                        daily_traversal_authority = (
+                            "overlay"
+                        )
 
                         display_metadata = (
                             self.display_metadata_for_stop(
@@ -1101,6 +1345,25 @@ class ItineraryBuilder:
                 ):
                     selected_stop = None
                     next_mile = target_mile
+                    synthetic_reference = (
+                        self.resolve_overlay_reference(
+                            mile=next_mile,
+                            corridor_nodes=(
+                                daily_corridor_nodes
+                            ),
+                            max_mile_delta=None,
+                        )
+                    )
+                    stop_overlay_id = (
+                        synthetic_reference.get(
+                            "overlay_id"
+                        )
+                        if synthetic_reference
+                        else None
+                    )
+                    daily_traversal_authority = (
+                        "synthetic_fallback"
+                    )
                     stop_location = "Backcountry Camp"
                     stop_canonical_location = (
                         stop_location
@@ -1114,6 +1377,25 @@ class ItineraryBuilder:
             else:
 
                 next_mile = target_mile
+                synthetic_reference = (
+                    self.resolve_overlay_reference(
+                        mile=next_mile,
+                        corridor_nodes=(
+                            daily_corridor_nodes
+                        ),
+                        max_mile_delta=None,
+                    )
+                )
+                stop_overlay_id = (
+                    synthetic_reference.get(
+                        "overlay_id"
+                    )
+                    if synthetic_reference
+                    else None
+                )
+                daily_traversal_authority = (
+                    "synthetic_fallback"
+                )
                 stop_location = "Backcountry Camp"
                 stop_canonical_location = (
                     stop_location
@@ -1327,6 +1609,9 @@ class ItineraryBuilder:
                 "daily_start_location_type": (
                     current_location_type
                 ),
+                "daily_start_overlay_id": (
+                    daily_start_overlay_id
+                ),
                 "daily_stop_mile": next_mile,
                 "daily_stop_location": (
                     stop_location
@@ -1345,6 +1630,12 @@ class ItineraryBuilder:
                 ),
                 "daily_stop_location_type": (
                     stop_location_type
+                ),
+                "daily_stop_overlay_id": (
+                    stop_overlay_id
+                ),
+                "daily_traversal_authority": (
+                    daily_traversal_authority
                 ),
                 "daily_miles": daily_distance,
                 "daily_elevation_gain": (
@@ -1392,6 +1683,10 @@ class ItineraryBuilder:
                 stop_location_type
             )
             current_division = stop_division
+            current_overlay_id = (
+                stop_overlay_id
+                or current_overlay_id
+            )
 
             if self.reached_route_end(
                 current_mile,
@@ -1527,6 +1822,9 @@ class ItineraryBuilder:
                     "daily_start_location_type": (
                         current_location_type
                     ),
+                    "daily_start_overlay_id": (
+                        current_overlay_id
+                    ),
                     "daily_stop_mile": round(
                         current_mile,
                         1,
@@ -1554,6 +1852,12 @@ class ItineraryBuilder:
                     ),
                     "daily_stop_location_type": (
                         current_location_type
+                    ),
+                    "daily_stop_overlay_id": (
+                        current_overlay_id
+                    ),
+                    "daily_traversal_authority": (
+                        "zero"
                     ),
                     "daily_miles": 0.0,
                     "daily_elevation_gain": 0.0,

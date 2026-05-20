@@ -313,6 +313,35 @@ def test_itinerary_table_exposes_stop_access_notes():
     assert "daily_stop_spine_alignment" in source
 
 
+def test_itinerary_table_hides_overlay_provenance_fields():
+    """Test overlay traversal diagnostics stay out of Streamlit display."""
+    source = Path(
+        "cairn/interfaces/streamlit_app.py"
+    ).read_text()
+    display_block = source.split(
+        "display_itinerary_rows =",
+        1,
+    )[1].split(
+        "st.caption",
+        1,
+    )[0]
+    column_order = source.split(
+        "column_order=[",
+        2,
+    )[2].split(
+        "]",
+        1,
+    )[0]
+
+    for key in [
+        "daily_start_overlay_id",
+        "daily_stop_overlay_id",
+        "daily_traversal_authority",
+    ]:
+        assert key in display_block
+        assert key not in column_order
+
+
 def test_resupply_town_details_render_with_validation_notice():
     """Test UI surfaces advisory town-service context."""
     source = Path(
