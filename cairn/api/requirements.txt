@@ -1,0 +1,8 @@
+# Runtime dependencies for the CairnOS Plan API Lambda container.
+#
+# Keep this file scoped to the Lambda handler path:
+# cairn.api.lambda_handler -> cairn.api.plan_service -> PlannerV2 -> plan_json.
+# The current Plan API runtime uses only the Python standard library and
+# repository CairnOS code. Do not install the repository root requirements here;
+# those include development and geospatial packages that require native GDAL
+# tooling and are not needed by the Lambda container.

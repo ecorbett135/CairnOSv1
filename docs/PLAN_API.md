@@ -119,6 +119,19 @@ The image uses the AWS Lambda Python 3.11 base image and sets:
 CMD ["cairn.api.lambda_handler.handler"]
 ```
 
+The Lambda image installs dependencies from `cairn/api/requirements.txt`, not
+from the repository root `requirements.txt`. The root requirements are for full
+local development and include geospatial packages such as Fiona/GDAL-backed
+dependencies that are not used by the Plan API runtime path and require native
+build tooling that is intentionally absent from the minimal Lambda base image.
+
+`cairn/api/requirements.txt` is allowed to be empty or comment-only. The current
+runtime path uses the Python standard library plus repository CairnOS modules:
+
+```text
+cairn.api.lambda_handler -> cairn.api.plan_service -> PlannerV2 -> plan_json
+```
+
 Runtime environment variables:
 
 | Variable | Default | Purpose |

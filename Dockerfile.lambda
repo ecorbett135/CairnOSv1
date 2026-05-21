@@ -3,8 +3,12 @@
 
 FROM public.ecr.aws/lambda/python:3.11
 
-COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
-RUN python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.txt
+COPY cairn/api/requirements.txt ${LAMBDA_TASK_ROOT}/cairn/api/requirements.txt
+RUN if grep -Eq '^[[:space:]]*[^#[:space:]]' ${LAMBDA_TASK_ROOT}/cairn/api/requirements.txt; then \
+        python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/cairn/api/requirements.txt; \
+    else \
+        echo "No API runtime dependencies to install."; \
+    fi
 
 COPY cairn/ ${LAMBDA_TASK_ROOT}/cairn/
 COPY trails/vermont_long_trail/compiled/ ${LAMBDA_TASK_ROOT}/trails/vermont_long_trail/compiled/
