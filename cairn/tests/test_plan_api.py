@@ -1,10 +1,14 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
+import json
+
 from cairn.api.plan_request import (
     PlanAPIRequest,
     PlanAPIValidationError,
 )
+import cairn.api.lambda_handler as lambda_handler
 import cairn.api.plan_service as plan_service
 
 
@@ -160,3 +164,115 @@ def test_build_plan_response_returns_cairnos_plan_v1():
     assert payload["generated_at"] == "20260521T120000Z"
     assert payload["daily_plan"]
     assert payload["warnings"]
+
+
+def _lambda_event(method="POST", body=None, *, is_base64_encoded=False):
+    return {
+        "requestContext": {"http": {"method": method}},
+        "body": body,
+        "isBase64Encoded": is_base64_encoded,
+    }
+
+
+def _json_response(response):
+    return json.loads(response["body"])
+
+
+def test_lambda_handler_rejects_get_with_method_not_allowed():
+    response = lambda_handler.handler(_lambda_event(method="GET"), None)
+
+    assert response["statusCode"] == 405
+    assert _json_response(response)["error"] == "method_not_allowed"
+
+
+def test_lambda_handler_rejects_v1_non_post_with_method_not_allowed():
+    response = lambda_handler.handler({"httpMethod": "PUT", "body": "{}"}, None)
+
+    assert response["statusCode"] == 405
+    assert _json_response(response)["error"] == "method_not_allowed"
+
+
+def test_lambda_handler_rejects_invalid_json_post():
+    response = lambda_handler.handler(_lambda_event(body="{not-json"), None)
+
+    assert response["statusCode"] == 400
+    assert _json_response(response)["error"] == "invalid_json"
+
+
+def test_lambda_handler_rejects_malformed_base64_body():
+    response = lambda_handler.handler(
+        _lambda_event(body="not-base64!", is_base64_encoded=True),
+        None,
+    )
+
+    assert response["statusCode"] == 400
+    assert _json_response(response)["error"] == "invalid_json"
+
+
+def test_lambda_handler_rejects_body_over_configured_max(monkeypatch):
+    monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "8")
+
+    response = lambda_handler.handler(_lambda_event(body='{"wide": true}'), None)
+
+    assert response["statusCode"] == 413
+    assert _json_response(response)["error"] == "request_too_large"
+
+
+def test_lambda_handler_ignores_nonpositive_max_body_env(monkeypatch):
+    def stub_build_plan_response(payload, build_sha=None):
+        return {"export_version": "cairnos_plan_v1"}
+
+    monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "-1")
+    monkeypatch.setattr(lambda_handler, "build_plan_response", stub_build_plan_response)
+
+    response = lambda_handler.handler(
+        _lambda_event(body=json.dumps(_valid_plan_api_payload())),
+        None,
+    )
+
+    assert response["statusCode"] == 200
+    assert _json_response(response)["export_version"] == "cairnos_plan_v1"
+
+
+def test_lambda_handler_maps_plan_validation_errors(monkeypatch):
+    def reject_payload(payload, build_sha=None):
+        raise PlanAPIValidationError("desired_days must be between 3 and 60")
+
+    monkeypatch.setattr(lambda_handler, "build_plan_response", reject_payload)
+
+    response = lambda_handler.handler(
+        _lambda_event(body=json.dumps(_valid_plan_api_payload())), None
+    )
+
+    assert response["statusCode"] == 400
+    payload = _json_response(response)
+    assert payload["error"] == "validation_error"
+    assert "desired_days" in payload["message"]
+
+
+def test_lambda_handler_returns_plan_payload_with_security_headers(monkeypatch):
+    captured = {}
+
+    def stub_build_plan_response(payload, build_sha=None):
+        captured["payload"] = payload
+        captured["build_sha"] = build_sha
+        return {"export_version": "cairnos_plan_v1", "daily_plan": [{"day": 1}]}
+
+    monkeypatch.setenv("CAIRNOS_BUILD_SHA", "abc123")
+    monkeypatch.setattr(lambda_handler, "build_plan_response", stub_build_plan_response)
+    body = base64.b64encode(json.dumps(_valid_plan_api_payload()).encode("utf-8"))
+
+    response = lambda_handler.handler(
+        _lambda_event(body=body.decode("ascii"), is_base64_encoded=True),
+        None,
+    )
+
+    assert response["statusCode"] == 200
+    assert response["headers"] == {
+        "content-type": "application/json",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+    }
+    assert _json_response(response)["daily_plan"] == [{"day": 1}]
+    assert captured["payload"]["trail_id"] == "vermont_long_trail"
+    assert captured["build_sha"] == "abc123"

@@ -1,0 +1,14 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
+
+FROM public.ecr.aws/lambda/python:3.11
+
+COPY requirements.txt ${LAMBDA_TASK_ROOT}/requirements.txt
+RUN python -m pip install --no-cache-dir -r ${LAMBDA_TASK_ROOT}/requirements.txt
+
+COPY cairn/ ${LAMBDA_TASK_ROOT}/cairn/
+COPY trails/vermont_long_trail/compiled/ ${LAMBDA_TASK_ROOT}/trails/vermont_long_trail/compiled/
+COPY trails/vermont_long_trail/raw/csv/ ${LAMBDA_TASK_ROOT}/trails/vermont_long_trail/raw/csv/
+RUN chmod -R a+rX ${LAMBDA_TASK_ROOT}/trails/vermont_long_trail
+
+CMD ["cairn.api.lambda_handler.handler"]
