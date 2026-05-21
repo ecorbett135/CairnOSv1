@@ -64,8 +64,8 @@ class PlanAPIRequest:
             raise PlanAPIValidationError("direction must be one of: NOBO, SOBO")
 
         desired_days = _validate_int(payload["desired_days"], "desired_days")
-        if not 1 <= desired_days <= 60:
-            raise PlanAPIValidationError("desired_days must be between 1 and 60")
+        if not 3 <= desired_days <= 60:
+            raise PlanAPIValidationError("desired_days must be between 3 and 60")
 
         min_daily_miles = _validate_number(
             payload["min_daily_miles"], "min_daily_miles"
@@ -77,12 +77,14 @@ class PlanAPIRequest:
             payload["max_daily_elevation"], "max_daily_elevation"
         )
 
-        if min_daily_miles < 0:
-            raise PlanAPIValidationError("min_daily_miles must be nonnegative")
-        if max_daily_miles < 0:
-            raise PlanAPIValidationError("max_daily_miles must be nonnegative")
-        if max_daily_elevation < 0:
-            raise PlanAPIValidationError("max_daily_elevation must be nonnegative")
+        if not 4 <= min_daily_miles <= 25:
+            raise PlanAPIValidationError("min_daily_miles must be between 4 and 25")
+        if not 8 <= max_daily_miles <= 40:
+            raise PlanAPIValidationError("max_daily_miles must be between 8 and 40")
+        if not 1000 <= max_daily_elevation <= 10000:
+            raise PlanAPIValidationError(
+                "max_daily_elevation must be between 1000 and 10000"
+            )
         if max_daily_miles < min_daily_miles:
             raise PlanAPIValidationError(
                 "max_daily_miles must be greater than or equal to min_daily_miles"
@@ -94,10 +96,10 @@ class PlanAPIRequest:
         recovery_cadence = _validate_int(
             payload["recovery_cadence"], "recovery_cadence"
         )
-        if resupply_cadence <= 0:
-            raise PlanAPIValidationError("resupply_cadence must be positive")
-        if recovery_cadence <= 0:
-            raise PlanAPIValidationError("recovery_cadence must be positive")
+        if not 2 <= resupply_cadence <= 10:
+            raise PlanAPIValidationError("resupply_cadence must be between 2 and 10")
+        if not 3 <= recovery_cadence <= 14:
+            raise PlanAPIValidationError("recovery_cadence must be between 3 and 14")
 
         planned_start_date = payload.get("planned_start_date")
         if planned_start_date is not None and not isinstance(planned_start_date, str):
