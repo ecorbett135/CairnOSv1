@@ -28,6 +28,58 @@ venv/bin/streamlit run cairn/interfaces/streamlit_app.py
 
 If the venv is missing or stale, use Python 3.11 or newer and install from `requirements.txt` for full local development. The hosted Streamlit app uses `cairn/interfaces/requirements.txt`.
 
+## Multi-Repository Workflow
+
+CairnOSv1 and HikerLogix should be opened together as a VS Code multi-root
+workspace, not combined as one Git repository or Git worktree. The expected
+workspace file is:
+
+- `/Users/ecorbett/Documents/Development/CairnOS-HikerLogix.code-workspace`
+
+Keep repository responsibilities separate:
+
+- CairnOSv1 owns planner behavior, data semantics, exports, diagnostics, and
+  schema-versioned plan JSON.
+- HikerLogix owns iOS UI, local plan import, local actuals, field logging, and
+  user-owned mobile persistence.
+
+When a feature changes the CairnOS/HikerLogix contract, use matching
+short-lived branches and separate PRs in both repositories. Example:
+
+- CairnOSv1: `codex/plan-json-v2`
+- HikerLogix: `codex/import-plan-json-v2`
+
+Merge order should preserve the contract boundary: land CairnOS export/schema
+changes first, then update HikerLogix import/UI behavior against the committed
+fixture or schema.
+
+## Tooling Expectations
+
+- Use the GitHub MCP/plugin for GitHub issue, PR, roadmap, and review work.
+- Use the Build iOS Apps/XcodeBuildMCP tooling for HikerLogix build, run, test,
+  simulator launch, screenshots, and UI inspection when available.
+- Use shell commands for local file inspection and Python test runs when they
+  are simpler and deterministic.
+- Keep generated scratch outputs, private diagnostics, simulator state, and
+  tester data out of both repositories unless intentionally added as fixtures.
+
+## Research And Browser Automation
+
+Node REPL may be used for read-only inspection, temporary structured-data
+analysis, and browser automation.
+
+Do not use Node REPL to edit CairnOS files, install npm packages into this
+repository, create `package.json` or `package-lock.json`, or write generated
+artifacts into the repository unless explicitly requested.
+
+Temporary Node REPL research artifacts should go under:
+
+- `~/.codex/scratch/cairnos-research`
+- `~/.codex/scratch/hikerlogix-research`
+
+Anything worth preserving should become a GitHub issue, documented research
+note, implementation plan, or intentional repository artifact.
+
 ## Architecture Rules
 
 - Keep `PlannerV2` as the public integration facade for Streamlit, tests, exports, and future HikerLogix interoperability.

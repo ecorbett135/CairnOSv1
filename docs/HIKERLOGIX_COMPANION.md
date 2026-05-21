@@ -130,6 +130,26 @@ The current contract is documented in `docs/PLAN_JSON_EXPORT.md` and starts
 with `cairnos_plan_v1`. The read-only mobile import rules and deterministic
 fixture expectations are documented in `docs/HIKERLOGIX_IMPORT_CONTRACT.md`.
 
+## Multi-Repository Workflow
+
+CairnOSv1 and HikerLogix are developed as separate repositories inside the
+same VS Code multi-root workspace:
+
+- `/Users/ecorbett/Documents/Development/CairnOS-HikerLogix.code-workspace`
+
+Do not combine the repositories, add one as a submodule, or move source between
+them unless a future architecture decision explicitly changes that boundary.
+
+For cross-repository features, use matching short-lived branch names and
+separate pull requests. CairnOS contract, export, or schema changes should land
+first. HikerLogix should then update import models, fixtures, and UI against
+the committed CairnOS contract. This keeps CairnOS as the planning authority and
+HikerLogix as the mobile field-execution layer.
+
+Use the GitHub MCP/plugin for issue, pull request, and roadmap updates. Use the
+Build iOS Apps/XcodeBuildMCP tooling for HikerLogix simulator build, run, test,
+screenshot, and UI-inspection work when available.
+
 ## Future Actuals Loop
 
 HikerLogix may eventually record user-owned actuals:
