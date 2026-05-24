@@ -33,4 +33,5 @@ elevation_calibration/*
 # build artifacts
 build/
 dist/
+.aws-sam/
 *.zip

@@ -139,6 +139,28 @@ Runtime environment variables:
 | `CAIRNOS_API_MAX_BODY_BYTES` | `32768` | Maximum decoded request body size |
 | `CAIRNOS_BUILD_SHA` | `api` | Build identifier passed into the plan export |
 
+### Local API Gateway Emulation
+
+Use the SAM template to emulate API Gateway routing to the Lambda container
+handler locally:
+
+```bash
+sam validate --template template.lambda.yaml
+sam build --template template.lambda.yaml
+sam local start-api --template .aws-sam/build/template.yaml --port 3010
+```
+
+The DEBUG simulator endpoint is:
+
+```text
+http://127.0.0.1:3010/plan
+```
+
+This localhost endpoint is only reachable from the machine running SAM local.
+A physical iPhone cannot use `127.0.0.1` for this workflow; it needs a LAN
+DEBUG transport exception that points at the development machine, or a deployed
+HTTPS Lambda endpoint.
+
 ## App Runner Fallback
 
 If Lambda container hosting is not the right operational fit, the same narrow

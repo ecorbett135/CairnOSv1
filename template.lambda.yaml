@@ -1,0 +1,28 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Local SAM workflow for the CairnOS Plan API Lambda container.
+
+Resources:
+  CairnOSPlanApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 1024
+      Timeout: 120
+      Environment:
+        Variables:
+          CAIRNOS_API_MAX_BODY_BYTES: "32768"
+          CAIRNOS_BUILD_SHA: local-lambda-container
+      Events:
+        PlanApi:
+          Type: Api
+          Properties:
+            Path: /plan
+            Method: ANY
+    Metadata:
+      Dockerfile: Dockerfile.lambda
+      DockerContext: .
+      DockerTag: local
