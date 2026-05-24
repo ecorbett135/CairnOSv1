@@ -84,3 +84,35 @@ def test_gaia_reference_fuzzy_matches_route_overlay(
 
     assert congdon["canonical_name"] == "Congdon Shelter"
     assert congdon["trail_mile"] == 10.0
+
+
+def test_gaia_reference_exports_repo_relative_source(
+    tmp_path,
+):
+    trail_root = (
+        tmp_path /
+        "trails" /
+        "vermont_long_trail"
+    )
+    (
+        trail_root /
+        "compiled"
+    ).mkdir(
+        parents=True
+    )
+
+    payload = (
+        gaia_reference_overlay
+        .export_waypoint_reference(
+            [],
+            [],
+            {},
+            trail_root,
+        )
+    )
+
+    assert payload["source"] == (
+        "trails/vermont_long_trail/raw/"
+        "geojson/gaia_reference.geojson"
+    )
+    assert not payload["source"].startswith("/")

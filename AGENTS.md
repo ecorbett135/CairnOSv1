@@ -34,7 +34,7 @@ CairnOSv1 and HikerLogix should be opened together as a VS Code multi-root
 workspace, not combined as one Git repository or Git worktree. The expected
 workspace file is:
 
-- `/Users/ecorbett/Documents/Development/CairnOS-HikerLogix.code-workspace`
+- `~/Local/Development/CairnOS-HikerLogix.code-workspace`
 
 Keep repository responsibilities separate:
 

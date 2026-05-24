@@ -7,6 +7,10 @@ import json
 import math
 import sys
 
+from build_topo.compiler.provenance import (
+    repo_relative_path,
+)
+
 
 SCHEMA_VERSION = "1.0"
 
@@ -1224,7 +1228,10 @@ def export_overnight_reference(
         "schema_version": SCHEMA_VERSION,
         "trail": trail_root.name,
         "sources": [
-            str(path)
+            repo_relative_path(
+                path,
+                trail_root,
+            )
             for path in [
                 *source_paths(
                     trail_root

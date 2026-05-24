@@ -2,9 +2,9 @@
   "schema_version": "1.0",
   "trail": "vermont_long_trail",
   "sources": [
-    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/shelters.geojson",
-    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/campsites.geojson",
-    "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/csv/overnight_amenities.csv"
+    "trails/vermont_long_trail/raw/geojson/shelters.geojson",
+    "trails/vermont_long_trail/raw/geojson/campsites.geojson",
+    "trails/vermont_long_trail/raw/csv/overnight_amenities.csv"
   ],
   "purpose": "Overnight waypoint reference enrichment; not operational traversal truth",
   "summary": {

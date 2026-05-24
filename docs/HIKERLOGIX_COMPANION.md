@@ -135,7 +135,7 @@ fixture expectations are documented in `docs/HIKERLOGIX_IMPORT_CONTRACT.md`.
 CairnOSv1 and HikerLogix are developed as separate repositories inside the
 same VS Code multi-root workspace:
 
-- `/Users/ecorbett/Documents/Development/CairnOS-HikerLogix.code-workspace`
+- `~/Local/Development/CairnOS-HikerLogix.code-workspace`
 
 Do not combine the repositories, add one as a submodule, or move source between
 them unless a future architecture decision explicitly changes that boundary.

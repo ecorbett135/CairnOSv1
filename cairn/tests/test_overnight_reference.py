@@ -124,3 +124,77 @@ def test_overnight_reference_summary_tracks_planner_candidates(
 
     assert "Taylor Lodge" in planner_titles
     assert "Camp Site" not in planner_titles
+
+
+def test_overnight_reference_exports_repo_relative_sources(
+    tmp_path,
+):
+    trail_root = (
+        tmp_path /
+        "trails" /
+        "vermont_long_trail"
+    )
+    raw_geojson = (
+        trail_root /
+        "raw" /
+        "geojson"
+    )
+    raw_csv = (
+        trail_root /
+        "raw" /
+        "csv"
+    )
+
+    raw_geojson.mkdir(
+        parents=True
+    )
+    raw_csv.mkdir(
+        parents=True
+    )
+    (
+        trail_root /
+        "compiled"
+    ).mkdir()
+
+    (
+        raw_geojson /
+        "shelters.geojson"
+    ).write_text("{}")
+    (
+        raw_geojson /
+        "campsites.geojson"
+    ).write_text("{}")
+    (
+        raw_csv /
+        "overnight_amenities.csv"
+    ).write_text("")
+
+    payload = (
+        overnight_reference
+        .export_overnight_reference(
+            [],
+            [],
+            [],
+            {},
+            trail_root,
+        )
+    )
+
+    assert payload["sources"] == [
+        (
+            "trails/vermont_long_trail/raw/"
+            "geojson/shelters.geojson"
+        ),
+        (
+            "trails/vermont_long_trail/raw/"
+            "geojson/campsites.geojson"
+        ),
+        (
+            "trails/vermont_long_trail/raw/"
+            "csv/overnight_amenities.csv"
+        ),
+    ]
+    assert all(
+        not source.startswith("/")
+        for source in payload["sources"]
+    )
