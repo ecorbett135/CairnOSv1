@@ -16,6 +16,8 @@ def _valid_plan_api_payload():
     return {
         "trail_id": "vermont_long_trail",
         "direction": "NOBO",
+        "ingress_route": "North Adams Approach",
+        "egress_route": "Journey's End Trail",
         "desired_days": 28,
         "min_daily_miles": 8,
         "max_daily_miles": 15,
@@ -30,6 +32,8 @@ def test_plan_api_request_builds_streamlit_equivalent_config():
         {
             "trail_id": "vermont_long_trail",
             "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
             "desired_days": 28,
             "min_daily_miles": 8,
             "max_daily_miles": 15,
@@ -45,11 +49,39 @@ def test_plan_api_request_builds_streamlit_equivalent_config():
     assert config["selected_trail"] == "vermont_long_trail"
     assert config["trip_type"] == "THRU"
     assert config["direction"] == "NOBO"
+    assert config["ingress_route"] == "North Adams Approach"
+    assert config["egress_route"] == "Journey's End Trail"
     assert config["desired_days"] == 28
     assert config["trail_root"].endswith("trails/vermont_long_trail")
     assert config["start_date"] == "2026-07-01"
     assert config["selected_side_trip_ids"] == []
     assert config["selected_town_ids"] == []
+
+
+def test_plan_api_request_requires_directional_access_routes():
+    payload = _valid_plan_api_payload()
+    del payload["ingress_route"]
+
+    try:
+        PlanAPIRequest.from_payload(payload)
+    except PlanAPIValidationError as error:
+        assert "ingress_route" in str(error)
+    else:
+        raise AssertionError("Expected PlanAPIValidationError")
+
+
+def test_plan_api_request_rejects_directionally_invalid_access_routes():
+    payload = _valid_plan_api_payload()
+    payload["direction"] = "SOBO"
+    payload["ingress_route"] = "North Adams Approach"
+    payload["egress_route"] = "Journey's End Trail"
+
+    try:
+        PlanAPIRequest.from_payload(payload)
+    except PlanAPIValidationError as error:
+        assert "ingress_route" in str(error)
+    else:
+        raise AssertionError("Expected PlanAPIValidationError")
 
 
 def test_plan_api_request_rejects_non_long_trail_payload():
@@ -67,6 +99,8 @@ def test_plan_api_request_rejects_inverted_mileage_range():
     try:
         payload = _valid_plan_api_payload()
         payload["direction"] = "SOBO"
+        payload["ingress_route"] = "Journey's End Trail"
+        payload["egress_route"] = "North Adams Approach"
         payload["min_daily_miles"] = 18
         payload["max_daily_miles"] = 12
         PlanAPIRequest.from_payload(payload)
@@ -122,6 +156,8 @@ def test_build_plan_response_rejects_zero_capacity_payload_before_planner_runs(
             {
                 "trail_id": "vermont_long_trail",
                 "direction": "NOBO",
+                "ingress_route": "North Adams Approach",
+                "egress_route": "Journey's End Trail",
                 "desired_days": 2,
                 "min_daily_miles": 0,
                 "max_daily_miles": 0,
@@ -145,6 +181,8 @@ def test_build_plan_response_returns_cairnos_plan_v1():
         {
             "trail_id": "vermont_long_trail",
             "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
             "desired_days": 30,
             "min_daily_miles": 8,
             "max_daily_miles": 15,
@@ -248,6 +286,22 @@ def test_lambda_handler_maps_plan_validation_errors(monkeypatch):
     payload = _json_response(response)
     assert payload["error"] == "validation_error"
     assert "desired_days" in payload["message"]
+
+
+def test_lambda_handler_maps_unexpected_errors_without_leaking_details(monkeypatch):
+    def fail_payload(payload, build_sha=None):
+        raise RuntimeError("private planner traceback")
+
+    monkeypatch.setattr(lambda_handler, "build_plan_response", fail_payload)
+
+    response = lambda_handler.handler(
+        _lambda_event(body=json.dumps(_valid_plan_api_payload())), None
+    )
+
+    assert response["statusCode"] == 500
+    payload = _json_response(response)
+    assert payload == {"error": "internal_error"}
+    assert "private planner traceback" not in response["body"]
 
 
 def test_lambda_handler_returns_plan_payload_with_security_headers(monkeypatch):

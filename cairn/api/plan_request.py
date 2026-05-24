@@ -15,6 +15,24 @@ LONG_TRAIL_ROOT = PROJECT_ROOT / "trails" / "vermont_long_trail"
 
 LONG_TRAIL_ID = "vermont_long_trail"
 VALID_DIRECTIONS = {"NOBO", "SOBO"}
+VALID_INGRESS_ROUTES_BY_DIRECTION = {
+    "NOBO": {
+        "Williamstown Approach",
+        "North Adams Approach",
+    },
+    "SOBO": {
+        "Journey's End Trail",
+    },
+}
+VALID_EGRESS_ROUTES_BY_DIRECTION = {
+    "NOBO": {
+        "Journey's End Trail",
+    },
+    "SOBO": {
+        "Williamstown Approach",
+        "North Adams Approach",
+    },
+}
 
 
 class PlanAPIValidationError(ValueError):
@@ -27,6 +45,8 @@ class PlanAPIRequest:
 
     trail_id: str
     direction: str
+    ingress_route: str
+    egress_route: str
     desired_days: int
     min_daily_miles: float
     max_daily_miles: float
@@ -40,6 +60,8 @@ class PlanAPIRequest:
         required_fields = (
             "trail_id",
             "direction",
+            "ingress_route",
+            "egress_route",
             "desired_days",
             "min_daily_miles",
             "max_daily_miles",
@@ -62,6 +84,21 @@ class PlanAPIRequest:
         direction = payload["direction"]
         if direction not in VALID_DIRECTIONS:
             raise PlanAPIValidationError("direction must be one of: NOBO, SOBO")
+
+        ingress_route = _validate_route_name(
+            payload["ingress_route"], "ingress_route"
+        )
+        egress_route = _validate_route_name(payload["egress_route"], "egress_route")
+        _validate_directional_access_route(
+            ingress_route,
+            "ingress_route",
+            VALID_INGRESS_ROUTES_BY_DIRECTION[direction],
+        )
+        _validate_directional_access_route(
+            egress_route,
+            "egress_route",
+            VALID_EGRESS_ROUTES_BY_DIRECTION[direction],
+        )
 
         desired_days = _validate_int(payload["desired_days"], "desired_days")
         if not 3 <= desired_days <= 60:
@@ -108,6 +145,8 @@ class PlanAPIRequest:
         return cls(
             trail_id=trail_id,
             direction=direction,
+            ingress_route=ingress_route,
+            egress_route=egress_route,
             desired_days=desired_days,
             min_daily_miles=min_daily_miles,
             max_daily_miles=max_daily_miles,
@@ -140,8 +179,8 @@ class PlanAPIRequest:
             "selected_side_trip_ids": [],
             "selected_town_ids": [],
             "convenient_resupply_distance_miles": 1.0,
-            "ingress_route": None,
-            "egress_route": None,
+            "ingress_route": self.ingress_route,
+            "egress_route": self.egress_route,
             "start_date": self.planned_start_date,
         }
 
@@ -158,3 +197,21 @@ def _validate_number(value: Any, field_name: str) -> float:
     if not math.isfinite(value):
         raise PlanAPIValidationError(f"{field_name} must be a finite number")
     return value
+
+
+def _validate_route_name(value: Any, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise PlanAPIValidationError(f"{field_name} must be a non-empty string")
+    return value.strip()
+
+
+def _validate_directional_access_route(
+    route_name: str,
+    field_name: str,
+    valid_routes: set[str],
+) -> None:
+    if route_name not in valid_routes:
+        allowed = ", ".join(sorted(valid_routes))
+        raise PlanAPIValidationError(
+            f"{field_name} must be one of: {allowed}"
+        )

@@ -41,6 +41,8 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | --- | --- | --- |
 | `trail_id` | string | `vermont_long_trail` |
 | `direction` | string | `NOBO` or `SOBO` |
+| `ingress_route` | string | NOBO: `Williamstown Approach` or `North Adams Approach`; SOBO: `Journey's End Trail` |
+| `egress_route` | string | NOBO: `Journey's End Trail`; SOBO: `Williamstown Approach` or `North Adams Approach` |
 | `desired_days` | integer | `3` to `60` |
 | `min_daily_miles` | number | `4` to `25` |
 | `max_daily_miles` | number | `8` to `40`, greater than or equal to `min_daily_miles` |
@@ -55,6 +57,8 @@ Example:
 {
   "trail_id": "vermont_long_trail",
   "direction": "NOBO",
+  "ingress_route": "North Adams Approach",
+  "egress_route": "Journey's End Trail",
   "desired_days": 30,
   "min_daily_miles": 8,
   "max_daily_miles": 15,
@@ -81,8 +85,11 @@ Error responses are narrow and stable:
 | `400` | `validation_error` |
 | `405` | `method_not_allowed` |
 | `413` | `request_too_large` |
+| `500` | `internal_error` |
 
 Validation errors include a `message` field describing the rejected input.
+Unexpected planner or server errors return `internal_error` without traceback
+details in the client payload.
 
 ## Privacy Boundary
 

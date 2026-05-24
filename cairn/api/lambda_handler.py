@@ -53,6 +53,8 @@ def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
             400,
             {"error": "validation_error", "message": str(error)},
         )
+    except Exception:
+        return _json_response(500, {"error": "internal_error"})
 
     return _json_response(200, plan_payload)
 

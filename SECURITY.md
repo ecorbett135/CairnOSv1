@@ -53,3 +53,17 @@ they also expose a software security risk.
 - Prefer minimal runtime dependencies for the hosted Streamlit app.
 - Run tests before merging changes that affect planning, exports, or user input.
 - Review dependency updates for license and security implications.
+
+## Scanning Baseline
+
+Before deploying the Plan API beyond local/private alpha use:
+
+- enable GitHub secret scanning and push protection where available
+- enable Dependabot alerts and grouped dependency update PRs
+- enable CodeQL for Python
+- run `pip-audit` or `osv-scanner` against the Python dependency set used by
+  hosted runtimes
+- scan the Lambda container image with Trivy or an equivalent container scanner
+- keep `.env`, Streamlit secrets, SAM build output, Docker scratch files,
+  generated reports, local calibration files, and private tester data out of
+  source control
