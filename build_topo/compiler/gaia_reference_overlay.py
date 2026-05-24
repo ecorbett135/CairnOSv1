@@ -5,6 +5,10 @@ from pathlib import Path
 import json
 import sys
 
+from build_topo.compiler.provenance import (
+    repo_relative_path,
+)
+
 
 SCHEMA_VERSION = "1.0"
 
@@ -509,10 +513,11 @@ def export_waypoint_reference(
     payload = {
         "schema_version": SCHEMA_VERSION,
         "trail": trail_root.name,
-        "source": str(
+        "source": repo_relative_path(
             gaia_reference_path(
                 trail_root
-            )
+            ),
+            trail_root,
         ),
         "purpose": (
             "Gaia waypoint reference enrichment; "

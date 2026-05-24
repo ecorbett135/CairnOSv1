@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "trail": "vermont_long_trail",
-  "source": "/Users/ecorbett/Documents/Development/python-ai/CairnOSv1/trails/vermont_long_trail/raw/geojson/gaia_reference.geojson",
+  "source": "trails/vermont_long_trail/raw/geojson/gaia_reference.geojson",
   "purpose": "Gaia waypoint reference enrichment; not operational traversal authority",
   "summary": {
     "total_points": 74,

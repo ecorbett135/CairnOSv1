@@ -8,7 +8,7 @@ Reference assets found locally:
 
 - `/Users/ecorbett/Local/swift/Hiker Logix Artifacts/hikerLogixMed.png`
 - `/Users/ecorbett/Local/swift/Hiker Logix Artifacts/hikerLogixAppIcon.png`
-- `/Users/ecorbett/Documents/Development/ios/HikerLogix/hikerlogix/Assets.xcassets/logixLogoNoBorder.imageset/logixLogoNoBorder.png`
+- `~/Local/Development/ios/HikerLogix/hikerlogix/Assets.xcassets/logixLogoNoBorder.imageset/logixLogoNoBorder.png`
 
 ## Recommended CairnOS Direction
 
