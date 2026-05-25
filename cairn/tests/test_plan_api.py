@@ -216,6 +216,168 @@ def _json_response(response):
     return json.loads(response["body"])
 
 
+def test_http_adapter_healthz_returns_ok():
+    from cairn.api.http_server import handle_http_request
+
+    status, headers, body = handle_http_request("GET", "/healthz", b"")
+
+    assert status == 200
+    assert headers["content-type"] == "application/json"
+    assert json.loads(body.decode("utf-8")) == {"status": "ok"}
+
+
+def test_http_adapter_health_alias_returns_ok():
+    from cairn.api.http_server import handle_http_request
+
+    status, _headers, body = handle_http_request("GET", "/health", b"")
+
+    assert status == 200
+    assert json.loads(body.decode("utf-8")) == {"status": "ok"}
+
+
+def test_http_adapter_ready_reports_planner_and_data_availability():
+    from cairn.api.http_server import handle_http_request
+
+    status, _headers, body = handle_http_request("GET", "/ready", b"")
+
+    payload = json.loads(body.decode("utf-8"))
+    assert status == 200
+    assert payload["status"] == "ready"
+    assert payload["checks"]["planner"] == "ok"
+    assert payload["checks"]["long_trail_data"] == "ok"
+
+
+def test_http_adapter_metrics_returns_human_readable_json():
+    from cairn.api import http_server
+
+    http_server.reset_metrics_for_tests()
+
+    status, _headers, body = http_server.handle_http_request("GET", "/metrics", b"")
+
+    payload = json.loads(body.decode("utf-8"))
+    assert status == 200
+    assert payload["service"] == "cairnos-plan-api"
+    assert payload["format"] == "human_json_v1"
+    assert payload["prometheus_reserved"] is True
+    assert payload["requests"]["total"] == 0
+    assert payload["plan"]["successes"] == 0
+
+
+def test_http_adapter_version_returns_service_metadata(monkeypatch):
+    from cairn.api import http_server
+
+    monkeypatch.setenv("CAIRNOS_BUILD_SHA", "local-test")
+
+    status, _headers, body = http_server.handle_http_request("GET", "/version", b"")
+
+    assert status == 200
+    assert json.loads(body.decode("utf-8")) == {
+        "build_sha": "local-test",
+        "service": "cairnos-plan-api",
+    }
+
+
+def test_http_adapter_rejects_non_post_plan_requests():
+    from cairn.api.http_server import handle_http_request
+
+    status, _headers, body = handle_http_request("GET", "/plan", b"")
+
+    assert status == 405
+    assert json.loads(body.decode("utf-8")) == {"error": "method_not_allowed"}
+
+
+def test_http_adapter_maps_plan_payload(monkeypatch):
+    from cairn.api import http_server
+
+    def stub_build_plan_response(payload, build_sha=None):
+        return {"export_version": "cairnos_plan_v1", "build_sha": build_sha, "echo": payload}
+
+    monkeypatch.setattr(http_server, "build_plan_response", stub_build_plan_response)
+    monkeypatch.setenv("CAIRNOS_BUILD_SHA", "local-http")
+
+    status, headers, body = http_server.handle_http_request(
+        "POST",
+        "/plan",
+        b'{"selected_trail":"vermont_long_trail"}',
+    )
+
+    assert status == 200
+    assert headers["cache-control"] == "no-store"
+    assert json.loads(body.decode("utf-8")) == {
+        "build_sha": "local-http",
+        "echo": {"selected_trail": "vermont_long_trail"},
+        "export_version": "cairnos_plan_v1",
+    }
+
+
+def test_http_adapter_records_plan_duration_metrics(monkeypatch):
+    from cairn.api import http_server
+
+    http_server.reset_metrics_for_tests()
+
+    def stub_build_plan_response(payload, build_sha=None):
+        return {"export_version": "cairnos_plan_v1", "daily_plan": [{"day": 1}]}
+
+    monkeypatch.setattr(http_server, "build_plan_response", stub_build_plan_response)
+
+    status, _headers, _body = http_server.handle_http_request(
+        "POST",
+        "/plan",
+        json.dumps(_valid_plan_api_payload()).encode("utf-8"),
+    )
+
+    metrics_status, _metrics_headers, metrics_body = http_server.handle_http_request(
+        "GET", "/metrics", b""
+    )
+    metrics = json.loads(metrics_body.decode("utf-8"))
+
+    assert status == 200
+    assert metrics_status == 200
+    assert metrics["requests"]["total"] == 1
+    assert metrics["plan"]["successes"] == 1
+    assert metrics["plan"]["last_duration_ms"] >= 0
+    assert metrics["plan"]["max_duration_ms"] >= metrics["plan"]["last_duration_ms"]
+    assert metrics["plan"]["last_success_at"]
+
+
+def test_http_adapter_logs_compact_plan_summary(monkeypatch, capsys):
+    from cairn.api import http_server
+
+    http_server.reset_metrics_for_tests()
+
+    def stub_build_plan_response(payload, build_sha=None):
+        return {"export_version": "cairnos_plan_v1", "daily_plan": [{"day": 1}]}
+
+    monkeypatch.setattr(http_server, "build_plan_response", stub_build_plan_response)
+
+    http_server.handle_http_request(
+        "POST",
+        "/plan",
+        json.dumps(_valid_plan_api_payload()).encode("utf-8"),
+    )
+
+    log_payload = json.loads(capsys.readouterr().out.strip())
+    assert log_payload["event"] == "plan_request"
+    assert log_payload["status_code"] == 200
+    assert log_payload["duration_ms"] >= 0
+    assert log_payload["trail_id"] == "vermont_long_trail"
+    assert "payload" not in log_payload
+
+
+def test_http_adapter_metrics_separates_client_and_internal_errors():
+    from cairn.api import http_server
+
+    http_server.reset_metrics_for_tests()
+
+    http_server.handle_http_request("POST", "/plan", b"{not-json")
+    status, _headers, body = http_server.handle_http_request("GET", "/metrics", b"")
+
+    metrics = json.loads(body.decode("utf-8"))
+    assert status == 200
+    assert metrics["plan"]["client_errors"] == 1
+    assert metrics["plan"]["internal_errors"] == 0
+
+
 def test_lambda_handler_rejects_get_with_method_not_allowed():
     response = lambda_handler.handler(_lambda_event(method="GET"), None)
 

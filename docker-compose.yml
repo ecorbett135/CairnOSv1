@@ -1,0 +1,26 @@
+services:
+  cairnos-plan-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: cairnos-plan-api:local
+    container_name: cairnos-plan-api
+    environment:
+      CAIRNOS_API_HOST: 0.0.0.0
+      CAIRNOS_API_PORT: "3010"
+      CAIRNOS_API_MAX_BODY_BYTES: "32768"
+      CAIRNOS_BUILD_SHA: local-docker-api
+    ports:
+      - "127.0.0.1:3010:3010"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3010/healthz', timeout=2).read()",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
