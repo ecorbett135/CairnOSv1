@@ -1,0 +1,29 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
+
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV CAIRNOS_API_HOST=0.0.0.0
+ENV CAIRNOS_API_PORT=3010
+ENV CAIRNOS_API_MAX_BODY_BYTES=32768
+ENV CAIRNOS_BUILD_SHA=local-docker-api
+
+WORKDIR /app
+
+COPY cairn/api/requirements.txt /app/cairn/api/requirements.txt
+RUN if grep -Eq '^[[:space:]]*[^#[:space:]]' /app/cairn/api/requirements.txt; then \
+        python -m pip install --no-cache-dir -r /app/cairn/api/requirements.txt; \
+    else \
+        echo "No API runtime dependencies to install."; \
+    fi
+
+COPY cairn/ /app/cairn/
+COPY trails/vermont_long_trail/compiled/ /app/trails/vermont_long_trail/compiled/
+COPY trails/vermont_long_trail/raw/csv/ /app/trails/vermont_long_trail/raw/csv/
+RUN chmod -R a+rX /app/trails/vermont_long_trail
+
+EXPOSE 3010
+
+CMD ["python", "-m", "cairn.api.http_server"]

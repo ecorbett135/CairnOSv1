@@ -98,18 +98,77 @@ sync journals, process photos, request HealthKit data, or persist user-owned
 mobile data. Future HikerLogix work should treat this API as a planning/export
 engine boundary.
 
+## Observability
+
+The local Docker API exposes lightweight human-readable JSON observability:
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Shallow liveness check for humans and local tooling |
+| `GET /healthz` | Compatibility alias for shallow liveness checks |
+| `GET /ready` | Readiness check for planner import and Long Trail data availability |
+| `GET /version` | Service name and build identifier |
+| `GET /metrics` | Local/dev runtime counters and timing data in `human_json_v1` format |
+
+`/metrics` is intentionally JSON-first for MVP local development. Prometheus
+format is reserved for a future additive endpoint such as `/metrics/prometheus`
+when SDDC-local has a scraper that needs it.
+
+The Plan API also writes one compact structured log line for each `/plan`
+request. It includes status, timing, request body size, trail id, direction,
+daily plan count, warning count, and error type. It does not log full request
+payloads or generated plans.
+
+CloudWatch usage should stay cost-conscious: rely on native Lambda metrics
+first, keep log retention short for beta, and avoid custom CloudWatch metrics
+unless there is a concrete alarm or operational question that needs them.
+
 ## Local Development
+
+### Local SDDC Docker Workflow
+
+The preferred local development path is the persistent Docker service:
+
+```bash
+docker compose up --build cairnos-plan-api
+```
+
+The service exposes:
+
+- `POST http://127.0.0.1:3010/plan`
+- `GET http://127.0.0.1:3010/health`
+- `GET http://127.0.0.1:3010/healthz`
+- `GET http://127.0.0.1:3010/ready`
+- `GET http://127.0.0.1:3010/version`
+- `GET http://127.0.0.1:3010/metrics`
+
+This Docker-first path keeps the CairnOS Plan API visible as a normal local
+container/pod-style service for HikerLogix and SDDC-local workflows. SAM remains
+available for Lambda/API Gateway parity checks before AWS deployment, but it is
+not the default SDDC-local runtime.
 
 Run the targeted Plan API tests:
 
 ```bash
-venv/bin/python -m pytest cairn/tests/test_plan_api.py -q
+.venv/bin/python -m pytest cairn/tests/test_plan_api.py -q
 ```
 
 Compile the API modules:
 
 ```bash
-venv/bin/python -m py_compile cairn/api/lambda_handler.py cairn/api/plan_request.py cairn/api/plan_service.py
+.venv/bin/python -m py_compile cairn/api/http_server.py cairn/api/lambda_handler.py cairn/api/plan_request.py cairn/api/plan_service.py
+```
+
+Check local observability output:
+
+```bash
+scripts/check-plan-api-observability.sh
+```
+
+Override the target API URL when needed:
+
+```bash
+BASE_URL=http://127.0.0.1:3010 scripts/check-plan-api-observability.sh
 ```
 
 ## Lambda Container
@@ -149,7 +208,7 @@ Runtime environment variables:
 ### Local API Gateway Emulation
 
 Use the SAM template to emulate API Gateway routing to the Lambda container
-handler locally:
+handler locally when validating Lambda parity:
 
 ```bash
 sam validate --template template.lambda.yaml
