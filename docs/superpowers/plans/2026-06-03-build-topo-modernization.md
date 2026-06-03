@@ -570,7 +570,7 @@ def test_compute_file_sha256_is_stable(tmp_path):
         encoding="utf-8",
     )
 
-    assert compute_file_sha256(path) == "1ee0db3f17d6b07fb3c9b0e8aa23ae77036f72fe1b662e14be4ffb6db7f04164"
+    assert compute_file_sha256(path) == "55f66c2c5aeb275ff5b1ae26b321d5c0b8ceda8c034b19c2643e046d024919f3"
 
 
 def test_write_candidate_manifest_records_artifacts(tmp_path):
