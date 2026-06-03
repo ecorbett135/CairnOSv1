@@ -53,6 +53,34 @@ A fundamental architectural principle of Build_Topo is the strict separation bet
 
 This separation allows for flexible adaptation of operational strategies without altering the underlying topology, enabling CairnOSv1 to support diverse scenarios and optimization goals.
 
+## Stage Contracts And Candidate Artifacts
+
+The compiler stage order is declared in `build_topo/scripts/build_topology.py`
+and mirrored by immutable contracts in `build_topo/compiler/contracts.py`.
+Those contracts describe each stage name, module, required inputs, generated
+outputs, validation rules, determinism, and whether network access is allowed.
+
+For issue #74's first modernization slice, every stage is deterministic and
+network access is disabled. External source acquisition through OSM,
+TNM/TNMAccess, or topoBuilder belongs to later ingestion work.
+
+Generated candidate files live under:
+
+```text
+trails/<trail>/candidate/<run_id>/
+```
+
+Candidate directories mirror promoted artifact paths such as
+`compiled/route_overlay.json`, but they are not trusted by runtime or planner
+code. Runtime and planner code continue to read only promoted files under:
+
+```text
+trails/<trail>/compiled/
+```
+
+Promotion is manual. A candidate set must have a manifest, validation report,
+and human review before any promoted file is replaced.
+
 ## Conclusion
 
 The Build_Topo compiler transforms complex topology data into actionable operational graphs through a well-defined, staged pipeline. Its modular design and clear separation of concerns contribute to the robustness and adaptability of the CairnOSv1 system.

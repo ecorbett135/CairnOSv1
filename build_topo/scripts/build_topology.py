@@ -15,6 +15,59 @@ ROOT = Path(__file__).resolve().parents[2]
 
 COMPILER_ROOT = ROOT / "build_topo"
 
+STAGES = (
+
+    (
+        "Spine Import",
+        "build_topo.compiler.spine",
+    ),
+
+    (
+        "Terrain Segmentation",
+        "build_topo.compiler.segments",
+    ),
+
+    (
+        "Logistics Nodes",
+        "build_topo.compiler.logistics",
+    ),
+
+    (
+        "Crossing Refinement",
+        "build_topo.compiler.crossings",
+    ),
+
+    (
+        "Route Overlay",
+        "build_topo.compiler.route_overlay",
+    ),
+
+    (
+        "Overnight Reference Overlay",
+        "build_topo.compiler.overnight_reference",
+    ),
+
+    (
+        "Approach Trails",
+        "build_topo.compiler.approach_trails",
+    ),
+
+    (
+        "Operational Graph",
+        "build_topo.compiler.graph",
+    ),
+
+    (
+        "Schema Registry",
+        "build_topo.compiler.schema_registry",
+    ),
+
+    (
+        "Validation",
+        "build_topo.compiler.validation",
+    ),
+)
+
 
 def run_stage(name, module, trail_root):
 
@@ -73,67 +126,10 @@ def main():
     print(f"Trail Root: {trail_root}")
 
     #
-    # compiler stages
-    #
-
-    stages = [
-
-        (
-            "Spine Import",
-            "build_topo.compiler.spine",
-        ),
-
-        (
-            "Terrain Segmentation",
-            "build_topo.compiler.segments",
-        ),
-
-        (
-            "Logistics Nodes",
-            "build_topo.compiler.logistics",
-        ),
-
-        (
-            "Crossing Refinement",
-            "build_topo.compiler.crossings",
-        ),
-
-        (
-            "Route Overlay",
-            "build_topo.compiler.route_overlay",
-        ),
-
-        (
-            "Overnight Reference Overlay",
-            "build_topo.compiler.overnight_reference",
-        ),
-
-        (
-            "Approach Trails",
-            "build_topo.compiler.approach_trails",
-        ),
-
-        (
-            "Operational Graph",
-            "build_topo.compiler.graph",
-        ),
-
-        (
-            "Schema Registry",
-            "build_topo.compiler.schema_registry",
-        ),
-
-        (
-            "Validation",
-            "build_topo.compiler.validation",
-        ),
-    ]
-
-    #
     # run stages
     #
 
-    for name, module in stages:
+    for name, module in STAGES:
 
         run_stage(
             name,

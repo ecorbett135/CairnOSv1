@@ -41,6 +41,43 @@ trails/
     └── intermediate/
 ```
 
+## Artifact Boundaries
+
+Trail data directories are separated by trust level.
+
+```text
+trails/<trail>/
+  raw/           # source inputs, curated or externally obtained
+  intermediate/  # transient compiler products
+  candidate/     # generated candidate artifact sets, never trusted by default
+  compiled/      # promoted artifacts used by runtime and planner
+```
+
+Use `candidate/<run_id>/` for generated output during modernization work.
+Do not write directly to `compiled/` while testing new compiler contracts,
+source ingestion, or validation behavior.
+
+Candidate output should include:
+
+- `candidate_manifest.json`
+- `candidate_validation.json`
+- generated artifacts that mirror their promoted relative paths
+
+Example:
+
+```text
+trails/vermont_long_trail/candidate/2026-06-03-contracts/
+  candidate_manifest.json
+  candidate_validation.json
+  compiled/
+    route_overlay.json
+    operational_graph.json
+```
+
+Only copy candidate artifacts into `compiled/` after validation passes and the
+diff has been reviewed. Keep existing promoted files recoverable until the new
+candidate has been field-tested or otherwise accepted.
+
 Example:
 
 ```text
@@ -93,14 +130,14 @@ for detailed requirements.
 Execute:
 
 ```bash
-python build_topo/scripts/build_topology.py \
+python3 build_topo/scripts/build_topology.py \
     trails/trail_name
 ```
 
 Example:
 
 ```bash
-python build_topo/scripts/build_topology.py \
+python3 build_topo/scripts/build_topology.py \
     trails/vermont_long_trail
 ```
 
