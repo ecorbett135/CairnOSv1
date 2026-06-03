@@ -100,7 +100,7 @@ def test_build_topology_exposes_stage_order():
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_contracts.py::test_build_topology_exposes_stage_order
+python3 -m pytest -q cairn/tests/test_build_topo_contracts.py::test_build_topology_exposes_stage_order
 ```
 
 Expected: FAIL with an import error similar to `cannot import name 'STAGES'`.
@@ -177,7 +177,7 @@ Change the loop in `main()` to:
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_contracts.py::test_build_topology_exposes_stage_order
+python3 -m pytest -q cairn/tests/test_build_topo_contracts.py::test_build_topology_exposes_stage_order
 ```
 
 Expected: `1 passed`.
@@ -260,7 +260,7 @@ def test_expected_artifacts_are_deduplicated_by_relative_path():
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_contracts.py
+python3 -m pytest -q cairn/tests/test_build_topo_contracts.py
 ```
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'build_topo.compiler.contracts'`.
@@ -482,7 +482,7 @@ def contract_for_stage(stage_name):
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_contracts.py
+python3 -m pytest -q cairn/tests/test_build_topo_contracts.py
 ```
 
 Expected: all tests pass.
@@ -648,7 +648,7 @@ def test_write_candidate_manifest_records_artifacts(tmp_path):
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_candidates.py
+python3 -m pytest -q cairn/tests/test_build_topo_candidates.py
 ```
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'build_topo.compiler.candidates'`.
@@ -817,7 +817,7 @@ def write_candidate_manifest(
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_candidates.py
+python3 -m pytest -q cairn/tests/test_build_topo_candidates.py
 ```
 
 Expected: all tests pass.
@@ -1004,7 +1004,7 @@ def test_write_candidate_validation_report_saves_report(tmp_path):
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_candidate_validation.py
+python3 -m pytest -q cairn/tests/test_build_topo_candidate_validation.py
 ```
 
 Expected: FAIL with `ModuleNotFoundError: No module named 'build_topo.compiler.candidate_validation'`.
@@ -1167,7 +1167,7 @@ def write_candidate_validation_report(candidate_root, report):
 Run:
 
 ```bash
-python -m pytest -q cairn/tests/test_build_topo_candidate_validation.py
+python3 -m pytest -q cairn/tests/test_build_topo_candidate_validation.py
 ```
 
 Expected: all tests pass.
@@ -1289,7 +1289,7 @@ git commit -m "docs: document build_topo candidate boundaries"
 Run:
 
 ```bash
-python -m pytest -q \
+python3 -m pytest -q \
   cairn/tests/test_build_topo_contracts.py \
   cairn/tests/test_build_topo_candidates.py \
   cairn/tests/test_build_topo_candidate_validation.py
@@ -1302,7 +1302,7 @@ Expected: all tests pass.
 Run:
 
 ```bash
-python -m pytest -q \
+python3 -m pytest -q \
   cairn/tests/test_gaia_reference_overlay.py \
   cairn/tests/test_overnight_reference.py
 ```
@@ -1372,8 +1372,8 @@ This does not regenerate Long Trail compiled data, download OSM/TNM inputs, add 
 
 ## Tests
 
-- `python -m pytest -q cairn/tests/test_build_topo_contracts.py cairn/tests/test_build_topo_candidates.py cairn/tests/test_build_topo_candidate_validation.py`
-- `python -m pytest -q cairn/tests/test_gaia_reference_overlay.py cairn/tests/test_overnight_reference.py`
+- `python3 -m pytest -q cairn/tests/test_build_topo_contracts.py cairn/tests/test_build_topo_candidates.py cairn/tests/test_build_topo_candidate_validation.py`
+- `python3 -m pytest -q cairn/tests/test_gaia_reference_overlay.py cairn/tests/test_overnight_reference.py`
 - `git diff --check`
 ```
 
