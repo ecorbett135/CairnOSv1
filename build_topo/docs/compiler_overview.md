@@ -94,6 +94,18 @@ presence, parse validity, candidate hashes, promoted hashes, and changed
 artifacts. It does not write to `compiled/`; passing validation is review
 evidence, not promotion.
 
+Check promotion readiness with:
+
+```bash
+python3 build_topo/scripts/check_promotion_readiness.py \
+    trails/<trail>/candidate/<run_id>
+```
+
+The readiness command reads `candidate_report.json`, prints a checklist, and
+summarizes candidate-vs-promoted artifact states. It does not write reports,
+copy files, or promote artifacts. A ready result means the candidate is ready
+for manual promotion review, not that promotion has happened.
+
 ## Conclusion
 
 The Build_Topo compiler transforms complex topology data into actionable operational graphs through a well-defined, staged pipeline. Its modular design and clear separation of concerns contribute to the robustness and adaptability of the CairnOSv1 system.
