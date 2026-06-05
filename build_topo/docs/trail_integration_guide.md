@@ -86,6 +86,17 @@ python3 build_topo/scripts/validate_candidate.py \
 The validation command writes reports only inside the candidate directory. It
 does not write to `compiled/`, and a passing report is not automatic promotion.
 
+Check whether the candidate is ready for manual promotion review:
+
+```bash
+python3 build_topo/scripts/check_promotion_readiness.py \
+    trails/vermont_long_trail/candidate/2026-06-03-contracts
+```
+
+The readiness command reads `candidate_report.json`, prints checklist results
+and an artifact diff summary, and writes nothing. It does not copy candidate
+artifacts into `compiled/`.
+
 Only copy candidate artifacts into `compiled/` after validation passes and the
 diff has been reviewed. Keep existing promoted files recoverable until the new
 candidate has been field-tested or otherwise accepted.
