@@ -106,6 +106,24 @@ summarizes candidate-vs-promoted artifact states. It does not write reports,
 copy files, or promote artifacts. A ready result means the candidate is ready
 for manual promotion review, not that promotion has happened.
 
+Plan side-by-side container image testing with:
+
+```bash
+python3 build_topo/scripts/plan_container_candidate.py \
+    trails/<trail>/candidate/<run_id> \
+    --candidate-image cairnos-plan-api:candidate \
+    --candidate-digest sha256:<candidate-image-digest> \
+    --baseline-image cairnos-plan-api:baseline \
+    --baseline-port 3010 \
+    --candidate-port 3011
+```
+
+The container candidate command records how to compare a baseline image and a
+candidate image without running Docker, copying artifacts, or changing
+`compiled/`. The promotion target is the immutable image digest, not the
+running container. Running containers are disposable test executions; approved
+image digests and approved candidate artifact sets are promoted separately.
+
 ## Conclusion
 
 The Build_Topo compiler transforms complex topology data into actionable operational graphs through a well-defined, staged pipeline. Its modular design and clear separation of concerns contribute to the robustness and adaptability of the CairnOSv1 system.

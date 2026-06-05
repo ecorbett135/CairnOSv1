@@ -97,6 +97,25 @@ The readiness command reads `candidate_report.json`, prints checklist results
 and an artifact diff summary, and writes nothing. It does not copy candidate
 artifacts into `compiled/`.
 
+Plan local side-by-side image testing:
+
+```bash
+python3 build_topo/scripts/plan_container_candidate.py \
+    trails/vermont_long_trail/candidate/2026-06-03-contracts \
+    --candidate-image cairnos-plan-api:candidate \
+    --candidate-digest sha256:<candidate-image-digest> \
+    --baseline-image cairnos-plan-api:baseline \
+    --baseline-port 3010 \
+    --candidate-port 3011 \
+    --save
+```
+
+This writes `container_candidate_plan.json` only when `--save` is used, and
+only inside the candidate directory. The plan lists baseline/candidate ports,
+smoke endpoints, Docker run commands, promotion blockers, and the image digest
+under review. Promote an image digest, not a running container; containers are
+only disposable test executions.
+
 Only copy candidate artifacts into `compiled/` after validation passes and the
 diff has been reviewed. Keep existing promoted files recoverable until the new
 candidate has been field-tested or otherwise accepted.
