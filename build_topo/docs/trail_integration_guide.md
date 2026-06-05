@@ -61,6 +61,7 @@ Candidate output should include:
 
 - `candidate_manifest.json`
 - `candidate_validation.json`
+- `candidate_report.json`
 - generated artifacts that mirror their promoted relative paths
 
 Example:
@@ -69,10 +70,21 @@ Example:
 trails/vermont_long_trail/candidate/2026-06-03-contracts/
   candidate_manifest.json
   candidate_validation.json
+  candidate_report.json
   compiled/
     route_overlay.json
     operational_graph.json
 ```
+
+Validate candidate output before review:
+
+```bash
+python3 build_topo/scripts/validate_candidate.py \
+    trails/vermont_long_trail/candidate/2026-06-03-contracts
+```
+
+The validation command writes reports only inside the candidate directory. It
+does not write to `compiled/`, and a passing report is not automatic promotion.
 
 Only copy candidate artifacts into `compiled/` after validation passes and the
 diff has been reviewed. Keep existing promoted files recoverable until the new
