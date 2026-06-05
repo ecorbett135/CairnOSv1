@@ -81,6 +81,19 @@ trails/<trail>/compiled/
 Promotion is manual. A candidate set must have a manifest, validation report,
 and human review before any promoted file is replaced.
 
+Validate a candidate set with:
+
+```bash
+python3 build_topo/scripts/validate_candidate.py \
+    trails/<trail>/candidate/<run_id>
+```
+
+The command writes `candidate_validation.json` and `candidate_report.json`
+inside the candidate directory. The report summarizes required artifact
+presence, parse validity, candidate hashes, promoted hashes, and changed
+artifacts. It does not write to `compiled/`; passing validation is review
+evidence, not promotion.
+
 ## Conclusion
 
 The Build_Topo compiler transforms complex topology data into actionable operational graphs through a well-defined, staged pipeline. Its modular design and clear separation of concerns contribute to the robustness and adaptability of the CairnOSv1 system.
