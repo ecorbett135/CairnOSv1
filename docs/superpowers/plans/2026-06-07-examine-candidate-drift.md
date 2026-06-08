@@ -1,6 +1,6 @@
 # Examine Candidate Drift Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Add a deterministic, non-promoting build_topo command that examines candidate-vs-promoted drift and produces human-review evidence before any artifact or image promotion.
 
@@ -37,7 +37,7 @@
 - Create: `build_topo/compiler/candidate_drift.py`
 - Test: `cairn/tests/test_build_topo_candidate_drift.py`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 Create tests that build a fake `candidate_report.json` with changed, unchanged, new, and missing candidate artifacts.
 
@@ -52,7 +52,7 @@ Expected behaviors:
 - Failed candidate validation returns status `blocked`.
 - Building the report does not write `candidate_drift_report.json`.
 
-- [ ] **Step 2: Run tests to verify RED**
+- [x] **Step 2: Run tests to verify RED**
 
 Run:
 
@@ -62,7 +62,7 @@ Run:
 
 Expected: fail because `build_topo.compiler.candidate_drift` does not exist.
 
-- [ ] **Step 3: Implement minimal drift builder**
+- [x] **Step 3: Implement minimal drift builder**
 
 Create `build_topo/compiler/candidate_drift.py` with:
 
@@ -82,7 +82,7 @@ Implementation rules:
 - Load `container_candidate_plan.json` if present and expose smoke tests as `unavailable` until CLI-level probing is enabled.
 - Do not write unless `write_candidate_drift_report()` is called.
 
-- [ ] **Step 4: Run tests to verify GREEN**
+- [x] **Step 4: Run tests to verify GREEN**
 
 Run:
 
@@ -92,7 +92,7 @@ Run:
 
 Expected: pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add build_topo/compiler/candidate_drift.py cairn/tests/test_build_topo_candidate_drift.py
@@ -105,7 +105,7 @@ git commit -m "feat: add build_topo candidate drift report"
 - Create: `build_topo/scripts/examine_candidate_drift.py`
 - Test: `cairn/tests/test_build_topo_examine_candidate_drift_cli.py`
 
-- [ ] **Step 1: Write failing CLI tests**
+- [x] **Step 1: Write failing CLI tests**
 
 Create tests for:
 
@@ -116,7 +116,7 @@ Create tests for:
 - Missing report exits `1` and prints the blocked reason.
 - Endpoint comparison with local fake HTTP servers reports canonical JSON matches despite key-order differences and reports status/body drift when responses differ.
 
-- [ ] **Step 2: Run CLI tests to verify RED**
+- [x] **Step 2: Run CLI tests to verify RED**
 
 Run:
 
@@ -126,7 +126,7 @@ Run:
 
 Expected: fail because `build_topo/scripts/examine_candidate_drift.py` does not exist.
 
-- [ ] **Step 3: Implement CLI**
+- [x] **Step 3: Implement CLI**
 
 Create `build_topo/scripts/examine_candidate_drift.py` using the existing script style:
 
@@ -138,7 +138,7 @@ Create `build_topo/scripts/examine_candidate_drift.py` using the existing script
 - Human output includes status, candidate, promoted root when present, checklist, summary, and artifacts.
 - By default, probe smoke URLs from `container_candidate_plan.json` when present. `--skip-smoke` leaves smoke checks marked unavailable.
 
-- [ ] **Step 4: Run CLI tests to verify GREEN**
+- [x] **Step 4: Run CLI tests to verify GREEN**
 
 Run:
 
@@ -148,7 +148,7 @@ Run:
 
 Expected: pass.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add build_topo/scripts/examine_candidate_drift.py cairn/tests/test_build_topo_examine_candidate_drift_cli.py
@@ -161,7 +161,7 @@ git commit -m "feat: add candidate drift examination CLI"
 - Modify: `build_topo/docs/compiler_overview.md`
 - Modify: `build_topo/docs/trail_integration_guide.md`
 
-- [ ] **Step 1: Document command**
+- [x] **Step 1: Document command**
 
 Add this command after candidate validation/readiness:
 
@@ -180,7 +180,7 @@ Document:
 - Drift can be acceptable when trail data legitimately changed.
 - AI-assisted investigation is a later advisory layer that consumes this deterministic report.
 
-- [ ] **Step 2: Verify docs references**
+- [x] **Step 2: Verify docs references**
 
 Run:
 
@@ -190,7 +190,7 @@ rg -n "examine_candidate_drift|candidate_drift_report|AI-assisted" build_topo/do
 
 Expected: both docs mention the command and the AI-later boundary.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add build_topo/docs/compiler_overview.md build_topo/docs/trail_integration_guide.md
@@ -199,7 +199,7 @@ git commit -m "docs: document candidate drift examination"
 
 ## Task 4: Verification And Publication
 
-- [ ] **Step 1: Run focused candidate tests**
+- [x] **Step 1: Run focused candidate tests**
 
 ```bash
 .venv/bin/python -m pytest -q \
@@ -215,7 +215,7 @@ git commit -m "docs: document candidate drift examination"
 
 Expected: pass.
 
-- [ ] **Step 2: Run adjacent regressions**
+- [x] **Step 2: Run adjacent regressions**
 
 ```bash
 .venv/bin/python -m pytest -q \
@@ -226,7 +226,7 @@ Expected: pass.
 
 Expected: pass.
 
-- [ ] **Step 3: Run whitespace check**
+- [x] **Step 3: Run whitespace check**
 
 ```bash
 git diff --check
@@ -234,6 +234,6 @@ git diff --check
 
 Expected: no output.
 
-- [ ] **Step 4: Open and merge PR if CI passes**
+- [x] **Step 4: Open and merge PR if CI passes**
 
 Push branch, open PR against `dev`, update issue #74, wait for CI, squash merge if clean, sync local `dev`, and delete the feature branch.

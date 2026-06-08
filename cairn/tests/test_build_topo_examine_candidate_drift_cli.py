@@ -289,6 +289,40 @@ def test_examine_candidate_drift_cli_json_and_save(tmp_path):
     assert report["status"] == "review_required"
 
 
+def test_examine_candidate_drift_cli_save_refuses_promoted_compiled_path(tmp_path):
+    trail_root = tmp_path / "trails" / "vermont_long_trail"
+    compiled_root = trail_root / "compiled"
+    _write_json(
+        compiled_root / "candidate_report.json",
+        _candidate_report(
+            artifacts=[],
+        ),
+    )
+    before = _tree_snapshot(
+        compiled_root
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            str(compiled_root),
+            "--skip-smoke",
+            "--save",
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert "refusing to save outside trails/<trail>/candidate/<run_id>" in result.stderr
+    assert _tree_snapshot(
+        compiled_root
+    ) == before
+
+
 def test_examine_candidate_drift_cli_blocks_missing_report(tmp_path):
     candidate_root = tmp_path / "trails" / "vermont_long_trail" / "candidate" / "run-1"
     candidate_root.mkdir(

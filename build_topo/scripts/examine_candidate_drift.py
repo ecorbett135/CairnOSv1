@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from build_topo.compiler.candidate_drift import (  # noqa: E402
     build_candidate_drift,
+    is_candidate_run_root,
     write_candidate_drift_report,
 )
 
@@ -175,6 +176,15 @@ def main(argv=None):
     )
 
     if args.save:
+        if not is_candidate_run_root(
+            candidate_root
+        ):
+            print(
+                "refusing to save outside trails/<trail>/candidate/<run_id>",
+                file=sys.stderr,
+            )
+            return 2
+
         write_candidate_drift_report(
             candidate_root,
             report,

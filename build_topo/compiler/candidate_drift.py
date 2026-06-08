@@ -59,6 +59,28 @@ def _load_json(path):
         return None, str(exc)
 
 
+def _expect_object(payload, label):
+    if isinstance(
+        payload,
+        dict,
+    ):
+        return None
+
+    return f"{label} must contain a JSON object"
+
+
+def is_candidate_run_root(candidate_root):
+    candidate_root = Path(
+        candidate_root
+    )
+
+    return (
+        candidate_root.name not in {"", ".", ".."}
+        and candidate_root.parent.name == "candidate"
+        and candidate_root.parent.parent.name != "candidate"
+    )
+
+
 def _artifact_state(artifact):
     candidate_present = artifact.get(
         "candidate_present",
@@ -615,6 +637,18 @@ def build_candidate_drift(candidate_root, smoke_tests=None, probe_smoke=False):
             details,
         )
 
+    report_shape_error = _expect_object(
+        report,
+        "candidate_report.json",
+    )
+
+    if report_shape_error:
+        return _blocked_report(
+            candidate_root,
+            trail_root,
+            report_shape_error,
+        )
+
     artifacts = _drift_artifacts(
         report
     )
@@ -624,6 +658,16 @@ def build_candidate_drift(candidate_root, smoke_tests=None, probe_smoke=False):
     plan, plan_error = _load_json(
         plan_path
     )
+
+    if plan is not None:
+        plan_shape_error = _expect_object(
+            plan,
+            "container_candidate_plan.json",
+        )
+        if plan_shape_error:
+            plan = None
+            plan_error = plan_shape_error
+
     smoke_tests = (
         list(smoke_tests)
         if smoke_tests is not None
