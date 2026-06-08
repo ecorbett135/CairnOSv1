@@ -132,6 +132,22 @@ The deterministic candidate lifecycle is:
 3. **Promote accepted candidate** - promote the approved image digest and/or
    approved artifact set only after human review.
 
+Examine deterministic drift with:
+
+```bash
+python3 build_topo/scripts/examine_candidate_drift.py \
+    trails/<trail>/candidate/<run_id> \
+    --save
+```
+
+The drift command reads `candidate_report.json` and, when present,
+`container_candidate_plan.json`. It compares candidate/promoted artifact
+hashes and probes baseline/candidate smoke URLs only if those containers are
+already running. Use `--skip-smoke` for artifact-only review. The command
+writes `candidate_drift_report.json` only when `--save` is present, and that
+file is written inside the candidate directory only. It never runs Docker,
+downloads source data, copies files into `compiled/`, or promotes images.
+
 AI-assisted drift investigation is a later advisory layer. It can consume the
 deterministic drift report, search for recent route or facility changes, and
 summarize cited evidence for a reviewer. It should not replace deterministic
