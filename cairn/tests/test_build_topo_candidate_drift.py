@@ -246,6 +246,42 @@ def test_build_candidate_drift_marks_no_drift_when_artifacts_unchanged(tmp_path)
     assert drift["summary"]["artifact_review_required"] == 0
 
 
+def test_build_candidate_drift_blocks_malformed_container_plan(tmp_path):
+    candidate_root = tmp_path / "trails" / "vermont_long_trail" / "candidate" / "run-1"
+    _write_json(
+        candidate_root / "candidate_report.json",
+        _candidate_report(
+            artifacts=[
+                _artifact(
+                    "compiled/route_overlay.json",
+                    candidate_present=True,
+                    promoted_present=True,
+                    changed=False,
+                ),
+            ],
+        ),
+    )
+    (
+        candidate_root /
+        "container_candidate_plan.json"
+    ).write_text(
+        "{not-json\n",
+        encoding="utf-8",
+    )
+
+    drift = build_candidate_drift(
+        candidate_root
+    )
+
+    assert drift["status"] == "blocked"
+    assert drift["summary"]["blockers"] == 1
+    assert "container_candidate_plan.json could not be parsed" in drift["blockers"][0]
+    checklist = _checklist_by_id(
+        drift
+    )
+    assert checklist["container_candidate_plan_valid"]["status"] == "fail"
+
+
 def test_build_candidate_drift_blocks_missing_candidate_report(tmp_path):
     candidate_root = tmp_path / "trails" / "vermont_long_trail" / "candidate" / "run-1"
     candidate_root.mkdir(

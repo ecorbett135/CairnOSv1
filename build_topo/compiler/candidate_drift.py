@@ -268,17 +268,18 @@ def _response_fingerprint(status_code, body, content_type):
         body,
         content_type,
     )
+    media_type = _media_type(
+        content_type
+    )
 
     return {
         "status_code": status_code,
-        "content_type": _media_type(
-            content_type
-        ),
+        "content_type": media_type,
         "body_sha256": hashlib.sha256(
             canonical
         ).hexdigest(),
         "bytes": len(
-            body
+            canonical
         ),
     }
 
@@ -463,7 +464,7 @@ def _checklist(report, artifacts, smoke_tests, plan_present, blockers):
         smoke_tests
     )["smoke_checked"]
 
-    return [
+    checklist = [
         _check(
             "pass",
             "candidate_report_present",
@@ -478,6 +479,26 @@ def _checklist(report, artifacts, smoke_tests, plan_present, blockers):
                 "Candidate validation status is passed."
                 if validation_status == "passed"
                 else f"Candidate validation status is {validation_status}."
+            ),
+        ),
+        _check(
+            (
+                "fail"
+                if any(
+                    "container_candidate_plan.json" in blocker
+                    for blocker in blockers
+                )
+                else "pass"
+            ),
+            "container_candidate_plan_valid",
+            "Container candidate plan parsed when present",
+            (
+                "container_candidate_plan.json parsed successfully."
+                if not any(
+                    "container_candidate_plan.json" in blocker
+                    for blocker in blockers
+                )
+                else "container_candidate_plan.json could not be parsed."
             ),
         ),
         _check(
@@ -509,6 +530,23 @@ def _checklist(report, artifacts, smoke_tests, plan_present, blockers):
         ),
     ]
 
+    smoke_failures = sum(
+        1 for item in smoke_tests
+        if item.get("status") == "failed"
+    )
+
+    if smoke_failures:
+        checklist.append(
+            _check(
+                "fail",
+                "smoke_drift_collected",
+                "Smoke drift evidence was collected",
+                f"{smoke_failures} smoke endpoint(s) failed to respond.",
+            )
+        )
+
+    return checklist
+
 
 def _status(artifacts, smoke_tests, blockers):
     if blockers:
@@ -525,6 +563,12 @@ def _status(artifacts, smoke_tests, blockers):
         for item in smoke_tests
     ):
         return "review_required"
+
+    if any(
+        item.get("status") == "failed"
+        for item in smoke_tests
+    ):
+        return "blocked"
 
     return "no_drift"
 
@@ -574,10 +618,11 @@ def build_candidate_drift(candidate_root, smoke_tests=None, probe_smoke=False):
     artifacts = _drift_artifacts(
         report
     )
-    plan, _plan_error = _load_json(
-        _container_candidate_plan_path(
-            candidate_root
-        )
+    plan_path = _container_candidate_plan_path(
+        candidate_root
+    )
+    plan, plan_error = _load_json(
+        plan_path
     )
     smoke_tests = (
         list(smoke_tests)
@@ -599,6 +644,18 @@ def build_candidate_drift(candidate_root, smoke_tests=None, probe_smoke=False):
         blockers.append(
             f"candidate validation status is {validation_status}"
         )
+
+    if plan_error and plan_error != "missing":
+        blockers.append(
+            f"container_candidate_plan.json could not be parsed: {plan_error}"
+        )
+
+    for smoke_test in smoke_tests:
+        if smoke_test.get("status") == "failed":
+            blockers.append(
+                f"smoke probe failed for {smoke_test.get('path')}: "
+                f"{smoke_test.get('reason')}"
+            )
 
     status = _status(
         artifacts,

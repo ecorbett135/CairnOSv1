@@ -318,12 +318,7 @@ def test_examine_candidate_drift_cli_compares_smoke_endpoints(tmp_path):
         {
             "/same-json": {
                 "status": 200,
-                "body": {
-                    "status": "ok",
-                    "checks": {
-                        "planner": "ok",
-                    },
-                },
+                "body": b'{\n  "status": "ok",\n  "checks": {"planner": "ok"}\n}\n',
                 "content_type": "application/json; charset=utf-8",
             },
             "/changed-body": {
@@ -408,3 +403,69 @@ def test_examine_candidate_drift_cli_compares_smoke_endpoints(tmp_path):
     assert report["summary"]["smoke_matched"] == 1
     assert report["summary"]["smoke_changed"] == 2
     assert report["summary"]["smoke_failed"] == 0
+
+
+def test_examine_candidate_drift_cli_blocks_failed_smoke_probe(tmp_path):
+    baseline = _server(
+        {
+            "/health": {
+                "status": 200,
+                "body": {
+                    "status": "ok",
+                },
+            },
+        }
+    )
+
+    try:
+        candidate_root = tmp_path / "trails" / "vermont_long_trail" / "candidate" / "run-1"
+        _write_json(
+            candidate_root / "candidate_report.json",
+            _candidate_report(
+                artifacts=[
+                    _artifact(
+                        "compiled/route_overlay.json",
+                        candidate_present=True,
+                        promoted_present=True,
+                        changed=False,
+                    ),
+                ],
+            ),
+        )
+        _write_json(
+            candidate_root / "container_candidate_plan.json",
+            {
+                "format": "cairnos_build_topo_container_candidate_plan_v1",
+                "smoke_tests": [
+                    {
+                        "path": "/health",
+                        "baseline_url": f"http://127.0.0.1:{baseline.server_port}/health",
+                        "candidate_url": "http://127.0.0.1:1/health",
+                    },
+                ],
+            },
+        )
+
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPT),
+                str(candidate_root),
+                "--json",
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    finally:
+        baseline.shutdown()
+
+    assert result.returncode == 1
+    report = json.loads(
+        result.stdout
+    )
+    assert report["status"] == "blocked"
+    assert report["summary"]["smoke_failed"] == 1
+    assert report["summary"]["blockers"] == 1
+    assert "smoke probe failed for /health" in report["blockers"][0]
