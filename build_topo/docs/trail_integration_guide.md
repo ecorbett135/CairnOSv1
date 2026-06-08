@@ -97,24 +97,28 @@ The readiness command reads `candidate_report.json`, prints checklist results
 and an artifact diff summary, and writes nothing. It does not copy candidate
 artifacts into `compiled/`.
 
-Plan local side-by-side image testing:
+Create a local side-by-side image testing candidate:
 
 ```bash
-python3 build_topo/scripts/plan_container_candidate.py \
-    trails/vermont_long_trail/candidate/2026-06-03-contracts \
+python3 build_topo/scripts/create_container_candidate.py \
+    --trail-root trails/vermont_long_trail \
     --candidate-image cairnos-plan-api:candidate \
     --candidate-digest sha256:<candidate-image-digest> \
     --baseline-image cairnos-plan-api:baseline \
     --baseline-port 3010 \
-    --candidate-port 3011 \
-    --save
+    --candidate-port 3011
 ```
 
-This writes `container_candidate_plan.json` only when `--save` is used, and
-only inside the candidate directory. The plan lists baseline/candidate ports,
-smoke endpoints, Docker run commands, promotion blockers, and the image digest
-under review. Promote an image digest, not a running container; containers are
-only disposable test executions.
+This creates a timestamped `candidate/<run_id>/` directory and writes
+`container_candidate_plan.json` inside it. The plan lists baseline/candidate
+ports, smoke endpoints, Docker run commands, promotion blockers, and the image
+digest under review. It does not run Docker or modify `compiled/`.
+
+The next deterministic slices are separate commands: one to examine candidate
+drift and print review evidence, and one to promote only after the drift is
+accepted. AI-assisted web investigation can be layered in later as reviewer
+support, but it should consume deterministic drift evidence rather than replace
+it.
 
 Only copy candidate artifacts into `compiled/` after validation passes and the
 diff has been reviewed. Keep existing promoted files recoverable until the new

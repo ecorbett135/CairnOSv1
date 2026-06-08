@@ -106,7 +106,39 @@ summarizes candidate-vs-promoted artifact states. It does not write reports,
 copy files, or promote artifacts. A ready result means the candidate is ready
 for manual promotion review, not that promotion has happened.
 
-Plan side-by-side container image testing with:
+Create a deterministic container candidate run with:
+
+```bash
+python3 build_topo/scripts/create_container_candidate.py \
+    --trail-root trails/<trail> \
+    --candidate-image cairnos-plan-api:candidate \
+    --candidate-digest sha256:<candidate-image-digest> \
+    --baseline-image cairnos-plan-api:baseline \
+    --baseline-port 3010 \
+    --candidate-port 3011
+```
+
+The create command creates `candidate/<run_id>/` and writes
+`container_candidate_plan.json` inside that run directory. It is intentionally
+non-mutating: it does not run Docker, download source data, compare drift,
+copy artifacts, promote images, or change `compiled/`.
+
+The deterministic candidate lifecycle is:
+
+1. **Create candidate** - create a candidate run directory and save container
+   planning evidence.
+2. **Examine deterministic drift** - compare candidate artifacts and endpoint
+   smoke output against the accepted baseline, then print review evidence.
+3. **Promote accepted candidate** - promote the approved image digest and/or
+   approved artifact set only after human review.
+
+AI-assisted drift investigation is a later advisory layer. It can consume the
+deterministic drift report, search for recent route or facility changes, and
+summarize cited evidence for a reviewer. It should not replace deterministic
+checks or perform promotion directly.
+
+For an already-created candidate root, the lower-level planning command remains
+available:
 
 ```bash
 python3 build_topo/scripts/plan_container_candidate.py \
@@ -115,14 +147,13 @@ python3 build_topo/scripts/plan_container_candidate.py \
     --candidate-digest sha256:<candidate-image-digest> \
     --baseline-image cairnos-plan-api:baseline \
     --baseline-port 3010 \
-    --candidate-port 3011
+    --candidate-port 3011 \
+    --save
 ```
 
-The container candidate command records how to compare a baseline image and a
-candidate image without running Docker, copying artifacts, or changing
-`compiled/`. The promotion target is the immutable image digest, not the
-running container. Running containers are disposable test executions; approved
-image digests and approved candidate artifact sets are promoted separately.
+The promotion target is the immutable image digest, not the running container.
+Running containers are disposable test executions; approved image digests and
+approved candidate artifact sets are promoted separately.
 
 ## Conclusion
 
