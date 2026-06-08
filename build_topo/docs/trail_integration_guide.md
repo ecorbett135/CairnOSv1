@@ -86,7 +86,7 @@ python3 build_topo/scripts/validate_candidate.py \
 The validation command writes reports only inside the candidate directory. It
 does not write to `compiled/`, and a passing report is not automatic promotion.
 
-Check whether the candidate is ready for manual promotion review:
+Check whether the candidate is ready for explicit promotion review:
 
 ```bash
 python3 build_topo/scripts/check_promotion_readiness.py \
@@ -130,13 +130,24 @@ pass `--skip-smoke` for artifact-only review. The command writes only
 `candidate_drift_report.json` inside the candidate directory when `--save` is
 present.
 
-The remaining deterministic slice is promotion after the drift is accepted.
+Promote the accepted candidate after validation passes and the deterministic
+drift has been reviewed:
+
+```bash
+python3 build_topo/scripts/promote_candidate.py \
+    trails/vermont_long_trail/candidate/<run_id> \
+    --accept-drift
+```
+
+The promotion command snapshots the current `compiled/` tree under
+`promotion_snapshots/<promotion_id>/`, copies only candidate-present artifacts
+into `compiled/`, and writes `candidate_promotion_report.json` inside the
+candidate directory. It never deletes promoted files in this slice; artifacts
+that are missing from the candidate are left unchanged. Use `--dry-run` before
+promotion when you want to inspect the copy plan without writing files.
+
 AI-assisted web investigation can be layered in later as reviewer support, but
 it should consume deterministic drift evidence rather than replace it.
-
-Only copy candidate artifacts into `compiled/` after validation passes and the
-diff has been reviewed. Keep existing promoted files recoverable until the new
-candidate has been field-tested or otherwise accepted.
 
 Example:
 
@@ -205,7 +216,7 @@ python3 build_topo/scripts/build_topology.py \
 
 # Compiler Outputs
 
-Compiled datasets will be written to:
+Promoted compiled datasets live under:
 
 ```text
 trails/trail_name/compiled/

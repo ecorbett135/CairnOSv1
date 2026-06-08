@@ -107,7 +107,7 @@ trails/vermont_long_trail/candidate/2026-06-03-build-topo-contracts/
 
 `compiled/` remains the only promoted location. Candidate artifacts may be
 compared against `compiled/`, but they must not replace compiled artifacts
-without an explicit promotion step.
+without the explicit `promote_candidate.py` step.
 
 ## Candidate Data Flow
 
@@ -177,6 +177,20 @@ the deterministic drift report to search for recent closure, reroute, shelter,
 or facility-change evidence, but it should not replace deterministic checks or
 perform promotion.
 
+Future AI drift review should consume:
+
+- previous build topology
+- current build topology
+- normalized drift list
+- known expected drift rules
+- project and app metadata
+- optional web evidence with source URLs and retrieval dates
+
+The agent job is to classify each drift as expected, likely expected,
+suspicious, or unknown/needs review. The review must explain why, cite the
+local fact or web source supporting the claim, call out weak evidence, and
+suggest rule updates without applying them automatically.
+
 ## Validation Model
 
 Validation should answer three questions before promotion:
@@ -205,22 +219,31 @@ Diff-aware validation can mature later:
 
 ## Promotion Model
 
-Promotion should be explicit and reviewable.
-
-The first slice should only define and test the boundary. It does not need to
-implement an automatic promotion command. A later slice can add:
+Promotion should be explicit and reviewable. The deterministic promotion
+command is:
 
 ```bash
-cairn promote-candidate trails/vermont_long_trail/candidate/<run_id>
+python3 build_topo/scripts/promote_candidate.py \
+    trails/vermont_long_trail/candidate/<run_id> \
+    --accept-drift
 ```
 
 Promotion requirements should include:
 
 - candidate validation passes
-- provenance report exists
-- summary diff is reviewed
+- candidate report exists
+- deterministic drift report exists
+- summary drift is reviewed
 - current promoted artifacts are preserved or recoverable
-- generated files are committed intentionally
+- generated files are promoted and committed intentionally
+
+The command snapshots current promoted artifacts under
+`trails/<trail>/promotion_snapshots/<promotion_id>/`, copies only
+candidate-present artifacts into `compiled/`, and writes
+`candidate_promotion_report.json` inside the candidate directory. It never
+deletes promoted files in this slice. If a candidate is missing an artifact
+that exists in `compiled/`, the promoted artifact stays in place and the
+promotion report records the skip.
 
 ## Interaction With Runtime And Planner
 
@@ -262,8 +285,9 @@ new boundary before trusting regenerated trail data.
 - The first buildable slice does not add OSM or TNM download automation.
 - The first buildable slice does not overwrite compiled Long Trail artifacts.
 - Validation can run against candidate output before promotion.
-- The promotion model is explicit and manual until the candidate pipeline earns
-  trust.
+- The promotion model is explicit: accepted candidate artifacts are copied into
+  `compiled/` only through a guarded command that preserves a recoverable
+  snapshot first.
 - SECTION planning is deferred until the topology compiler can reliably produce
   the substrate it needs.
 
@@ -276,3 +300,5 @@ new boundary before trusting regenerated trail data.
 - Which existing generated artifacts should get schema checks first?
 - Should temporary test candidates live under pytest temp directories only, or
   should there be checked-in fixtures under `tests/fixtures/`?
+- Should artifact promotion eventually support explicit deletions, or should
+  missing candidate artifacts always remain no-op skips?

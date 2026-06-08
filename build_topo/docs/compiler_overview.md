@@ -78,8 +78,8 @@ code. Runtime and planner code continue to read only promoted files under:
 trails/<trail>/compiled/
 ```
 
-Promotion is manual. A candidate set must have a manifest, validation report,
-and human review before any promoted file is replaced.
+Promotion is explicit. A candidate set must have a manifest, validation
+report, drift report, and human review before any promoted file is replaced.
 
 Validate a candidate set with:
 
@@ -104,7 +104,7 @@ python3 build_topo/scripts/check_promotion_readiness.py \
 The readiness command reads `candidate_report.json`, prints a checklist, and
 summarizes candidate-vs-promoted artifact states. It does not write reports,
 copy files, or promote artifacts. A ready result means the candidate is ready
-for manual promotion review, not that promotion has happened.
+for explicit promotion review, not that promotion has happened.
 
 Create a deterministic container candidate run with:
 
@@ -129,8 +129,9 @@ The deterministic candidate lifecycle is:
    planning evidence.
 2. **Examine deterministic drift** - compare candidate artifacts and endpoint
    smoke output against the accepted baseline, then print review evidence.
-3. **Promote accepted candidate** - promote the approved image digest and/or
-   approved artifact set only after human review.
+3. **Promote accepted candidate** - after human review, use an explicit
+   promotion command to snapshot current promoted artifacts and copy the
+   approved candidate-present artifact set into `compiled/`.
 
 Examine deterministic drift with:
 
@@ -147,6 +148,24 @@ already running. Use `--skip-smoke` for artifact-only review. The command
 writes `candidate_drift_report.json` only when `--save` is present, and that
 file is written inside the candidate directory only. It never runs Docker,
 downloads source data, copies files into `compiled/`, or promotes images.
+
+Promote an accepted candidate artifact set with:
+
+```bash
+python3 build_topo/scripts/promote_candidate.py \
+    trails/<trail>/candidate/<run_id> \
+    --accept-drift
+```
+
+The promotion command requires `candidate_report.json`,
+`candidate_drift_report.json`, and ready promotion checks. When drift status is
+`review_required`, `--accept-drift` confirms that the deterministic drift has
+been reviewed. The command snapshots current promoted artifacts under
+`trails/<trail>/promotion_snapshots/<promotion_id>/`, copies only
+candidate-present artifacts into `compiled/`, writes
+`candidate_promotion_report.json` inside the candidate directory, and never
+deletes promoted files in this slice. Use `--dry-run` to inspect the promotion
+plan without writing or copying.
 
 AI-assisted drift investigation is a later advisory layer. It can consume the
 deterministic drift report, search for recent route or facility changes, and
@@ -169,7 +188,9 @@ python3 build_topo/scripts/plan_container_candidate.py \
 
 The promotion target is the immutable image digest, not the running container.
 Running containers are disposable test executions; approved image digests and
-approved candidate artifact sets are promoted separately.
+approved candidate artifact sets are promoted separately. Artifact promotion is
+handled by `promote_candidate.py`; image promotion remains a separate release
+decision.
 
 ## Conclusion
 
