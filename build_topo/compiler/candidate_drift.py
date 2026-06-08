@@ -1,6 +1,9 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+import hashlib
 import json
 
 from build_topo.compiler.provenance import repo_relative_path
@@ -223,9 +226,161 @@ def _blocked_report(candidate_root, trail_root, details):
     }
 
 
-def _smoke_tests_from_plan(plan):
+def _canonical_body(payload, content_type):
+    content_type = (
+        content_type
+        if content_type
+        else ""
+    )
+
+    if "json" in content_type:
+        try:
+            return json.dumps(
+                json.loads(
+                    payload.decode(
+                        "utf-8",
+                    )
+                ),
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode(
+                "utf-8"
+            )
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return payload
+
+    return payload
+
+
+def _response_fingerprint(status_code, body, content_type):
+    canonical = _canonical_body(
+        body,
+        content_type,
+    )
+
+    return {
+        "status_code": status_code,
+        "content_type": content_type,
+        "body_sha256": hashlib.sha256(
+            canonical
+        ).hexdigest(),
+        "bytes": len(
+            body
+        ),
+    }
+
+
+def _fetch_fingerprint(url, timeout_seconds):
+    request = Request(
+        url,
+        method="GET",
+    )
+
+    try:
+        with urlopen(
+            request,
+            timeout=timeout_seconds,
+        ) as response:
+            body = response.read()
+            return _response_fingerprint(
+                response.status,
+                body,
+                response.headers.get(
+                    "Content-Type",
+                    "",
+                ),
+            ), None
+    except HTTPError as exc:
+        body = exc.read()
+        return _response_fingerprint(
+            exc.code,
+            body,
+            exc.headers.get(
+                "Content-Type",
+                "",
+            ),
+        ), None
+    except (TimeoutError, URLError, OSError) as exc:
+        return None, str(
+            exc
+        )
+
+
+def compare_smoke_tests(smoke_tests, timeout_seconds=5.0):
+    compared = []
+
+    for item in smoke_tests:
+        baseline, baseline_error = _fetch_fingerprint(
+            item["baseline_url"],
+            timeout_seconds,
+        )
+        candidate, candidate_error = _fetch_fingerprint(
+            item["candidate_url"],
+            timeout_seconds,
+        )
+
+        errors = [
+            error
+            for error in (baseline_error, candidate_error)
+            if error
+        ]
+
+        if errors:
+            status = "failed"
+            matched = None
+            reason = "; ".join(
+                errors
+            )
+        else:
+            matched = baseline == candidate
+            status = (
+                "matched"
+                if matched
+                else "changed"
+            )
+            reason = (
+                "baseline and candidate responses matched"
+                if matched
+                else "baseline and candidate responses differed"
+            )
+
+        compared.append(
+            {
+                "path": item.get(
+                    "path"
+                ),
+                "status": status,
+                "baseline_url": item.get(
+                    "baseline_url"
+                ),
+                "candidate_url": item.get(
+                    "candidate_url"
+                ),
+                "matched": matched,
+                "reason": reason,
+                "baseline": baseline,
+                "candidate": candidate,
+            }
+        )
+
+    return compared
+
+
+def _smoke_tests_from_plan(plan, probe_smoke):
     if plan is None:
         return []
+
+    smoke_tests = list(
+        plan.get(
+            "smoke_tests",
+            [],
+        )
+    )
+
+    if probe_smoke:
+        return compare_smoke_tests(
+            smoke_tests
+        )
 
     return [
         {
@@ -242,10 +397,7 @@ def _smoke_tests_from_plan(plan):
             "matched": None,
             "reason": "smoke probing was not requested",
         }
-        for item in plan.get(
-            "smoke_tests",
-            [],
-        )
+        for item in smoke_tests
     ]
 
 
@@ -381,7 +533,7 @@ def _next_steps(status):
     ]
 
 
-def build_candidate_drift(candidate_root, smoke_tests=None):
+def build_candidate_drift(candidate_root, smoke_tests=None, probe_smoke=False):
     candidate_root = Path(
         candidate_root
     ).resolve()
@@ -418,7 +570,8 @@ def build_candidate_drift(candidate_root, smoke_tests=None):
         list(smoke_tests)
         if smoke_tests is not None
         else _smoke_tests_from_plan(
-            plan
+            plan,
+            probe_smoke,
         )
     )
     blockers = []
