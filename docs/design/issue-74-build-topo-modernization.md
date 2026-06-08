@@ -118,6 +118,7 @@ flowchart TD
     Candidate["candidate/<run_id>/ artifacts"]
     Contracts["contract validation"]
     Provenance["provenance report"]
+    Drift["deterministic drift report"]
     Review["manual review"]
     Promote["explicit promotion"]
     Compiled["compiled/ artifacts"]
@@ -126,8 +127,10 @@ flowchart TD
     Stages --> Candidate
     Candidate --> Contracts
     Candidate --> Provenance
+    Candidate --> Drift
     Contracts --> Review
     Provenance --> Review
+    Drift --> Review
     Review --> Promote
     Promote --> Compiled
 ```
@@ -161,6 +164,18 @@ Candidate metadata should capture enough detail to reproduce and review a run:
 - validation result
 - validation timestamp
 - known warnings
+
+Candidate drift review is deterministic. The review command reads
+`candidate_report.json` and, when available, `container_candidate_plan.json`.
+It prints artifact drift and optional baseline/candidate smoke endpoint drift,
+and writes `candidate_drift_report.json` only inside the candidate directory
+when explicitly requested. It must not write to `compiled/` or decide whether a
+trail update is valid.
+
+AI-assisted drift investigation belongs to a later advisory layer. It can use
+the deterministic drift report to search for recent closure, reroute, shelter,
+or facility-change evidence, but it should not replace deterministic checks or
+perform promotion.
 
 ## Validation Model
 

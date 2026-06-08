@@ -114,11 +114,25 @@ This creates a timestamped `candidate/<run_id>/` directory and writes
 ports, smoke endpoints, Docker run commands, promotion blockers, and the image
 digest under review. It does not run Docker or modify `compiled/`.
 
-The next deterministic slices are separate commands: one to examine candidate
-drift and print review evidence, and one to promote only after the drift is
-accepted. AI-assisted web investigation can be layered in later as reviewer
-support, but it should consume deterministic drift evidence rather than replace
-it.
+After validation produces `candidate_report.json`, examine deterministic drift:
+
+```bash
+python3 build_topo/scripts/examine_candidate_drift.py \
+    trails/vermont_long_trail/candidate/<run_id> \
+    --save
+```
+
+The drift command prints candidate-vs-promoted artifact states and, when
+`container_candidate_plan.json` is present, compares the baseline/candidate
+smoke endpoints recorded by the plan. Start the baseline and candidate
+containers from the plan's Docker commands before running smoke comparison, or
+pass `--skip-smoke` for artifact-only review. The command writes only
+`candidate_drift_report.json` inside the candidate directory when `--save` is
+present.
+
+The remaining deterministic slice is promotion after the drift is accepted.
+AI-assisted web investigation can be layered in later as reviewer support, but
+it should consume deterministic drift evidence rather than replace it.
 
 Only copy candidate artifacts into `compiled/` after validation passes and the
 diff has been reviewed. Keep existing promoted files recoverable until the new
