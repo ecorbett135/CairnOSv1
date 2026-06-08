@@ -227,13 +227,11 @@ def _blocked_report(candidate_root, trail_root, details):
 
 
 def _canonical_body(payload, content_type):
-    content_type = (
+    media_type = _media_type(
         content_type
-        if content_type
-        else ""
     )
 
-    if "json" in content_type:
+    if "json" in media_type:
         try:
             return json.dumps(
                 json.loads(
@@ -252,6 +250,19 @@ def _canonical_body(payload, content_type):
     return payload
 
 
+def _media_type(content_type):
+    return (
+        str(
+            content_type
+            if content_type
+            else ""
+        )
+        .split(";", maxsplit=1)[0]
+        .strip()
+        .lower()
+    )
+
+
 def _response_fingerprint(status_code, body, content_type):
     canonical = _canonical_body(
         body,
@@ -260,7 +271,9 @@ def _response_fingerprint(status_code, body, content_type):
 
     return {
         "status_code": status_code,
-        "content_type": content_type,
+        "content_type": _media_type(
+            content_type
+        ),
         "body_sha256": hashlib.sha256(
             canonical
         ).hexdigest(),

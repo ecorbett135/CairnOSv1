@@ -324,6 +324,7 @@ def test_examine_candidate_drift_cli_compares_smoke_endpoints(tmp_path):
                         "planner": "ok",
                     },
                 },
+                "content_type": "application/json; charset=utf-8",
             },
             "/changed-body": {
                 "status": 200,
