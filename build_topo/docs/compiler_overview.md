@@ -132,6 +132,8 @@ The deterministic candidate lifecycle is:
 3. **Promote accepted candidate** - after human review, use an explicit
    promotion command to snapshot current promoted artifacts and copy the
    approved candidate-present artifact set into `compiled/`.
+4. **Restore from snapshot if needed** - inspect a promotion snapshot and,
+   with explicit apply confirmation, copy snapshot files back into `compiled/`.
 
 Examine deterministic drift with:
 
@@ -166,6 +168,28 @@ candidate-present artifacts into `compiled/`, writes
 `candidate_promotion_report.json` inside the candidate directory, and never
 deletes promoted files in this slice. Use `--dry-run` to inspect the promotion
 plan without writing or copying.
+
+Restore files from a promotion snapshot with:
+
+```bash
+python3 build_topo/scripts/restore_promotion_snapshot.py \
+    trails/<trail>/promotion_snapshots/<promotion_id>
+```
+
+Restore dry-run is the default. It prints the snapshot files that would be
+copied back into `compiled/` and any current compiled files that are not present
+in the snapshot. Apply the restore explicitly with `--apply`:
+
+```bash
+python3 build_topo/scripts/restore_promotion_snapshot.py \
+    trails/<trail>/promotion_snapshots/<promotion_id> \
+    --apply
+```
+
+The restore command copies only files present in the snapshot back into
+`compiled/`, writes `promotion_restore_report.json` inside the snapshot
+directory, and leaves current compiled files that are absent from the snapshot
+unchanged. It does not read or modify candidate evidence.
 
 AI-assisted drift investigation is a later advisory layer. It can consume the
 deterministic drift report, search for recent route or facility changes, and

@@ -245,6 +245,22 @@ deletes promoted files in this slice. If a candidate is missing an artifact
 that exists in `compiled/`, the promoted artifact stays in place and the
 promotion report records the skip.
 
+Promotion snapshots should be restorable through an explicit, reviewable
+command:
+
+```bash
+python3 build_topo/scripts/restore_promotion_snapshot.py \
+    trails/vermont_long_trail/promotion_snapshots/<promotion_id>
+```
+
+Restore is dry-run by default. The command reports snapshot files that would be
+copied back into `compiled/` and current compiled files that are absent from
+the snapshot. Applying the restore requires `--apply`, writes
+`promotion_restore_report.json` inside the snapshot directory, and copies only
+snapshot-present files back into `compiled/`. Current compiled files that are
+not in the snapshot remain unchanged in this slice. Candidate evidence is never
+read or modified by restore.
+
 ## Interaction With Runtime And Planner
 
 `cairn/runtime` and planner code should continue reading promoted compiled
@@ -288,6 +304,8 @@ new boundary before trusting regenerated trail data.
 - The promotion model is explicit: accepted candidate artifacts are copied into
   `compiled/` only through a guarded command that preserves a recoverable
   snapshot first.
+- Promotion snapshots can be inspected and restored through an explicit
+  dry-run-first command.
 - SECTION planning is deferred until the topology compiler can reliably produce
   the substrate it needs.
 
