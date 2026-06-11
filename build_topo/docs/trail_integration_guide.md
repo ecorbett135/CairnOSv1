@@ -146,6 +146,27 @@ candidate directory. It never deletes promoted files in this slice; artifacts
 that are missing from the candidate are left unchanged. Use `--dry-run` before
 promotion when you want to inspect the copy plan without writing files.
 
+Inspect a promotion snapshot restore plan before applying it:
+
+```bash
+python3 build_topo/scripts/restore_promotion_snapshot.py \
+    trails/vermont_long_trail/promotion_snapshots/<promotion_id>
+```
+
+The restore command is dry-run by default. It reports snapshot files that would
+be copied back into `compiled/` and current compiled files that are not present
+in the snapshot. Apply the restore explicitly:
+
+```bash
+python3 build_topo/scripts/restore_promotion_snapshot.py \
+    trails/vermont_long_trail/promotion_snapshots/<promotion_id> \
+    --apply
+```
+
+Apply mode writes `promotion_restore_report.json` inside the snapshot
+directory. The command restores only files present in the snapshot, leaves
+compiled-only files unchanged, and does not read or modify candidate evidence.
+
 AI-assisted web investigation can be layered in later as reviewer support, but
 it should consume deterministic drift evidence rather than replace it.
 
