@@ -269,6 +269,10 @@ def test_committed_plan_json_fixtures_are_mobile_import_ready():
         / "fixtures"
         / "plan_json"
     )
+    expected_fixture_directions = {
+        "nobo_plan_export.json": "NOBO",
+        "sobo_plan_export.json": "SOBO",
+    }
     fixtures = {
         path.name: json.loads(
             path.read_text()
@@ -280,6 +284,16 @@ def test_committed_plan_json_fixtures_are_mobile_import_ready():
         "nobo_plan_export.json",
         "sobo_plan_export.json",
     } <= set(fixtures)
+
+    for filename, expected_direction in (
+        expected_fixture_directions.items()
+    ):
+        assert (
+            fixtures[filename]["planner"][
+                "direction"
+            ]
+            == expected_direction
+        )
 
     directions = {
         payload["planner"]["direction"]
