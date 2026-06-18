@@ -340,6 +340,37 @@ def test_committed_plan_json_fixtures_are_mobile_import_ready():
         assert "Downloads" not in serialized
 
 
+def test_committed_plan_json_fixtures_preserve_mobile_identity_context():
+    fixture_dir = (
+        Path(__file__).parent
+        / "fixtures"
+        / "plan_json"
+    )
+    expected_fixture_directions = {
+        "nobo_plan_export.json": "NOBO",
+        "sobo_plan_export.json": "SOBO",
+    }
+
+    for filename, expected_direction in (
+        expected_fixture_directions.items()
+    ):
+        payload = json.loads(
+            (
+                fixture_dir / filename
+            ).read_text()
+        )
+
+        assert payload["trail_id"] == "vermont_long_trail"
+        assert (
+            payload["user_profile"]["direction"]
+            == expected_direction
+        )
+        assert (
+            payload["user_profile"]["direction"]
+            == payload["planner"]["direction"]
+        )
+
+
 def test_committed_plan_json_fixtures_preserve_direction_contract():
     fixture_dir = (
         Path(__file__).parent
