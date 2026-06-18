@@ -311,6 +311,15 @@ def test_committed_plan_json_fixtures_are_mobile_import_ready():
         assert len(
             payload["daily_plan"]
         ) >= 20
+        for row in payload["daily_plan"]:
+            assert isinstance(
+                row["daily_start_mile"],
+                (int, float),
+            )
+            assert isinstance(
+                row["daily_stop_mile"],
+                (int, float),
+            )
         assert payload["resupply_plan"]
         assert payload["directional_access"]
         assert payload["completion_analysis"].get(
