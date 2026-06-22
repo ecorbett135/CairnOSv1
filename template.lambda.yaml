@@ -22,6 +22,16 @@ Resources:
           Properties:
             Path: /plan
             Method: ANY
+        PlanOptionsApi:
+          Type: Api
+          Properties:
+            Path: /plan/options
+            Method: GET
+        OptionsApi:
+          Type: Api
+          Properties:
+            Path: /options
+            Method: GET
     Metadata:
       Dockerfile: Dockerfile.lambda
       DockerContext: .

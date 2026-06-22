@@ -115,6 +115,18 @@ def test_asgi_app_normalizes_invalid_json():
     assert response.json() == {"error": "invalid_json"}
 
 
+def test_asgi_app_enforces_request_size_limit(monkeypatch):
+    monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "1")
+
+    response = _client().post(
+        "/v1/plans",
+        json={},
+    )
+
+    assert response.status_code == 413
+    assert response.json() == {"error": "request_too_large"}
+
+
 def test_asgi_app_normalizes_method_not_allowed():
     response = _client().get("/v1/plans")
 

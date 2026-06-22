@@ -3,6 +3,7 @@
 
 import base64
 import json
+from pathlib import Path
 
 from cairn.api.plan_request import (
     PlanAPIRequest,
@@ -104,8 +105,8 @@ def test_plan_api_request_defaults_advanced_controls_to_streamlit_defaults():
     config = request.to_planner_config()
 
     assert config["recovery_planning_mode"] == "cadence"
-    assert config["target_zero_days"] == 3
-    assert config["target_nero_days"] == 2
+    assert config["target_zero_days"] == 0
+    assert config["target_nero_days"] == 0
     assert config["min_nero_miles"] == 5.0
     assert config["max_nero_miles"] == 8.0
     assert config["allow_extra_resupply_only"] is True
@@ -114,6 +115,21 @@ def test_plan_api_request_defaults_advanced_controls_to_streamlit_defaults():
     assert config["convenient_resupply_distance_miles"] == 1.0
     assert config["selected_side_trip_ids"] == []
     assert config["selected_town_ids"] == []
+
+
+def test_plan_api_request_defaults_target_counts_mode_to_streamlit_counts():
+    request = PlanAPIRequest.from_payload(
+        {
+            **_valid_plan_api_payload(),
+            "recovery_planning_mode": "target_counts",
+        }
+    )
+
+    config = request.to_planner_config()
+
+    assert config["recovery_planning_mode"] == "target_counts"
+    assert config["target_zero_days"] == 3
+    assert config["target_nero_days"] == 2
 
 
 def test_plan_api_request_rejects_invalid_advanced_controls():
@@ -527,6 +543,13 @@ def test_lambda_handler_returns_plan_options_for_get_options_trailing_slash(
 
     assert response["statusCode"] == 200
     assert _json_response(response)["trail_id"] == "vermont_long_trail"
+
+
+def test_lambda_template_routes_plan_options_paths():
+    template = Path("template.lambda.yaml").read_text(encoding="utf-8")
+
+    assert "Path: /plan/options" in template
+    assert "Path: /options" in template
 
 
 def test_lambda_handler_rejects_get_for_unowned_options_suffix(monkeypatch):

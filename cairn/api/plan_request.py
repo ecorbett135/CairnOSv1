@@ -57,8 +57,8 @@ class PlanAPIRequest:
     resupply_cadence: int
     recovery_cadence: int
     recovery_planning_mode: str = "cadence"
-    target_zero_days: int = 3
-    target_nero_days: int = 2
+    target_zero_days: int = 0
+    target_nero_days: int = 0
     min_nero_miles: float = 5.0
     max_nero_miles: float = 8.0
     allow_extra_resupply_only: bool = True
@@ -159,13 +159,15 @@ class PlanAPIRequest:
             choices=VALID_RECOVERY_PLANNING_MODES,
         )
 
-        target_zero_days = _payload_control_int(
+        target_zero_days = _target_count_value(
             payload,
             "target_zero_days",
+            recovery_planning_mode,
         )
-        target_nero_days = _payload_control_int(
+        target_nero_days = _target_count_value(
             payload,
             "target_nero_days",
+            recovery_planning_mode,
         )
         min_nero_miles = _payload_control_number(
             payload,
@@ -322,6 +324,16 @@ def _payload_control_number(
             f"{field_name} must be between {spec['min']:g} and {spec['max']:g}"
         )
     return parsed
+
+
+def _target_count_value(
+    payload: Mapping[str, Any],
+    field_name: str,
+    recovery_planning_mode: str,
+) -> int:
+    if field_name in payload or recovery_planning_mode == "target_counts":
+        return _payload_control_int(payload, field_name)
+    return 0
 
 
 def _payload_bool(

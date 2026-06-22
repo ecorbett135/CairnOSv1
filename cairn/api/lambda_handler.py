@@ -10,17 +10,16 @@ import json
 import os
 from typing import Any, Mapping
 
+from cairn.api.http_contract import (
+    JSON_HEADERS,
+    max_body_bytes,
+)
 from cairn.api.plan_options import build_plan_options_response
 from cairn.api.plan_request import PlanAPIValidationError
 from cairn.api.plan_service import build_plan_response
 
 
-DEFAULT_MAX_BODY_BYTES = 32768
-HEADERS = {
-    "content-type": "application/json",
-    "cache-control": "no-store",
-    "x-content-type-options": "nosniff",
-}
+HEADERS = JSON_HEADERS
 
 
 def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
@@ -124,15 +123,7 @@ def _body_bytes(event: Mapping[str, Any]) -> bytes:
 
 
 def _max_body_bytes() -> int:
-    try:
-        max_body_bytes = int(
-            os.environ.get("CAIRNOS_API_MAX_BODY_BYTES", DEFAULT_MAX_BODY_BYTES)
-        )
-    except ValueError:
-        return DEFAULT_MAX_BODY_BYTES
-    if max_body_bytes <= 0:
-        return DEFAULT_MAX_BODY_BYTES
-    return max_body_bytes
+    return max_body_bytes()
 
 
 def _json_response(status_code: int, payload: Mapping[str, Any]) -> dict[str, Any]:
