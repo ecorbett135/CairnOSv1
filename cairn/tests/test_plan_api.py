@@ -10,6 +10,7 @@ from cairn.api.plan_request import (
 )
 from cairn.api.plan_options import build_plan_options_response
 import cairn.api.lambda_handler as lambda_handler
+import cairn.api.plan_options as plan_options
 import cairn.api.plan_service as plan_service
 
 
@@ -365,6 +366,28 @@ def _assert_unique_nonempty_option_ids(options):
 
 def _options_by_id(options):
     return {option["id"]: option for option in options}
+
+
+def test_town_options_skip_rows_without_preference_identity(tmp_path):
+    csv_dir = tmp_path / "raw" / "csv"
+    csv_dir.mkdir(parents=True)
+    (csv_dir / "resupply_amenities.csv").write_text(
+        "\n".join(
+            (
+                "canonical_hint,trail_mile,town_access,"
+                "access_distance_miles,resupply_convenience",
+                ",12.3,Missing Hint,0.2,high",
+                "VT 4,,Missing Mile,0.4,medium",
+                "VT 9,99.9,Valid Town,0.8,high",
+            )
+        ),
+        encoding="utf-8",
+    )
+
+    options = plan_options._town_options(tmp_path)
+
+    assert [option["id"] for option in options] == ["VT 9:99.9::Valid Town"]
+    assert options[0]["label"] == "Valid Town - town stop (VT 9)"
 
 
 def test_build_plan_options_response_rejects_non_long_trail():

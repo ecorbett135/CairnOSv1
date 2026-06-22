@@ -75,6 +75,8 @@ def _town_options(trail_root: Path) -> list[dict[str, Any]]:
                 continue
 
             base_id = _town_preference_id(row)
+            if base_id is None:
+                continue
             for town_name in _split_town_access_names(town_access):
                 option_id = f"{base_id}::{town_name}"
                 if not option_id or option_id in seen_ids:
@@ -122,8 +124,12 @@ def _town_label(town_name: str, canonical_hint: str) -> str:
     return f"{town_name} - town stop"
 
 
-def _town_preference_id(row: dict[str, str]) -> str:
-    return f"{_cell(row, 'canonical_hint')}:{_cell(row, 'trail_mile')}"
+def _town_preference_id(row: dict[str, str]) -> str | None:
+    canonical_hint = _cell(row, "canonical_hint")
+    trail_mile = _cell(row, "trail_mile")
+    if not canonical_hint or not trail_mile:
+        return None
+    return f"{canonical_hint}:{trail_mile}"
 
 
 def _split_town_access_names(town_access: str) -> list[str]:
