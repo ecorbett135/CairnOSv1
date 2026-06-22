@@ -54,12 +54,12 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.get("/version")
-    async def version() -> dict[str, str]:
-        return {
-            "service": "cairnos-api",
-            "runtime": "asgi",
-            "build_sha": http_contract.build_sha(),
-        }
+    async def version() -> dict[str, object]:
+        return http_contract.version_summary("asgi")
+
+    @app.get("/runtime")
+    async def runtime() -> dict[str, object]:
+        return http_contract.runtime_state("asgi")
 
     @app.get("/v1/plan-options")
     async def plan_options() -> JSONResponse:

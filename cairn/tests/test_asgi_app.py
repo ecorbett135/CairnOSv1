@@ -16,6 +16,7 @@ def _client():
 
 def test_asgi_app_reports_health_and_version(monkeypatch):
     monkeypatch.setenv("CAIRNOS_BUILD_SHA", "test-sha")
+    monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "12345")
     client = _client()
 
     health = client.get("/health")
@@ -30,7 +31,64 @@ def test_asgi_app_reports_health_and_version(monkeypatch):
         "service": "cairnos-api",
         "runtime": "asgi",
         "build_sha": "test-sha",
+        "api_contract_version": "cairnos_plan_api_v1",
+        "max_body_bytes": 12345,
+        "runtime_diagnostics_path": "/runtime",
     }
+
+
+def test_asgi_app_reports_operator_runtime_state(monkeypatch):
+    monkeypatch.setenv("CAIRNOS_BUILD_SHA", "runtime-sha")
+    monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "2048")
+
+    response = _client().get("/runtime")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["service"] == "cairnos-api"
+    assert payload["runtime"] == "asgi"
+    assert payload["build_sha"] == "runtime-sha"
+    assert payload["api_contract_version"] == "cairnos_plan_api_v1"
+    assert payload["max_body_bytes"] == 2048
+    assert payload["supported_routes"] == [
+        {
+            "method": "GET",
+            "path": "/health",
+            "contract": "operator",
+            "description": "Service health check",
+        },
+        {
+            "method": "GET",
+            "path": "/version",
+            "contract": "operator",
+            "description": "Version summary",
+        },
+        {
+            "method": "GET",
+            "path": "/runtime",
+            "contract": "operator",
+            "description": "Runtime diagnostics",
+        },
+        {
+            "method": "GET",
+            "path": "/v1/plan-options",
+            "contract": "cairnos_plan_api_v1",
+            "description": "Plan option metadata",
+        },
+        {
+            "method": "POST",
+            "path": "/v1/plans",
+            "contract": "cairnos_plan_api_v1",
+            "description": "Plan generation",
+        },
+    ]
+    assert payload["lambda_compatibility_routes"] == [
+        {"method": "POST", "path": "/plan"},
+        {"method": "GET", "path": "/plan/options"},
+        {"method": "GET", "path": "/options"},
+    ]
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["x-content-type-options"] == "nosniff"
 
 
 def test_asgi_app_returns_plan_options_contract():

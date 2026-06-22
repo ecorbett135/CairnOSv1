@@ -18,6 +18,7 @@ POST /v1/plans
 GET /v1/plan-options
 GET /health
 GET /version
+GET /runtime
 ```
 
 The Lambda adapter keeps the current compatibility paths:
@@ -50,6 +51,26 @@ defaults to `32768` bytes.
 The ASGI and Lambda adapters share the same internal HTTP contract for request
 body parsing, size-limit enforcement, route policy, build SHA handling, and
 error normalization.
+
+## Operator Runtime State
+
+The local ASGI service exposes operator-visible runtime metadata:
+
+```text
+GET /version
+GET /runtime
+```
+
+`/version` returns the service name, runtime, build SHA, API contract version,
+current request body limit, and the diagnostics path. `/runtime` returns the
+same identity fields plus the supported ASGI route inventory and Lambda
+compatibility paths.
+
+The API contract version is currently:
+
+```text
+cairnos_plan_api_v1
+```
 
 ## Request
 
@@ -177,6 +198,8 @@ The container exposes:
 
 ```text
 GET http://127.0.0.1:8010/health
+GET http://127.0.0.1:8010/version
+GET http://127.0.0.1:8010/runtime
 GET http://127.0.0.1:8010/v1/plan-options
 POST http://127.0.0.1:8010/v1/plans
 ```
@@ -186,6 +209,7 @@ The initial ASGI paths are:
 ```text
 GET /health
 GET /version
+GET /runtime
 GET /v1/plan-options
 POST /v1/plans
 ```

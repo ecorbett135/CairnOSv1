@@ -16,6 +16,8 @@ from cairn.api.plan_service import build_plan_response
 
 DEFAULT_MAX_BODY_BYTES = 32768
 DEFAULT_BUILD_SHA = "api"
+SERVICE_NAME = "cairnos-api"
+API_CONTRACT_VERSION = "cairnos_plan_api_v1"
 NO_STORE_HEADERS = {
     "cache-control": "no-store",
     "x-content-type-options": "nosniff",
@@ -26,6 +28,43 @@ JSON_HEADERS = {
 }
 PLAN_CREATE_PATHS = {"", "/plan", "/v1/plans"}
 PLAN_OPTIONS_PATHS = {"/options", "/plan/options", "/v1/plan-options"}
+ASGI_SUPPORTED_ROUTES = (
+    {
+        "method": "GET",
+        "path": "/health",
+        "contract": "operator",
+        "description": "Service health check",
+    },
+    {
+        "method": "GET",
+        "path": "/version",
+        "contract": "operator",
+        "description": "Version summary",
+    },
+    {
+        "method": "GET",
+        "path": "/runtime",
+        "contract": "operator",
+        "description": "Runtime diagnostics",
+    },
+    {
+        "method": "GET",
+        "path": "/v1/plan-options",
+        "contract": API_CONTRACT_VERSION,
+        "description": "Plan option metadata",
+    },
+    {
+        "method": "POST",
+        "path": "/v1/plans",
+        "contract": API_CONTRACT_VERSION,
+        "description": "Plan generation",
+    },
+)
+LAMBDA_COMPATIBILITY_ROUTES = (
+    {"method": "POST", "path": "/plan"},
+    {"method": "GET", "path": "/plan/options"},
+    {"method": "GET", "path": "/options"},
+)
 
 
 @dataclass(frozen=True)
@@ -57,6 +96,39 @@ def max_body_bytes() -> int:
 
 def build_sha() -> str:
     return os.environ.get("CAIRNOS_BUILD_SHA", DEFAULT_BUILD_SHA)
+
+
+def version_summary(runtime: str) -> dict[str, Any]:
+    return {
+        "service": SERVICE_NAME,
+        "runtime": runtime,
+        "build_sha": build_sha(),
+        "api_contract_version": API_CONTRACT_VERSION,
+        "max_body_bytes": max_body_bytes(),
+        "runtime_diagnostics_path": "/runtime",
+    }
+
+
+def runtime_state(runtime: str) -> dict[str, Any]:
+    return {
+        "service": SERVICE_NAME,
+        "runtime": runtime,
+        "build_sha": build_sha(),
+        "api_contract_version": API_CONTRACT_VERSION,
+        "max_body_bytes": max_body_bytes(),
+        "supported_routes": supported_routes(runtime),
+        "lambda_compatibility_routes": lambda_compatibility_routes(),
+    }
+
+
+def supported_routes(runtime: str) -> list[dict[str, str]]:
+    if runtime == "asgi":
+        return [dict(route) for route in ASGI_SUPPORTED_ROUTES]
+    return []
+
+
+def lambda_compatibility_routes() -> list[dict[str, str]]:
+    return [dict(route) for route in LAMBDA_COMPATIBILITY_ROUTES]
 
 
 def handle_plan_api_request(
