@@ -58,6 +58,104 @@ def test_plan_api_request_builds_streamlit_equivalent_config():
     assert config["selected_town_ids"] == []
 
 
+def test_plan_api_request_accepts_advanced_streamlit_controls():
+    request = PlanAPIRequest.from_payload(
+        {
+            **_valid_plan_api_payload(),
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 4,
+            "target_nero_days": 3,
+            "min_nero_miles": 4,
+            "max_nero_miles": 9,
+            "allow_extra_resupply_only": False,
+            "avoid_long_food_carry": False,
+            "prefer_bear_box_sites": True,
+            "convenient_resupply_distance_miles": 2.5,
+            "selected_side_trip_ids": ["lawsons_finest_taproom"],
+            "selected_town_ids": ["Mass. 2:-3.8::Williamstown"],
+        }
+    )
+
+    config = request.to_planner_config()
+
+    assert config["recovery_planning_mode"] == "target_counts"
+    assert config["target_zero_days"] == 4
+    assert config["target_nero_days"] == 3
+    assert config["min_nero_miles"] == 4.0
+    assert config["max_nero_miles"] == 9.0
+    assert config["allow_extra_resupply_only"] is False
+    assert config["avoid_long_food_carry"] is False
+    assert config["prefer_bear_box_sites"] is True
+    assert config["convenient_resupply_distance_miles"] == 2.5
+    assert config["selected_side_trip_ids"] == ["lawsons_finest_taproom"]
+    assert config["selected_town_ids"] == ["Mass. 2:-3.8::Williamstown"]
+
+
+def test_plan_api_request_defaults_advanced_controls_to_streamlit_defaults():
+    request = PlanAPIRequest.from_payload(_valid_plan_api_payload())
+
+    config = request.to_planner_config()
+
+    assert config["recovery_planning_mode"] == "cadence"
+    assert config["target_zero_days"] == 3
+    assert config["target_nero_days"] == 2
+    assert config["min_nero_miles"] == 5.0
+    assert config["max_nero_miles"] == 8.0
+    assert config["allow_extra_resupply_only"] is True
+    assert config["avoid_long_food_carry"] is True
+    assert config["prefer_bear_box_sites"] is False
+    assert config["convenient_resupply_distance_miles"] == 1.0
+    assert config["selected_side_trip_ids"] == []
+    assert config["selected_town_ids"] == []
+
+
+def test_plan_api_request_rejects_invalid_advanced_controls():
+    invalid_cases = (
+        ("recovery_planning_mode", "weekly"),
+        ("target_zero_days", -1),
+        ("target_zero_days", 11),
+        ("target_nero_days", -1),
+        ("target_nero_days", 11),
+        ("min_nero_miles", 0),
+        ("min_nero_miles", 11),
+        ("max_nero_miles", 3),
+        ("max_nero_miles", 16),
+        ("allow_extra_resupply_only", "true"),
+        ("avoid_long_food_carry", "false"),
+        ("prefer_bear_box_sites", "yes"),
+        ("convenient_resupply_distance_miles", 0.25),
+        ("convenient_resupply_distance_miles", 5.5),
+        ("selected_side_trip_ids", [123]),
+        ("selected_town_ids", [None]),
+    )
+
+    for field_name, invalid_value in invalid_cases:
+        payload = _valid_plan_api_payload()
+        payload[field_name] = invalid_value
+
+        try:
+            PlanAPIRequest.from_payload(payload)
+        except PlanAPIValidationError as error:
+            assert field_name in str(error)
+        else:
+            raise AssertionError(f"Expected PlanAPIValidationError for {field_name}")
+
+
+def test_plan_api_request_rejects_inverted_nero_range():
+    payload = {
+        **_valid_plan_api_payload(),
+        "min_nero_miles": 9,
+        "max_nero_miles": 6,
+    }
+
+    try:
+        PlanAPIRequest.from_payload(payload)
+    except PlanAPIValidationError as error:
+        assert "max_nero_miles" in str(error)
+    else:
+        raise AssertionError("Expected PlanAPIValidationError")
+
+
 def test_plan_api_request_requires_directional_access_routes():
     payload = _valid_plan_api_payload()
     del payload["ingress_route"]
