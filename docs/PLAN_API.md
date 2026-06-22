@@ -77,6 +77,35 @@ planner/export output for import review and interoperability. It is advisory
 planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
+## Plan Options Contract
+
+The debug and product clients should use CairnOS-owned option metadata rather
+than duplicating Streamlit control values.
+
+```text
+GET /plan/options
+GET /options
+```
+
+Successful options responses return `200` with:
+
+| Field | Purpose |
+| --- | --- |
+| `trail_id` | Current supported trail id, `vermont_long_trail` for the MVP |
+| `status` | `available` when CairnOS can build the option metadata |
+| `control_specs` | Shared slider/select/checkbox specs for Plan API inputs |
+| `side_trip_options` | Validated optional side trip choices |
+| `town_options` | Town preference choices derived from resupply amenities |
+
+`control_specs` entries include stable `id`, user-facing `label`, `input`,
+`value_type`, `default`, and range or choice metadata where applicable. The
+same specs are used by the Streamlit debug UI and should be used by HikerLogix
+web/mobile clients.
+
+Town option ids are emitted only when the source row has both `canonical_hint`
+and `trail_mile`, because the id is part of the planner-facing preference
+contract.
+
 Error responses are narrow and stable:
 
 | Status | Error |

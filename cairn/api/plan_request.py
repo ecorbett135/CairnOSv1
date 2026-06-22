@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from cairn.api.plan_controls import plan_control_spec
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LONG_TRAIL_ROOT = PROJECT_ROOT / "trails" / "vermont_long_trail"
@@ -112,78 +114,66 @@ class PlanAPIRequest:
             VALID_EGRESS_ROUTES_BY_DIRECTION[direction],
         )
 
-        desired_days = _validate_int(payload["desired_days"], "desired_days")
-        if not 3 <= desired_days <= 60:
-            raise PlanAPIValidationError("desired_days must be between 3 and 60")
-
-        min_daily_miles = _validate_number(
-            payload["min_daily_miles"], "min_daily_miles"
-        )
-        max_daily_miles = _validate_number(
-            payload["max_daily_miles"], "max_daily_miles"
-        )
-        max_daily_elevation = _validate_number(
-            payload["max_daily_elevation"], "max_daily_elevation"
+        desired_days = _payload_control_int(
+            payload,
+            "desired_days",
+            required=True,
         )
 
-        if not 4 <= min_daily_miles <= 25:
-            raise PlanAPIValidationError("min_daily_miles must be between 4 and 25")
-        if not 8 <= max_daily_miles <= 40:
-            raise PlanAPIValidationError("max_daily_miles must be between 8 and 40")
-        if not 1000 <= max_daily_elevation <= 10000:
-            raise PlanAPIValidationError(
-                "max_daily_elevation must be between 1000 and 10000"
-            )
+        min_daily_miles = _payload_control_number(
+            payload,
+            "min_daily_miles",
+            required=True,
+        )
+        max_daily_miles = _payload_control_number(
+            payload,
+            "max_daily_miles",
+            required=True,
+        )
+        max_daily_elevation = _payload_control_number(
+            payload,
+            "max_daily_elevation",
+            required=True,
+        )
+
         if max_daily_miles < min_daily_miles:
             raise PlanAPIValidationError(
                 "max_daily_miles must be greater than or equal to min_daily_miles"
             )
 
-        resupply_cadence = _validate_int(
-            payload["resupply_cadence"], "resupply_cadence"
+        resupply_cadence = _payload_control_int(
+            payload,
+            "resupply_cadence",
+            required=True,
         )
-        recovery_cadence = _validate_int(
-            payload["recovery_cadence"], "recovery_cadence"
+        recovery_cadence = _payload_control_int(
+            payload,
+            "recovery_cadence",
+            required=True,
         )
-        if not 2 <= resupply_cadence <= 10:
-            raise PlanAPIValidationError("resupply_cadence must be between 2 and 10")
-        if not 3 <= recovery_cadence <= 14:
-            raise PlanAPIValidationError("recovery_cadence must be between 3 and 14")
 
         recovery_planning_mode = _payload_choice(
             payload,
             "recovery_planning_mode",
-            default="cadence",
+            default=plan_control_spec("recovery_planning_mode")["default"],
             choices=VALID_RECOVERY_PLANNING_MODES,
         )
 
-        target_zero_days = _payload_int(
+        target_zero_days = _payload_control_int(
             payload,
             "target_zero_days",
-            default=3,
-            minimum=0,
-            maximum=10,
         )
-        target_nero_days = _payload_int(
+        target_nero_days = _payload_control_int(
             payload,
             "target_nero_days",
-            default=2,
-            minimum=0,
-            maximum=10,
         )
-        min_nero_miles = _payload_number(
+        min_nero_miles = _payload_control_number(
             payload,
             "min_nero_miles",
-            default=5.0,
-            minimum=1.0,
-            maximum=10.0,
         )
-        max_nero_miles = _payload_number(
+        max_nero_miles = _payload_control_number(
             payload,
             "max_nero_miles",
-            default=8.0,
-            minimum=4.0,
-            maximum=15.0,
         )
         if max_nero_miles < min_nero_miles:
             raise PlanAPIValidationError(
@@ -193,24 +183,18 @@ class PlanAPIRequest:
         allow_extra_resupply_only = _payload_bool(
             payload,
             "allow_extra_resupply_only",
-            default=True,
         )
         avoid_long_food_carry = _payload_bool(
             payload,
             "avoid_long_food_carry",
-            default=True,
         )
         prefer_bear_box_sites = _payload_bool(
             payload,
             "prefer_bear_box_sites",
-            default=False,
         )
-        convenient_resupply_distance_miles = _payload_number(
+        convenient_resupply_distance_miles = _payload_control_number(
             payload,
             "convenient_resupply_distance_miles",
-            default=1.0,
-            minimum=0.5,
-            maximum=5.0,
         )
         selected_side_trip_ids = _payload_string_list(
             payload,
@@ -308,34 +292,34 @@ def _payload_choice(
     return value
 
 
-def _payload_int(
+def _payload_control_int(
     payload: Mapping[str, Any],
     field_name: str,
-    default: int,
-    minimum: int,
-    maximum: int,
+    *,
+    required: bool = False,
 ) -> int:
-    value = payload.get(field_name, default)
+    spec = plan_control_spec(field_name)
+    value = payload[field_name] if required else payload.get(field_name, spec["default"])
     parsed = _validate_int(value, field_name)
-    if not minimum <= parsed <= maximum:
+    if not spec["min"] <= parsed <= spec["max"]:
         raise PlanAPIValidationError(
-            f"{field_name} must be between {minimum} and {maximum}"
+            f"{field_name} must be between {spec['min']:g} and {spec['max']:g}"
         )
     return parsed
 
 
-def _payload_number(
+def _payload_control_number(
     payload: Mapping[str, Any],
     field_name: str,
-    default: float,
-    minimum: float,
-    maximum: float,
+    *,
+    required: bool = False,
 ) -> float:
-    value = payload.get(field_name, default)
+    spec = plan_control_spec(field_name)
+    value = payload[field_name] if required else payload.get(field_name, spec["default"])
     parsed = _validate_number(value, field_name)
-    if not minimum <= parsed <= maximum:
+    if not spec["min"] <= parsed <= spec["max"]:
         raise PlanAPIValidationError(
-            f"{field_name} must be between {minimum:g} and {maximum:g}"
+            f"{field_name} must be between {spec['min']:g} and {spec['max']:g}"
         )
     return parsed
 
@@ -343,9 +327,8 @@ def _payload_number(
 def _payload_bool(
     payload: Mapping[str, Any],
     field_name: str,
-    default: bool,
 ) -> bool:
-    value = payload.get(field_name, default)
+    value = payload.get(field_name, plan_control_spec(field_name)["default"])
     if not isinstance(value, bool):
         raise PlanAPIValidationError(f"{field_name} must be a boolean")
     return value

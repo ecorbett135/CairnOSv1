@@ -8,6 +8,7 @@ import csv
 from pathlib import Path
 from typing import Any
 
+from cairn.api.plan_controls import build_plan_control_specs_response
 from cairn.api.plan_request import (
     LONG_TRAIL_ID,
     LONG_TRAIL_ROOT,
@@ -24,12 +25,13 @@ def build_plan_options_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, Any]
     return {
         "trail_id": trail_id,
         "status": "available",
-        "side_trip_options": _side_trip_options(LONG_TRAIL_ROOT),
-        "town_options": _town_options(LONG_TRAIL_ROOT),
+        "control_specs": build_plan_control_specs_response(),
+        "side_trip_options": build_side_trip_options(LONG_TRAIL_ROOT),
+        "town_options": build_town_options(LONG_TRAIL_ROOT),
     }
 
 
-def _side_trip_options(trail_root: Path) -> list[dict[str, Any]]:
+def build_side_trip_options(trail_root: Path) -> list[dict[str, Any]]:
     path = trail_root / "raw" / "csv" / "side_trip_options.csv"
     if not path.exists():
         return []
@@ -60,7 +62,7 @@ def _side_trip_options(trail_root: Path) -> list[dict[str, Any]]:
     return options
 
 
-def _town_options(trail_root: Path) -> list[dict[str, Any]]:
+def build_town_options(trail_root: Path) -> list[dict[str, Any]]:
     path = trail_root / "raw" / "csv" / "resupply_amenities.csv"
     if not path.exists():
         return []
@@ -138,3 +140,7 @@ def _split_town_access_names(town_access: str) -> list[str]:
 
 def _cell(row: dict[str, str], key: str) -> str:
     return (row.get(key) or "").strip()
+
+
+_side_trip_options = build_side_trip_options
+_town_options = build_town_options

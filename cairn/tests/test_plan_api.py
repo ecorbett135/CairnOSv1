@@ -316,6 +316,7 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
 
     assert payload["trail_id"] == "vermont_long_trail"
     assert payload["status"] == "available"
+    assert payload["control_specs"]
     assert payload["side_trip_options"]
     assert payload["town_options"]
 
@@ -355,6 +356,51 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
         "access_distance_miles",
         "resupply_convenience",
     }.issubset(payload["town_options"][0])
+
+
+def test_build_plan_options_response_returns_streamlit_control_specs():
+    payload = build_plan_options_response("vermont_long_trail")
+
+    controls = _options_by_id(payload["control_specs"])
+
+    assert controls["desired_days"] == {
+        "id": "desired_days",
+        "label": "Desired Completion Days",
+        "input": "slider",
+        "value_type": "integer",
+        "min": 3,
+        "max": 60,
+        "default": 28,
+        "step": 1,
+    }
+    assert controls["recovery_planning_mode"] == {
+        "id": "recovery_planning_mode",
+        "label": "Recovery Planning Mode",
+        "input": "select",
+        "value_type": "string",
+        "default": "cadence",
+        "choices": [
+            {"value": "cadence", "label": "Cadence"},
+            {"value": "target_counts", "label": "Target Counts"},
+        ],
+    }
+    assert controls["avoid_long_food_carry"] == {
+        "id": "avoid_long_food_carry",
+        "label": "Avoid Long Food Carry",
+        "input": "checkbox",
+        "value_type": "boolean",
+        "default": True,
+    }
+    assert controls["convenient_resupply_distance_miles"] == {
+        "id": "convenient_resupply_distance_miles",
+        "label": "Convenient Resupply-Only Access (miles)",
+        "input": "slider",
+        "value_type": "number",
+        "min": 0.5,
+        "max": 5.0,
+        "default": 1.0,
+        "step": 0.5,
+    }
 
 
 def _assert_unique_nonempty_option_ids(options):
