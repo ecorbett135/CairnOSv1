@@ -317,6 +317,28 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     assert payload["status"] == "available"
     assert payload["side_trip_options"]
     assert payload["town_options"]
+
+    _assert_unique_nonempty_option_ids(payload["side_trip_options"])
+    _assert_unique_nonempty_option_ids(payload["town_options"])
+
+    side_trips = _options_by_id(payload["side_trip_options"])
+    assert side_trips["lawsons_finest_taproom"]["label"] == (
+        "Lawson's Finest Taproom - Waitsfield (half-day)"
+    )
+    assert side_trips["lawsons_finest_taproom"]["town_access"] == "Waitsfield"
+    assert side_trips["lawsons_finest_taproom"]["category"] == "brewery"
+    assert side_trips["lawsons_finest_taproom"]["estimated_time"] == "half-day"
+
+    towns = _options_by_id(payload["town_options"])
+    assert towns["Mass. 2:-3.8::Williamstown"]["label"] == (
+        "Williamstown - town stop (Mass. 2)"
+    )
+    assert towns["Mass. 2:-3.8::Williamstown"]["town_name"] == "Williamstown"
+    assert towns["Mass. 2:-3.8::North Adams"]["label"] == (
+        "North Adams - town stop (Mass. 2)"
+    )
+    assert towns["Mass. 2:-3.8::North Adams"]["town_name"] == "North Adams"
+
     assert {
         "id",
         "label",
@@ -334,6 +356,17 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     }.issubset(payload["town_options"][0])
 
 
+def _assert_unique_nonempty_option_ids(options):
+    ids = [option["id"] for option in options]
+
+    assert all(isinstance(option_id, str) and option_id for option_id in ids)
+    assert len(ids) == len(set(ids))
+
+
+def _options_by_id(options):
+    return {option["id"]: option for option in options}
+
+
 def test_build_plan_options_response_rejects_non_long_trail():
     try:
         build_plan_options_response("custom")
@@ -348,6 +381,18 @@ def _lambda_event(method="POST", body=None, *, is_base64_encoded=False):
         "requestContext": {"http": {"method": method}},
         "body": body,
         "isBase64Encoded": is_base64_encoded,
+    }
+
+
+def _lambda_get_event(path):
+    return {
+        "requestContext": {
+            "http": {
+                "method": "GET",
+                "path": path,
+            }
+        },
+        "rawPath": path,
     }
 
 
@@ -384,23 +429,71 @@ def test_lambda_handler_returns_plan_options_for_get_options(monkeypatch):
         stub_build_plan_options_response,
     )
 
-    response = lambda_handler.handler(
-        {
-            "requestContext": {
-                "http": {
-                    "method": "GET",
-                    "path": "/plan/options",
-                }
-            },
-            "rawPath": "/plan/options",
-        },
-        None,
-    )
+    response = lambda_handler.handler(_lambda_get_event("/plan/options"), None)
 
     assert response["statusCode"] == 200
     payload = _json_response(response)
     assert payload["trail_id"] == "vermont_long_trail"
     assert payload["side_trip_options"][0]["id"] == "lawsons_finest_taproom"
+
+
+def test_lambda_handler_returns_plan_options_for_get_options_trailing_slash(
+    monkeypatch,
+):
+    def stub_build_plan_options_response(trail_id="vermont_long_trail"):
+        return {
+            "trail_id": trail_id,
+            "status": "available",
+            "side_trip_options": [{"id": "lawsons_finest_taproom"}],
+            "town_options": [{"id": "Mass. 2:-3.8::Williamstown"}],
+        }
+
+    monkeypatch.setattr(
+        lambda_handler,
+        "build_plan_options_response",
+        stub_build_plan_options_response,
+    )
+
+    response = lambda_handler.handler(_lambda_get_event("/plan/options/"), None)
+
+    assert response["statusCode"] == 200
+    assert _json_response(response)["trail_id"] == "vermont_long_trail"
+
+
+def test_lambda_handler_rejects_get_for_unowned_options_suffix(monkeypatch):
+    def fail_if_called(trail_id="vermont_long_trail"):
+        raise AssertionError("Unexpected options builder call")
+
+    monkeypatch.setattr(
+        lambda_handler,
+        "build_plan_options_response",
+        fail_if_called,
+    )
+
+    response = lambda_handler.handler(_lambda_get_event("/v1/options"), None)
+
+    assert response["statusCode"] == 405
+    assert _json_response(response)["error"] == "method_not_allowed"
+
+
+def test_lambda_handler_maps_unexpected_plan_options_errors_without_leaking_details(
+    monkeypatch,
+):
+    def fail_options(trail_id="vermont_long_trail"):
+        raise RuntimeError("private options traceback")
+
+    monkeypatch.setattr(
+        lambda_handler,
+        "build_plan_options_response",
+        fail_options,
+    )
+
+    response = lambda_handler.handler(_lambda_get_event("/plan/options"), None)
+
+    assert response["statusCode"] == 500
+    payload = _json_response(response)
+    assert payload == {"error": "internal_error"}
+    assert "private options traceback" not in response["body"]
 
 
 def test_lambda_handler_rejects_invalid_json_post():

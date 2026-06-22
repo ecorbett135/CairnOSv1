@@ -35,24 +35,26 @@ def _side_trip_options(trail_root: Path) -> list[dict[str, Any]]:
         return []
 
     options: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
-            if row.get("validation_status", "").strip().casefold() != "validated":
+            if _cell(row, "validation_status").casefold() != "validated":
                 continue
 
-            option_id = row.get("side_trip_id", "").strip()
-            if not option_id:
+            option_id = _cell(row, "side_trip_id")
+            if not option_id or option_id in seen_ids:
                 continue
 
+            seen_ids.add(option_id)
             label = _side_trip_label(row)
             options.append(
                 {
                     "id": option_id,
                     "label": label,
-                    "town_access": row.get("town_access", "").strip(),
-                    "category": row.get("category", "").strip(),
-                    "estimated_time": row.get("estimated_time", "").strip(),
+                    "town_access": _cell(row, "town_access"),
+                    "category": _cell(row, "category"),
+                    "estimated_time": _cell(row, "estimated_time"),
                 }
             )
     return options
@@ -64,40 +66,45 @@ def _town_options(trail_root: Path) -> list[dict[str, Any]]:
         return []
 
     options: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
-            town_access = row.get("town_access", "")
+            town_access = _cell(row, "town_access")
             if not town_access:
                 continue
 
             base_id = _town_preference_id(row)
             for town_name in _split_town_access_names(town_access):
                 option_id = f"{base_id}::{town_name}"
-                canonical_hint = row.get("canonical_hint", "").strip()
+                if not option_id or option_id in seen_ids:
+                    continue
+
+                seen_ids.add(option_id)
+                canonical_hint = _cell(row, "canonical_hint")
                 options.append(
                     {
                         "id": option_id,
                         "label": _town_label(town_name, canonical_hint),
                         "town_name": town_name,
                         "canonical_hint": canonical_hint,
-                        "access_distance_miles": row.get(
+                        "access_distance_miles": _cell(
+                            row,
                             "access_distance_miles",
-                            "",
-                        ).strip(),
-                        "resupply_convenience": row.get(
+                        ),
+                        "resupply_convenience": _cell(
+                            row,
                             "resupply_convenience",
-                            "",
-                        ).strip(),
+                        ),
                     }
                 )
     return options
 
 
 def _side_trip_label(row: dict[str, str]) -> str:
-    town_access = row.get("town_access", "").strip()
-    name = row.get("name", "").strip()
-    estimated_time = row.get("estimated_time", "").strip()
+    town_access = _cell(row, "town_access")
+    name = _cell(row, "name")
+    estimated_time = _cell(row, "estimated_time")
 
     if town_access and name:
         label = f"{name} - {town_access}"
@@ -116,8 +123,12 @@ def _town_label(town_name: str, canonical_hint: str) -> str:
 
 
 def _town_preference_id(row: dict[str, str]) -> str:
-    return f"{row.get('canonical_hint', '')}:{row.get('trail_mile', '')}"
+    return f"{_cell(row, 'canonical_hint')}:{_cell(row, 'trail_mile')}"
 
 
 def _split_town_access_names(town_access: str) -> list[str]:
     return [name.strip() for name in town_access.split("/") if name.strip()]
+
+
+def _cell(row: dict[str, str], key: str) -> str:
+    return (row.get(key) or "").strip()

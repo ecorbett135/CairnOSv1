@@ -25,7 +25,7 @@ HEADERS = {
 
 def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
     """Handle an API Gateway proxy event."""
-    if _method(event) == "GET" and _path(event).endswith("/options"):
+    if _method(event) == "GET" and _is_options_path(_path(event)):
         try:
             return _json_response(200, build_plan_options_response())
         except PlanAPIValidationError as error:
@@ -33,6 +33,8 @@ def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
                 400,
                 {"error": "validation_error", "message": str(error)},
             )
+        except Exception:
+            return _json_response(500, {"error": "internal_error"})
 
     if _method(event) != "POST":
         return _json_response(405, {"error": "method_not_allowed"})
@@ -102,6 +104,10 @@ def _path(event: Mapping[str, Any]) -> str:
                 return path_value
 
     return ""
+
+
+def _is_options_path(path: str) -> bool:
+    return path.rstrip("/") in {"/options", "/plan/options"}
 
 
 def _body_bytes(event: Mapping[str, Any]) -> bytes:
