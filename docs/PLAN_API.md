@@ -163,6 +163,20 @@ Run the local ASGI app:
 venv/bin/uvicorn cairn.api.asgi_app:app --reload --host 127.0.0.1 --port 8010
 ```
 
+Run the local Docker Desktop ASGI service:
+
+```bash
+docker compose up --build cairnos-api
+```
+
+The container exposes:
+
+```text
+GET http://127.0.0.1:8010/health
+GET http://127.0.0.1:8010/v1/plan-options
+POST http://127.0.0.1:8010/v1/plans
+```
+
 The initial ASGI paths are:
 
 ```text

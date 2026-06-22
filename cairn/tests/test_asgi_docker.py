@@ -1,0 +1,45 @@
+# Copyright 2026 Eric Corbett
+# SPDX-License-Identifier: Apache-2.0
+
+from pathlib import Path
+
+
+def test_asgi_dockerfile_uses_narrow_api_requirements():
+    dockerfile = Path("Dockerfile.asgi").read_text(encoding="utf-8")
+
+    assert "requirements.api.txt" in dockerfile
+    assert "requirements.txt" not in dockerfile
+    assert "cairn.api.asgi_app:app" in dockerfile
+    assert "--host" in dockerfile
+    assert "0.0.0.0" in dockerfile
+    assert "--port" in dockerfile
+    assert "8010" in dockerfile
+
+
+def test_asgi_requirements_are_container_scoped():
+    requirements = Path("requirements.api.txt").read_text(encoding="utf-8")
+
+    assert "fastapi" in requirements
+    assert "uvicorn" in requirements
+    assert "geopandas" not in requirements
+    assert "rasterio" not in requirements
+    assert "streamlit" not in requirements
+
+
+def test_compose_exposes_local_cairnos_api_service():
+    compose = Path("compose.yaml").read_text(encoding="utf-8")
+
+    assert "cairnos-api:" in compose
+    assert "Dockerfile.asgi" in compose
+    assert '"8010:8010"' in compose
+    assert "CAIRNOS_API_MAX_BODY_BYTES" in compose
+    assert "CAIRNOS_BUILD_SHA" in compose
+    assert "http://127.0.0.1:8010/health" in compose
+
+
+def test_plan_api_docs_include_docker_desktop_run_command():
+    docs = Path("docs/PLAN_API.md").read_text(encoding="utf-8")
+
+    assert "docker compose up --build cairnos-api" in docs
+    assert "http://127.0.0.1:8010/health" in docs
+    assert "http://127.0.0.1:8010/v1/plan-options" in docs
