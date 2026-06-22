@@ -15,6 +15,7 @@ LONG_TRAIL_ROOT = PROJECT_ROOT / "trails" / "vermont_long_trail"
 
 LONG_TRAIL_ID = "vermont_long_trail"
 VALID_DIRECTIONS = {"NOBO", "SOBO"}
+VALID_RECOVERY_PLANNING_MODES = {"cadence", "target_counts"}
 VALID_INGRESS_ROUTES_BY_DIRECTION = {
     "NOBO": {
         "Williamstown Approach",
@@ -149,11 +150,12 @@ class PlanAPIRequest:
         if not 3 <= recovery_cadence <= 14:
             raise PlanAPIValidationError("recovery_cadence must be between 3 and 14")
 
-        recovery_planning_mode = payload.get("recovery_planning_mode", "cadence")
-        if recovery_planning_mode not in {"cadence", "target_counts"}:
-            raise PlanAPIValidationError(
-                "recovery_planning_mode must be one of: cadence, target_counts"
-            )
+        recovery_planning_mode = _payload_choice(
+            payload,
+            "recovery_planning_mode",
+            default="cadence",
+            choices=VALID_RECOVERY_PLANNING_MODES,
+        )
 
         target_zero_days = _payload_int(
             payload,
@@ -290,6 +292,19 @@ def _validate_number(value: Any, field_name: str) -> float:
         raise PlanAPIValidationError(f"{field_name} must be a number")
     if not math.isfinite(value):
         raise PlanAPIValidationError(f"{field_name} must be a finite number")
+    return float(value)
+
+
+def _payload_choice(
+    payload: Mapping[str, Any],
+    field_name: str,
+    default: str,
+    choices: set[str],
+) -> str:
+    value = payload.get(field_name, default)
+    if not isinstance(value, str) or value not in choices:
+        allowed = ", ".join(sorted(choices))
+        raise PlanAPIValidationError(f"{field_name} must be one of: {allowed}")
     return value
 
 

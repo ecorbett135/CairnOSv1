@@ -89,6 +89,11 @@ def test_plan_api_request_accepts_advanced_streamlit_controls():
     assert config["convenient_resupply_distance_miles"] == 2.5
     assert config["selected_side_trip_ids"] == ["lawsons_finest_taproom"]
     assert config["selected_town_ids"] == ["Mass. 2:-3.8::Williamstown"]
+    assert type(request.min_daily_miles) is float
+    assert type(request.max_daily_miles) is float
+    assert type(request.max_daily_elevation) is float
+    assert type(request.min_nero_miles) is float
+    assert type(request.max_nero_miles) is float
 
 
 def test_plan_api_request_defaults_advanced_controls_to_streamlit_defaults():
@@ -112,6 +117,8 @@ def test_plan_api_request_defaults_advanced_controls_to_streamlit_defaults():
 def test_plan_api_request_rejects_invalid_advanced_controls():
     invalid_cases = (
         ("recovery_planning_mode", "weekly"),
+        ("recovery_planning_mode", ["cadence"]),
+        ("recovery_planning_mode", {"mode": "cadence"}),
         ("target_zero_days", -1),
         ("target_zero_days", 11),
         ("target_nero_days", -1),
