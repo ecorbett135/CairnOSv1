@@ -53,6 +53,17 @@ class PlanAPIRequest:
     max_daily_elevation: float
     resupply_cadence: int
     recovery_cadence: int
+    recovery_planning_mode: str = "cadence"
+    target_zero_days: int = 3
+    target_nero_days: int = 2
+    min_nero_miles: float = 5.0
+    max_nero_miles: float = 8.0
+    allow_extra_resupply_only: bool = True
+    avoid_long_food_carry: bool = True
+    prefer_bear_box_sites: bool = False
+    convenient_resupply_distance_miles: float = 1.0
+    selected_side_trip_ids: tuple[str, ...] = ()
+    selected_town_ids: tuple[str, ...] = ()
     planned_start_date: str | None = None
 
     @classmethod
@@ -138,6 +149,76 @@ class PlanAPIRequest:
         if not 3 <= recovery_cadence <= 14:
             raise PlanAPIValidationError("recovery_cadence must be between 3 and 14")
 
+        recovery_planning_mode = payload.get("recovery_planning_mode", "cadence")
+        if recovery_planning_mode not in {"cadence", "target_counts"}:
+            raise PlanAPIValidationError(
+                "recovery_planning_mode must be one of: cadence, target_counts"
+            )
+
+        target_zero_days = _payload_int(
+            payload,
+            "target_zero_days",
+            default=3,
+            minimum=0,
+            maximum=10,
+        )
+        target_nero_days = _payload_int(
+            payload,
+            "target_nero_days",
+            default=2,
+            minimum=0,
+            maximum=10,
+        )
+        min_nero_miles = _payload_number(
+            payload,
+            "min_nero_miles",
+            default=5.0,
+            minimum=1.0,
+            maximum=10.0,
+        )
+        max_nero_miles = _payload_number(
+            payload,
+            "max_nero_miles",
+            default=8.0,
+            minimum=4.0,
+            maximum=15.0,
+        )
+        if max_nero_miles < min_nero_miles:
+            raise PlanAPIValidationError(
+                "max_nero_miles must be greater than or equal to min_nero_miles"
+            )
+
+        allow_extra_resupply_only = _payload_bool(
+            payload,
+            "allow_extra_resupply_only",
+            default=True,
+        )
+        avoid_long_food_carry = _payload_bool(
+            payload,
+            "avoid_long_food_carry",
+            default=True,
+        )
+        prefer_bear_box_sites = _payload_bool(
+            payload,
+            "prefer_bear_box_sites",
+            default=False,
+        )
+        convenient_resupply_distance_miles = _payload_number(
+            payload,
+            "convenient_resupply_distance_miles",
+            default=1.0,
+            minimum=0.5,
+            maximum=5.0,
+        )
+        selected_side_trip_ids = _payload_string_list(
+            payload,
+            "selected_side_trip_ids",
+        )
+        selected_town_ids = _payload_string_list(
+            payload,
+            "selected_town_ids",
+        )
+
         planned_start_date = payload.get("planned_start_date")
         if planned_start_date is not None and not isinstance(planned_start_date, str):
             raise PlanAPIValidationError("planned_start_date must be a string")
@@ -153,6 +234,17 @@ class PlanAPIRequest:
             max_daily_elevation=max_daily_elevation,
             resupply_cadence=resupply_cadence,
             recovery_cadence=recovery_cadence,
+            recovery_planning_mode=recovery_planning_mode,
+            target_zero_days=target_zero_days,
+            target_nero_days=target_nero_days,
+            min_nero_miles=min_nero_miles,
+            max_nero_miles=max_nero_miles,
+            allow_extra_resupply_only=allow_extra_resupply_only,
+            avoid_long_food_carry=avoid_long_food_carry,
+            prefer_bear_box_sites=prefer_bear_box_sites,
+            convenient_resupply_distance_miles=convenient_resupply_distance_miles,
+            selected_side_trip_ids=selected_side_trip_ids,
+            selected_town_ids=selected_town_ids,
             planned_start_date=planned_start_date,
         )
 
@@ -168,17 +260,19 @@ class PlanAPIRequest:
             "max_daily_elevation": self.max_daily_elevation,
             "resupply_cadence": self.resupply_cadence,
             "recovery_cadence": self.recovery_cadence,
-            "recovery_planning_mode": "cadence",
-            "target_zero_days": 0,
-            "target_nero_days": 0,
-            "min_nero_miles": 5.0,
-            "max_nero_miles": 8.0,
-            "allow_extra_resupply_only": True,
-            "avoid_long_food_carry": True,
-            "prefer_bear_box_sites": False,
-            "selected_side_trip_ids": [],
-            "selected_town_ids": [],
-            "convenient_resupply_distance_miles": 1.0,
+            "recovery_planning_mode": self.recovery_planning_mode,
+            "target_zero_days": self.target_zero_days,
+            "target_nero_days": self.target_nero_days,
+            "min_nero_miles": self.min_nero_miles,
+            "max_nero_miles": self.max_nero_miles,
+            "allow_extra_resupply_only": self.allow_extra_resupply_only,
+            "avoid_long_food_carry": self.avoid_long_food_carry,
+            "prefer_bear_box_sites": self.prefer_bear_box_sites,
+            "selected_side_trip_ids": list(self.selected_side_trip_ids),
+            "selected_town_ids": list(self.selected_town_ids),
+            "convenient_resupply_distance_miles": (
+                self.convenient_resupply_distance_miles
+            ),
             "ingress_route": self.ingress_route,
             "egress_route": self.egress_route,
             "start_date": self.planned_start_date,
@@ -197,6 +291,65 @@ def _validate_number(value: Any, field_name: str) -> float:
     if not math.isfinite(value):
         raise PlanAPIValidationError(f"{field_name} must be a finite number")
     return value
+
+
+def _payload_int(
+    payload: Mapping[str, Any],
+    field_name: str,
+    default: int,
+    minimum: int,
+    maximum: int,
+) -> int:
+    value = payload.get(field_name, default)
+    parsed = _validate_int(value, field_name)
+    if not minimum <= parsed <= maximum:
+        raise PlanAPIValidationError(
+            f"{field_name} must be between {minimum} and {maximum}"
+        )
+    return parsed
+
+
+def _payload_number(
+    payload: Mapping[str, Any],
+    field_name: str,
+    default: float,
+    minimum: float,
+    maximum: float,
+) -> float:
+    value = payload.get(field_name, default)
+    parsed = _validate_number(value, field_name)
+    if not minimum <= parsed <= maximum:
+        raise PlanAPIValidationError(
+            f"{field_name} must be between {minimum:g} and {maximum:g}"
+        )
+    return parsed
+
+
+def _payload_bool(
+    payload: Mapping[str, Any],
+    field_name: str,
+    default: bool,
+) -> bool:
+    value = payload.get(field_name, default)
+    if not isinstance(value, bool):
+        raise PlanAPIValidationError(f"{field_name} must be a boolean")
+    return value
+
+
+def _payload_string_list(
+    payload: Mapping[str, Any],
+    field_name: str,
+) -> tuple[str, ...]:
+    value = payload.get(field_name, [])
+    if not isinstance(value, list):
+        raise PlanAPIValidationError(f"{field_name} must be a list of strings")
+
+    selected_ids: list[str] = []
+    for item in value:
+        if not isinstance(item, str) or not item.strip():
+            raise PlanAPIValidationError(f"{field_name} must be a list of strings")
+        selected_ids.append(item.strip())
+    return tuple(selected_ids)
 
 
 def _validate_route_name(value: Any, field_name: str) -> str:
