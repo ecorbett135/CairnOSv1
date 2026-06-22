@@ -10,64 +10,33 @@ import json
 import os
 from typing import Any, Mapping
 
-from cairn.api.http_contract import (
-    JSON_HEADERS,
-    max_body_bytes,
-)
-from cairn.api.plan_options import build_plan_options_response
-from cairn.api.plan_request import PlanAPIValidationError
-from cairn.api.plan_service import build_plan_response
-
-
-HEADERS = JSON_HEADERS
+from cairn.api import http_contract
 
 
 def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
     """Handle an API Gateway proxy event."""
-    if _method(event) == "GET" and _is_options_path(_path(event)):
+    method = _method(event)
+    path = _path(event)
+
+    if http_contract.request_uses_body(method, path):
         try:
-            return _json_response(200, build_plan_options_response())
-        except PlanAPIValidationError as error:
-            return _json_response(
-                400,
-                {"error": "validation_error", "message": str(error)},
-            )
-        except Exception:
-            return _json_response(500, {"error": "internal_error"})
+            body_bytes = _body_bytes(event)
+        except (binascii.Error, ValueError):
+            return _json_response(http_contract.invalid_json_response())
+    else:
+        body_bytes = b""
 
-    if _method(event) != "POST":
-        return _json_response(405, {"error": "method_not_allowed"})
-
-    try:
-        body_bytes = _body_bytes(event)
-    except (binascii.Error, ValueError):
-        return _json_response(400, {"error": "invalid_json"})
-
-    if len(body_bytes) > _max_body_bytes():
-        return _json_response(413, {"error": "request_too_large"})
-
-    try:
-        payload = json.loads(body_bytes.decode("utf-8"))
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return _json_response(400, {"error": "invalid_json"})
-
-    if not isinstance(payload, dict):
-        return _json_response(400, {"error": "invalid_json"})
-
-    try:
-        plan_payload = build_plan_response(
-            payload,
-            build_sha=os.environ.get("CAIRNOS_BUILD_SHA", "api"),
+    return _json_response(
+        http_contract.handle_plan_api_request(
+            method,
+            path,
+            body_bytes,
+            request_build_sha=os.environ.get(
+                "CAIRNOS_BUILD_SHA",
+                http_contract.DEFAULT_BUILD_SHA,
+            ),
         )
-    except PlanAPIValidationError as error:
-        return _json_response(
-            400,
-            {"error": "validation_error", "message": str(error)},
-        )
-    except Exception:
-        return _json_response(500, {"error": "internal_error"})
-
-    return _json_response(200, plan_payload)
+    )
 
 
 def _method(event: Mapping[str, Any]) -> str | None:
@@ -105,10 +74,6 @@ def _path(event: Mapping[str, Any]) -> str:
     return ""
 
 
-def _is_options_path(path: str) -> bool:
-    return path.rstrip("/") in {"/options", "/plan/options"}
-
-
 def _body_bytes(event: Mapping[str, Any]) -> bytes:
     body = event.get("body")
     if body is None:
@@ -122,13 +87,9 @@ def _body_bytes(event: Mapping[str, Any]) -> bytes:
     return body_bytes
 
 
-def _max_body_bytes() -> int:
-    return max_body_bytes()
-
-
-def _json_response(status_code: int, payload: Mapping[str, Any]) -> dict[str, Any]:
+def _json_response(response: http_contract.HTTPContractResponse) -> dict[str, Any]:
     return {
-        "statusCode": status_code,
-        "headers": HEADERS,
-        "body": json.dumps(payload, separators=(",", ":"), sort_keys=True),
+        "statusCode": response.status_code,
+        "headers": dict(response.headers),
+        "body": json.dumps(response.payload, separators=(",", ":"), sort_keys=True),
     }

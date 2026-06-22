@@ -47,6 +47,10 @@ x-content-type-options: nosniff
 The request body limit is controlled by `CAIRNOS_API_MAX_BODY_BYTES` and
 defaults to `32768` bytes.
 
+The ASGI and Lambda adapters share the same internal HTTP contract for request
+body parsing, size-limit enforcement, route policy, build SHA handling, and
+error normalization.
+
 ## Request
 
 The body must be a JSON object with the MVP Long Trail planning fields:
@@ -210,7 +214,7 @@ build tooling that is intentionally absent from the minimal Lambda base image.
 runtime path uses the Python standard library plus repository CairnOS modules:
 
 ```text
-cairn.api.lambda_handler -> cairn.api.plan_service -> PlannerV2 -> plan_json
+cairn.api.lambda_handler -> cairn.api.http_contract -> cairn.api.plan_service -> PlannerV2 -> plan_json
 ```
 
 Runtime environment variables:

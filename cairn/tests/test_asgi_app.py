@@ -4,6 +4,7 @@
 from fastapi.testclient import TestClient
 
 import cairn.api.asgi_app as asgi_app
+import cairn.api.http_contract as http_contract
 
 
 def _client():
@@ -57,7 +58,11 @@ def test_asgi_app_delegates_plan_generation(monkeypatch):
             "build_sha": build_sha,
         }
 
-    monkeypatch.setattr(asgi_app, "build_plan_response", stub_build_plan_response)
+    monkeypatch.setattr(
+        http_contract,
+        "build_plan_response",
+        stub_build_plan_response,
+    )
 
     response = _client().post(
         "/v1/plans",
@@ -138,7 +143,7 @@ def test_asgi_app_redacts_unexpected_errors(monkeypatch):
     def fail_options():
         raise RuntimeError("private options traceback")
 
-    monkeypatch.setattr(asgi_app, "build_plan_options_response", fail_options)
+    monkeypatch.setattr(http_contract, "build_plan_options_response", fail_options)
 
     response = _client().get("/v1/plan-options")
 

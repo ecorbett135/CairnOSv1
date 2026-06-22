@@ -10,6 +10,7 @@ from cairn.api.plan_request import (
     PlanAPIValidationError,
 )
 from cairn.api.plan_options import build_plan_options_response
+import cairn.api.http_contract as http_contract
 import cairn.api.lambda_handler as lambda_handler
 import cairn.api.plan_options as plan_options
 import cairn.api.plan_service as plan_service
@@ -509,7 +510,7 @@ def test_lambda_handler_returns_plan_options_for_get_options(monkeypatch):
         }
 
     monkeypatch.setattr(
-        lambda_handler,
+        http_contract,
         "build_plan_options_response",
         stub_build_plan_options_response,
     )
@@ -534,7 +535,7 @@ def test_lambda_handler_returns_plan_options_for_get_options_trailing_slash(
         }
 
     monkeypatch.setattr(
-        lambda_handler,
+        http_contract,
         "build_plan_options_response",
         stub_build_plan_options_response,
     )
@@ -557,7 +558,7 @@ def test_lambda_handler_rejects_get_for_unowned_options_suffix(monkeypatch):
         raise AssertionError("Unexpected options builder call")
 
     monkeypatch.setattr(
-        lambda_handler,
+        http_contract,
         "build_plan_options_response",
         fail_if_called,
     )
@@ -575,7 +576,7 @@ def test_lambda_handler_maps_unexpected_plan_options_errors_without_leaking_deta
         raise RuntimeError("private options traceback")
 
     monkeypatch.setattr(
-        lambda_handler,
+        http_contract,
         "build_plan_options_response",
         fail_options,
     )
@@ -619,7 +620,7 @@ def test_lambda_handler_ignores_nonpositive_max_body_env(monkeypatch):
         return {"export_version": "cairnos_plan_v1"}
 
     monkeypatch.setenv("CAIRNOS_API_MAX_BODY_BYTES", "-1")
-    monkeypatch.setattr(lambda_handler, "build_plan_response", stub_build_plan_response)
+    monkeypatch.setattr(http_contract, "build_plan_response", stub_build_plan_response)
 
     response = lambda_handler.handler(
         _lambda_event(body=json.dumps(_valid_plan_api_payload())),
@@ -634,7 +635,7 @@ def test_lambda_handler_maps_plan_validation_errors(monkeypatch):
     def reject_payload(payload, build_sha=None):
         raise PlanAPIValidationError("desired_days must be between 3 and 60")
 
-    monkeypatch.setattr(lambda_handler, "build_plan_response", reject_payload)
+    monkeypatch.setattr(http_contract, "build_plan_response", reject_payload)
 
     response = lambda_handler.handler(
         _lambda_event(body=json.dumps(_valid_plan_api_payload())), None
@@ -650,7 +651,7 @@ def test_lambda_handler_maps_unexpected_errors_without_leaking_details(monkeypat
     def fail_payload(payload, build_sha=None):
         raise RuntimeError("private planner traceback")
 
-    monkeypatch.setattr(lambda_handler, "build_plan_response", fail_payload)
+    monkeypatch.setattr(http_contract, "build_plan_response", fail_payload)
 
     response = lambda_handler.handler(
         _lambda_event(body=json.dumps(_valid_plan_api_payload())), None
@@ -671,7 +672,7 @@ def test_lambda_handler_returns_plan_payload_with_security_headers(monkeypatch):
         return {"export_version": "cairnos_plan_v1", "daily_plan": [{"day": 1}]}
 
     monkeypatch.setenv("CAIRNOS_BUILD_SHA", "abc123")
-    monkeypatch.setattr(lambda_handler, "build_plan_response", stub_build_plan_response)
+    monkeypatch.setattr(http_contract, "build_plan_response", stub_build_plan_response)
     body = base64.b64encode(json.dumps(_valid_plan_api_payload()).encode("utf-8"))
 
     response = lambda_handler.handler(
