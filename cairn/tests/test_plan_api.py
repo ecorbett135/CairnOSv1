@@ -8,6 +8,7 @@ from cairn.api.plan_request import (
     PlanAPIRequest,
     PlanAPIValidationError,
 )
+from cairn.api.plan_options import build_plan_options_response
 import cairn.api.lambda_handler as lambda_handler
 import cairn.api.plan_service as plan_service
 
@@ -309,6 +310,39 @@ def test_build_plan_response_returns_cairnos_plan_v1():
     assert payload["warnings"]
 
 
+def test_build_plan_options_response_returns_cairnos_owned_choices():
+    payload = build_plan_options_response("vermont_long_trail")
+
+    assert payload["trail_id"] == "vermont_long_trail"
+    assert payload["status"] == "available"
+    assert payload["side_trip_options"]
+    assert payload["town_options"]
+    assert {
+        "id",
+        "label",
+        "town_access",
+        "category",
+        "estimated_time",
+    }.issubset(payload["side_trip_options"][0])
+    assert {
+        "id",
+        "label",
+        "town_name",
+        "canonical_hint",
+        "access_distance_miles",
+        "resupply_convenience",
+    }.issubset(payload["town_options"][0])
+
+
+def test_build_plan_options_response_rejects_non_long_trail():
+    try:
+        build_plan_options_response("custom")
+    except PlanAPIValidationError as error:
+        assert "trail_id" in str(error)
+    else:
+        raise AssertionError("Expected PlanAPIValidationError")
+
+
 def _lambda_event(method="POST", body=None, *, is_base64_encoded=False):
     return {
         "requestContext": {"http": {"method": method}},
@@ -333,6 +367,40 @@ def test_lambda_handler_rejects_v1_non_post_with_method_not_allowed():
 
     assert response["statusCode"] == 405
     assert _json_response(response)["error"] == "method_not_allowed"
+
+
+def test_lambda_handler_returns_plan_options_for_get_options(monkeypatch):
+    def stub_build_plan_options_response(trail_id="vermont_long_trail"):
+        return {
+            "trail_id": trail_id,
+            "status": "available",
+            "side_trip_options": [{"id": "lawsons_finest_taproom", "label": "Lawson's"}],
+            "town_options": [{"id": "Mass. 2:-3.8::Williamstown", "label": "Williamstown"}],
+        }
+
+    monkeypatch.setattr(
+        lambda_handler,
+        "build_plan_options_response",
+        stub_build_plan_options_response,
+    )
+
+    response = lambda_handler.handler(
+        {
+            "requestContext": {
+                "http": {
+                    "method": "GET",
+                    "path": "/plan/options",
+                }
+            },
+            "rawPath": "/plan/options",
+        },
+        None,
+    )
+
+    assert response["statusCode"] == 200
+    payload = _json_response(response)
+    assert payload["trail_id"] == "vermont_long_trail"
+    assert payload["side_trip_options"][0]["id"] == "lawsons_finest_taproom"
 
 
 def test_lambda_handler_rejects_invalid_json_post():

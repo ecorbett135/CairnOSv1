@@ -10,6 +10,7 @@ import json
 import os
 from typing import Any, Mapping
 
+from cairn.api.plan_options import build_plan_options_response
 from cairn.api.plan_request import PlanAPIValidationError
 from cairn.api.plan_service import build_plan_response
 
@@ -24,6 +25,15 @@ HEADERS = {
 
 def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
     """Handle an API Gateway proxy event."""
+    if _method(event) == "GET" and _path(event).endswith("/options"):
+        try:
+            return _json_response(200, build_plan_options_response())
+        except PlanAPIValidationError as error:
+            return _json_response(
+                400,
+                {"error": "validation_error", "message": str(error)},
+            )
+
     if _method(event) != "POST":
         return _json_response(405, {"error": "method_not_allowed"})
 
@@ -72,6 +82,26 @@ def _method(event: Mapping[str, Any]) -> str | None:
     if isinstance(method, str):
         return method.upper()
     return None
+
+
+def _path(event: Mapping[str, Any]) -> str:
+    raw_path = event.get("rawPath")
+    if isinstance(raw_path, str):
+        return raw_path
+
+    path = event.get("path")
+    if isinstance(path, str):
+        return path
+
+    request_context = event.get("requestContext")
+    if isinstance(request_context, Mapping):
+        http = request_context.get("http")
+        if isinstance(http, Mapping):
+            path_value = http.get("path")
+            if isinstance(path_value, str):
+                return path_value
+
+    return ""
 
 
 def _body_bytes(event: Mapping[str, Any]) -> bytes:
