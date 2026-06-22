@@ -133,12 +133,28 @@ Run the targeted Plan API tests:
 
 ```bash
 venv/bin/python -m pytest cairn/tests/test_plan_api.py -q
+venv/bin/python -m pytest cairn/tests/test_asgi_app.py -q
 ```
 
 Compile the API modules:
 
 ```bash
-venv/bin/python -m py_compile cairn/api/lambda_handler.py cairn/api/plan_request.py cairn/api/plan_service.py
+venv/bin/python -m py_compile cairn/api/asgi_app.py cairn/api/lambda_handler.py cairn/api/plan_controls.py cairn/api/plan_options.py cairn/api/plan_request.py cairn/api/plan_service.py
+```
+
+Run the local ASGI app:
+
+```bash
+venv/bin/uvicorn cairn.api.asgi_app:app --reload --host 127.0.0.1 --port 8010
+```
+
+The initial ASGI paths are:
+
+```text
+GET /health
+GET /version
+GET /v1/plan-options
+POST /v1/plans
 ```
 
 ## Lambda Container
