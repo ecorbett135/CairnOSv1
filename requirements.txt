@@ -7,5 +7,7 @@ rasterio
 networkx
 numpy
 streamlit
+fastapi
+uvicorn
 pytest
 openai

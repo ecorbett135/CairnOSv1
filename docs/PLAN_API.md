@@ -9,14 +9,29 @@ planner and `cairnos_plan_v1` export contract. It is intended for plan
 generation and downstream import interoperability, not accounts, saved plans,
 mobile persistence, actuals, photos, HealthKit, or field-navigation behavior.
 
-## Endpoint
+## Endpoints
+
+The ASGI app is the target core API boundary:
+
+```text
+POST /v1/plans
+GET /v1/plan-options
+GET /health
+GET /version
+GET /runtime
+```
+
+The Lambda adapter keeps the current compatibility paths:
 
 ```text
 POST /plan
+GET /plan/options
+GET /options
 content-type: application/json
 ```
 
-Only `POST` is accepted. `GET`, `PUT`, and other methods return:
+Plan generation accepts only `POST`. `GET`, `PUT`, and other unsupported
+methods return:
 
 ```json
 {"error":"method_not_allowed"}
@@ -32,6 +47,30 @@ x-content-type-options: nosniff
 
 The request body limit is controlled by `CAIRNOS_API_MAX_BODY_BYTES` and
 defaults to `32768` bytes.
+
+The ASGI and Lambda adapters share the same internal HTTP contract for request
+body parsing, size-limit enforcement, route policy, build SHA handling, and
+error normalization.
+
+## Operator Runtime State
+
+The local ASGI service exposes operator-visible runtime metadata:
+
+```text
+GET /version
+GET /runtime
+```
+
+`/version` returns the service name, runtime, build SHA, API contract version,
+current request body limit, and the diagnostics path. `/runtime` returns the
+same identity fields plus the supported ASGI route inventory and Lambda
+compatibility paths.
+
+The API contract version is currently:
+
+```text
+cairnos_plan_api_v1
+```
 
 ## Request
 
@@ -77,6 +116,36 @@ planner/export output for import review and interoperability. It is advisory
 planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
+## Plan Options Contract
+
+The debug and product clients should use CairnOS-owned option metadata rather
+than duplicating Streamlit control values.
+
+```text
+GET /v1/plan-options
+GET /plan/options
+GET /options
+```
+
+Successful options responses return `200` with:
+
+| Field | Purpose |
+| --- | --- |
+| `trail_id` | Current supported trail id, `vermont_long_trail` for the MVP |
+| `status` | `available` when CairnOS can build the option metadata |
+| `control_specs` | Shared slider/select/checkbox specs for Plan API inputs |
+| `side_trip_options` | Validated optional side trip choices |
+| `town_options` | Town preference choices derived from resupply amenities |
+
+`control_specs` entries include stable `id`, user-facing `label`, `input`,
+`value_type`, `default`, and range or choice metadata where applicable. The
+same specs are used by the Streamlit debug UI and should be used by HikerLogix
+web/mobile clients.
+
+Town option ids are emitted only when the source row has both `canonical_hint`
+and `trail_mile`, because the id is part of the planner-facing preference
+contract.
+
 Error responses are narrow and stable:
 
 | Status | Error |
@@ -104,12 +173,45 @@ Run the targeted Plan API tests:
 
 ```bash
 venv/bin/python -m pytest cairn/tests/test_plan_api.py -q
+venv/bin/python -m pytest cairn/tests/test_asgi_app.py -q
 ```
 
 Compile the API modules:
 
 ```bash
-venv/bin/python -m py_compile cairn/api/lambda_handler.py cairn/api/plan_request.py cairn/api/plan_service.py
+venv/bin/python -m py_compile cairn/api/asgi_app.py cairn/api/http_contract.py cairn/api/lambda_handler.py cairn/api/plan_controls.py cairn/api/plan_options.py cairn/api/plan_request.py cairn/api/plan_service.py
+```
+
+Run the local ASGI app:
+
+```bash
+venv/bin/uvicorn cairn.api.asgi_app:app --reload --host 127.0.0.1 --port 8010
+```
+
+Run the local Docker Desktop ASGI service:
+
+```bash
+docker compose up --build cairnos-api
+```
+
+The container exposes:
+
+```text
+GET http://127.0.0.1:8010/health
+GET http://127.0.0.1:8010/version
+GET http://127.0.0.1:8010/runtime
+GET http://127.0.0.1:8010/v1/plan-options
+POST http://127.0.0.1:8010/v1/plans
+```
+
+The initial ASGI paths are:
+
+```text
+GET /health
+GET /version
+GET /runtime
+GET /v1/plan-options
+POST /v1/plans
 ```
 
 ## Lambda Container
@@ -136,7 +238,7 @@ build tooling that is intentionally absent from the minimal Lambda base image.
 runtime path uses the Python standard library plus repository CairnOS modules:
 
 ```text
-cairn.api.lambda_handler -> cairn.api.plan_service -> PlannerV2 -> plan_json
+cairn.api.lambda_handler -> cairn.api.http_contract -> cairn.api.plan_service -> PlannerV2 -> plan_json
 ```
 
 Runtime environment variables:

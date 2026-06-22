@@ -1,0 +1,13 @@
+{
+  "trail_id": "vermont_long_trail",
+  "direction": "NOBO",
+  "ingress_route": "North Adams Approach",
+  "egress_route": "Journey's End Trail",
+  "desired_days": 28,
+  "min_daily_miles": 8,
+  "max_daily_miles": 15,
+  "max_daily_elevation": 4000,
+  "resupply_cadence": 5,
+  "recovery_cadence": 6,
+  "planned_start_date": "2026-07-01"
+}

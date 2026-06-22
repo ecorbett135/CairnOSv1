@@ -1,7 +1,6 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
-import csv
 import html
 import importlib
 import subprocess
@@ -23,6 +22,15 @@ import streamlit as st
 
 import cairn.planner.planner_v2 as planner_v2_module
 
+from cairn.api.plan_controls import (
+    control_choice_labels,
+    control_choice_value_for_label,
+    plan_control_spec,
+)
+from cairn.api.plan_options import (
+    build_side_trip_options,
+    build_town_options,
+)
 from cairn.export.gaia_geojson import (
     dumps_geojson,
     export_itinerary_to_gaia_geojson,
@@ -501,183 +509,42 @@ def render_alpha_feedback_panel(
 def load_validated_side_trip_options(
     trail_root,
 ):
-    path = (
-        Path(trail_root) /
-        "raw" /
-        "csv" /
-        "side_trip_options.csv"
-    )
-
-    if not path.exists():
-        return []
-
-    options = []
-
-    with open(
-        path,
-        newline="",
-    ) as handle:
-
-        reader = csv.DictReader(handle)
-
-        for row in reader:
-
-            if (
-                str(
-                    row.get(
-                        "validation_status",
-                        "",
-                    )
-                )
-                .strip()
-                .casefold()
-                != "validated"
-            ):
-                continue
-
-            options.append(row)
-
-    return options
-
-
-def town_preference_id(
-    option,
-):
-    return (
-        f"{option.get('canonical_hint', '')}:"
-        f"{option.get('trail_mile', '')}"
-    )
-
-
-def split_town_access_names(
-    town_access,
-):
-    return [
-        name.strip()
-        for name in str(
-            town_access or ""
-        ).split("/")
-        if name.strip()
-    ]
+    return build_side_trip_options(Path(trail_root))
 
 
 def load_town_preference_options(
     trail_root,
 ):
-    path = (
-        Path(trail_root) /
-        "raw" /
-        "csv" /
-        "resupply_amenities.csv"
-    )
-
-    if not path.exists():
-        return []
-
-    options = []
-
-    with open(
-        path,
-        newline="",
-    ) as handle:
-
-        reader = csv.DictReader(handle)
-
-        for row in reader:
-
-            if not row.get(
-                "town_access"
-            ):
-                continue
-
-            base_id = town_preference_id(
-                row
-            )
-
-            for town_name in (
-                split_town_access_names(
-                    row.get(
-                        "town_access",
-                        "",
-                    )
-                )
-            ):
-                options.append({
-                    "town_id": (
-                        f"{base_id}::{town_name}"
-                    ),
-                    "town_name": town_name,
-                    "town_access": row.get(
-                        "town_access",
-                        "",
-                    ),
-                    "canonical_hint": row.get(
-                        "canonical_hint",
-                        "",
-                    ),
-                    "access_distance_miles": row.get(
-                        "access_distance_miles",
-                        "",
-                    ),
-                    "resupply_convenience": row.get(
-                        "resupply_convenience",
-                        "",
-                    ),
-                })
-
-    return options
+    return build_town_options(Path(trail_root))
 
 
-def side_trip_option_label(
-    option,
+def slider_control(
+    target,
+    control_id,
+    **kwargs,
 ):
-    town_access = option.get(
-        "town_access",
-        "",
-    )
-    name = option.get(
-        "name",
-        "",
-    )
-    estimated_time = option.get(
-        "estimated_time",
-        "",
+    spec = plan_control_spec(control_id)
+    return target.slider(
+        spec["label"],
+        min_value=spec["min"],
+        max_value=spec["max"],
+        value=spec["default"],
+        step=spec.get("step", 1),
+        **kwargs,
     )
 
-    if town_access and name:
-        label = f"{name} - {town_access}"
-    else:
-        label = town_access or name
 
-    if estimated_time:
-        label = f"{label} ({estimated_time})"
-
-    return label
-
-
-def town_preference_option_label(
-    option,
+def checkbox_control(
+    target,
+    control_id,
+    **kwargs,
 ):
-    town_name = option.get(
-        "town_name",
-        "",
+    spec = plan_control_spec(control_id)
+    return target.checkbox(
+        spec["label"],
+        value=spec["default"],
+        **kwargs,
     )
-    town_access = town_name or option.get(
-        "town_access",
-        "",
-    )
-    canonical_hint = option.get(
-        "canonical_hint",
-        "",
-    )
-
-    if canonical_hint:
-        return (
-            f"{town_access} - town stop "
-            f"({canonical_hint})"
-        )
-
-    return f"{town_access} - town stop"
 
 
 def directional_access_help(
@@ -815,33 +682,24 @@ def render_planner_controls(
     if layout_mode == "mobile":
         target.subheader("Daily Limits")
 
-    desired_days = target.slider(
-        "Desired Completion Days",
-        min_value=3,
-        max_value=60,
-        value=28,
+    desired_days = slider_control(
+        target,
+        "desired_days",
     )
 
-    min_daily_miles = target.slider(
-        "Minimum Daily Miles",
-        min_value=4,
-        max_value=25,
-        value=8,
+    min_daily_miles = slider_control(
+        target,
+        "min_daily_miles",
     )
 
-    max_daily_miles = target.slider(
-        "Maximum Daily Miles",
-        min_value=8,
-        max_value=40,
-        value=16,
+    max_daily_miles = slider_control(
+        target,
+        "max_daily_miles",
     )
 
-    max_daily_elevation = target.slider(
-        "Maximum Daily Elevation Gain",
-        min_value=1000,
-        max_value=10000,
-        value=3500,
-        step=250,
+    max_daily_elevation = slider_control(
+        target,
+        "max_daily_elevation",
         help=(
             "Planning preference for daily climbing effort. "
             "Reported daily_elevation_gain is terrain-derived "
@@ -853,19 +711,14 @@ def render_planner_controls(
     if layout_mode == "mobile":
         target.subheader("Resupply And Recovery")
 
-    resupply_cadence = target.slider(
-        "Preferred Resupply Cadence (days)",
-        min_value=2,
-        max_value=10,
-        value=5,
+    resupply_cadence = slider_control(
+        target,
+        "resupply_cadence",
     )
 
     recovery_planning_mode_label = target.selectbox(
-        "Recovery Planning Mode",
-        [
-            "Cadence",
-            "Target Counts",
-        ],
+        plan_control_spec("recovery_planning_mode")["label"],
+        control_choice_labels("recovery_planning_mode"),
         help=(
             "Cadence asks CairnOS to place recovery near a day "
             "interval. Target Counts asks for a preferred number "
@@ -873,62 +726,50 @@ def render_planner_controls(
         ),
     )
 
-    recovery_planning_mode = (
-        "target_counts"
-        if recovery_planning_mode_label
-        == "Target Counts"
-        else "cadence"
+    recovery_planning_mode = control_choice_value_for_label(
+        "recovery_planning_mode",
+        recovery_planning_mode_label,
     )
 
-    recovery_cadence = 6
-    target_zero_days = 3
-    target_nero_days = 2
+    recovery_cadence = plan_control_spec("recovery_cadence")["default"]
+    target_zero_days = plan_control_spec("target_zero_days")["default"]
+    target_nero_days = plan_control_spec("target_nero_days")["default"]
 
     if recovery_planning_mode == "cadence":
-        recovery_cadence = target.slider(
-            "Preferred Zero/Nero Cadence (days)",
-            min_value=3,
-            max_value=14,
-            value=6,
+        recovery_cadence = slider_control(
+            target,
+            "recovery_cadence",
         )
     else:
-        target_zero_days = target.slider(
-            "Target Zero Days",
-            min_value=0,
-            max_value=10,
-            value=3,
+        target_zero_days = slider_control(
+            target,
+            "target_zero_days",
             help=(
                 "Preferred number of full zero-mile recovery "
                 "days. CairnOS will place as many as reasonable."
             ),
         )
-        target_nero_days = target.slider(
-            "Target Nero Days",
-            min_value=0,
-            max_value=10,
-            value=2,
+        target_nero_days = slider_control(
+            target,
+            "target_nero_days",
             help=(
                 "Preferred number of short-mileage recovery "
                 "days within the configured nero mileage window."
             ),
         )
 
-    min_nero_miles = target.slider(
-        "Minimum Nero Miles",
-        min_value=1,
-        max_value=10,
-        value=5,
+    min_nero_miles = slider_control(
+        target,
+        "min_nero_miles",
         help=(
             "Lower mileage bound for labeling a recovery "
             "stop as a nero."
         ),
     )
 
-    max_nero_miles = target.slider(
-        "Maximum Nero Miles",
-        min_value=4,
-        max_value=15,
-        value=8,
+    max_nero_miles = slider_control(
+        target,
+        "max_nero_miles",
         help=(
             "Upper mileage bound for labeling a recovery "
             "stop as a nero."
@@ -943,14 +784,14 @@ def render_planner_controls(
             )
         )
 
-    allow_extra_resupply_only = target.checkbox(
-        "Allow Extra Resupply-Only Stops",
-        value=True,
+    allow_extra_resupply_only = checkbox_control(
+        target,
+        "allow_extra_resupply_only",
     )
 
-    avoid_long_food_carry = target.checkbox(
-        "Avoid Long Food Carry",
-        value=True,
+    avoid_long_food_carry = checkbox_control(
+        target,
+        "avoid_long_food_carry",
         help=(
             "Bias resupply planning toward shorter food carries. "
             "Standalone resupply-only stops still prefer access "
@@ -958,9 +799,9 @@ def render_planner_controls(
         ),
     )
 
-    prefer_bear_box_sites = target.checkbox(
-        "Prefer Sites With Bear Boxes",
-        value=False,
+    prefer_bear_box_sites = checkbox_control(
+        target,
+        "prefer_bear_box_sites",
         help=(
             "Softly bias overnight stop selection toward shelters "
             "and campsites with documented bear boxes. This is not "
@@ -968,12 +809,9 @@ def render_planner_controls(
         ),
     )
 
-    convenient_resupply_distance_miles = target.slider(
-        "Convenient Resupply-Only Access (miles)",
-        min_value=0.5,
-        max_value=5.0,
-        value=1.0,
-        step=0.5,
+    convenient_resupply_distance_miles = slider_control(
+        target,
+        "convenient_resupply_distance_miles",
         help=(
             "Maximum off-trail access distance the planner treats "
             "as convenient for an extra resupply-only stop. Longer "
@@ -996,16 +834,16 @@ def render_planner_controls(
         )
     )
     preference_label_to_selection = {
-        side_trip_option_label(option): (
+        option["label"]: (
             "side_trip",
-            option.get("side_trip_id")
+            option.get("id")
         )
         for option in side_trip_options
     }
     preference_label_to_selection.update({
-        town_preference_option_label(option): (
+        option["label"]: (
             "town",
-            option.get("town_id")
+            option.get("id")
         )
         for option in town_preference_options
     })

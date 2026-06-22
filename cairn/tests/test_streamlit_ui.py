@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from pathlib import Path
 
+from cairn.api.plan_options import build_plan_options_response
 from streamlit.testing.v1 import AppTest
 
 
@@ -160,6 +161,48 @@ def test_sidebar_exposes_configurable_nero_window():
     assert "Maximum Nero Miles" in sliders
     assert sliders["Minimum Nero Miles"].value == 5
     assert sliders["Maximum Nero Miles"].value == 8
+
+
+def test_sidebar_defaults_match_plan_options_control_specs():
+    """Test debug UI controls share CairnOS-owned API defaults."""
+    payload = build_plan_options_response("vermont_long_trail")
+    controls = {
+        control["id"]: control
+        for control in payload["control_specs"]
+    }
+    app = AppTest.from_file(
+        "cairn/interfaces/streamlit_app.py"
+    )
+
+    app.run(
+        timeout=15
+    )
+
+    sliders = {
+        widget.label: widget
+        for widget in app.sidebar.slider
+    }
+    checkboxes = {
+        widget.label: widget
+        for widget in app.sidebar.checkbox
+    }
+    selectboxes = {
+        widget.label: widget
+        for widget in app.sidebar.selectbox
+    }
+
+    desired_days = controls["desired_days"]
+    avoid_long_food_carry = controls["avoid_long_food_carry"]
+    recovery_planning_mode = controls["recovery_planning_mode"]
+
+    assert sliders[desired_days["label"]].value == desired_days["default"]
+    assert (
+        checkboxes[avoid_long_food_carry["label"]].value
+        is avoid_long_food_carry["default"]
+    )
+    assert selectboxes[recovery_planning_mode["label"]].value == (
+        recovery_planning_mode["choices"][0]["label"]
+    )
 
 
 def test_sidebar_exposes_food_carry_preference():
@@ -444,11 +487,13 @@ def test_side_trip_preferences_are_annotation_only():
     source = Path(
         "cairn/interfaces/streamlit_app.py"
     ).read_text()
+    payload = build_plan_options_response("vermont_long_trail")
 
     assert "Optional Towns And Side Trips" in source
-    assert 'f"{name} - {town_access}"' in source
-    assert "town_preference_option_label" in source
-    assert "split_town_access_names" in source
+    assert "build_side_trip_options" in source
+    assert "build_town_options" in source
+    assert payload["side_trip_options"][0]["label"]
+    assert payload["town_options"][0]["label"]
     assert "annotation-only" in source
     assert "selected_side_trip_ids" in source
     assert "selected_town_ids" in source
@@ -472,11 +517,20 @@ def test_recovery_planning_mode_controls_are_present():
     source = Path(
         "cairn/interfaces/streamlit_app.py"
     ).read_text()
+    controls = {
+        control["id"]: control
+        for control in build_plan_options_response("vermont_long_trail")[
+            "control_specs"
+        ]
+    }
 
-    assert "Recovery Planning Mode" in source
-    assert "Target Counts" in source
-    assert "Target Zero Days" in source
-    assert "Target Nero Days" in source
+    assert controls["recovery_planning_mode"]["label"] == "Recovery Planning Mode"
+    assert controls["recovery_planning_mode"]["choices"][1] == {
+        "value": "target_counts",
+        "label": "Target Counts",
+    }
+    assert controls["target_zero_days"]["label"] == "Target Zero Days"
+    assert controls["target_nero_days"]["label"] == "Target Nero Days"
     assert "recovery_planning_mode" in source
     assert "target_zero_days" in source
     assert "target_nero_days" in source
