@@ -18,8 +18,8 @@ planning before expanding into broader route modes.
 - resupply strategy rows with recovery timing and town-access friction context
 - optional bear-box overnight-site preference based on curated amenity metadata
 - resupply town-detail review rows with service categories and validation status
-- annotation-only town and side-trip preferences for selected town stops and
-  validated experience options
+- selected town preferences that can bias reachable resupply stop selection,
+  plus annotation-only side-trip preferences for validated experience options
 - Gaia-compatible GeoJSON export
 - schema-versioned CairnOS Plan JSON export for future HikerLogix read-only
   itinerary import
@@ -148,14 +148,15 @@ guidebook replacement. Business-level lodging, outfitter, shuttle, and mail-drop
 data should remain out of planner scoring until each listing has independent
 current-source validation and documented provenance.
 
-Town and side-trip preferences should remain annotation-only in MVP hardening.
-The selector should include standalone town stops as well as named experiences,
-and selected preferences should show town context in a dedicated selected towns
-and experiences table near the generated plan. Selected rows should remain
-visible even when the generated plan does not stop at that town/access node, so
-alpha testers can distinguish "planned" from "not in generated plan." They must
-not change daily mileage, completion days, feasibility, resupply scoring, or
-Gaia export behavior until a separate planner-time model exists.
+Town preferences can bias reachable resupply stop selection in MVP hardening.
+Side-trip preferences remain annotation-only. The selector should include
+standalone town stops as well as named experiences, and selected preferences
+should show town context in a dedicated selected towns and experiences table
+near the generated plan. Selected town rows should remain visible as planned,
+not in the generated plan, or unmatched so alpha testers can distinguish how a
+preference was handled. Side trips must not change daily mileage, completion
+days, feasibility, resupply scoring, or Gaia export behavior until a separate
+planner-time model exists.
 
 Food-carry cadence overages should be visible as feasibility exceptions when a
 generated plan exceeds the user's preferred resupply cadence. These exceptions

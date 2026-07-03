@@ -854,9 +854,10 @@ def render_planner_controls(
                 preference_label_to_selection.keys()
             ),
             help=(
-                "Town and side-trip preferences are annotation-only. "
-                "They do not change itinerary miles, days, feasibility, "
-                "resupply scoring, or Gaia export."
+                "Town preferences can bias reachable resupply stop "
+                "selection. Side-trip preferences are annotation-only "
+                "and do not change itinerary miles, days, feasibility, "
+                "or Gaia export."
             ),
         )
     )
@@ -1281,9 +1282,10 @@ def render_planner_result(
             "Selected Towns And Experiences"
         )
         st.caption(
-            "Selected towns and experiences are advisory context only. "
-            "They do not change miles, days, feasibility, resupply "
-            "scoring, or Gaia export geometry."
+            "Selected towns can affect reachable resupply stop "
+            "selection. Selected side trips remain advisory context "
+            "only and do not change miles, days, feasibility, or Gaia "
+            "export geometry."
         )
         st.dataframe(
             selected_experience_rows,
