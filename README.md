@@ -189,10 +189,11 @@ hosted Alpha runtime requirements.
 - Uses a curated lodging-support layer to improve recovery confidence at town
   access points while keeping transportation and shuttle precision out of the
   user-facing plan.
-- Lets users select town stops and validated side trips as annotation-only
-  experience notes; selected towns and experiences appear with town context in
-  a dedicated table even when the generated plan does not stop there. These
-  preferences do not change miles, days, feasibility, or Gaia export.
+- Lets users select town stops as preferred reachable resupply stops and
+  validated side trips as annotation-only experience notes; selected towns and
+  experiences appear with town context in a dedicated table even when the
+  generated plan does not stop there. Side-trip preferences do not change
+  miles, days, feasibility, or Gaia export.
 - Accepts an optional planned start date and returns date-aware Long Trail
   season/current-condition advisory prompts without changing feasibility,
   itinerary synthesis, resupply, recovery, or export geometry.
@@ -372,9 +373,10 @@ Optional side trips are stored separately from resupply scoring. If selected,
 they annotate nearby town or daily rows with estimated time context, but they do
 not change itinerary duration, daily mileage, feasibility, or Gaia export.
 Standalone town preferences use individual town labels in the selector while
-remaining tied to the stable underlying access node. Unplanned selections remain
-visible in `Selected Towns And Experiences` so testers can see when a preferred
-town did not fit the generated itinerary.
+remaining tied to the stable underlying access node. Reachable selected town
+preferences can displace nearby nonselected resupply stops; selections remain
+visible in `Selected Towns And Experiences` as planned, not in the generated
+plan, or unmatched so testers can see how each preference was handled.
 
 PlannerV2 also accepts an optional `start_date` and returns advisory-only
 season/current-condition prompts for the generated trip window. Current prompts

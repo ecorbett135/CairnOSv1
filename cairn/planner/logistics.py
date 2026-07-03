@@ -1556,8 +1556,8 @@ class LogisticsPlanner:
                         "estimated_time": "",
                         "planning_notes": (
                             "Selected town preference; "
-                            "annotation only and not "
-                            "included in itinerary time."
+                            "included as a resupply stop "
+                            "when reachable."
                         ),
                         "access_distance_miles": (
                             town_access_distance
@@ -2658,6 +2658,71 @@ class LogisticsPlanner:
             ),
         )[0]
 
+    def has_selected_town_preference_ahead(
+        self,
+        stop_mile,
+        resupply_nodes,
+        used_resupply_ids,
+        terminal_mile=None,
+    ):
+
+        for node in resupply_nodes:
+
+            node_id = (
+                self.resupply_node_id(node)
+            )
+
+            if node_id in used_resupply_ids:
+                continue
+
+            if not self.is_resupply_candidate(
+                node
+            ):
+                continue
+
+            if not self.selected_town_matches_node(
+                node
+            ):
+                continue
+
+            mile = self.node_mile(node)
+
+            if mile is None:
+                continue
+
+            if not self.is_forward_progress(
+                stop_mile,
+                mile,
+            ):
+                continue
+
+            if (
+                self.travel_distance(
+                    stop_mile,
+                    mile,
+                )
+                > self.max_daily_miles
+            ):
+                continue
+
+            if terminal_mile is not None:
+                terminal_distance = (
+                    self.travel_distance(
+                        mile,
+                        terminal_mile,
+                    )
+                )
+
+                if (
+                    terminal_distance
+                    <= self.max_daily_miles * 1.3
+                ):
+                    continue
+
+            return True
+
+        return False
+
     def select_resupply_for_day(
         self,
         start_mile,
@@ -2678,10 +2743,14 @@ class LogisticsPlanner:
             day - last_resupply_day
         )
 
-        if days_since_resupply < (
-            cadence - 2
-        ):
-            return None
+        selected_town_preference_ahead = (
+            self.has_selected_town_preference_ahead(
+                stop_mile,
+                resupply_nodes,
+                used_resupply_ids,
+                terminal_mile=terminal_mile,
+            )
+        )
 
         candidates = []
 
@@ -2699,6 +2768,12 @@ class LogisticsPlanner:
             ):
                 continue
 
+            selected_town_preference = (
+                self.selected_town_matches_node(
+                    node
+                )
+            )
+
             mile = self.node_mile(node)
 
             if mile is None:
@@ -2708,6 +2783,12 @@ class LogisticsPlanner:
                 start_mile,
                 stop_mile,
                 mile,
+            ):
+                continue
+
+            if (
+                selected_town_preference_ahead
+                and not selected_town_preference
             ):
                 continue
 
@@ -2738,8 +2819,17 @@ class LogisticsPlanner:
             )
 
             if (
+                days_since_resupply < (
+                    cadence - 2
+                )
+                and not selected_town_preference
+            ):
+                continue
+
+            if (
                 candidate_distance
                 < self.min_daily_miles
+                and not selected_town_preference
                 and not self.is_convenient_extra_resupply(
                     node
                 )
@@ -2796,6 +2886,7 @@ class LogisticsPlanner:
                     not self.is_convenient_extra_resupply(
                         node
                     )
+                    and not selected_town_preference
                     and not (
                         self.avoid_long_food_carry
                         and long_gap_ahead
@@ -2819,6 +2910,7 @@ class LogisticsPlanner:
                 access_distance is not None
                 and access_distance
                 > self.convenient_resupply_distance_miles
+                and not selected_town_preference
                 and not (
                     days_due
                     or self.is_recovery_candidate(
@@ -2835,6 +2927,9 @@ class LogisticsPlanner:
             ):
                 score += 20
 
+            if selected_town_preference:
+                score += 500
+
             candidates.append({
                 "node": node,
                 "score": score,
@@ -2842,6 +2937,9 @@ class LogisticsPlanner:
                     stop_mile - mile
                 ),
                 "early_resupply": early_resupply,
+                "selected_town_preference": (
+                    selected_town_preference
+                ),
                 "access_distance_miles": (
                     access_distance
                 ),
@@ -2860,6 +2958,9 @@ class LogisticsPlanner:
                     days_since_resupply
                     - cadence
                 ),
+                not item[
+                    "selected_town_preference"
+                ],
                 item["early_resupply"],
                 item["off_trail_penalty"],
                 -item["score"],

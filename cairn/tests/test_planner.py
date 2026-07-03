@@ -714,10 +714,10 @@ def test_selected_side_trips_annotate_without_changing_plan_time(
     )
 
 
-def test_selected_towns_appear_as_annotation_only_experiences(
+def test_selected_towns_appear_as_planned_experiences(
     planner_factory,
 ):
-    """Test town preferences appear without changing plan time."""
+    """Test planned town preferences appear without changing plan time."""
     user_profile = {
         "direction": "NOBO",
         "ingress_route": "North Adams Approach",
@@ -797,7 +797,54 @@ def test_selected_towns_appear_as_annotation_only_experiences(
 def test_unplanned_selected_towns_remain_visible(
     planner_factory,
 ):
-    """Test selected town preferences render even if not planned."""
+    """Test matched town preferences remain visible when they cannot be planned."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 3,
+            "target_nero_days": 2,
+            "min_nero_miles": 5,
+            "max_nero_miles": 9,
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 3500,
+            "allow_extra_resupply_only": True,
+            "avoid_long_food_carry": True,
+            "selected_town_ids": [
+                "Canadian Border:272.1::North Troy",
+            ],
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+    selected_town = next(
+        row for row in itinerary[
+            "selected_experiences"
+        ]
+        if row["town_access"] == "North Troy"
+    )
+
+    assert (
+        selected_town["planning_status"]
+        == "not_in_generated_plan"
+    )
+    assert (
+        selected_town["experience_name"]
+        == "North Troy town stop"
+    )
+
+
+def test_unmatched_selected_towns_remain_visible(
+    planner_factory,
+):
+    """Test unmatched town preferences remain visible."""
     planner = planner_factory(
         user_profile={
             "direction": "NOBO",
@@ -810,7 +857,7 @@ def test_unplanned_selected_towns_remain_visible(
             "max_daily_elevation": 4000,
             "allow_extra_resupply_only": True,
             "selected_town_ids": [
-                "Vt. 103:86.8::Rutland",
+                "Unknown Gap:999.9::Imaginary Town",
             ],
         },
     )
@@ -822,16 +869,69 @@ def test_unplanned_selected_towns_remain_visible(
         row for row in itinerary[
             "selected_experiences"
         ]
-        if row["town_access"] == "Rutland"
+        if row["experience_name"]
+        == "Unknown Gap:999.9::Imaginary Town"
     )
 
     assert (
         selected_town["planning_status"]
-        == "not_in_generated_plan"
+        == "unmatched"
     )
     assert (
-        selected_town["experience_name"]
-        == "Rutland town stop"
+        selected_town["validation_status"]
+        == "unmatched"
+    )
+
+
+def test_selected_town_preferences_can_drive_resupply_stops(
+    planner_factory,
+):
+    """Test selected towns can become resupply stops when they are reachable."""
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+            "recovery_planning_mode": "target_counts",
+            "target_zero_days": 3,
+            "target_nero_days": 2,
+            "min_nero_miles": 5,
+            "max_nero_miles": 9,
+            "min_daily_miles": 10,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 3500,
+            "allow_extra_resupply_only": True,
+            "avoid_long_food_carry": True,
+            "convenient_resupply_distance_miles": 1.0,
+            "selected_town_ids": [
+                "Vt. 9:14.3::Bennington",
+                "Vt. 17:162.9::Waitsfield",
+            ],
+        },
+    )
+
+    itinerary = planner.synthesize_itinerary(
+        desired_days=28
+    )
+    selected_towns = {
+        row["town_access"]: row
+        for row in itinerary["selected_experiences"]
+        if row["category"] == "town_preference"
+    }
+    resupply_towns = {
+        row.get("town_access")
+        for row in itinerary["resupply_plan"]
+    }
+
+    assert selected_towns["Bennington"]["planning_status"] == "planned"
+    assert selected_towns["Waitsfield"]["planning_status"] == "planned"
+    assert "Bennington" in resupply_towns
+    assert "Waitsfield" in resupply_towns
+    assert (
+        "Lincoln / Warren / Bristol"
+        not in resupply_towns
     )
 
 
