@@ -1,0 +1,173 @@
+{
+  "contract_version": "cairnos_trail_inventory_v1",
+  "trail_id": "vermont_long_trail",
+  "status": "available",
+  "direction_model": {
+    "canonical_mile_system": "northbound_reference",
+    "supported_directions": ["NOBO", "SOBO"],
+    "section_model": "single_continuous_range",
+    "flip_flop_supported": false,
+    "trail_total_miles": 272.1,
+    "sobo_display_mile_rule": "trail_total_miles - canonical_mile"
+  },
+  "source": {
+    "purpose": "Representative fixture for HikerLogix inventory-bound manual planning; not a complete Long Trail inventory export and not a live endpoint payload.",
+    "source_artifacts": [
+      "trails/vermont_long_trail/compiled/route_overlay.json",
+      "trails/vermont_long_trail/compiled/operational_graph.json",
+      "trails/vermont_long_trail/compiled/overnight_reference.json",
+      "trails/vermont_long_trail/compiled/waypoint_reference.json",
+      "trails/vermont_long_trail/raw/csv/resupply_amenities.csv",
+      "trails/vermont_long_trail/raw/csv/side_trip_options.csv",
+      "trails/vermont_long_trail/raw/csv/route_master.csv"
+    ],
+    "fixture_base_commit": "7d1931fb00575b0ccb5f9467120fb6e3ec231e51"
+  },
+  "items": [
+    {
+      "inventory_id": "vermont_long_trail:overnight:overlay_0008",
+      "kind": "overnight_site",
+      "display_name": "Seth Warner Shelter",
+      "canonical_mile": 5.5,
+      "directional_miles": {
+        "NOBO": 5.5,
+        "SOBO": 266.6
+      },
+      "labels": {
+        "NOBO": "[NOBO Mile 5.5] Seth Warner Shelter",
+        "SOBO": "[SOBO Mile 266.6] Seth Warner Shelter"
+      },
+      "selectable_as": ["day_stop", "day_start", "overnight_stop"],
+      "overlay": {
+        "overlay_id": "overlay_0008",
+        "node_class": "shelter",
+        "division": "division1"
+      },
+      "overnight": {
+        "overnight_class": "shelter",
+        "shelter": true,
+        "camping": false,
+        "bear_box": true,
+        "amenity_source_name": "Green Mountain Club Bear Box Locations"
+      },
+      "source_artifacts": [
+        "trails/vermont_long_trail/compiled/route_overlay.json",
+        "trails/vermont_long_trail/compiled/overnight_reference.json",
+        "trails/vermont_long_trail/compiled/waypoint_reference.json"
+      ]
+    },
+    {
+      "inventory_id": "vermont_long_trail:access:vt_9:14.3",
+      "kind": "access_point",
+      "display_name": "Vt. 9",
+      "canonical_mile": 14.3,
+      "directional_miles": {
+        "NOBO": 14.3,
+        "SOBO": 257.8
+      },
+      "labels": {
+        "NOBO": "[NOBO Mile 14.3] Vt. 9",
+        "SOBO": "[SOBO Mile 257.8] Vt. 9"
+      },
+      "selectable_as": ["section_boundary", "day_start", "day_stop", "resupply_stop"],
+      "overlay": {
+        "overlay_id": "overlay_0015",
+        "node_class": "logistics",
+        "division": "division3"
+      },
+      "access": {
+        "access_label": "Vt. 9",
+        "town_access": "Bennington",
+        "access_notes": "4+ miles west from Long Trail to Bennington",
+        "access_distance_miles": 4,
+        "access_distance_qualifier": "at_least",
+        "access_direction": "west",
+        "access_mode": "road_access"
+      },
+      "resupply": {
+        "resupply_convenience": "long_side_trip",
+        "services": ["grocery", "post_office", "lodging", "restaurants"],
+        "zero_candidate": true
+      },
+      "related_inventory_ids": [
+        "vermont_long_trail:town:vt_9:14.3:bennington"
+      ],
+      "source_artifacts": [
+        "trails/vermont_long_trail/compiled/route_overlay.json",
+        "trails/vermont_long_trail/raw/csv/resupply_amenities.csv"
+      ]
+    },
+    {
+      "inventory_id": "vermont_long_trail:town:vt_9:14.3:bennington",
+      "kind": "town",
+      "display_name": "Bennington",
+      "canonical_mile": 14.3,
+      "directional_miles": {
+        "NOBO": 14.3,
+        "SOBO": 257.8
+      },
+      "labels": {
+        "NOBO": "[NOBO Mile 14.3] Bennington [Vt. 9]",
+        "SOBO": "[SOBO Mile 257.8] Bennington [Vt. 9]"
+      },
+      "selectable_as": ["town_preference", "resupply_stop"],
+      "access": {
+        "access_label": "Vt. 9",
+        "town_access": "Bennington",
+        "access_notes": "4+ miles west from Long Trail to Bennington",
+        "access_distance_miles": 4,
+        "access_distance_qualifier": "at_least",
+        "access_direction": "west",
+        "access_mode": "road_access"
+      },
+      "resupply": {
+        "resupply_convenience": "long_side_trip",
+        "services": ["grocery", "post_office", "lodging", "restaurants"],
+        "zero_candidate": true
+      },
+      "planner_preference_id": "Vt. 9:14.3::Bennington",
+      "related_inventory_ids": [
+        "vermont_long_trail:access:vt_9:14.3"
+      ],
+      "source_artifacts": [
+        "trails/vermont_long_trail/raw/csv/resupply_amenities.csv"
+      ]
+    },
+    {
+      "inventory_id": "vermont_long_trail:side_trip:lawsons_finest_taproom",
+      "kind": "side_trip",
+      "display_name": "Lawson's Finest Taproom",
+      "canonical_mile": 162.9,
+      "directional_miles": {
+        "NOBO": 162.9,
+        "SOBO": 109.2
+      },
+      "labels": {
+        "NOBO": "[NOBO Mile 162.9] Lawson's Finest Taproom [Vt. 17]",
+        "SOBO": "[SOBO Mile 109.2] Lawson's Finest Taproom [Vt. 17]"
+      },
+      "selectable_as": ["side_trip_preference"],
+      "access": {
+        "access_label": "Vt. 17",
+        "town_access": "Waitsfield",
+        "access_notes": "7 miles east from Long Trail to Waitsfield",
+        "access_distance_miles": 7,
+        "access_direction": "east",
+        "access_mode": "road_access"
+      },
+      "experience": {
+        "side_trip_id": "lawsons_finest_taproom",
+        "category": "brewery",
+        "estimated_time": "half-day",
+        "planning_notes": "Waitsfield brewery/taproom side trip; annotation only and not included in itinerary time.",
+        "validation_status": "validated",
+        "validation_date": "2026-05-19"
+      },
+      "planner_preference_id": "lawsons_finest_taproom",
+      "source_artifacts": [
+        "trails/vermont_long_trail/raw/csv/side_trip_options.csv",
+        "trails/vermont_long_trail/raw/csv/resupply_amenities.csv"
+      ]
+    }
+  ]
+}

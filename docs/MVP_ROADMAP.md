@@ -23,6 +23,9 @@ planning before expanding into broader route modes.
 - Gaia-compatible GeoJSON export
 - schema-versioned CairnOS Plan JSON export for future HikerLogix read-only
   itinerary import
+- a versioned trail-inventory contract design for future HikerLogix
+  inventory-bound Manual Build/Edit, documented in
+  `docs/TRAIL_INVENTORY_CONTRACT.md`
 
 SECTION planning is intentionally deferred. The underlying planner branches
 remain in place for later work, but the Streamlit UI hides SECTION mode until
