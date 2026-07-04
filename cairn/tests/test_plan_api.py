@@ -344,6 +344,16 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     assert side_trips["lawsons_finest_taproom"]["label"] == (
         "Lawson's Finest Taproom - Waitsfield (half-day)"
     )
+    assert side_trips["lawsons_finest_taproom"]["name"] == (
+        "Lawson's Finest Taproom"
+    )
+    assert side_trips["lawsons_finest_taproom"]["nobo_mile"] == "162.9"
+    assert side_trips["lawsons_finest_taproom"]["sobo_mile"] == "109.2"
+    assert side_trips["lawsons_finest_taproom"]["exit_point"] == "Vt. 17"
+    assert side_trips["lawsons_finest_taproom"]["access_distance_miles"] == "7"
+    assert side_trips["lawsons_finest_taproom"]["access_notes"] == (
+        "7 miles east from Long Trail to Waitsfield"
+    )
     assert side_trips["lawsons_finest_taproom"]["town_access"] == "Waitsfield"
     assert side_trips["lawsons_finest_taproom"]["category"] == "brewery"
     assert side_trips["lawsons_finest_taproom"]["estimated_time"] == "half-day"
@@ -351,6 +361,15 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     towns = _options_by_id(payload["town_options"])
     assert towns["Mass. 2:-3.8::Williamstown"]["label"] == (
         "Williamstown - town stop (Mass. 2)"
+    )
+    assert towns["Vt. 9:14.3::Bennington"]["label"] == (
+        "Bennington - town stop (Vt. 9)"
+    )
+    assert towns["Vt. 9:14.3::Bennington"]["nobo_mile"] == "14.3"
+    assert towns["Vt. 9:14.3::Bennington"]["sobo_mile"] == "257.8"
+    assert towns["Vt. 9:14.3::Bennington"]["exit_point"] == "Vt. 9"
+    assert towns["Vt. 9:14.3::Bennington"]["access_notes"] == (
+        "4+ miles west from Long Trail to Bennington"
     )
     assert towns["Mass. 2:-3.8::Williamstown"]["town_name"] == "Williamstown"
     assert towns["Mass. 2:-3.8::North Adams"]["label"] == (
@@ -361,6 +380,12 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     assert {
         "id",
         "label",
+        "name",
+        "nobo_mile",
+        "sobo_mile",
+        "exit_point",
+        "access_notes",
+        "access_distance_miles",
         "town_access",
         "category",
         "estimated_time",
@@ -368,6 +393,10 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     assert {
         "id",
         "label",
+        "nobo_mile",
+        "sobo_mile",
+        "exit_point",
+        "access_notes",
         "town_name",
         "canonical_hint",
         "access_distance_miles",
