@@ -12,12 +12,14 @@ from typing import Any, Mapping
 from cairn.api.plan_options import build_plan_options_response
 from cairn.api.plan_request import PlanAPIValidationError
 from cairn.api.plan_service import build_plan_response
+from cairn.api.trail_inventory import build_trail_inventory_response
 
 
 DEFAULT_MAX_BODY_BYTES = 32768
 DEFAULT_BUILD_SHA = "api"
 SERVICE_NAME = "cairnos-api"
 API_CONTRACT_VERSION = "cairnos_plan_api_v1"
+TRAIL_INVENTORY_CONTRACT_VERSION = "cairnos_trail_inventory_v1"
 NO_STORE_HEADERS = {
     "cache-control": "no-store",
     "x-content-type-options": "nosniff",
@@ -28,6 +30,7 @@ JSON_HEADERS = {
 }
 PLAN_CREATE_PATHS = {"", "/plan", "/v1/plans"}
 PLAN_OPTIONS_PATHS = {"/options", "/plan/options", "/v1/plan-options"}
+TRAIL_INVENTORY_PATHS = {"/v1/trail-inventory"}
 ASGI_SUPPORTED_ROUTES = (
     {
         "method": "GET",
@@ -52,6 +55,12 @@ ASGI_SUPPORTED_ROUTES = (
         "path": "/v1/plan-options",
         "contract": API_CONTRACT_VERSION,
         "description": "Plan option metadata",
+    },
+    {
+        "method": "GET",
+        "path": "/v1/trail-inventory",
+        "contract": TRAIL_INVENTORY_CONTRACT_VERSION,
+        "description": "Trail inventory metadata",
     },
     {
         "method": "POST",
@@ -144,6 +153,9 @@ def handle_plan_api_request(
     if normalized_method == "GET" and normalized_path in PLAN_OPTIONS_PATHS:
         return plan_options_response()
 
+    if normalized_method == "GET" and normalized_path in TRAIL_INVENTORY_PATHS:
+        return trail_inventory_response()
+
     if normalized_method == "POST" and normalized_path in PLAN_CREATE_PATHS:
         return create_plan_response(
             body,
@@ -163,6 +175,15 @@ def request_uses_body(method: str | None, path: str) -> bool:
 def plan_options_response() -> HTTPContractResponse:
     try:
         return json_response(200, build_plan_options_response())
+    except PlanAPIValidationError as error:
+        return validation_error_response(error)
+    except Exception:
+        return internal_error_response()
+
+
+def trail_inventory_response() -> HTTPContractResponse:
+    try:
+        return json_response(200, build_trail_inventory_response())
     except PlanAPIValidationError as error:
         return validation_error_response(error)
     except Exception:

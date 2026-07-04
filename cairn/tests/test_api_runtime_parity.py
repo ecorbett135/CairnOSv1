@@ -141,6 +141,36 @@ def test_asgi_and_lambda_share_options_success(monkeypatch):
     _assert_common_headers(asgi_response, lambda_response)
 
 
+def test_asgi_and_lambda_share_trail_inventory_success(monkeypatch):
+    expected_body = {
+        "contract_version": "cairnos_trail_inventory_v1",
+        "trail_id": "vermont_long_trail",
+        "status": "available",
+        "direction_model": {"supported_directions": ["NOBO", "SOBO"]},
+        "source": {"generated_from": "test"},
+        "items": [{"inventory_id": "vermont_long_trail:route_point:test"}],
+    }
+
+    monkeypatch.setattr(
+        http_contract,
+        "build_trail_inventory_response",
+        lambda trail_id="vermont_long_trail": expected_body,
+        raising=False,
+    )
+
+    asgi_response = _asgi_client().get("/v1/trail-inventory")
+    lambda_response = lambda_handler.handler(
+        _lambda_event("GET", "/v1/trail-inventory"),
+        None,
+    )
+
+    assert asgi_response.status_code == 200
+    assert lambda_response["statusCode"] == 200
+    assert asgi_response.json() == expected_body
+    assert _lambda_body(lambda_response) == expected_body
+    _assert_common_headers(asgi_response, lambda_response)
+
+
 def test_asgi_and_lambda_share_validation_error_normalization(monkeypatch):
     fixture_text = _fixture_text("valid_plan_request.json")
 

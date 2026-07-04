@@ -16,6 +16,7 @@ The ASGI app is the target core API boundary:
 ```text
 POST /v1/plans
 GET /v1/plan-options
+GET /v1/trail-inventory
 GET /health
 GET /version
 GET /runtime
@@ -146,6 +147,34 @@ Town option ids are emitted only when the source row has both `canonical_hint`
 and `trail_mile`, because the id is part of the planner-facing preference
 contract.
 
+## Trail Inventory Contract
+
+HikerLogix manual planning clients should use CairnOS-owned trail inventory
+instead of copying route, shelter, access, resupply, or side-trip semantics.
+
+```text
+GET /v1/trail-inventory
+```
+
+Successful trail-inventory responses return `200` with:
+
+| Field | Purpose |
+| --- | --- |
+| `contract_version` | Current trail inventory contract, `cairnos_trail_inventory_v1` |
+| `trail_id` | Current supported trail id, `vermont_long_trail` for the MVP |
+| `status` | `available` when CairnOS can build inventory |
+| `direction_model` | NOBO/SOBO display-mile and continuous-section rules |
+| `source` | Promoted source artifacts used to build inventory |
+| `items` | Inventory records for manual planning choices |
+
+The initial live inventory exposes overnight sites, access points, towns, and
+validated side trips. It intentionally avoids bulk road-crossing and trailhead
+promotion until those candidate flags are validated.
+
+Inventory is metadata for manual selection and display-label durability. It is
+not a manual-itinerary validation response and does not change Plan API
+feasibility logic.
+
 Error responses are narrow and stable:
 
 | Status | Error |
@@ -201,6 +230,7 @@ GET http://127.0.0.1:8010/health
 GET http://127.0.0.1:8010/version
 GET http://127.0.0.1:8010/runtime
 GET http://127.0.0.1:8010/v1/plan-options
+GET http://127.0.0.1:8010/v1/trail-inventory
 POST http://127.0.0.1:8010/v1/plans
 ```
 
@@ -211,6 +241,7 @@ GET /health
 GET /version
 GET /runtime
 GET /v1/plan-options
+GET /v1/trail-inventory
 POST /v1/plans
 ```
 

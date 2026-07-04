@@ -67,6 +67,12 @@ def create_app() -> FastAPI:
             http_contract.handle_plan_api_request("GET", "/v1/plan-options", b"")
         )
 
+    @app.get("/v1/trail-inventory")
+    async def trail_inventory() -> JSONResponse:
+        return _json_response(
+            http_contract.handle_plan_api_request("GET", "/v1/trail-inventory", b"")
+        )
+
     @app.post("/v1/plans")
     async def create_plan(request: Request) -> JSONResponse:
         return _json_response(

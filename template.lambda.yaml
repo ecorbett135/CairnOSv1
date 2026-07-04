@@ -32,6 +32,11 @@ Resources:
           Properties:
             Path: /options
             Method: GET
+        TrailInventoryApi:
+          Type: Api
+          Properties:
+            Path: /v1/trail-inventory
+            Method: GET
     Metadata:
       Dockerfile: Dockerfile.lambda
       DockerContext: .

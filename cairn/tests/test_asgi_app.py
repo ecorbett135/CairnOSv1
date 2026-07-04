@@ -76,6 +76,12 @@ def test_asgi_app_reports_operator_runtime_state(monkeypatch):
             "description": "Plan option metadata",
         },
         {
+            "method": "GET",
+            "path": "/v1/trail-inventory",
+            "contract": "cairnos_trail_inventory_v1",
+            "description": "Trail inventory metadata",
+        },
+        {
             "method": "POST",
             "path": "/v1/plans",
             "contract": "cairnos_plan_api_v1",
