@@ -23,7 +23,7 @@ planning before expanding into broader route modes.
 - Gaia-compatible GeoJSON export
 - schema-versioned CairnOS Plan JSON export for future HikerLogix read-only
   itinerary import
-- a versioned trail-inventory contract design for future HikerLogix
+- a versioned trail-inventory contract and endpoint for future HikerLogix
   inventory-bound Manual Build/Edit, documented in
   `docs/TRAIL_INVENTORY_CONTRACT.md`
 

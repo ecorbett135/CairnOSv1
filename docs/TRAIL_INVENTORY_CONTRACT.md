@@ -7,8 +7,8 @@ HikerLogix Platform manual planning. It lets HikerLogix build an itinerary from
 valid trail-shape inventory without copying CairnOS planner semantics into
 Django, React, or iOS.
 
-This slice defines the contract shape and fixture only. It does not implement a
-new API endpoint or change planner behavior.
+The live alpha endpoint implements the initial inventory metadata contract. It
+does not validate user-assembled itineraries or change planner behavior.
 
 ## Contract Version
 
@@ -18,7 +18,7 @@ The initial contract version is:
 cairnos_trail_inventory_v1
 ```
 
-Recommended future API path:
+API path:
 
 ```text
 GET /v1/trail-inventory
@@ -79,8 +79,8 @@ The contract is additive during alpha. Consumers should ignore unknown optional
 fields and preserve raw inventory records or display-label snapshots where
 needed for old-plan readability.
 
-The first live endpoint should be generated from promoted CairnOS artifacts,
-not from the representative fixture. The fixture is a consumer-contract example.
+The live endpoint is generated from promoted CairnOS artifacts, not from the
+representative fixture. The fixture remains a consumer-contract example.
 
 ## Direction Model
 
@@ -197,7 +197,11 @@ accepts selected inventory ids and returns:
 Until that exists, HikerLogix may save inventory-backed manual drafts, but it
 must not present them as CairnOS-validated planned truth.
 
-## Fixture
+## Endpoint And Fixture
+
+The live alpha endpoint emits overnight sites, access points, towns, and
+validated side trips. It intentionally avoids bulk road-crossing and trailhead
+promotion until those candidate fields are validated.
 
 The representative fixture lives at:
 
@@ -205,9 +209,9 @@ The representative fixture lives at:
 cairn/tests/fixtures/trail_inventory/vermont_long_trail_inventory_v1.json
 ```
 
-It is intentionally small. It proves the contract shape with representative
-overnight, access, town, and side-trip records. It is not a complete Long Trail
-inventory export.
+The fixture is intentionally small. It proves the contract shape with
+representative overnight, access, town, and side-trip records. The live endpoint
+is the complete current inventory response for promoted item kinds.
 
 ## Source Artifacts
 
@@ -222,8 +226,8 @@ such as:
 - `trails/vermont_long_trail/raw/csv/side_trip_options.csv`
 - `trails/vermont_long_trail/raw/csv/route_master.csv`
 
-Future implementation should generate the endpoint from these CairnOS-owned
-artifacts rather than hand-maintaining a product copy in HikerLogix.
+The endpoint generates inventory from these CairnOS-owned artifacts rather than
+requiring HikerLogix to hand-maintain a product copy.
 
 Crossing and trailhead metadata requires care. `crossings_refined.json` exposes
 many road crossings, but current refined crossing flags can be candidate or
@@ -244,11 +248,11 @@ Trail data should be reviewed in `data/DATASETS.md`.
 
 ## Open Implementation Work
 
-- Generate full inventory from `route_overlay.json` and approved enrichment
-  artifacts.
 - Normalize total-mile handling so plan options, inventory labels, and plan
   summaries use one documented trail-mile authority.
-- Decide whether the live endpoint belongs beside `/v1/plan-options` or under
-  a separate route family.
-- Add unsupported-version and additive-field tests for the live endpoint when
-  implementation begins.
+- Add query support only if a client needs server-side filtering; clients can
+  initially filter by `kind`, direction, section range, or selectable role.
+- Promote validated crossing and trailhead metadata only after candidate flags
+  are reviewed.
+- Add a future manual-itinerary validation contract that accepts selected
+  inventory ids and returns feasibility, mileage, elevation, and warnings.
