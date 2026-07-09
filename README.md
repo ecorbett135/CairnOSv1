@@ -51,6 +51,13 @@ entrypoint. The hosted app uses the lean dependency file at
 `cairn/interfaces/requirements.txt`. No feedback-form Streamlit secret is
 required; alpha feedback routes through GitHub issue templates.
 
+## Branch Model
+
+CairnOSv1 uses `main` for stable baselines, `dev` for integration, and
+short-lived `codex/*` branches for implementation work. Feature and dependency
+pull requests should target `dev`; `dev` is promoted to `main` only when
+intentionally cutting a stable planning-engine baseline.
+
 ## Alpha Status And Safety Notice
 
 CairnOSv1 is public alpha software for hikers, early testers, and contributors

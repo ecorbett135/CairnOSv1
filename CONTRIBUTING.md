@@ -30,6 +30,13 @@ cairn/interfaces/requirements.txt
 
 That file is intentionally smaller than the root development requirements.
 
+## Branch Workflow
+
+Use `main` as the stable baseline and `dev` as the integration branch. Open
+feature, documentation, data, and dependency pull requests from short-lived
+branches into `dev`. Promote `dev` to `main` only as an intentional stable
+baseline step.
+
 ## Running Tests
 
 Before opening a pull request that changes code or planner behavior, run:

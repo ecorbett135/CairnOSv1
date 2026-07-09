@@ -28,6 +28,17 @@ venv/bin/streamlit run cairn/interfaces/streamlit_app.py
 
 If the venv is missing or stale, use Python 3.11 or newer and install from `requirements.txt` for full local development. The hosted Streamlit app uses `cairn/interfaces/requirements.txt`.
 
+## Branch Strategy
+
+Use the same branch model as HikerLogix:
+
+- `main`: stable baseline only
+- `dev`: integration branch for completed feature work
+- `codex/*`: short-lived implementation branches
+
+Open pull requests from `codex/*` into `dev`. Promote `dev` to `main` only
+when intentionally cutting a stable planning-engine baseline.
+
 ## Multi-Repository Workflow
 
 CairnOSv1 and HikerLogix should be opened together as a VS Code multi-root
