@@ -171,6 +171,10 @@ def build_plan_export(
             trail_root.name,
         )
     )
+    daily_plan = itinerary.get(
+        "daily_plan",
+        [],
+    )
 
     payload = {
         "export_version": PLAN_EXPORT_SCHEMA_VERSION,
@@ -216,12 +220,21 @@ def build_plan_export(
             "season_advisories",
             [],
         ),
-        "daily_plan": itinerary.get(
-            "daily_plan",
-            [],
-        ),
+        "daily_plan": daily_plan,
         "warnings": plan_warnings(),
     }
+    if daily_plan:
+        from cairn.export.route_gpx import (
+            build_route_gpx_artifacts,
+        )
+
+        payload["route_gpx"] = build_route_gpx_artifacts(
+            daily_plan,
+            trail_root,
+            direction=config.get("direction"),
+            trail_id=trail_id,
+            generated_at=generated_at,
+        )
 
     return sanitize_value(
         payload,

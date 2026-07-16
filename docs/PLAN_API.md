@@ -117,6 +117,12 @@ planner/export output for import review and interoperability. It is advisory
 planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
+Plan responses also include the additive `route_gpx` section from
+`cairnos_route_gpx_v1` when daily itinerary rows are available. The section
+contains full-plan and per-day waypoint-only GPX artifacts for downstream
+import/export workflows. The artifacts do not contain route or track geometry
+and must remain advisory.
+
 ## Plan Options Contract
 
 The debug and product clients should use CairnOS-owned option metadata rather
