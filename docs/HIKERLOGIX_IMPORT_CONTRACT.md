@@ -48,6 +48,18 @@ Optional sections such as `resupply_town_details`, `selected_experiences`, and
 - Gaia GeoJSON remains a separate navigation-tool export and is not the mobile
   plan contract.
 
+## Optional Route GPX Artifacts
+
+CairnOS can also build `cairnos_route_gpx_v1` route GPX artifacts from the
+daily plan. These artifacts are optional companion files for Platform/iOS import
+experiments, not replacements for CairnOS Plan JSON.
+
+The current GPX contract is `waypoint_only`: one full-plan GPX file, one GPX
+file per day, and manifest entries describing each artifact. The GPX files
+contain planned daily start/stop waypoints only. They do not contain route or
+track geometry and must not be used as navigation, distance, elevation, closure,
+water, weather, or safety authority.
+
 ## Fixture Contract
 
 Deterministic NOBO and SOBO fixtures live under:
@@ -68,4 +80,3 @@ normalizing imported plans into native persistence models.
 Plan JSON must not contain absolute local paths, Streamlit secrets, private
 tester data, proprietary guidebook text, local calibration files, or raw vendor
 exports. Trail data and business details remain advisory and provenance-bound.
-

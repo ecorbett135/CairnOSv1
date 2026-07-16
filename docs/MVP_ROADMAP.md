@@ -237,6 +237,12 @@ is designed and manually validated in Gaia. That export should group each
 moving day as a colored LineString segment with start/stop points, but it
 should not ship until folder/color behavior is tested through Gaia import.
 
+A minimal route GPX artifact layer now exists for downstream HikerLogix
+Platform/iOS import work. The current `cairnos_route_gpx_v1` output is
+waypoint-only: it can emit full-plan and per-day GPX files with daily
+start/stop waypoints and manifest entries, but it intentionally does not emit
+route or track geometry until daily geometry slicing is validated.
+
 Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
 exports can be compared against Cairn intervals from the ignored
 `elevation_calibration/` directory. These files are reference measurements only,
