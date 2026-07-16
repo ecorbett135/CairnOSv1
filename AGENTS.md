@@ -4,7 +4,7 @@
 
 CairnOSv1 is the operational expedition planning and reasoning layer. It should stay focused on itinerary feasibility, terrain-aware pacing, shelter and campsite selection, resupply and recovery reasoning, provenance-aware trail data, and clean export interoperability.
 
-Do not turn CairnOS into a mobile app, offline navigation tool, map editor, social trail platform, guidebook replacement, or emergency/safety authority. Future HikerLogix work should treat CairnOS as the planning/export/calibration engine, not as the owner of iOS UI, HealthKit permissions, or local mobile persistence.
+Do not turn CairnOS into a mobile app, offline navigation tool, map editor, social trail platform, guidebook replacement, or emergency/safety authority. HikerLogix work should treat CairnOS as the planning/export/calibration engine, not as the owner of Platform records/UI or iOS UI, permissions, and local persistence.
 
 ## Required Context
 
@@ -41,7 +41,7 @@ when intentionally cutting a stable planning-engine baseline.
 
 ## Multi-Repository Workflow
 
-CairnOSv1 and HikerLogix should be opened together as a VS Code multi-root
+CairnOSv1, HikerLogix Platform, and HikerLogix iOS should be opened together as a VS Code multi-root
 workspace, not combined as one Git repository or Git worktree. The expected
 workspace file is:
 
@@ -51,18 +51,21 @@ Keep repository responsibilities separate:
 
 - CairnOSv1 owns planner behavior, data semantics, exports, diagnostics, and
   schema-versioned plan JSON.
-- HikerLogix owns iOS UI, local plan import, local actuals, field logging, and
-  user-owned mobile persistence.
+- HikerLogix Platform owns plan upload/download, current-plan wrapper
+  contracts, trip library, Operations/Analytics actual records, and sync intake.
+- HikerLogix iOS owns offline current-plan use, local actuals, field logging,
+  photos, permissions, and user-owned mobile persistence.
 
-When a feature changes the CairnOS/HikerLogix contract, use matching
-short-lived branches and separate PRs in both repositories. Example:
+When a feature changes the cross-repository contract, use matching short-lived
+branches and separate PRs in each affected repository. Example:
 
 - CairnOSv1: `codex/plan-json-v2`
-- HikerLogix: `codex/import-plan-json-v2`
+- HikerLogix Platform: `codex/platform-plan-json-v2`
+- HikerLogix iOS: `codex/ios-import-plan-json-v2`
 
 Merge order should preserve the contract boundary: land CairnOS export/schema
-changes first, then update HikerLogix import/UI behavior against the committed
-fixture or schema.
+changes first, Platform wrapper/persistence changes second, and iOS
+import/cache/display changes third.
 
 ## Tooling Expectations
 
@@ -93,7 +96,7 @@ note, implementation plan, or intentional repository artifact.
 
 ## Architecture Rules
 
-- Keep `PlannerV2` as the public integration facade for Streamlit, tests, exports, and future HikerLogix interoperability.
+- Keep `PlannerV2` as the public integration facade for Streamlit, tests, exports, and HikerLogix interoperability.
 - Keep terrain, logistics, recovery, and itinerary synthesis in focused helper modules behind `PlannerV2`.
 - Preserve NOBO and SOBO parity. Direction changes traversal order over northbound-reference guidebook miles; it must not invent a separate SOBO mile system.
 - Treat `route_overlay.json` and compiled operational overlay semantics as traversal authority.
@@ -107,7 +110,7 @@ note, implementation plan, or intentional repository artifact.
 - Treat community datasets and third-party exports as candidate inputs until license, provenance, and operational accuracy are reviewed.
 - Record external research sources in `docs/RESEARCH_LOG.md` when they influence planner behavior, data modeling, UI language, roadmap priority, or alpha-feedback interpretation.
 - Do not commit secrets, private Streamlit settings, private tester data, private route exports, local calibration inputs, or generated reports unless explicitly intended.
-- User-owned actuals from future HikerLogix imports should be calibration inputs only; they must not override CairnOS trail data or operational truth.
+- User-owned actuals from a future approved HikerLogix calibration import should be calibration inputs only; they must not override CairnOS trail data or operational truth.
 
 ## UI And Documentation
 

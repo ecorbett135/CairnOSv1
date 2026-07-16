@@ -24,8 +24,8 @@ show the sidebar. Mobile mode places planner controls at the top of the page
 and renders results below them.
 
 You can export the itinerary as Gaia-compatible GeoJSON for review in other
-tools, or as CairnOS Plan JSON for downstream itinerary consumers such as the
-future HikerLogix companion. If you are reporting a confusing planner result,
+tools, or as CairnOS Plan JSON for downstream itinerary consumers such as
+HikerLogix Platform and iOS. If you are reporting a confusing planner result,
 use the developer diagnostics download so the run can be reproduced without
 screenshots. Please read the Alpha Status And Safety Notice before using any
 generated plan in the real world.
@@ -208,8 +208,8 @@ hosted Alpha runtime requirements.
   elevation gain for selected legs.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Exports schema-versioned CairnOS Plan JSON as the deterministic itinerary
-  and reasoning contract for future companion-app imports.
-- Provides a waypoint-only route GPX artifact builder for future HikerLogix
+  and reasoning contract for Platform and transition iOS imports.
+- Provides a waypoint-only route GPX artifact builder for HikerLogix
   Platform/iOS import work, with full-plan and per-day GPX strings plus
   manifest entries.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
@@ -248,16 +248,15 @@ CairnOSv1 is evolving toward:
 - export interoperability for future companion tools
 - an expedition-grade workspace for guided trail planning and review
 
-The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. A future
-HikerLogix companion integration concept is tracked in
-`docs/HIKERLOGIX_COMPANION.md`: CairnOS plans and exports, while HikerLogix
-executes in the field with offline itinerary use, journal entries, actuals,
-planned-versus-actual review, and advisory adjustments.
+The near-term MVP roadmap is tracked in `docs/MVP_ROADMAP.md`. Current
+HikerLogix integration is tracked in `docs/HIKERLOGIX_COMPANION.md`: CairnOS
+plans and exports, Platform/Web owns planning UI and centralized records, and
+iOS executes in the field with offline itinerary use and user-owned actuals.
 
 The current open-source and intellectual-property posture is tracked in
 `docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. In short: CairnOSv1 stays public and
 Apache 2.0 for alpha testing and planning-engine interoperability, while the
-future HikerLogix mobile app can remain private/proprietary unless separately
+HikerLogix Platform and iOS can remain private/proprietary unless separately
 opened.
 
 External research sources that inform planning behavior, data modeling, or

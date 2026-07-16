@@ -21,9 +21,9 @@ planning before expanding into broader route modes.
 - selected town preferences that can bias reachable resupply stop selection,
   plus annotation-only side-trip preferences for validated experience options
 - Gaia-compatible GeoJSON export
-- schema-versioned CairnOS Plan JSON export for future HikerLogix read-only
+- schema-versioned CairnOS Plan JSON export for HikerLogix read-only
   itinerary import
-- a versioned trail-inventory contract and endpoint for future HikerLogix
+- a versioned trail-inventory contract and endpoint for HikerLogix
   inventory-bound Manual Build/Edit, documented in
   `docs/TRAIL_INVENTORY_CONTRACT.md`
 
@@ -65,22 +65,22 @@ planning follows ordered overlay corridors for the mainline plus selected
 ingress and egress endpoints. SECTION planning remains a later slice; this
 work does not add user-facing SECTION controls.
 
-Future HikerLogix companion integration is tracked separately from the core MVP
-sequence. HikerLogix should become the mobile field execution layer, not
-"CairnOS on a phone": offline itinerary use, daily journal, actuals capture,
-planned-versus-actual review, and lightweight advisory adjustments. See
-`docs/HIKERLOGIX_COMPANION.md`.
+HikerLogix integration is active but tracked separately from the core CairnOS
+MVP sequence. Platform/Web owns planning UI and centralized records; iOS owns
+offline field execution, journal, and user-owned actuals. Neither surface is
+"CairnOS on a phone/web page." See `docs/HIKERLOGIX_COMPANION.md`.
 
 Roadmap sequencing should stay export-first:
 
 - #12 deterministic plan JSON export is the key CairnOS unlock for HikerLogix
   offline itinerary import and is implemented as the `cairnos_plan_v1`
   file-based contract.
-- #13 read-only HikerLogix import path is the next interoperability step.
-  It should start with `docs/HIKERLOGIX_IMPORT_CONTRACT.md` and deterministic
-  NOBO/SOBO Plan JSON fixtures, not an iOS importer implementation.
-- #14 actuals import and personal calibration remains Post-MVP until
-  HikerLogix proves its mobile journal, actuals, and review workflow.
+- #13 read-only HikerLogix import is implemented across Platform and iOS using
+  `docs/HIKERLOGIX_IMPORT_CONTRACT.md` and deterministic fixtures.
+- Platform current-plan and actuals wrapper/intake contracts are implemented
+  downstream; they remain HikerLogix-owned contracts.
+- #14 CairnOS actuals import and personal calibration remains Post-MVP and needs
+  a separate promoted contract.
 
 Do not add live town-hour, post-office-hour, store-hour, weather automation, or
 product AI-agent epics before the offline plan and actuals loop is stable.

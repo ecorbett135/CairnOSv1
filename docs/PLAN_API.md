@@ -199,8 +199,9 @@ details in the client payload.
 
 The API is stateless. It does not create accounts, store plans, ingest actuals,
 sync journals, process photos, request HealthKit data, or persist user-owned
-mobile data. Future HikerLogix work should treat this API as a planning/export
-engine boundary.
+mobile data. HikerLogix Platform and iOS treat this API as a planning/export
+engine boundary; Platform owns accounts, saved plans, wrapper contracts, and
+actuals intake.
 
 ## Local Development
 

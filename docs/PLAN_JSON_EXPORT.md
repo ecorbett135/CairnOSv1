@@ -1,7 +1,8 @@
 # CairnOS Plan JSON Export
 
-CairnOS plan JSON is the stable file-based export contract for downstream
-itinerary consumers such as the future HikerLogix mobile companion.
+CairnOS plan JSON is the stable file-based planned-truth export contract for
+downstream itinerary consumers such as HikerLogix Platform and transition iOS
+import.
 
 It is separate from Gaia GeoJSON and developer diagnostics:
 
@@ -70,11 +71,15 @@ calibration references, Streamlit secrets, or generated diagnostics payloads.
 
 ## HikerLogix Boundary
 
-HikerLogix should treat this file as planned itinerary truth from CairnOS.
-HikerLogix may later store user-owned actuals and compare those actuals against
+HikerLogix treats this file as planned itinerary truth from CairnOS. Platform
+and iOS store user-owned actuals separately and compare those actuals against
 the imported plan, but actuals should be calibration input only. They should not
 override CairnOS trail data, terrain reconciliation, route overlay authority, or
 operational truth.
+
+Platform `hikerlogix_current_plan_download_v1` wraps selected field plans and
+`hikerlogix_actuals_upload_v1` accepts approved actual overlays. Those are
+HikerLogix-owned downstream contracts, not CairnOS export versions.
 
 The mobile import contract is documented in
 `docs/HIKERLOGIX_IMPORT_CONTRACT.md`. Deterministic NOBO and SOBO fixture exports

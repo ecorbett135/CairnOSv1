@@ -86,8 +86,12 @@ The route GPX artifact layer is separate from:
 - CairnOS Plan JSON, which remains the itinerary and reasoning contract
 - Gaia GeoJSON, which remains navigation-tool-oriented review/export output
 - developer diagnostics ZIPs
-- future HikerLogix mobile persistence, UI, and actuals capture
+- HikerLogix Platform/iOS persistence, UI, and actuals capture
 
 Future route/track GPX geometry should be added only after CairnOS has a
 validated way to slice daily route geometry without changing planner semantics
 or weakening overlay-authoritative traversal rules.
+
+CairnOS remains the route-spine/overlay authority. The current
+`cairnos_route_gpx_v1` artifacts use that authority to resolve planned
+waypoints, but they do not export the spine as GPX route/track geometry.
