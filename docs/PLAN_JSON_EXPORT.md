@@ -38,11 +38,23 @@ The export includes:
 - `selected_experiences`
 - `season_advisories`
 - `daily_plan`
+- `route_gpx`
 - `warnings`
 
 PlannerV2 field names are intentionally preserved inside these sections. The
 goal is to let HikerLogix import the file read-only first instead of forcing a
 mobile-specific normalized schema too early.
+
+## Route GPX Artifacts
+
+The export embeds an additive `route_gpx` section using the
+`cairnos_route_gpx_v1` contract. It includes a manifest plus GPX XML artifacts
+for the full plan and each planned day. These files are waypoint-only artifacts:
+they contain planned daily start/stop points, not route or track geometry.
+
+Downstream clients may expose these artifacts for Gaia GPS, COROS, Files, or
+other import workflows, but must keep the waypoint-only warning visible and
+must not present the GPX as navigational authority.
 
 ## Privacy And Provenance
 

@@ -9,6 +9,10 @@ from cairn.export.plan_json import (
     dumps_plan_export,
     plan_export_filename,
 )
+from cairn.export.route_gpx import (
+    GPX_GEOMETRY_MODE,
+    ROUTE_GPX_EXPORT_VERSION,
+)
 
 
 REQUIRED_TOP_LEVEL_FIELDS = {
@@ -142,6 +146,52 @@ def test_plan_json_export_contains_versioned_contract(
     assert any(
         warning["code"] == "alpha_advisory"
         for warning in export["warnings"]
+    )
+
+
+def test_plan_json_export_embeds_route_gpx_artifacts(
+    planner_factory,
+    trail_root,
+):
+    planner_result = planner_result_for_export(
+        planner_factory,
+        trail_root,
+        "NOBO",
+    )
+
+    export = build_plan_export(
+        planner_result,
+        trail_root,
+        "abcdef123456",
+        generated_at="20260520T120000Z",
+    )
+    route_gpx = export["route_gpx"]
+
+    assert (
+        route_gpx["export_version"]
+        == ROUTE_GPX_EXPORT_VERSION
+    )
+    assert (
+        route_gpx["geometry_mode"]
+        == GPX_GEOMETRY_MODE
+    )
+    assert route_gpx["direction"] == "NOBO"
+    assert route_gpx["trail_id"] == "vermont_long_trail"
+    assert route_gpx["generated_at"] == "20260520T120000Z"
+    assert len(route_gpx["manifest"]) == (
+        len(export["daily_plan"]) + 1
+    )
+    assert set(route_gpx["artifacts"]) == {
+        entry["filename"]
+        for entry in route_gpx["manifest"]
+    }
+    full_plan = route_gpx["manifest"][0]
+    assert full_plan["artifact_id"] == "full_plan"
+    assert full_plan["scope"] == "full_plan"
+    assert full_plan["media_type"] == "application/gpx+xml"
+    assert (
+        route_gpx["artifacts"][full_plan["filename"]]
+        .startswith("<?xml version=\"1.0\"")
     )
 
 

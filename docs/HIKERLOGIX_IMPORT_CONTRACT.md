@@ -50,9 +50,10 @@ Optional sections such as `resupply_town_details`, `selected_experiences`, and
 
 ## Optional Route GPX Artifacts
 
-CairnOS can also build `cairnos_route_gpx_v1` route GPX artifacts from the
-daily plan. These artifacts are optional companion files for Platform/iOS import
-experiments, not replacements for CairnOS Plan JSON.
+CairnOS also embeds `cairnos_route_gpx_v1` route GPX artifacts in the additive
+`route_gpx` Plan JSON section when daily plan rows are available. These
+artifacts are optional companions for Platform/iOS import and sharing
+workflows, not replacements for CairnOS Plan JSON.
 
 The current GPX contract is `waypoint_only`: one full-plan GPX file, one GPX
 file per day, and manifest entries describing each artifact. The GPX files

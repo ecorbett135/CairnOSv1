@@ -328,6 +328,42 @@ def test_build_plan_response_returns_cairnos_plan_v1():
     assert payload["warnings"]
 
 
+def test_build_plan_response_includes_route_gpx_artifacts():
+    payload = plan_service.build_plan_response(
+        {
+            "trail_id": "vermont_long_trail",
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "desired_days": 30,
+            "min_daily_miles": 8,
+            "max_daily_miles": 15,
+            "max_daily_elevation": 4000,
+            "resupply_cadence": 5,
+            "recovery_cadence": 6,
+        },
+        build_sha="test-build",
+        generated_at="20260521T120000Z",
+    )
+
+    route_gpx = payload["route_gpx"]
+
+    assert (
+        route_gpx["export_version"]
+        == "cairnos_route_gpx_v1"
+    )
+    assert route_gpx["geometry_mode"] == "waypoint_only"
+    assert route_gpx["direction"] == "NOBO"
+    assert len(route_gpx["manifest"]) == (
+        len(payload["daily_plan"]) + 1
+    )
+    assert set(route_gpx["artifacts"]) == {
+        entry["filename"]
+        for entry in route_gpx["manifest"]
+    }
+    assert route_gpx["manifest"][0]["scope"] == "full_plan"
+
+
 def test_build_plan_options_response_returns_cairnos_owned_choices():
     payload = build_plan_options_response("vermont_long_trail")
 
