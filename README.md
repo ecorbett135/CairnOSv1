@@ -209,6 +209,9 @@ hosted Alpha runtime requirements.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Exports schema-versioned CairnOS Plan JSON as the deterministic itinerary
   and reasoning contract for future companion-app imports.
+- Provides a waypoint-only route GPX artifact builder for future HikerLogix
+  Platform/iOS import work, with full-plan and per-day GPX strings plus
+  manifest entries.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export
@@ -332,6 +335,24 @@ It converts a PlannerV2 operational itinerary into a Gaia-importable GeoJSON fea
   - trail spine: hot pink
 
 Daily stop coordinates are resolved from compiled and enriched trail data, preferring curated reference coordinates where available and falling back to compiled route overlay or spine interpolation. Planned resupply markers are driven by `resupply_amenities.csv`, which now includes latitude and longitude for the known Long Trail resupply access points.
+
+## Route GPX export
+
+The route GPX artifact layer lives in `cairn/export/route_gpx.py` and is
+documented in `docs/ROUTE_GPX_EXPORT.md`.
+
+It builds downstream-import-oriented GPX strings from an existing PlannerV2
+daily plan:
+
+- one full-plan GPX artifact
+- one per-day GPX artifact for each itinerary row
+- manifest entries with filenames, scope, waypoint counts, warning codes, and
+  day metadata
+
+The current `cairnos_route_gpx_v1` contract is waypoint-only. It contains
+planned daily start/stop waypoints resolved through the same coordinate lookup
+path as Gaia export. It does not include GPX route or track geometry, because
+daily route-geometry slicing has not yet been validated.
 
 ## Resupply and recovery semantics
 
