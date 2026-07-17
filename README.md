@@ -209,9 +209,9 @@ hosted Alpha runtime requirements.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Exports schema-versioned CairnOS Plan JSON as the deterministic itinerary
   and reasoning contract for future companion-app imports.
-- Provides a waypoint-only route GPX artifact builder for future HikerLogix
-  Platform/iOS import work, with full-plan and per-day GPX strings plus
-  manifest entries.
+- Provides route GPX artifacts for future HikerLogix Platform/iOS import work,
+  with a full-plan Long Trail spine track, preserved start/stop waypoints,
+  waypoint-only per-day files, and manifest entries.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export
@@ -346,13 +346,16 @@ daily plan:
 
 - one full-plan GPX artifact
 - one per-day GPX artifact for each itinerary row
-- manifest entries with filenames, scope, waypoint counts, warning codes, and
-  day metadata
+- manifest entries with filenames, scope, waypoint/track counts, warning
+  codes, and day metadata
 
-The current `cairnos_route_gpx_v1` contract is waypoint-only. It contains
-planned daily start/stop waypoints resolved through the same coordinate lookup
-path as Gaia export. It does not include GPX route or track geometry, because
-daily route-geometry slicing has not yet been validated.
+The current `cairnos_route_gpx_v2` contract keeps planned daily start/stop
+waypoints resolved through the same coordinate lookup path as Gaia export. Its
+full-plan artifact also contains one GPX track built from the compiled Long
+Trail spine, ordered NOBO or reversed for SOBO. Per-day artifacts remain
+waypoint-only because daily route-geometry slicing has not yet been validated.
+The spine does not include selected ingress/egress branches or off-spine
+overnight access and is advisory export geometry, not navigational authority.
 
 ## Resupply and recovery semantics
 
