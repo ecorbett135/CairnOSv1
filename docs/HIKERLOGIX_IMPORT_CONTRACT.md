@@ -1,8 +1,12 @@
 # HikerLogix Plan Import Contract
 
-CairnOS plan JSON is the file-based contract for the future HikerLogix mobile
-companion. HikerLogix should import it as read-only planned itinerary truth,
-store mobile actuals separately, and never reimplement CairnOS planner logic.
+CairnOS plan JSON is the file-based planned-truth contract for HikerLogix
+Platform and transition iOS import. Consumers import it read-only, store actuals
+separately, and never reimplement CairnOS planner logic.
+
+Platform `hikerlogix_current_plan_download_v1` and
+`hikerlogix_actuals_upload_v1` are downstream HikerLogix wrapper/intake
+contracts. They are not CairnOS schemas and do not change `cairnos_plan_v1`.
 
 ## Supported Version
 

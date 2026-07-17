@@ -108,7 +108,7 @@ The route GPX artifact layer is separate from:
 - CairnOS Plan JSON, which remains the itinerary and reasoning contract
 - Gaia GeoJSON, which remains navigation-tool-oriented review/export output
 - developer diagnostics ZIPs
-- future HikerLogix mobile persistence, UI, and actuals capture
+- HikerLogix Platform/iOS persistence, UI, and actuals capture
 
 The full-plan track is the compiled mainline Long Trail spine. It does not
 include selected ingress/egress branches, off-spine overnight access, or route
@@ -120,3 +120,8 @@ validated way to slice daily route geometry without changing planner semantics
 or weakening overlay-authoritative traversal rules. The spine's source and
 reuse rights remain subject to the unresolved provenance entries in
 `data/DATASETS.md`.
+
+CairnOS remains the route-spine/overlay authority. The current
+`cairnos_route_gpx_v2` artifacts use that authority to resolve planned
+waypoints and expose the compiled mainline spine as advisory full-plan GPX
+track geometry.

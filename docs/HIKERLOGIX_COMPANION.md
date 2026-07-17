@@ -1,200 +1,126 @@
-# HikerLogix Companion Integration
+# HikerLogix Integration Boundary
 
-This document records a future integration path between CairnOSv1 and the older
-HikerLogix iOS prototype.
+This document records the current three-repository product boundary. CairnOS is
+the planning engine and contract authority behind HikerLogix, not a user-facing
+brand inside Platform or iOS.
 
-CairnOSv1 remains the source of planned itinerary truth. HikerLogix should
-become the mobile field execution layer if this integration is revived. It
-should not be "CairnOS on a phone"; it should own what happens during trail
-use: offline itinerary access, daily journal entries, actuals capture,
-planned-versus-actual review, and lightweight adaptive recommendations.
+## Repository Ownership
 
-## Product Boundary
+CairnOS owns:
 
-CairnOSv1 should own:
+- itinerary feasibility and planner classification;
+- trail ontology, route overlay/spine authority, and direction semantics;
+- terrain, shelter/campsite, resupply, recovery, ingress, and egress reasoning;
+- schema-versioned Plan API, trail inventory, plan JSON, and GPX artifacts;
+- future personal-calibration import semantics after a separate contract.
 
-- itinerary feasibility and planning semantics
-- terrain-aware pacing
-- shelter and campsite selection
-- resupply and recovery reasoning
-- route overlay authority
-- export interoperability
+HikerLogix Platform owns:
 
-HikerLogix should own:
+- Web planning workflows and centralized user/trip records;
+- defined-trail Basic and Advanced planning inputs exposed to users;
+- trip library, current-plan selection/download, and generated-plan history;
+- `hikerlogix_current_plan_download_v1` and
+  `hikerlogix_actuals_upload_v1`;
+- actual-overlay persistence, server revisions, Operations/Analytics, and sync
+  intake.
 
-- iOS UI
-- local mobile persistence
-- offline imported itinerary use
-- offline field journaling
-- actual start, stop, mileage, overnight, zero, and nero capture
-- planned-versus-actual review
-- lightweight adaptive recommendations from plan plus actuals
-- personal hike history
-- optional gear, food, weather observations, and HealthKit/workout summaries
+HikerLogix iOS owns:
 
-Neither project should try to replace Gaia, FarOut, HiiKER, Garmin, paper maps,
-guidebooks, official sources, or field judgment.
+- offline current-plan viewing and local persistence;
+- local/freeform Custom placeholder and logbook plans;
+- field journal entries, start/stop times, photos, ratings, sleep/recovery, and
+  optional manual weather observations;
+- planned-versus-actual overlays, pause/resume, and user-owned hike history;
+- local upload queue behavior and native privacy/permission flows.
 
-## Field Execution MVP
+Neither HikerLogix surface should reproduce CairnOS route feasibility, trail
+ontology, or planning semantics. None of the three products replaces official
+sources, guidebooks, maps, navigation tools, or field judgment.
 
-The first useful HikerLogix product should be built around actual trail use,
-not broad mobile parity with the CairnOS Streamlit surface.
+## Planning And Lifecycle Shape
 
-The MVP should include:
+The HikerLogix product recognizes three planning mechanisms:
 
-- importing a CairnOS plan JSON file
-- storing the imported itinerary for offline use
-- showing daily itinerary, mileage, overnight, resupply, and warnings
-- recording daily journal notes and actual progress
-- comparing planned values against actual field outcomes
-- suggesting simple advisory adjustments from remaining plan and actual pace
+1. Defined-trail Basic: a small set of controls submitted through Platform to
+   CairnOS.
+2. Defined-trail Advanced: selected anchors and controls submitted through
+   Platform while CairnOS still chooses and validates the itinerary.
+3. Custom: a placeholder/local/logbook plan. It is not CairnOS-validated
+   planned truth.
 
-Live town hours, post office hours, store hours, automated weather ingestion,
-and richer reporting should stay post-MVP until data authority, freshness,
-disclaimers, and failure modes are designed explicitly.
+Platform/iOS workflow language is Draft, Planned, In Progress, Paused,
+Completed, and Archived. Completion locks editing until explicit reopen;
+pause/resume changes eligible future actual dates without mutating planned
+truth. Plan-number display, lifecycle UI, and date-cascade behavior are
+HikerLogix concerns, not CairnOS contract semantics.
 
-## Licensing And Repository Posture
+## Contract Layering
 
-CairnOSv1 is public and Apache 2.0 licensed because the alpha needs public
-deployment, tester trust, reproducibility, and export interoperability.
+The current CairnOS versions remain:
 
-HikerLogix does not need to inherit that posture. The mobile app can remain
-private and proprietary while it imports CairnOS plan JSON or uses
-Apache-licensed CairnOS contracts. CairnOS being public for Streamlit hosting
-does not require mobile UI, local persistence, HealthKit permissions,
-monetization logic, or App Store packaging to become public.
+- `cairnos_plan_api_v1` for stateless plan generation;
+- `cairnos_plan_v1` for planned itinerary/reasoning export;
+- `cairnos_trail_inventory_v1` for promoted inventory metadata;
+- `cairnos_route_gpx_v1` for full-plan and per-day waypoint-only GPX artifacts.
 
-Commercial value should live primarily in HikerLogix execution and user-owned
-actuals workflows:
+Platform wraps accepted planned truth in
+`hikerlogix_current_plan_download_v1`. Platform accepts approved user-owned
+daily actual overlays through `hikerlogix_actuals_upload_v1`. Those HikerLogix
+contracts do not extend or version CairnOS schemas.
 
-- polished mobile UX
-- offline imported itinerary use
-- offline field journaling
-- planned-versus-actual review
-- lightweight adaptive recommendations
-- personal calibration
-- optional cloud backup or sync
-- paid exports, analytics, or curated trail packs with clean rights
+CairnOS owns route-spine/overlay authority and uses it to resolve GPX
+waypoints. The current GPX artifacts do not contain route or track geometry and
+must not be presented as navigation authority. Platform and iOS may expose or
+share the artifacts where supported while preserving that warning.
 
-Do not commit HikerLogix proprietary implementation details, private tester
-actuals, App Store monetization experiments, or patent-sensitive design notes to
-CairnOSv1 simply because this repository is public.
+## Actuals And Analytics Boundary
 
-## Roadmap Placement
+The approved HikerLogix actuals loop is implemented for non-sensitive daily
+overlay fields: iOS captures and queues user-owned actuals; Platform persists
+them with sync revisions and exposes them in Operations/Analytics without
+mutating planned truth.
 
-Track this as export interoperability first and personal calibration later.
+Daily records can include planned-versus-actual dates and stops, skipped
+days/sections, notes, photos, start/stop times, and sync metadata. Some richer
+mobile fields travel through HikerLogix TripRecord metadata rather than
+`hikerlogix_actuals_upload_v1`. CairnOS does not ingest these records today.
 
-Documentation can happen before SECTION planning because it clarifies boundaries
-and reduces product drift. Implementation should wait until the CairnOS export
-contract is stable enough to support downstream consumers.
+Analytics is the HikerLogix completed/archived hike analysis surface. Future
+charts, maps, and AI-assisted analysis remain HikerLogix product work and
+should not move into CairnOS planning contracts.
 
-Recommended order:
+## Weather And Future Calibration
 
-1. Document the companion concept.
-1. Add a CairnOS-native plan JSON export.
-1. Build HikerLogix import and read-only itinerary viewing.
-1. Add HikerLogix offline journal and actuals capture.
-1. Add HikerLogix planned-versus-actual review and simple advisory adjustments.
-1. Add CairnOS actuals import and reporting after the mobile actuals model is
-   proven.
-1. Use actuals for personal pacing, gear, and resupply calibration.
+Weather enrichment is next planned HikerLogix work, not a current CairnOS or
+Platform weather-upload contract. Manual iOS observations may exist locally or
+in HikerLogix TripRecord metadata. WeatherKit/provider collection, sensitive
+uploads, and planning/calibration use require separate privacy and contract
+review.
 
-## V1 Export Shape
-
-The first implementation should be file-based, not network/API-based.
-
-CairnOS exports a deterministic, schema-versioned JSON plan in addition to the
-existing Gaia GeoJSON export. Gaia GeoJSON remains navigation-tool-oriented;
-CairnOS plan JSON is itinerary-and-reasoning-oriented.
-
-Minimum top-level fields:
-
-- `export_version`, starting with `cairnos_plan_v1`
-- `generated_at`
-- `trail_id`
-- `planner`
-- `user_profile`
-- `completion_analysis`
-- `expedition_summary`
-- `directional_access`
-- `resupply_plan`
-- `daily_plan`
-- `warnings`
-
-The v1 JSON should preserve existing PlannerV2 field names instead of inventing
-a mobile-specific schema. HikerLogix can store the imported plan as read-only
-JSON first and normalize later only if needed. The primary early consumer is an
-offline itinerary view, not a live planning API.
-
-The current contract is documented in `docs/PLAN_JSON_EXPORT.md` and starts
-with `cairnos_plan_v1`. The read-only mobile import rules and deterministic
-fixture expectations are documented in `docs/HIKERLOGIX_IMPORT_CONTRACT.md`.
+A future CairnOS calibration import may consume user-owned actuals for personal
+pacing, gear, food, resupply, or recovery calibration. Imported actuals must
+never override trail data, route-overlay authority, terrain reconciliation, or
+operational truth.
 
 ## Multi-Repository Workflow
 
-CairnOSv1 and HikerLogix are developed as separate repositories inside the
-same VS Code multi-root workspace:
+Keep CairnOSv1, HikerLogix Platform, and HikerLogix iOS as separate repository
+roots. For contract changes, merge in this order:
 
-- `~/Local/Development/CairnOS-HikerLogix.code-workspace`
+1. CairnOS export/schema/API change.
+2. Platform wrapper, persistence, API, fixture, and UI change.
+3. iOS import, cache, display, actuals, and fixture change.
 
-Do not combine the repositories, add one as a submodule, or move source between
-them unless a future architecture decision explicitly changes that boundary.
+Record the exact authority commit and fixture version in each affected change.
+No CairnOS schema update is required for the current architecture sync.
 
-For cross-repository features, use matching short-lived branch names and
-separate pull requests. CairnOS contract, export, or schema changes should land
-first. HikerLogix should then update import models, fixtures, and UI against
-the committed CairnOS contract. This keeps CairnOS as the planning authority and
-HikerLogix as the mobile field-execution layer.
+## Safety And Privacy
 
-Use the GitHub MCP/plugin for issue, pull request, and roadmap updates. Use the
-Build iOS Apps/XcodeBuildMCP tooling for HikerLogix simulator build, run, test,
-screenshot, and UI-inspection work when available.
+- Keep private journals, photos, health data, precise location, weather data,
+  device identifiers, and calibration inputs out of this repository.
+- CairnOS output is advisory planning information, not navigation, emergency,
+  weather-safety, medical, or guidebook authority.
+- Preserve planned truth and user-owned actuals as distinct layers.
 
-## Future Actuals Loop
-
-HikerLogix may eventually record user-owned actuals:
-
-- actual daily miles
-- actual start and stop locations
-- actual overnight location or type
-- field notes
-- gear used
-- food and resupply actuals
-- weather observations
-- optional HealthKit or workout summaries
-
-CairnOS may later import those actuals for personal calibration. Imported
-actuals should inform future planning preferences, not override trail data,
-terrain reconciliation, route overlay authority, or operational truth.
-
-HikerLogix adaptive recommendations should remain explainable and advisory.
-They may use the imported plan, remaining itinerary, and user-owned actuals to
-surface options, but they must not claim live condition authority or safety
-authority.
-
-## Acceptance Criteria
-
-- CairnOS plan JSON is deterministic and schema-versioned.
-- Export preserves NOBO/SOBO direction, guidebook miles, ingress/egress,
-  resupply rows, feasibility analysis, warnings, and daily itinerary fields.
-- Existing Gaia export behavior remains unchanged.
-- Existing CairnOS tests continue to pass.
-- HikerLogix field execution starts with offline import, journal, actuals, and
-  planned-versus-actual review.
-- Future actuals import treats user data as calibration input only.
-
-## Risks
-
-- Schema drift if HikerLogix normalizes imported plans too early.
-- Product drift into mobile navigation or map editing.
-- Privacy risk from location, HealthKit, or workout actuals.
-- Confusion between planned itinerary truth, user actuals, and curated trail
-  data.
-- Premature live-data features that imply authority over store hours, weather,
-  closures, or safety conditions.
-
-The mitigation is to keep v1 file-based, read-only on import, and explicit about
-planned values versus actual values.
-
-See `docs/OPEN_SOURCE_AND_IP_STRATEGY.md` for the broader CairnOS/HikerLogix
-open-source, commercial-use, copyright, and patent posture.
+See `docs/OPEN_SOURCE_AND_IP_STRATEGY.md` for licensing and product-posture
+guidance.
