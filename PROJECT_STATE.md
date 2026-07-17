@@ -1,5 +1,7 @@
 # CairnOSv1 — Project State
 
+Current through `main` commit `4f979ac` on July 16, 2026.
+
 ## Executive Summary
 
 CairnOSv1 is evolving into an operational expedition modeling system.
@@ -42,6 +44,13 @@ NOT merely:
 
 - partitioning mileage into evenly sized chunks.
 
+CairnOS is the planning engine, trail-ontology authority, route-overlay/spine
+authority, and schema-versioned contract source in the three-repository
+HikerLogix system. HikerLogix Platform owns planning UI and centralized
+records/contracts; HikerLogix iOS owns offline field execution and local
+user-owned actuals. CairnOS is backend authority, not a user-facing HikerLogix
+brand.
+
 ---
 
 ## MVP Roadmap
@@ -64,15 +73,15 @@ Open-source, HikerLogix, and intellectual-property posture is documented in
 
 - CairnOSv1 remains public and Apache 2.0 licensed as the planning/export
   engine.
-- HikerLogix can remain private/proprietary as the future mobile field
-  execution layer: offline itinerary use, journal, actuals,
-  planned-versus-actual review, lightweight advisory adjustments, and product
-  packaging.
+- HikerLogix Platform and iOS can remain private/proprietary as the planning UI,
+  centralized-record, offline field-execution, journal, actuals, and product
+  packaging layers.
 - Trail data provenance and commercial reuse rights are separate from the
   CairnOS source-code license.
-- CairnOS Plan JSON is the intended deterministic export contract for future
-  HikerLogix read-only itinerary import; Gaia GeoJSON remains
-  navigation-tool-oriented.
+- CairnOS Plan JSON is the implemented deterministic planned-truth contract
+  consumed by Platform and transition iOS import. Platform-owned
+  `hikerlogix_current_plan_download_v1` and `hikerlogix_actuals_upload_v1` are
+  downstream HikerLogix contracts, not CairnOS schemas.
 
 ---
 
