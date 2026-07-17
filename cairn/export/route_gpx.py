@@ -1,6 +1,6 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
-"""Waypoint-only GPX route artifacts for downstream imports."""
+"""GPX route artifacts for downstream imports."""
 
 from __future__ import annotations
 
@@ -25,19 +25,42 @@ from cairn.export.plan_json import (
 )
 
 
-ROUTE_GPX_EXPORT_VERSION = "cairnos_route_gpx_v1"
-GPX_GEOMETRY_MODE = "waypoint_only"
+ROUTE_GPX_EXPORT_VERSION = "cairnos_route_gpx_v2"
+GPX_GEOMETRY_MODE = "full_plan_track"
+WAYPOINT_ONLY_GEOMETRY_MODE = "waypoint_only"
 GPX_MEDIA_TYPE = "application/gpx+xml"
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 CAIRNOS_NAMESPACE = "https://cairnos.local/ns/route-gpx/1"
+SPINE_GEOMETRY_SOURCE = "compiled/spine.geojson"
 
 
 WAYPOINT_ONLY_WARNING = {
     "code": "waypoint_only_gpx",
     "severity": "warning",
     "message": (
-        "CairnOS GPX route artifacts contain planned daily start/stop "
-        "waypoints only. They do not include route or track geometry."
+        "CairnOS per-day GPX artifacts contain planned daily start/stop "
+        "waypoints only. Daily route geometry has not been sliced."
+    ),
+}
+
+
+FULL_PLAN_SPINE_WARNING = {
+    "code": "full_plan_spine_only",
+    "severity": "warning",
+    "message": (
+        "The full-plan GPX track contains the compiled Long Trail spine "
+        "only. It does not include selected ingress or egress branches, "
+        "off-spine overnight access, or per-day route slicing."
+    ),
+}
+
+
+MISSING_SPINE_WARNING = {
+    "code": "missing_route_spine_geometry",
+    "severity": "warning",
+    "message": (
+        "The compiled Long Trail spine did not contain usable route "
+        "geometry, so the full-plan GPX is waypoint-only."
     ),
 }
 
@@ -114,6 +137,18 @@ def coordinate_context(
             overlay_nodes
         ),
     }
+
+
+def directional_spine_coordinates(
+    coordinates: list[list[float]],
+    direction: str | None,
+) -> list[list[float]]:
+    if str(direction or "").upper() == "SOBO":
+        return list(
+            reversed(coordinates)
+        )
+
+    return list(coordinates)
 
 
 def location_record(
@@ -348,18 +383,29 @@ def build_manifest_entry(
     scope: str,
     waypoints: list[dict[str, Any]],
     warnings: list[dict[str, Any]],
+    geometry_mode: str,
+    track_points: list[list[float]] | None = None,
     day: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    track_points = track_points or []
     entry = {
         "artifact_id": artifact_id,
         "filename": filename,
         "scope": scope,
         "media_type": GPX_MEDIA_TYPE,
         "export_version": ROUTE_GPX_EXPORT_VERSION,
-        "geometry_mode": GPX_GEOMETRY_MODE,
+        "geometry_mode": geometry_mode,
         "waypoint_count": len(waypoints),
+        "track_count": 1 if track_points else 0,
+        "track_segment_count": 1 if track_points else 0,
+        "track_point_count": len(track_points),
         "warning_codes": warning_codes(warnings),
     }
+
+    if track_points:
+        entry["geometry_source"] = (
+            SPINE_GEOMETRY_SOURCE
+        )
 
     if day:
         entry.update({
@@ -528,12 +574,88 @@ def add_waypoint_element(
     )
 
 
+def track_description() -> str:
+    return (
+        "CairnOS full-plan compiled Long Trail spine. "
+        "Does not include selected ingress or egress branches, "
+        "off-spine overnight access, or per-day route slicing."
+    )
+
+
+def add_track_element(
+    root: ET.Element,
+    name: str,
+    coordinates: list[list[float]],
+    direction: str | None,
+) -> None:
+    if not coordinates:
+        return
+
+    track = ET.SubElement(
+        root,
+        gpx_tag("trk"),
+    )
+    add_text(
+        track,
+        gpx_tag("name"),
+        name,
+    )
+    add_text(
+        track,
+        gpx_tag("desc"),
+        track_description(),
+    )
+    add_text(
+        track,
+        gpx_tag("type"),
+        "Long Trail spine",
+    )
+    extensions = ET.SubElement(
+        track,
+        gpx_tag("extensions"),
+    )
+    add_cairnos_extension(
+        extensions,
+        "geometry_source",
+        SPINE_GEOMETRY_SOURCE,
+    )
+    add_cairnos_extension(
+        extensions,
+        "direction",
+        direction,
+    )
+    segment = ET.SubElement(
+        track,
+        gpx_tag("trkseg"),
+    )
+
+    for coordinate in coordinates:
+        longitude, latitude = coordinate[:2]
+        ET.SubElement(
+            segment,
+            gpx_tag("trkpt"),
+            {
+                "lat": format_coordinate(
+                    latitude
+                ),
+                "lon": format_coordinate(
+                    longitude
+                ),
+            },
+        )
+
+
 def build_gpx_document(
     name: str,
     waypoints: list[dict[str, Any]],
     generated_at: str,
     trail_id: str,
+    geometry_mode: str,
+    track_points: list[list[float]] | None = None,
+    direction: str | None = None,
+    metadata_warning: str | None = None,
 ) -> str:
+    track_points = track_points or []
     root = ET.Element(
         gpx_tag("gpx"),
         {
@@ -569,7 +691,7 @@ def build_gpx_document(
     add_cairnos_extension(
         metadata_extensions,
         "geometry_mode",
-        GPX_GEOMETRY_MODE,
+        geometry_mode,
     )
     add_cairnos_extension(
         metadata_extensions,
@@ -579,7 +701,7 @@ def build_gpx_document(
     add_cairnos_extension(
         metadata_extensions,
         "warning",
-        WAYPOINT_ONLY_WARNING["message"],
+        metadata_warning,
     )
 
     for waypoint in waypoints:
@@ -587,6 +709,13 @@ def build_gpx_document(
             root,
             waypoint,
         )
+
+    add_track_element(
+        root,
+        f"{trail_id} full-plan spine",
+        track_points,
+        direction,
+    )
 
     ET.indent(
         root,
@@ -618,6 +747,15 @@ def build_route_gpx_artifacts(
     context = coordinate_context(
         trail_root
     )
+    track_points = directional_spine_coordinates(
+        context["spine_coordinates"],
+        direction,
+    )
+    full_geometry_mode = (
+        GPX_GEOMETRY_MODE
+        if track_points
+        else WAYPOINT_ONLY_GEOMETRY_MODE
+    )
     all_waypoints, waypoints_by_day, missing_warnings = (
         build_daily_waypoints(
             daily_plan,
@@ -625,12 +763,23 @@ def build_route_gpx_artifacts(
         )
     )
 
-    advisory_warnings = [
+    spine_warnings = (
+        [dict(FULL_PLAN_SPINE_WARNING)]
+        if track_points
+        else [dict(MISSING_SPINE_WARNING)]
+    )
+    full_plan_advisory_warnings = [
+        *spine_warnings,
+        dict(VERIFY_OFFICIAL_SOURCES_WARNING),
+    ]
+    day_advisory_warnings = [
         dict(WAYPOINT_ONLY_WARNING),
         dict(VERIFY_OFFICIAL_SOURCES_WARNING),
     ]
     warnings = [
-        *advisory_warnings,
+        *spine_warnings,
+        dict(WAYPOINT_ONLY_WARNING),
+        dict(VERIFY_OFFICIAL_SOURCES_WARNING),
         *missing_warnings,
     ]
     artifacts = {}
@@ -647,6 +796,10 @@ def build_route_gpx_artifacts(
         all_waypoints,
         generated_at,
         trail_id,
+        full_geometry_mode,
+        track_points,
+        direction,
+        spine_warnings[0]["message"],
     )
     manifest.append(
         build_manifest_entry(
@@ -654,7 +807,12 @@ def build_route_gpx_artifacts(
             full_filename,
             "full_plan",
             all_waypoints,
-            warnings,
+            [
+                *full_plan_advisory_warnings,
+                *missing_warnings,
+            ],
+            full_geometry_mode,
+            track_points,
         )
     )
 
@@ -674,7 +832,7 @@ def build_route_gpx_artifacts(
             if warning.get("day") == day_number
         ]
         day_warnings = [
-            *advisory_warnings,
+            *day_advisory_warnings,
             *day_missing_warnings,
         ]
         filename = artifact_filename(
@@ -690,6 +848,11 @@ def build_route_gpx_artifacts(
             day_waypoints,
             generated_at,
             trail_id,
+            WAYPOINT_ONLY_GEOMETRY_MODE,
+            direction=direction,
+            metadata_warning=(
+                WAYPOINT_ONLY_WARNING["message"]
+            ),
         )
         manifest.append(
             build_manifest_entry(
@@ -698,7 +861,8 @@ def build_route_gpx_artifacts(
                 "day",
                 day_waypoints,
                 day_warnings,
-                day,
+                WAYPOINT_ONLY_GEOMETRY_MODE,
+                day=day,
             )
         )
 
@@ -707,7 +871,7 @@ def build_route_gpx_artifacts(
         "generated_at": generated_at,
         "trail_id": trail_id,
         "direction": direction,
-        "geometry_mode": GPX_GEOMETRY_MODE,
+        "geometry_mode": full_geometry_mode,
         "warnings": warnings,
         "manifest": manifest,
         "artifacts": artifacts,
