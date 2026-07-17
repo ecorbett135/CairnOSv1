@@ -350,9 +350,9 @@ def test_build_plan_response_includes_route_gpx_artifacts():
 
     assert (
         route_gpx["export_version"]
-        == "cairnos_route_gpx_v1"
+        == "cairnos_route_gpx_v2"
     )
-    assert route_gpx["geometry_mode"] == "waypoint_only"
+    assert route_gpx["geometry_mode"] == "full_plan_track"
     assert route_gpx["direction"] == "NOBO"
     assert len(route_gpx["manifest"]) == (
         len(payload["daily_plan"]) + 1
@@ -362,6 +362,10 @@ def test_build_plan_response_includes_route_gpx_artifacts():
         for entry in route_gpx["manifest"]
     }
     assert route_gpx["manifest"][0]["scope"] == "full_plan"
+    assert route_gpx["manifest"][0]["track_point_count"] > 0
+    assert route_gpx["manifest"][1]["geometry_mode"] == (
+        "waypoint_only"
+    )
 
 
 def test_build_plan_options_response_returns_cairnos_owned_choices():

@@ -118,10 +118,12 @@ planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
 Plan responses also include the additive `route_gpx` section from
-`cairnos_route_gpx_v1` when daily itinerary rows are available. The section
-contains full-plan and per-day waypoint-only GPX artifacts for downstream
-import/export workflows. The artifacts do not contain route or track geometry
-and must remain advisory.
+`cairnos_route_gpx_v2` when daily itinerary rows are available. The section
+contains a full-plan GPX artifact with one compiled Long Trail spine track plus
+the existing planned waypoints, along with waypoint-only per-day artifacts for
+downstream import/export workflows. The spine omits ingress/egress branches,
+off-spine overnight access, and per-day slicing, and all artifacts must remain
+advisory.
 
 ## Plan Options Contract
 

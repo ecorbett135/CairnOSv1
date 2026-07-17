@@ -238,10 +238,11 @@ moving day as a colored LineString segment with start/stop points, but it
 should not ship until folder/color behavior is tested through Gaia import.
 
 A minimal route GPX artifact layer now exists for downstream HikerLogix
-Platform/iOS import work. The current `cairnos_route_gpx_v1` output is
-waypoint-only: it can emit full-plan and per-day GPX files with daily
-start/stop waypoints and manifest entries, but it intentionally does not emit
-route or track geometry until daily geometry slicing is validated.
+Platform/iOS import work. The current `cairnos_route_gpx_v2` output adds the
+compiled Long Trail spine as a direction-aware track in the full-plan GPX while
+preserving daily start/stop waypoints and waypoint-only per-day files. It does
+not attempt per-day geometry slicing, ingress/egress branch geometry, or
+off-spine overnight-access geometry.
 
 Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
 exports can be compared against Cairn intervals from the ignored
