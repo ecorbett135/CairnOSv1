@@ -60,10 +60,15 @@ Requirements:
 - correct trail ordering
 - valid coordinates
 - minimal geometry corruption
+- GPX-standard `<ele>` meters on every track point for a complete
+  `cairnos_route_gpx_v4` elevation profile; a source without complete `<ele>`
+  remains usable as horizontal geometry but must export elevation as
+  unavailable rather than estimated
 
 Purpose:
 
-Provides the canonical geometric trail backbone.
+Provides the canonical geometric trail backbone and, when complete, the
+source-authoritative per-point route elevation contract.
 
 ---
 

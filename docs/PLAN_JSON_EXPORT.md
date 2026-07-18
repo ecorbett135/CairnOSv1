@@ -49,12 +49,18 @@ mobile-specific normalized schema too early.
 ## Route GPX Artifacts
 
 The export embeds an additive `route_gpx` section using the
-`cairnos_route_gpx_v3` contract. It includes a manifest plus GPX XML artifacts
+`cairnos_route_gpx_v4` contract. It includes a manifest plus GPX XML artifacts
 for the full plan and each planned day. The full-plan artifact composes
 promoted geometry for exactly the stable `cairnos_route_selection_v1`
 ingress/egress IDs around the canonical Long Trail spine. Moving-day artifacts
 contain mileage-bounded track slices; all artifacts preserve planned daily
 start/stop waypoints.
+
+V4 adds source-authoritative GPX `<ele>` meters, reproducible
+length/ascent/descent/signed-average-grade metrics, ordered route-part
+identity/provenance, and explicit geometry/elevation completeness. See
+`docs/ROUTE_GPX_EXPORT.md` for the exact Platform pass-through and iOS/Web
+profile-consumer handoff.
 
 Downstream clients may expose these artifacts for Gaia GPS, COROS, Files, or
 other import workflows. They must honor manifest `geometry_sources`, surface
