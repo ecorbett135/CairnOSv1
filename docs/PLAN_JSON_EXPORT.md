@@ -34,6 +34,9 @@ The export includes:
 - `completion_analysis`
 - `expedition_summary`
 - `directional_access`
+- `route_extent`
+- `access_point_anchors`
+- `required_anchors`
 - `resupply_plan`
 - `resupply_town_details`
 - `selected_experiences`
@@ -61,6 +64,13 @@ other import workflows. They must honor manifest `geometry_sources`, surface
 geometry-unavailable warnings without substituting another branch, and must not
 present the GPX as navigational authority. Zero-mile or otherwise unsliceable
 day artifacts use `geometry_mode: waypoint_only`.
+
+SECTION exports use additive `cairnos_route_extent_v1` and
+`cairnos_access_point_anchors_v1` sections. Canonical full-trail miles remain
+the planned-truth mile fields; section-relative fields measure travel distance
+from the selected access-point start. `route_gpx.route_extent` and manifest
+canonical bounds identify the supplied spine slice. Exact Platform examples
+are in `docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 ## Privacy And Provenance
 

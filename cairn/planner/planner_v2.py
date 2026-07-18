@@ -39,6 +39,10 @@ from cairn.planner.anchors import (
     build_required_anchor_status,
 )
 
+from cairn.planner.checkpoints import (
+    build_access_point_anchor_status,
+)
+
 
 class PlannerV2:
 
@@ -232,6 +236,58 @@ class PlannerV2:
             )
             or []
         )
+
+        self.route_extent = dict(
+            self.user_profile.get(
+                "route_extent",
+                {},
+            )
+            or {}
+        )
+
+        self.access_point_anchors = list(
+            self.user_profile.get(
+                "access_point_anchors",
+                [],
+            )
+            or []
+        )
+
+        self.planning_required_overnight_anchors = [
+            *self.required_overnight_anchors,
+            *[
+                {
+                    "inventory_id": anchor["access_id"],
+                    "overlay_id": anchor["overlay_id"],
+                    "access_point_anchor": True,
+                }
+                for anchor in self.access_point_anchors
+                if anchor.get("intent") == "overnight"
+            ],
+        ]
+
+        self.planning_required_resupply_anchors = [
+            *self.required_resupply_anchors,
+            *[
+                {
+                    "inventory_id": anchor["access_id"],
+                    "planner_node": {
+                        "canonical_name": anchor["display_name"],
+                        "trail_mile": anchor["canonical_mile"],
+                        "overlay_id": anchor["overlay_id"],
+                        "node_class": anchor["node_class"],
+                        "division": anchor["division"],
+                        "town_access": anchor.get("town_access", ""),
+                        "access_notes": anchor.get("access_notes", ""),
+                        "resupply": True,
+                    },
+                    "town_name": anchor.get("town_access", ""),
+                    "access_point_anchor": True,
+                }
+                for anchor in self.access_point_anchors
+                if anchor.get("intent") == "resupply"
+            ],
+        ]
 
         self.start_date = (
             self.user_profile.get(
@@ -1937,13 +1993,16 @@ class PlannerV2:
         desired_days,
     ):
 
-        effort_model = (
-            self.build_effort_model()
-        )
+        if self.is_section_plan():
+            total_effort = self.route_extent_distance()
+        else:
+            effort_model = (
+                self.build_effort_model()
+            )
 
-        total_effort = effort_model[
-            "total_effort"
-        ]
+            total_effort = effort_model[
+                "total_effort"
+            ]
 
         required_daily_effort = round(
             total_effort / desired_days,
@@ -2063,7 +2122,9 @@ class PlannerV2:
             }
 
         total_effort = (
-            self.build_effort_model()[
+            self.route_extent_distance()
+            if self.is_section_plan()
+            else self.build_effort_model()[
                 "total_effort"
             ]
         )
@@ -2146,7 +2207,11 @@ class PlannerV2:
             self.build_effort_model()
         )
 
-        total_miles = 272.0
+        total_miles = (
+            self.route_extent_distance()
+            if self.is_section_plan()
+            else 272.0
+        )
 
         moving_rows = [
             row for row in (
@@ -2194,6 +2259,58 @@ class PlannerV2:
             "average_daily_miles": average_daily_miles,
             "average_daily_elevation": average_daily_elevation,
         }
+
+    def is_section_plan(self):
+        return (
+            self.user_profile.get("trip_type") == "SECTION"
+            and self.route_extent.get("extent_type")
+            == "defined_trail_section"
+        )
+
+    def route_extent_distance(self):
+        return float(
+            self.route_extent.get("distance_miles")
+            or 272.0
+        )
+
+    def route_extent_node(self, boundary):
+        endpoint = self.route_extent.get(boundary)
+        if not endpoint:
+            return None
+        return {
+            "canonical_name": endpoint.get("display_name"),
+            "trail_mile": endpoint.get("canonical_mile"),
+            "overlay_id": endpoint.get("overlay_id"),
+            "node_class": endpoint.get("node_class"),
+            "division": endpoint.get("division"),
+            "road_crossing": endpoint.get("road_crossing"),
+            "town_access": endpoint.get("town_access"),
+            "access_notes": endpoint.get("access_notes"),
+            "route_extent_boundary": boundary,
+        }
+
+    def annotate_section_relative_miles(self, daily_plan):
+        if not self.route_extent:
+            return daily_plan
+        start_mile = float(
+            self.route_extent.get("canonical_start_mile")
+            or 0.0
+        )
+        rows = []
+        for row in daily_plan:
+            updated = dict(row)
+            for source_field, target_field in (
+                ("daily_start_mile", "daily_start_section_mile"),
+                ("daily_stop_mile", "daily_stop_section_mile"),
+            ):
+                mile = row.get(source_field)
+                updated[target_field] = (
+                    round(abs(float(mile) - start_mile), 1)
+                    if isinstance(mile, (int, float))
+                    else None
+                )
+            rows.append(updated)
+        return rows
 
     def _resolve_ingress_node(self):
         """
@@ -3031,6 +3148,12 @@ class PlannerV2:
             )
         )
 
+        daily_plan = (
+            self.annotate_section_relative_miles(
+                daily_plan
+            )
+        )
+
         actual_completion_days = (
             daily_plan[-1]["day"]
             if daily_plan
@@ -3055,6 +3178,23 @@ class PlannerV2:
             self.build_resupply_plan(
                 daily_plan
             )
+        )
+
+        (
+            daily_plan,
+            access_point_anchors,
+        ) = build_access_point_anchor_status(
+            access_point_anchors=(
+                self.access_point_anchors
+            ),
+            daily_plan=daily_plan,
+            resupply_plan=resupply_plan,
+            start_date=self.start_date,
+            min_daily_miles=self.min_daily_miles,
+            max_daily_miles=self.max_daily_miles,
+            max_daily_elevation=(
+                self.max_daily_elevation
+            ),
         )
 
         required_anchors = (
@@ -3126,6 +3266,12 @@ class PlannerV2:
             ),
             "required_anchors": (
                 required_anchors
+            ),
+            "route_extent": (
+                self.route_extent
+            ),
+            "access_point_anchors": (
+                access_point_anchors
             ),
             "directional_access": (
                 directional_access

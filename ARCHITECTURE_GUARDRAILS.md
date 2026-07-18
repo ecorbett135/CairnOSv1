@@ -533,29 +533,41 @@ food-weight, terrain, and recovery modeling.
 
 ## Section Hiking Guardrails
 
-### Section Hiking Is A Distinct Traversal Mode
+### Section Hiking Is A Route Extent
 
-SECTION mode is NOT:
+SECTION uses the same PlannerV2 behavior as THRU inside a selected continuous
+defined-trail extent. It is not a second planner or a separate mile system.
 
-- truncated NOBO
-- truncated SOBO
+SECTION requires:
 
-SECTION mode requires:
+- direction-aware CairnOS access IDs for start and end;
+- crossing/trailhead endpoints promoted from overlay authority;
+- partial overlay, terrain, cadence, shelter, resupply, and recovery reasoning
+  inside the selected extent;
+- canonical northbound-reference miles plus additive section-relative travel
+  distance;
+- geometry bounded to the same authoritative extent;
+- rejection of reversed endpoints and anchors outside the extent.
 
-- arbitrary ingress
-- arbitrary egress
-- crossing-based traversal
-- partial overlay traversal
-- partial cadence synthesis
-- partial logistics optimization
+Basic and Advanced must use the same selected extent. Advanced required shelter
+and resupply anchors remain partial constraints; unselected sites remain
+planner candidates.
 
-DO NOT fake section hiking by:
+Intermediate access-point anchors may annotate checkpoints or pickup meetings.
+They force resupply or overnight only when their explicit intent is
+`resupply` or `overnight`.
 
-- simply clipping itinerary endpoints.
+DO NOT:
 
-SECTION mode is deferred and hidden from the Streamlit menu for the MVP. The
-internal code path may remain in place, but it should not be presented as a
-supported planning mode until these traversal semantics are implemented.
+- create a separate SECTION planner;
+- invent SOBO canonical miles;
+- use candidate crossing data as promoted endpoint authority;
+- silently clip a finished full-trail itinerary after planning;
+- accept an anchor outside the selected extent.
+
+SECTION is promoted through the stateless Plan API for HikerLogix integration.
+It remains hidden from the current Streamlit alpha menu until that UI is
+separately approved.
 
 ---
 

@@ -10,6 +10,10 @@ from typing import Any, Mapping
 
 
 ROUTE_SELECTION_CONTRACT_VERSION = "cairnos_route_selection_v1"
+NONE_INGRESS_APPROACH_ID = "approach_none_ingress"
+NONE_EGRESS_APPROACH_ID = "approach_none_egress"
+NONE_INGRESS_ROUTE_NAME = "No ingress route"
+NONE_EGRESS_ROUTE_NAME = "No egress route"
 
 
 def load_approach_catalog(
@@ -96,6 +100,25 @@ def build_route_selection_options(
                 ),
             }
             for entry in catalog.values()
+        ] + [
+            {
+                "approach_id": NONE_INGRESS_APPROACH_ID,
+                "approach_name": NONE_INGRESS_ROUTE_NAME,
+                "connected_terminus": None,
+                "geometry_status": "not_applicable",
+                "geometry_id": None,
+                "selectable_roles": ["NOBO_INGRESS", "SOBO_INGRESS"],
+                "sentinel": True,
+            },
+            {
+                "approach_id": NONE_EGRESS_APPROACH_ID,
+                "approach_name": NONE_EGRESS_ROUTE_NAME,
+                "connected_terminus": None,
+                "geometry_status": "not_applicable",
+                "geometry_id": None,
+                "selectable_roles": ["NOBO_EGRESS", "SOBO_EGRESS"],
+                "sentinel": True,
+            },
         ],
     }
 
@@ -107,21 +130,39 @@ def normalize_route_selection(
     ingress_route: str,
     egress_route: str,
     trail_root: Path | str,
+    trip_type: str = "THRU",
 ) -> dict[str, str]:
     catalog = load_approach_catalog(trail_root)
+    catalog = {
+        **catalog,
+        NONE_INGRESS_APPROACH_ID: {
+            "approach_id": NONE_INGRESS_APPROACH_ID,
+            "approach_name": NONE_INGRESS_ROUTE_NAME,
+            "connected_terminus": None,
+        },
+        NONE_EGRESS_APPROACH_ID: {
+            "approach_id": NONE_EGRESS_APPROACH_ID,
+            "approach_name": NONE_EGRESS_ROUTE_NAME,
+            "connected_terminus": None,
+        },
+    }
     raw_selection = payload.get("route_selection")
 
     if raw_selection is None:
-        ingress_id = _approach_id_for_name(
-            catalog,
-            ingress_route,
-            "ingress_route",
-        )
-        egress_id = _approach_id_for_name(
-            catalog,
-            egress_route,
-            "egress_route",
-        )
+        if trip_type == "SECTION":
+            ingress_id = NONE_INGRESS_APPROACH_ID
+            egress_id = NONE_EGRESS_APPROACH_ID
+        else:
+            ingress_id = _approach_id_for_name(
+                catalog,
+                ingress_route,
+                "ingress_route",
+            )
+            egress_id = _approach_id_for_name(
+                catalog,
+                egress_route,
+                "egress_route",
+            )
     else:
         if not isinstance(raw_selection, Mapping):
             raise ValueError("route_selection must be an object")
@@ -147,6 +188,7 @@ def normalize_route_selection(
         field_name="route_selection.ingress_approach_id",
         direction=direction,
         role="ingress",
+        trip_type=trip_type,
     )
     _validate_selected_approach(
         catalog,
@@ -155,6 +197,7 @@ def normalize_route_selection(
         field_name="route_selection.egress_approach_id",
         direction=direction,
         role="egress",
+        trip_type=trip_type,
     )
     if ingress_id == egress_id:
         raise ValueError(
@@ -205,6 +248,7 @@ def _validate_selected_approach(
     field_name: str,
     direction: str,
     role: str,
+    trip_type: str,
 ) -> None:
     entry = catalog.get(approach_id)
     if entry is None:
@@ -217,6 +261,21 @@ def _validate_selected_approach(
             f"{route_name!r}: {approach_id} identifies "
             f"{entry.get('approach_name')!r}"
         )
+
+    if trip_type == "SECTION":
+        expected_id = (
+            NONE_INGRESS_APPROACH_ID
+            if role == "ingress"
+            else NONE_EGRESS_APPROACH_ID
+        )
+        if approach_id != expected_id:
+            raise ValueError(
+                f"{field_name} must be {expected_id!r} for SECTION plans"
+            )
+        return
+
+    if approach_id in {NONE_INGRESS_APPROACH_ID, NONE_EGRESS_APPROACH_ID}:
+        raise ValueError(f"{field_name} none sentinel is only valid for SECTION plans")
 
     expected_terminus = (
         "southern"

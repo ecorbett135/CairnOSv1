@@ -26,10 +26,14 @@ planning before expanding into broader route modes.
 - a versioned trail-inventory contract and endpoint for HikerLogix
   inventory-bound Manual Build/Edit, documented in
   `docs/TRAIL_INVENTORY_CONTRACT.md`
+- Plan API SECTION extents bounded by promoted road-crossing/trailhead access
+  IDs, with optional intermediate operational access-point anchors
 
-SECTION planning is intentionally deferred. The underlying planner branches
-remain in place for later work, but the Streamlit UI hides SECTION mode until
-the traversal and data semantics are ready.
+The first SECTION contract slice is implemented for HikerLogix: Basic and
+Advanced both use the same direction-aware route extent through PlannerV2,
+required shelter/resupply anchors remain partial constraints, and route GPX is
+bounded to that extent. The Streamlit UI still hides SECTION; broader public
+alpha UX and additional promoted access data remain later work.
 
 ## Product Boundary
 
@@ -60,10 +64,11 @@ Do not spend MVP effort on:
 1. overlay-authoritative traversal
 1. SECTION planning
 
-Overlay-authoritative traversal in the MVP scope means NOBO and SOBO THRU daily
-planning follows ordered overlay corridors for the mainline plus selected
-ingress and egress endpoints. SECTION planning remains a later slice; this
-work does not add user-facing SECTION controls.
+Overlay-authoritative traversal means NOBO and SOBO THRU daily planning follows
+ordered overlay corridors for the mainline plus selected ingress and egress
+endpoints. The promoted SECTION API slice applies the same reasoning inside a
+continuous access-ID-bounded overlay extent. This work does not add Streamlit
+SECTION controls.
 
 HikerLogix integration is active but tracked separately from the core CairnOS
 MVP sequence. Platform/Web owns planning UI and centralized records; iOS owns
@@ -201,7 +206,7 @@ Those prompts must not become safety determinations, live trail-condition
 claims, feasibility scoring inputs, or Gaia export properties.
 
 Transportation and access friction should become explicit advisory logistics
-context for town stops, termini, road crossings, and future SECTION endpoints.
+context for town stops, termini, road crossings, and promoted SECTION endpoints.
 This should extend structured resupply access metadata without depending on
 prose parsing or guaranteeing current shuttle, transit, parking, or business
 availability.

@@ -9,7 +9,11 @@ import math
 from pathlib import Path
 from typing import Any, Mapping
 
-from cairn.api.route_selection import ROUTE_SELECTION_CONTRACT_VERSION
+from cairn.api.route_selection import (
+    NONE_EGRESS_APPROACH_ID,
+    NONE_INGRESS_APPROACH_ID,
+    ROUTE_SELECTION_CONTRACT_VERSION,
+)
 
 
 APPROACH_GEOMETRY_SOURCE = "compiled/approach_trails.json"
@@ -64,6 +68,13 @@ def build_composed_route_geometry(
         }
         for role in ("ingress", "egress"):
             approach_id = normalized_selection[f"{role}_approach_id"]
+            sentinel_id = (
+                NONE_INGRESS_APPROACH_ID
+                if role == "ingress"
+                else NONE_EGRESS_APPROACH_ID
+            )
+            if approach_id == sentinel_id:
+                continue
             entry = catalog.get(approach_id)
             if entry is None:
                 raise RouteGeometryValidationError(
@@ -414,6 +425,9 @@ def _slice_pieces(
                 "provenance",
             )
             if piece.get(key) is not None
+        } | {
+            "canonical_min_mile": round(overlap_low, 1),
+            "canonical_max_mile": round(overlap_high, 1),
         })
 
     return track, sources

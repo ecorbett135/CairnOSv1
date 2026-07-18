@@ -9,8 +9,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from cairn.api.access_points import (
+    normalize_access_point_anchors,
+    normalize_route_extent,
+)
 from cairn.api.plan_controls import plan_control_spec
-from cairn.api.route_selection import normalize_route_selection
+from cairn.api.route_selection import (
+    NONE_EGRESS_ROUTE_NAME,
+    NONE_INGRESS_ROUTE_NAME,
+    normalize_route_selection,
+)
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -18,6 +26,7 @@ LONG_TRAIL_ROOT = PROJECT_ROOT / "trails" / "vermont_long_trail"
 
 LONG_TRAIL_ID = "vermont_long_trail"
 VALID_DIRECTIONS = {"NOBO", "SOBO"}
+VALID_TRIP_TYPES = {"THRU", "SECTION"}
 VALID_RECOVERY_PLANNING_MODES = {"cadence", "target_counts"}
 VALID_INGRESS_ROUTES_BY_DIRECTION = {
     "NOBO": {
@@ -48,6 +57,7 @@ class PlanAPIRequest:
     """Validated HikerLogix-native MVP request for a CairnOS plan."""
 
     trail_id: str
+    trip_type: str
     direction: str
     ingress_route: str
     egress_route: str
@@ -70,6 +80,10 @@ class PlanAPIRequest:
     selected_town_ids: tuple[str, ...] = ()
     required_overnight_anchor_ids: tuple[str, ...] = ()
     required_resupply_anchor_ids: tuple[str, ...] = ()
+    start_access_id: str | None = None
+    end_access_id: str | None = None
+    route_extent: dict[str, Any] | None = None
+    access_point_anchors: tuple[dict[str, Any], ...] = ()
     route_selection: dict[str, str] | None = None
     planned_start_date: str | None = None
 
@@ -78,8 +92,6 @@ class PlanAPIRequest:
         required_fields = (
             "trail_id",
             "direction",
-            "ingress_route",
-            "egress_route",
             "desired_days",
             "min_daily_miles",
             "max_daily_miles",
@@ -103,20 +115,49 @@ class PlanAPIRequest:
         if direction not in VALID_DIRECTIONS:
             raise PlanAPIValidationError("direction must be one of: NOBO, SOBO")
 
-        ingress_route = _validate_route_name(
-            payload["ingress_route"], "ingress_route"
-        )
-        egress_route = _validate_route_name(payload["egress_route"], "egress_route")
-        _validate_directional_access_route(
-            ingress_route,
-            "ingress_route",
-            VALID_INGRESS_ROUTES_BY_DIRECTION[direction],
-        )
-        _validate_directional_access_route(
-            egress_route,
-            "egress_route",
-            VALID_EGRESS_ROUTES_BY_DIRECTION[direction],
-        )
+        trip_type = payload.get("trip_type", "THRU")
+        if not isinstance(trip_type, str) or trip_type not in VALID_TRIP_TYPES:
+            raise PlanAPIValidationError("trip_type must be one of: SECTION, THRU")
+
+        if trip_type == "THRU":
+            missing_routes = [
+                field_name
+                for field_name in ("ingress_route", "egress_route")
+                if field_name not in payload
+            ]
+            if missing_routes:
+                raise PlanAPIValidationError(
+                    f"Missing required field(s): {', '.join(missing_routes)}"
+                )
+            ingress_route = _validate_route_name(
+                payload["ingress_route"], "ingress_route"
+            )
+            egress_route = _validate_route_name(
+                payload["egress_route"], "egress_route"
+            )
+            _validate_directional_access_route(
+                ingress_route,
+                "ingress_route",
+                VALID_INGRESS_ROUTES_BY_DIRECTION[direction],
+            )
+            _validate_directional_access_route(
+                egress_route,
+                "egress_route",
+                VALID_EGRESS_ROUTES_BY_DIRECTION[direction],
+            )
+        else:
+            ingress_route = payload.get("ingress_route", NONE_INGRESS_ROUTE_NAME)
+            egress_route = payload.get("egress_route", NONE_EGRESS_ROUTE_NAME)
+            if ingress_route != NONE_INGRESS_ROUTE_NAME:
+                raise PlanAPIValidationError(
+                    f"ingress_route must be {NONE_INGRESS_ROUTE_NAME!r} "
+                    "for SECTION plans"
+                )
+            if egress_route != NONE_EGRESS_ROUTE_NAME:
+                raise PlanAPIValidationError(
+                    f"egress_route must be {NONE_EGRESS_ROUTE_NAME!r} "
+                    "for SECTION plans"
+                )
 
         desired_days = _payload_control_int(
             payload,
@@ -220,12 +261,31 @@ class PlanAPIRequest:
         )
 
         try:
+            route_extent = normalize_route_extent(
+                trip_type=trip_type,
+                direction=direction,
+                start_access_id=payload.get("start_access_id"),
+                end_access_id=payload.get("end_access_id"),
+                trail_root=LONG_TRAIL_ROOT,
+                trail_id=trail_id,
+            )
+            access_point_anchors = normalize_access_point_anchors(
+                payload.get("access_point_anchors", []),
+                route_extent=route_extent,
+                trail_root=LONG_TRAIL_ROOT,
+                trail_id=trail_id,
+            )
+        except ValueError as error:
+            raise PlanAPIValidationError(str(error)) from None
+
+        try:
             route_selection = normalize_route_selection(
                 payload,
                 direction=direction,
                 ingress_route=ingress_route,
                 egress_route=egress_route,
                 trail_root=LONG_TRAIL_ROOT,
+                trip_type=trip_type,
             )
         except ValueError as error:
             raise PlanAPIValidationError(str(error)) from None
@@ -236,6 +296,7 @@ class PlanAPIRequest:
 
         return cls(
             trail_id=trail_id,
+            trip_type=trip_type,
             direction=direction,
             ingress_route=ingress_route,
             egress_route=egress_route,
@@ -258,6 +319,10 @@ class PlanAPIRequest:
             selected_town_ids=selected_town_ids,
             required_overnight_anchor_ids=required_overnight_anchor_ids,
             required_resupply_anchor_ids=required_resupply_anchor_ids,
+            start_access_id=route_extent.get("start_access_id"),
+            end_access_id=route_extent.get("end_access_id"),
+            route_extent=route_extent,
+            access_point_anchors=access_point_anchors,
             route_selection=route_selection,
             planned_start_date=planned_start_date,
         )
@@ -266,7 +331,7 @@ class PlanAPIRequest:
         return {
             "selected_trail": self.trail_id,
             "trail_root": str(LONG_TRAIL_ROOT),
-            "trip_type": "THRU",
+            "trip_type": self.trip_type,
             "direction": self.direction,
             "desired_days": self.desired_days,
             "min_daily_miles": self.min_daily_miles,
@@ -290,6 +355,12 @@ class PlanAPIRequest:
             "required_resupply_anchor_ids": list(
                 self.required_resupply_anchor_ids
             ),
+            "start_access_id": self.start_access_id,
+            "end_access_id": self.end_access_id,
+            "route_extent": dict(self.route_extent or {}),
+            "access_point_anchors": [
+                dict(anchor) for anchor in self.access_point_anchors
+            ],
             "convenient_resupply_distance_miles": (
                 self.convenient_resupply_distance_miles
             ),

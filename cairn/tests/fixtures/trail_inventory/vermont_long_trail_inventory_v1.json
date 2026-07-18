@@ -24,12 +24,36 @@
     ],
     "fixture_base_commit": "7d1931fb00575b0ccb5f9467120fb6e3ec231e51"
   },
+  "route_extent": null,
+  "access_point_options": [
+    {
+      "access_id": "vermont_long_trail:access:overlay_0033",
+      "inventory_id": "vermont_long_trail:access:overlay_0033",
+      "kind": "trailhead",
+      "display_name": "Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot",
+      "canonical_mile": 36.9,
+      "directional_mile": 36.9,
+      "label": "[NOBO Mile 36.9] Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot"
+    }
+  ],
+  "checkpoint_options": [
+    {
+      "access_id": "vermont_long_trail:access:overlay_0033",
+      "inventory_id": "vermont_long_trail:access:overlay_0033",
+      "kind": "trailhead",
+      "display_name": "Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot",
+      "canonical_mile": 36.9,
+      "directional_mile": 36.9,
+      "label": "[NOBO Mile 36.9] Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot"
+    }
+  ],
   "required_anchor_options": {
     "overnight": [
       {
         "inventory_id": "vermont_long_trail:overnight:overlay_0008",
         "kind": "overnight_site",
         "display_name": "Seth Warner Shelter",
+        "canonical_mile": 5.5,
         "directional_mile": 5.5,
         "label": "[NOBO Mile 5.5] Seth Warner Shelter"
       }
@@ -39,6 +63,7 @@
         "inventory_id": "vermont_long_trail:access:vt_9:14.3",
         "kind": "access_point",
         "display_name": "Vt. 9",
+        "canonical_mile": 14.3,
         "directional_mile": 14.3,
         "label": "[NOBO Mile 14.3] Vt. 9"
       },
@@ -46,6 +71,7 @@
         "inventory_id": "vermont_long_trail:town:vt_9:14.3:bennington",
         "kind": "town",
         "display_name": "Bennington",
+        "canonical_mile": 14.3,
         "directional_mile": 14.3,
         "label": "[NOBO Mile 14.3] Bennington [Vt. 9]"
       }
@@ -159,6 +185,44 @@
       ],
       "source_artifacts": [
         "trails/vermont_long_trail/raw/csv/resupply_amenities.csv"
+      ]
+    },
+    {
+      "inventory_id": "vermont_long_trail:access:overlay_0033",
+      "access_id": "vermont_long_trail:access:overlay_0033",
+      "kind": "trailhead",
+      "display_name": "Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot",
+      "canonical_mile": 36.9,
+      "directional_miles": {
+        "NOBO": 36.9,
+        "SOBO": 235.2
+      },
+      "labels": {
+        "NOBO": "[NOBO Mile 36.9] Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot",
+        "SOBO": "[SOBO Mile 235.2] Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot"
+      },
+      "selectable_as": [
+        "section_boundary",
+        "operational_checkpoint",
+        "day_start",
+        "day_stop"
+      ],
+      "overlay": {
+        "overlay_id": "overlay_0033",
+        "node_class": "trailhead",
+        "division": "division3"
+      },
+      "access": {
+        "road_crossing": "Stratton–Arlington/Kelley Stand Road; Stratton Mtn. parking lot"
+      },
+      "supported_intents": [
+        "checkpoint",
+        "meet_pickup",
+        "resupply",
+        "overnight"
+      ],
+      "source_artifacts": [
+        "trails/vermont_long_trail/compiled/route_overlay.json"
       ]
     },
     {

@@ -178,8 +178,8 @@ hosted Alpha runtime requirements.
 - Synthesizes expedition itineraries through the `PlannerV2` facade, with
   terrain, logistics, and itinerary responsibilities split into focused helper
   modules under `cairn/planner/`.
-- Supports THRU trip planning with separate trip type and direction controls.
-  SECTION planning is deferred and hidden in the UI for the MVP.
+- Supports THRU planning and Plan API SECTION route extents through the same
+  PlannerV2 facade. SECTION remains hidden in the Streamlit UI.
 - Preserves NOBO and SOBO ingress/egress semantics over northbound-reference guidebook miles.
 - Prioritizes real shelter and campsite stops over synthetic labels, including
   compiled overnight reference candidates.
@@ -212,6 +212,10 @@ hosted Alpha runtime requirements.
 - Accepts direction-ordered required overnight and resupply inventory ids as
   partial Advanced-planning anchors, while CairnOS fills all unselected gaps
   and fails precisely if a required anchor cannot appear exactly once.
+- Accepts direction-aware SECTION start/end access IDs and optional
+  access-point anchors for checkpoint, pickup, resupply, or overnight intent;
+  canonical miles and bounded route geometry remain CairnOS-owned. See
+  `docs/SECTION_ACCESS_POINT_CONTRACT.md` for the Platform handoff.
 - Provides route GPX artifacts for HikerLogix Platform/iOS import work,
   with selected promoted ingress/egress geometry composed around the canonical
   Long Trail spine, preserved start/stop waypoints, daily moving-track slices,
@@ -224,8 +228,8 @@ hosted Alpha runtime requirements.
 ## Known limitations
 
 - Alpha output can be wrong, incomplete, too aggressive, or too conservative.
-- The current UI supports Long Trail THRU planning; SECTION planning is
-  deferred.
+- The current Streamlit UI supports Long Trail THRU planning; SECTION is
+  available only through the promoted Plan API contract.
 - Trail data, shelter/campsite metadata, terrain, road access, and resupply
   information continue to need provenance review and field validation.
 - Feasibility does not yet model food weight, weather, trail closures,
@@ -285,7 +289,7 @@ The Streamlit app provides a user-facing interface for requesting expedition pla
 Typical input parameters include:
 
 - view mode selection for automatic, mobile, or desktop layout
-- trip type selection (THRU for MVP; SECTION is deferred)
+- trip type selection (THRU in Streamlit; THRU and SECTION in the Plan API)
 - direction selection (NOBO / SOBO)
 - ingress / egress approaches
 - daily cadence or target mileage preferences
@@ -640,8 +644,8 @@ amenity is compiled into structured metadata.
 - Hosted Alpha deployments should rely on compiled runtime artifacts and the
   small raw CSV files listed in `docs/ALPHA_TESTING.md`, not the full
   build/topology source dataset.
-- SECTION planning is intentionally hidden from the Streamlit menu for the MVP
-  while the internal code path remains available for future work.
+- SECTION planning is intentionally hidden from the Streamlit menu while the
+  promoted Plan API serves access-ID-bounded SECTION extents for HikerLogix.
 - See `docs/MVP_ROADMAP.md` before starting data quality, mile-system,
   traversal, or SECTION planning work.
 

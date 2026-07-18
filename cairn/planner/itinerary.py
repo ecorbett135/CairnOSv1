@@ -537,7 +537,7 @@ class ItineraryBuilder:
             if node.get("overlay_id")
         }
         resolved = []
-        for anchor in self.required_overnight_anchors:
+        for anchor in self.planning_required_overnight_anchors:
             node = nodes_by_overlay_id.get(
                 anchor.get("overlay_id")
             )
@@ -562,8 +562,8 @@ class ItineraryBuilder:
             for node in logistics_candidates
         }
         resolved = []
-        for anchor in self.required_resupply_anchors:
-            node = nodes_by_planner_id.get(
+        for anchor in self.planning_required_resupply_anchors:
+            node = anchor.get("planner_node") or nodes_by_planner_id.get(
                 anchor.get("planner_node_id")
             )
             if node is None:
@@ -719,7 +719,13 @@ class ItineraryBuilder:
         ):
             return (
                 authoritative_overlay,
-                "overlay",
+                (
+                    "section_extent_boundary"
+                    if selected_stop.get(
+                        "route_extent_boundary"
+                    )
+                    else "overlay"
+                ),
                 True,
             )
 
@@ -833,7 +839,9 @@ class ItineraryBuilder:
         )
 
         egress_node = (
-            self._resolve_egress_node()
+            self.route_extent_node("end")
+            if self.is_section_plan()
+            else self._resolve_egress_node()
         )
 
         if egress_node:
@@ -864,6 +872,26 @@ class ItineraryBuilder:
                 overlay_nodes
             )
         )
+
+        if self.is_section_plan():
+            extent_start_mile = float(
+                self.route_extent[
+                    "canonical_start_mile"
+                ]
+            )
+            extent_end_mile = float(
+                self.route_extent[
+                    "canonical_end_mile"
+                ]
+            )
+            southern_mile = min(
+                extent_start_mile,
+                extent_end_mile,
+            )
+            northern_mile = max(
+                extent_start_mile,
+                extent_end_mile,
+            )
 
         total_miles = (
             northern_mile - southern_mile
@@ -941,6 +969,41 @@ class ItineraryBuilder:
                 )
             )
 
+        if self.is_section_plan():
+            start_node = self.route_extent_node(
+                "start"
+            )
+            current_mile = float(
+                start_node["trail_mile"]
+            )
+            current_location = start_node[
+                "canonical_name"
+            ]
+            current_canonical_location = (
+                current_location
+            )
+            current_access_notes = (
+                start_node.get(
+                    "access_notes",
+                    "",
+                )
+                or ""
+            )
+            current_spine_alignment = None
+            current_location_type = (
+                start_node.get(
+                    "node_class",
+                    "road_crossing",
+                )
+            )
+            current_division = start_node.get(
+                "division",
+                current_division,
+            )
+            current_overlay_id = start_node.get(
+                "overlay_id"
+            )
+
         terminal_mile = (
             southern_mile
             if self.is_sobo()
@@ -967,7 +1030,9 @@ class ItineraryBuilder:
         placed_nero_count = 0
 
         ingress_resolved = (
-            self._resolve_ingress_node()
+            None
+            if self.is_section_plan()
+            else self._resolve_ingress_node()
         )
 
         if ingress_resolved:

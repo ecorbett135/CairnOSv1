@@ -29,6 +29,8 @@ def test_trail_inventory_fixture_shape_is_versioned_and_directional():
     assert payload["items"]
     assert payload["required_anchor_options"]["overnight"]
     assert payload["required_anchor_options"]["resupply"]
+    assert payload["access_point_options"]
+    assert payload["checkpoint_options"]
 
 
 def test_trail_inventory_fixture_anchor_options_are_directionally_ordered():
@@ -93,6 +95,16 @@ def test_trail_inventory_fixture_contains_expected_manual_planning_examples():
     shelter = items_by_id["vermont_long_trail:overnight:overlay_0008"]
     assert shelter["display_name"] == "Seth Warner Shelter"
     assert "overnight_stop" in shelter["selectable_as"]
+
+    access = items_by_id["vermont_long_trail:access:overlay_0033"]
+    assert access["kind"] == "trailhead"
+    assert "section_boundary" in access["selectable_as"]
+    assert access["supported_intents"] == [
+        "checkpoint",
+        "meet_pickup",
+        "resupply",
+        "overnight",
+    ]
 
     side_trip = items_by_id["vermont_long_trail:side_trip:lawsons_finest_taproom"]
     assert side_trip["experience"]["validation_status"] == "validated"

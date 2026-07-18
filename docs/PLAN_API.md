@@ -4,8 +4,9 @@ Copyright 2026 Eric Corbett
 
 SPDX-License-Identifier: Apache-2.0
 
-The CairnOS Plan API is a stateless HTTP wrapper around the Long Trail THRU
-planner and `cairnos_plan_v1` export contract. It is intended for plan
+The CairnOS Plan API is a stateless HTTP wrapper around the Long Trail defined-
+trail planner and `cairnos_plan_v1` export contract. THRU and SECTION are route
+extents handled by the same PlannerV2 facade. The API is intended for plan
 generation and downstream import interoperability, not accounts, saved plans,
 mobile persistence, actuals, photos, HealthKit, or field-navigation behavior.
 
@@ -80,10 +81,14 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | Field | Type | Range / values |
 | --- | --- | --- |
 | `trail_id` | string | `vermont_long_trail` |
+| `trip_type` | string | Optional `THRU` (default) or `SECTION` |
 | `direction` | string | `NOBO` or `SOBO` |
-| `ingress_route` | string | NOBO: `Williamstown Approach` or `North Adams Approach`; SOBO: `Journey's End Trail` |
-| `egress_route` | string | NOBO: `Journey's End Trail`; SOBO: `Williamstown Approach` or `North Adams Approach` |
+| `ingress_route` | string | Required for THRU; SECTION omits it or uses `No ingress route` |
+| `egress_route` | string | Required for THRU; SECTION omits it or uses `No egress route` |
 | `route_selection` | object | Optional `cairnos_route_selection_v1` stable-ID selection; legacy requests derive the IDs from `ingress_route` / `egress_route` |
+| `start_access_id` | string | Required for SECTION; promoted CairnOS road-crossing/trailhead access ID |
+| `end_access_id` | string | Required for SECTION; promoted access ID after start in selected-direction travel order |
+| `access_point_anchors` | array of objects | Optional ordered intermediate access anchors with `access_id`, `intent`, and optional `date`, `time`, `note`; default `[]` |
 | `desired_days` | integer | `3` to `60` |
 | `min_daily_miles` | number | `4` to `25` |
 | `max_daily_miles` | number | `8` to `40`, greater than or equal to `min_daily_miles` |
@@ -111,6 +116,12 @@ requested direction/role, and is not reused for both roles. If the object is
 omitted, CairnOS resolves the existing route names to exactly one compiled
 `approach_id` each and echoes the normalized shape. This preserves v1 callers
 while giving export consumers stable selected-route identity.
+
+SECTION normalizes route selection to the exact none sentinels
+`approach_none_ingress` and `approach_none_egress`. They are CairnOS-owned
+intentional no-branch selections, not missing geometry. Exact SECTION request,
+inventory, filtering, satisfaction, and Platform handoff examples are in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 Geometry availability is separate from route validity. A known compatible
 selection with no promoted geometry remains plannable and returns
@@ -189,6 +200,15 @@ approach IDs, geometry IDs, connection gap, and promoted provenance. Current
 Long Trail data promotes North Adams approach geometry; Williamstown and
 Journey's End report geometry-unavailable warnings until separately promoted.
 
+SECTION responses include additive `cairnos_route_extent_v1` and
+`cairnos_access_point_anchors_v1` sections. The selected extent preserves
+canonical full-trail miles and exposes direction-relative section miles.
+`checkpoint` and `meet_pickup` annotate passage only; `resupply` creates one
+required resupply projection; `overnight` requires the day to end at the
+access point. Successful responses report requested, satisfied, and empty
+unsatisfied access-ID arrays. A failure returns `400 validation_error` rather
+than partial satisfaction.
+
 When required-anchor fields are present, the response includes:
 
 ```json
@@ -265,6 +285,7 @@ instead of copying route, shelter, access, resupply, or side-trip semantics.
 ```text
 GET /v1/trail-inventory?direction=NOBO
 GET /v1/trail-inventory?direction=SOBO
+GET /v1/trail-inventory?direction=NOBO&start_access_id=<id>&end_access_id=<id>
 ```
 
 Successful trail-inventory responses return `200` with:
@@ -277,12 +298,15 @@ Successful trail-inventory responses return `200` with:
 | `selected_direction` | Direction used to order displayed options; default `NOBO` |
 | `direction_model` | NOBO/SOBO display-mile and continuous-section rules |
 | `source` | Promoted source artifacts used to build inventory |
+| `route_extent` | Null without endpoint query; otherwise normalized `cairnos_route_extent_v1` |
+| `access_point_options` | Full promoted road-crossing/trailhead boundary options in travel order |
+| `checkpoint_options` | Full-trail access options or strict intermediate options for the selected extent |
 | `required_anchor_options` | Direction-ordered `overnight` and `resupply` selector records |
 | `items` | Inventory records for manual planning choices |
 
-The initial live inventory exposes overnight sites, access points, towns, and
-validated side trips. It intentionally avoids bulk road-crossing and trailhead
-promotion until those candidate flags are validated.
+The live inventory exposes overnight sites, promoted overlay road crossings
+and trailheads, resupply access points, towns, and validated side trips. It
+does not bulk-promote candidate `crossings_refined.json` rows.
 
 Each required-anchor option contains `inventory_id`, `kind`, `display_name`,
 `directional_mile`, and `label`. Both option lists are sorted by displayed
@@ -292,6 +316,13 @@ ascending SOBO display miles.
 
 Inventory is metadata for selection and display-label durability. Required
 anchor feasibility is validated only by `POST /v1/plans`.
+
+With both endpoint query parameters, checkpoint options are strictly inside
+the extent and required overnight/resupply options are inclusive of its
+boundaries. `items` and full `access_point_options` remain full-trail lookup
+inventories. Every list follows NOBO/SOBO travel order while preserving
+northbound-reference `canonical_mile`; filtered options also expose
+`section_relative_mile`.
 
 Required-anchor validation uses stable `400 validation_error` responses. Exact
 message families include:
@@ -306,6 +337,9 @@ Required resupply anchor must appear exactly once: <id> appeared 0 times. Adjust
 route_selection.ingress_approach_id unknown approach_id: <id>
 route_selection.ingress_approach_id is incompatible with ingress_route '<name>': <id> identifies '<other-name>'
 Selected ingress approach_id '<id>' geometry is disconnected from the southern defined-trail terminus by <miles> miles
+SECTION endpoints are reversed for <direction>: end_access_id <id> cannot follow start_access_id <id>
+access_point_anchors access_id is outside the selected extent: <id>
+Required planning anchor is outside the selected extent: <id>
 ```
 
 Unknown, incompatible, duplicate, out-of-order, and infeasible anchors never
@@ -340,6 +374,7 @@ Run the targeted Plan API tests:
 ```bash
 venv/bin/python -m pytest cairn/tests/test_plan_api.py -q
 venv/bin/python -m pytest cairn/tests/test_asgi_app.py -q
+venv/bin/python -m pytest cairn/tests/test_section_access_point_anchors.py -q
 ```
 
 Compile the API modules:

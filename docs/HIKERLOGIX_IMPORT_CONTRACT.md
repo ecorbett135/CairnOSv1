@@ -37,8 +37,11 @@ HikerLogix v1 import should require these top-level sections:
 - `daily_plan`
 - `warnings`
 
-Optional sections such as `resupply_town_details`, `selected_experiences`, and
+Optional additive sections such as `route_extent`, `access_point_anchors`,
+`required_anchors`, `resupply_town_details`, `selected_experiences`, and
 `season_advisories` should be displayed when present but must not block import.
+Exact SECTION handling is documented in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 ## Read-Only Import Rules
 
@@ -75,6 +78,12 @@ branch. Current data promotes North Adams geometry; Williamstown and Journey's
 End remain explicit gaps. Off-spine overnight access remains omitted. All GPX
 artifacts are advisory and must not be used as navigation, distance, elevation,
 closure, water, weather, or safety authority.
+
+For SECTION, `route_gpx.route_extent` echoes the selected access-ID bounds and
+the full-plan geometry source exposes the canonical minimum/maximum mile slice.
+Intentional `approach_none_ingress` and `approach_none_egress` selections add no
+branch and are not geometry-unavailable warnings. Consumers must render the
+supplied slice rather than deriving section geometry.
 
 ## Fixture Contract
 
