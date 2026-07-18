@@ -112,10 +112,16 @@ provenance.
 Compiled approach geometry is a deliberate runtime artifact. Each promoted
 branch must retain a stable `approach_id`, a stable `geometry_id`, its exact raw
 source path and feature ID/title, source-license status, and transformation
-notes. The compiler copies geometry coordinates only; source notes and
-non-geometry personal metadata must not enter `compiled/approach_trails.json`.
-An unresolved source-license status remains an explicit reuse limitation even
-when the geometry is operationally useful inside CairnOS.
+notes. The compiler may copy longitude, latitude, and source-embedded elevation
+coordinates only; source notes, a fourth coordinate, and non-geometry personal
+metadata must not enter `compiled/approach_trails.json`. An unresolved
+source-license status remains an explicit reuse limitation even when the
+geometry/elevation is operationally useful inside CairnOS.
+
+Compiled spine elevation is likewise derived only from GPX-standard `<ele>`
+values embedded on the exact source track points. Missing source elevation must
+remain unavailable and be flagged in route exports; it must not be filled from
+PlannerV2 estimates, an unrelated branch, or an arbitrary interpolation.
 
 ## Commercial And Companion-App Boundary
 

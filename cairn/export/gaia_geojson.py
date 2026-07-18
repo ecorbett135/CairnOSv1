@@ -197,11 +197,14 @@ def load_spine_coordinates(trail_root):
         )
 
         if geometry_type == "LineString":
-            return coordinates
+            return [
+                coordinate[:2]
+                for coordinate in coordinates
+            ]
 
         if geometry_type == "MultiLineString":
             return [
-                coord
+                coord[:2]
                 for line in coordinates
                 for coord in line
             ]

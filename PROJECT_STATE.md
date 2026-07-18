@@ -665,12 +665,20 @@ mainline overlay; they do not become route deviations or replace the compiled
 route overlay as operational truth.
 
 The Plan API now normalizes selected ingress/egress names to stable
-`cairnos_route_selection_v1` approach IDs. Route GPX v3 composes promoted
+`cairnos_route_selection_v1` approach IDs. Route GPX v4 composes promoted
 geometry for exactly those IDs around the canonical spine and slices moving-day
 tracks across the same mileage interval. North Adams is the first promoted
 branch geometry; Williamstown and Journey's End remain known selections with
 explicit geometry-unavailable warnings until their own provenanced geometry is
 promoted. Missing geometry never causes another approach branch to be reused.
+
+Route GPX v4 promotes only source-embedded meter elevation for the canonical
+spine and promoted approach points, emits standard GPX `<ele>` for full and
+daily tracks, and reports reproducible track length/ascent/descent/average-grade
+metrics. Ordered ingress/spine/egress identity and provenance remain explicit
+even when a selected branch is unavailable. Track-point elevation completeness
+is separate from selected-route completeness so downstream clients cannot
+mistake a partial selected route for a complete elevation profile.
 
 The Plan API now supports partial required-anchor specification for HikerLogix
 Advanced planning. Stable inventory ids can require overnight or resupply

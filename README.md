@@ -215,7 +215,8 @@ hosted Alpha runtime requirements.
 - Provides route GPX artifacts for HikerLogix Platform/iOS import work,
   with selected promoted ingress/egress geometry composed around the canonical
   Long Trail spine, preserved start/stop waypoints, daily moving-track slices,
-  and manifest provenance.
+  source-authoritative per-point elevation, reproducible track metrics, and
+  manifest completeness/provenance.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export
@@ -352,7 +353,7 @@ daily plan:
 - manifest entries with filenames, scope, waypoint/track counts, warning
   codes, and day metadata
 
-The current `cairnos_route_gpx_v3` contract keeps planned daily start/stop
+The current `cairnos_route_gpx_v4` contract keeps planned daily start/stop
 waypoints resolved through the same coordinate lookup path as Gaia export. Its
 full-plan track composes only the promoted geometry identified by the request's
 `cairnos_route_selection_v1` ingress/egress IDs with the canonical Long Trail
@@ -366,6 +367,15 @@ routes without promoted geometry emit `selected_route_geometry_unavailable`;
 the exporter never substitutes North Adams or another branch. Off-spine
 overnight access remains outside this track contract. All GPX geometry is
 advisory export context, not navigational authority.
+
+V4 additively emits GPX-standard `<ele>` values in meters from source-embedded
+spine and promoted approach elevation. Full-plan and moving-day manifest rows
+include length, ascent, descent, signed average grade, route-part identity,
+source provenance, and explicit geometry/elevation completeness. Missing
+selected route or elevation data stays missing and warns; CairnOS does not
+substitute another route, PlannerV2 terrain estimates, or arbitrary
+interpolation. Exact Platform pass-through and iOS/Web consumption rules are in
+`docs/ROUTE_GPX_EXPORT.md`.
 
 ## Resupply and recovery semantics
 

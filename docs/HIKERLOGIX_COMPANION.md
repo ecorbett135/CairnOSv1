@@ -54,6 +54,14 @@ pause/resume changes eligible future actual dates without mutating planned
 truth. Plan-number display, lifecycle UI, and date-cascade behavior are
 HikerLogix concerns, not CairnOS contract semantics.
 
+Platform-generated display-name defaults are `<Trail> <Direction> Thru` for a
+full-trail plan and `<Trail> <Direction> Section` for a bounded section. They
+must never append `Plan` or expose CairnOS branding. Platform and iOS may let
+the user rename generated or Custom plans, but that display-name mutation must
+not change the internal UUID or the human `LT###`/`CP###` display number. This
+rule belongs in downstream Django/API persistence and React/native creation,
+edit, and review surfaces; CairnOS artifact filenames remain unchanged.
+
 ## Contract Layering
 
 The current CairnOS versions remain:
@@ -61,8 +69,9 @@ The current CairnOS versions remain:
 - `cairnos_plan_api_v1` for stateless plan generation;
 - `cairnos_plan_v1` for planned itinerary/reasoning export;
 - `cairnos_trail_inventory_v1` for promoted inventory metadata;
-- `cairnos_route_gpx_v3` for composed full-plan and moving-day GPX tracks with
-  preserved waypoints and source manifests;
+- `cairnos_route_gpx_v4` for composed full-plan and moving-day GPX tracks with
+  preserved waypoints, source-authoritative elevation, reproducible metrics,
+  route-part completeness, and provenance manifests;
 - `cairnos_route_selection_v1` for stable selected ingress/egress approach IDs.
 
 Defined-trail Advanced may submit the additive

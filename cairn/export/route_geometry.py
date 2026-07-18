@@ -16,10 +16,68 @@ APPROACH_GEOMETRY_SOURCE = "compiled/approach_trails.json"
 SPINE_GEOMETRY_SOURCE = "compiled/spine.geojson"
 DAILY_TRACK_GEOMETRY_MODE = "daily_track"
 MAX_CONNECTION_GAP_MILES = 0.15
+ELEVATION_UNIT = "m"
 
 
 class RouteGeometryValidationError(ValueError):
     """Raised when selected route geometry cannot form a valid route."""
+
+
+def load_spine_route_geometry(
+    trail_root: Path | str,
+) -> dict[str, Any]:
+    """Load the compiled spine without discarding its source elevation."""
+
+    path = Path(trail_root) / SPINE_GEOMETRY_SOURCE
+    if not path.exists():
+        return {
+            "coordinates": [],
+            "elevation": _unavailable_elevation(),
+            "provenance": None,
+        }
+    with path.open(encoding="utf-8") as handle:
+        payload = json.load(handle)
+
+    for feature in payload.get("features", []):
+        geometry = feature.get("geometry", {})
+        coordinates = _flatten_geometry(geometry)
+        if not coordinates:
+            continue
+        properties = feature.get("properties", {})
+        elevation = {
+            "status": str(
+                properties.get("elevation_status") or "unavailable"
+            ),
+            "unit": str(properties.get("elevation_unit") or ELEVATION_UNIT),
+            "method": properties.get("elevation_method"),
+            "coordinate_count": len(coordinates),
+            "elevation_coordinate_count": sum(
+                1 for coordinate in coordinates if _has_elevation(coordinate)
+            ),
+            "source_path": properties.get("source_path"),
+        }
+        return {
+            "coordinates": coordinates,
+            "elevation": elevation,
+            "provenance": {
+                "source_path": properties.get("source_path"),
+                "source_kind": properties.get("source_kind"),
+                "source_license_status": properties.get(
+                    "source_license_status"
+                ),
+                "transformation_notes": (
+                    "Longitude, latitude, and source-embedded GPX elevation "
+                    "are retained in the compiled spine; GPX elevation is "
+                    "expressed in meters."
+                ),
+            },
+        }
+
+    return {
+        "coordinates": [],
+        "elevation": _unavailable_elevation(),
+        "provenance": None,
+    }
 
 
 def build_composed_route_geometry(
@@ -30,6 +88,8 @@ def build_composed_route_geometry(
     *,
     direction: str | None,
     route_selection: Mapping[str, Any] | None,
+    spine_elevation: Mapping[str, Any] | None = None,
+    spine_provenance: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     normalized_direction = str(direction or "NOBO").upper()
     if normalized_direction not in {"NOBO", "SOBO"}:
@@ -50,10 +110,14 @@ def build_composed_route_geometry(
             "approach_id": None,
             "connected_terminus": None,
             "connection_gap_miles": None,
-            "provenance": None,
+            "elevation": dict(
+                spine_elevation or _unavailable_elevation()
+            ),
+            "provenance": dict(spine_provenance or {}) or None,
         })
 
     normalized_selection = _normalize_selection(route_selection)
+    catalog: dict[str, dict[str, str]] = {}
     if normalized_selection:
         approach_payload = _load_approach_payload(trail_root)
         catalog = _approach_catalog(approach_payload)
@@ -118,9 +182,15 @@ def build_composed_route_geometry(
         full_start_mile,
         full_stop_mile,
     )
+    full_coverage = _interval_coverage(
+        pieces,
+        full_start_mile,
+        full_stop_mile,
+    )
 
     daily_tracks: dict[Any, list[list[float]]] = {}
     daily_sources: dict[Any, list[dict[str, Any]]] = {}
+    daily_coverage: dict[Any, dict[str, Any]] = {}
     for day in daily_plan:
         day_number = day.get("day")
         start_mile = _number(day.get("daily_start_mile"))
@@ -128,6 +198,11 @@ def build_composed_route_geometry(
         if start_mile is None or stop_mile is None or start_mile == stop_mile:
             daily_tracks[day_number] = []
             daily_sources[day_number] = []
+            daily_coverage[day_number] = _interval_coverage(
+                pieces,
+                start_mile,
+                stop_mile,
+            )
             continue
         track, sources = _slice_pieces(
             pieces,
@@ -136,13 +211,25 @@ def build_composed_route_geometry(
         )
         daily_tracks[day_number] = track if len(track) >= 2 else []
         daily_sources[day_number] = sources if len(track) >= 2 else []
+        daily_coverage[day_number] = _interval_coverage(
+            pieces,
+            start_mile,
+            stop_mile,
+        )
 
     return {
         "route_selection": normalized_selection,
+        "route_parts": _selected_route_parts(
+            pieces,
+            normalized_selection,
+            catalog,
+        ),
         "full_track_points": full_track if len(full_track) >= 2 else [],
         "full_geometry_sources": full_sources,
+        "full_coverage": full_coverage,
         "daily_track_points": daily_tracks,
         "daily_geometry_sources": daily_sources,
+        "daily_coverage": daily_coverage,
         "warnings": warnings,
     }
 
@@ -299,6 +386,9 @@ def _approach_piece(
         "approach_id": approach_id,
         "connected_terminus": expected_terminus,
         "connection_gap_miles": round(connection_gap, 4),
+        "elevation": dict(
+            geometry.get("elevation") or _unavailable_elevation()
+        ),
         "provenance": geometry.get("provenance"),
     }
 
@@ -327,6 +417,8 @@ def _deduplicate_coordinates(
         if not _valid_coordinate(coordinate):
             continue
         normalized = [float(coordinate[0]), float(coordinate[1])]
+        if _has_elevation(coordinate):
+            normalized.append(float(coordinate[2]))
         if not deduplicated or normalized != deduplicated[-1]:
             deduplicated.append(normalized)
     return deduplicated
@@ -340,6 +432,16 @@ def _valid_coordinate(coordinate: Any) -> bool:
             isinstance(value, (int, float)) and math.isfinite(value)
             for value in coordinate[:2]
         )
+    )
+
+
+def _has_elevation(coordinate: Any) -> bool:
+    return (
+        isinstance(coordinate, (list, tuple))
+        and len(coordinate) >= 3
+        and isinstance(coordinate[2], (int, float))
+        and not isinstance(coordinate[2], bool)
+        and math.isfinite(coordinate[2])
     )
 
 
@@ -399,10 +501,13 @@ def _slice_pieces(
         if not coordinates:
             continue
 
+        point_start_index = len(track)
         if track and track[-1] == coordinates[0]:
+            point_start_index -= 1
             coordinates = coordinates[1:]
         track.extend(coordinates)
-        sources.append({
+        point_end_index = len(track) - 1
+        source = {
             key: piece.get(key)
             for key in (
                 "role",
@@ -411,10 +516,43 @@ def _slice_pieces(
                 "approach_id",
                 "connected_terminus",
                 "connection_gap_miles",
+                "elevation",
                 "provenance",
             )
             if piece.get(key) is not None
+        }
+        source.update({
+            "route_part_id": _route_part_id(piece),
+            "start_mile": overlap_low if ascending else overlap_high,
+            "end_mile": overlap_high if ascending else overlap_low,
+            "point_start_index": point_start_index,
+            "point_end_index": point_end_index,
+            "point_count": point_end_index - point_start_index + 1,
         })
+        emitted_part_points = track[
+            point_start_index:point_end_index + 1
+        ]
+        emitted_elevation = dict(source.get("elevation") or {})
+        emitted_elevation_count = sum(
+            1
+            for coordinate in emitted_part_points
+            if _has_elevation(coordinate)
+        )
+        emitted_elevation.update({
+            "status": (
+                "complete"
+                if emitted_part_points
+                and emitted_elevation_count == len(emitted_part_points)
+                else "unavailable"
+            ),
+            "unit": str(
+                emitted_elevation.get("unit") or ELEVATION_UNIT
+            ),
+            "coordinate_count": len(emitted_part_points),
+            "elevation_coordinate_count": emitted_elevation_count,
+        })
+        source["elevation"] = emitted_elevation
+        sources.append(source)
 
     return track, sources
 
@@ -450,7 +588,7 @@ def _slice_line(
     for index, segment_length in enumerate(segment_lengths):
         traversed += segment_length
         if start_distance < traversed < end_distance:
-            result.append(coordinates[index + 1][:2])
+            result.append(coordinates[index + 1][:3])
     result.append(_coordinate_at_distance(
         coordinates,
         segment_lengths,
@@ -465,21 +603,236 @@ def _coordinate_at_distance(
     target_distance: float,
 ) -> list[float]:
     if target_distance <= 0:
-        return coordinates[0][:2]
+        return coordinates[0][:3]
     traversed = 0.0
     for index, segment_length in enumerate(segment_lengths):
         if traversed + segment_length >= target_distance:
             if segment_length <= 0:
-                return coordinates[index][:2]
+                return coordinates[index][:3]
             ratio = (target_distance - traversed) / segment_length
             start = coordinates[index]
             end = coordinates[index + 1]
-            return [
+            result = [
                 start[0] + (end[0] - start[0]) * ratio,
                 start[1] + (end[1] - start[1]) * ratio,
             ]
+            if _has_elevation(start) and _has_elevation(end):
+                result.append(
+                    start[2] + (end[2] - start[2]) * ratio
+                )
+            return result
         traversed += segment_length
-    return coordinates[-1][:2]
+    return coordinates[-1][:3]
+
+
+def _interval_coverage(
+    pieces: list[dict[str, Any]],
+    start_mile: float | None,
+    stop_mile: float | None,
+) -> dict[str, Any]:
+    if start_mile is None or stop_mile is None:
+        return {
+            "requested_start_mile": start_mile,
+            "requested_stop_mile": stop_mile,
+            "requested_distance_miles": None,
+            "covered_distance_miles": 0.0,
+            "coverage_fraction": 0.0,
+            "geometry_complete": False,
+            "uncovered_intervals": [],
+        }
+    if start_mile == stop_mile:
+        return {
+            "requested_start_mile": start_mile,
+            "requested_stop_mile": stop_mile,
+            "requested_distance_miles": 0.0,
+            "covered_distance_miles": 0.0,
+            "coverage_fraction": 1.0,
+            "geometry_complete": True,
+            "uncovered_intervals": [],
+        }
+
+    ascending = stop_mile > start_mile
+    requested_low = min(start_mile, stop_mile)
+    requested_high = max(start_mile, stop_mile)
+    intervals = sorted(
+        (
+            max(requested_low, float(piece["start_mile"])),
+            min(requested_high, float(piece["end_mile"])),
+        )
+        for piece in pieces
+        if min(requested_high, float(piece["end_mile"]))
+        > max(requested_low, float(piece["start_mile"]))
+    )
+    merged: list[list[float]] = []
+    for low, high in intervals:
+        if not merged or low > merged[-1][1] + 1e-9:
+            merged.append([low, high])
+        else:
+            merged[-1][1] = max(merged[-1][1], high)
+
+    uncovered: list[list[float]] = []
+    cursor = requested_low
+    for low, high in merged:
+        if low > cursor + 1e-9:
+            uncovered.append([cursor, low])
+        cursor = max(cursor, high)
+    if cursor < requested_high - 1e-9:
+        uncovered.append([cursor, requested_high])
+
+    requested_distance = requested_high - requested_low
+    covered_distance = sum(high - low for low, high in merged)
+    if not ascending:
+        uncovered = [[high, low] for low, high in reversed(uncovered)]
+
+    return {
+        "requested_start_mile": start_mile,
+        "requested_stop_mile": stop_mile,
+        "requested_distance_miles": round(requested_distance, 3),
+        "covered_distance_miles": round(covered_distance, 3),
+        "coverage_fraction": round(
+            covered_distance / requested_distance,
+            6,
+        ),
+        "geometry_complete": not uncovered,
+        "uncovered_intervals": [
+            {
+                "start_mile": round(low, 3),
+                "stop_mile": round(high, 3),
+            }
+            for low, high in uncovered
+        ],
+    }
+
+
+def _selected_route_parts(
+    pieces: list[dict[str, Any]],
+    route_selection: Mapping[str, str] | None,
+    catalog: Mapping[str, Mapping[str, str]],
+) -> list[dict[str, Any]]:
+    spine_piece = next(
+        (piece for piece in pieces if piece.get("role") == "spine"),
+        None,
+    )
+    ordered: list[tuple[str, dict[str, Any] | None, str | None]] = []
+    if route_selection:
+        ingress_id = route_selection["ingress_approach_id"]
+        egress_id = route_selection["egress_approach_id"]
+        ordered.append((
+            "ingress",
+            next(
+                (
+                    piece
+                    for piece in pieces
+                    if piece.get("role") == "ingress"
+                    and piece.get("approach_id") == ingress_id
+                ),
+                None,
+            ),
+            ingress_id,
+        ))
+    ordered.append(("spine", spine_piece, None))
+    if route_selection:
+        ordered.append((
+            "egress",
+            next(
+                (
+                    piece
+                    for piece in pieces
+                    if piece.get("role") == "egress"
+                    and piece.get("approach_id") == egress_id
+                ),
+                None,
+            ),
+            egress_id,
+        ))
+
+    route_parts = []
+    for order, (role, piece, approach_id) in enumerate(ordered):
+        if piece:
+            elevation = _verified_piece_elevation(piece)
+            route_parts.append({
+                "order": order,
+                "route_part_id": _route_part_id(piece),
+                "role": role,
+                "approach_id": piece.get("approach_id"),
+                "geometry_id": piece.get("geometry_id"),
+                "geometry_status": "available",
+                "start_mile": piece.get("start_mile"),
+                "end_mile": piece.get("end_mile"),
+                "point_count": len(piece.get("coordinates", [])),
+                "source": piece.get("source"),
+                "elevation": elevation,
+                "provenance": piece.get("provenance"),
+            })
+            continue
+
+        catalog_entry = catalog.get(str(approach_id or ""), {})
+        route_parts.append({
+            "order": order,
+            "route_part_id": (
+                f"{role}:{approach_id}"
+                if approach_id
+                else "spine:defined_trail_spine"
+            ),
+            "role": role,
+            "approach_id": approach_id,
+            "geometry_id": (
+                "defined_trail_spine" if role == "spine" else None
+            ),
+            "geometry_status": "unavailable",
+            "approach_name": catalog_entry.get("approach_name"),
+            "connected_terminus": catalog_entry.get("connected_terminus"),
+            "point_count": 0,
+            "source": (
+                SPINE_GEOMETRY_SOURCE
+                if role == "spine"
+                else APPROACH_GEOMETRY_SOURCE
+            ),
+            "elevation": _unavailable_elevation(),
+            "provenance": None,
+        })
+    return route_parts
+
+
+def _verified_piece_elevation(
+    piece: Mapping[str, Any],
+) -> dict[str, Any]:
+    coordinates = piece.get("coordinates", [])
+    elevation_coordinate_count = sum(
+        1 for coordinate in coordinates if _has_elevation(coordinate)
+    )
+    elevation = dict(piece.get("elevation") or {})
+    elevation.update({
+        "status": (
+            "complete"
+            if coordinates and elevation_coordinate_count == len(coordinates)
+            else "unavailable"
+        ),
+        "unit": str(elevation.get("unit") or ELEVATION_UNIT),
+        "coordinate_count": len(coordinates),
+        "elevation_coordinate_count": elevation_coordinate_count,
+    })
+    return elevation
+
+
+def _route_part_id(piece: Mapping[str, Any]) -> str:
+    role = str(piece.get("role") or "route_part")
+    identity = (
+        piece.get("approach_id")
+        or piece.get("geometry_id")
+        or "unknown"
+    )
+    return f"{role}:{identity}"
+
+
+def _unavailable_elevation() -> dict[str, Any]:
+    return {
+        "status": "unavailable",
+        "unit": ELEVATION_UNIT,
+        "method": None,
+        "coordinate_count": 0,
+        "elevation_coordinate_count": 0,
+    }
 
 
 def haversine_miles(first: list[float], second: list[float]) -> float:
