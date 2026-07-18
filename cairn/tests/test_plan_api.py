@@ -361,7 +361,7 @@ def test_build_plan_response_includes_route_gpx_artifacts():
 
     assert (
         route_gpx["export_version"]
-        == "cairnos_route_gpx_v3"
+        == "cairnos_route_gpx_v4"
     )
     assert route_gpx["geometry_mode"] == "full_plan_track"
     assert route_gpx["direction"] == "NOBO"
@@ -377,6 +377,8 @@ def test_build_plan_response_includes_route_gpx_artifacts():
     assert route_gpx["manifest"][0]["geometry_source"] == (
         "composed_selected_route"
     )
+    assert route_gpx["manifest"][0]["elevation"]["status"] == "complete"
+    assert route_gpx["manifest"][0]["metrics"]["length_m"] > 0
     assert route_gpx["manifest"][1]["geometry_mode"] == "daily_track"
 
 
@@ -415,6 +417,11 @@ def test_north_adams_request_fixture_starts_track_at_selected_approach(
     assert first_track_point is not None
     assert float(first_track_point.get("lon")) == expected[0]
     assert float(first_track_point.get("lat")) == expected[1]
+    elevation = first_track_point.find(
+        f"{{{GPX_NAMESPACE}}}ele"
+    )
+    assert elevation is not None
+    assert float(elevation.text) == expected[2]
     assert full_entry["geometry_sources"][0]["approach_id"] == (
         "approach_north_adams"
     )

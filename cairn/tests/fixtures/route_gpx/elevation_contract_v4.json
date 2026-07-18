@@ -1,0 +1,71 @@
+{
+  "export_version": "cairnos_route_gpx_v4",
+  "generated_at": "20260718T120000Z",
+  "trail_id": "vermont_long_trail",
+  "direction": "NOBO",
+  "route_selection": null,
+  "route_parts": [
+    {
+      "order": 0,
+      "route_part_id": "spine:defined_trail_spine",
+      "role": "spine",
+      "approach_id": null,
+      "geometry_id": "defined_trail_spine",
+      "geometry_status": "available",
+      "point_count": 3,
+      "source": "compiled/spine.geojson",
+      "elevation": {
+        "status": "complete",
+        "unit": "m",
+        "method": "source_embedded_gpx_ele",
+        "coordinate_count": 3,
+        "elevation_coordinate_count": 3,
+        "source_path": "raw/gpx/long-trail-spine.gpx"
+      }
+    }
+  ],
+  "manifest": [
+    {
+      "artifact_id": "fixture_day",
+      "filename": "cairnos_route_elevation_contract_v4_fixture.gpx",
+      "scope": "day",
+      "media_type": "application/gpx+xml",
+      "export_version": "cairnos_route_gpx_v4",
+      "geometry_mode": "daily_track",
+      "track_count": 1,
+      "track_segment_count": 1,
+      "track_point_count": 3,
+      "elevation": {
+        "status": "complete",
+        "unit": "m",
+        "track_point_count": 3,
+        "elevation_point_count": 3,
+        "missing_elevation_point_count": 0,
+        "boundary_elevation_method": "linear_between_adjacent_source_elevations_at_mileage_slice_boundary"
+      },
+      "metrics": {
+        "length_m": 79.491,
+        "total_ascent_m": 0.0,
+        "total_descent_m": 2.5,
+        "average_grade_percent": -3.145,
+        "length_method": "wgs84_haversine_segment_sum",
+        "elevation_change_method": "ordered_track_point_delta_sum",
+        "average_grade_method": "net_elevation_change_over_length"
+      },
+      "geometry_coverage": {
+        "requested_start_mile": 0.0,
+        "requested_stop_mile": 0.1,
+        "requested_distance_miles": 0.1,
+        "covered_distance_miles": 0.1,
+        "coverage_fraction": 1.0,
+        "geometry_complete": true,
+        "uncovered_intervals": []
+      },
+      "route_elevation_complete": true,
+      "warning_codes": []
+    }
+  ],
+  "artifacts": {
+    "cairnos_route_elevation_contract_v4_fixture.gpx": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" xmlns:cairnos=\"https://cairnos.local/ns/route-gpx/1\" version=\"1.1\" creator=\"CairnOS\">\n  <metadata>\n    <name>fixture day</name>\n    <time>2026-07-18T12:00:00Z</time>\n    <extensions>\n      <cairnos:export_version>cairnos_route_gpx_v4</cairnos:export_version>\n      <cairnos:geometry_mode>daily_track</cairnos:geometry_mode>\n      <cairnos:trail_id>vermont_long_trail</cairnos:trail_id>\n      <cairnos:elevation_status>complete</cairnos:elevation_status>\n      <cairnos:elevation_unit>m</cairnos:elevation_unit>\n      <cairnos:geometry_complete>true</cairnos:geometry_complete>\n    </extensions>\n  </metadata>\n  <trk>\n    <name>fixture day route</name>\n    <desc>CairnOS canonical defined-trail spine geometry.</desc>\n    <type>CairnOS selected route</type>\n    <extensions>\n      <cairnos:geometry_source>compiled/spine.geojson</cairnos:geometry_source>\n      <cairnos:direction>NOBO</cairnos:direction>\n      <cairnos:geometry_complete>true</cairnos:geometry_complete>\n      <cairnos:elevation_status>complete</cairnos:elevation_status>\n      <cairnos:elevation_unit>m</cairnos:elevation_unit>\n      <cairnos:length_m>79.491</cairnos:length_m>\n      <cairnos:total_ascent_m>0.0</cairnos:total_ascent_m>\n      <cairnos:total_descent_m>2.5</cairnos:total_descent_m>\n      <cairnos:average_grade_percent>-3.145</cairnos:average_grade_percent>\n      <cairnos:route_parts>\n        <cairnos:route_part id=\"spine:defined_trail_spine\" role=\"spine\" point_start_index=\"0\" point_end_index=\"2\">\n          <cairnos:source>compiled/spine.geojson</cairnos:source>\n          <cairnos:geometry_id>defined_trail_spine</cairnos:geometry_id>\n          <cairnos:start_mile>0.0</cairnos:start_mile>\n          <cairnos:end_mile>0.1</cairnos:end_mile>\n          <cairnos:elevation_status>complete</cairnos:elevation_status>\n          <cairnos:source_path>raw/gpx/long-trail-spine.gpx</cairnos:source_path>\n          <cairnos:source_license_status>UNKNOWN — needs review</cairnos:source_license_status>\n        </cairnos:route_part>\n      </cairnos:route_parts>\n    </extensions>\n    <trkseg>\n      <trkpt lat=\"42.7438189\" lon=\"-73.1555346\">\n        <ele>712</ele>\n      </trkpt>\n      <trkpt lat=\"42.7441642\" lon=\"-73.1553688\">\n        <ele>711.199</ele>\n      </trkpt>\n      <trkpt lat=\"42.7444664\" lon=\"-73.1551318\">\n        <ele>709.5</ele>\n      </trkpt>\n    </trkseg>\n  </trk>\n</gpx>\n"
+  }
+}

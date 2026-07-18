@@ -230,9 +230,12 @@ Fields
 
 Field	Type	Notes
 spine_id	string	immutable identifier
-geometry	LineString	canonical geometry
+geometry	LineString Z	canonical longitude/latitude geometry with source GPX elevation meters when complete
 total_miles	float	authoritative mileage
 source	string	GPX source
+elevation_status	string	complete or unavailable; never estimated by the spine compiler
+elevation_unit	string	meters (`m`) when complete
+elevation_method	string	`source_embedded_gpx_ele` when complete
 directionality	enum	NOBO / SOBO / bidirectional
 
 Invariants

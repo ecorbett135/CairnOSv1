@@ -13,7 +13,7 @@ HikerLogix Platform owns input presentation, persistence, and lifecycle UI.
 
 The change is additive to `cairnos_plan_api_v1`, `cairnos_plan_v1`,
 `cairnos_trail_inventory_v1`, `cairnos_route_selection_v1`, and
-`cairnos_route_gpx_v3`. It adds two explicit sub-contracts:
+`cairnos_route_gpx_v4`. It adds two explicit sub-contracts:
 
 - `cairnos_route_extent_v1`
 - `cairnos_access_point_anchors_v1`
@@ -307,8 +307,9 @@ of returning partial satisfaction.
 `route_gpx.route_extent` echoes the extent. Its full-plan manifest geometry
 source records `canonical_min_mile: 14.3` and `canonical_max_mile: 86.8`; the
 track contains only that selected defined-trail slice. The none sentinels add
-no approach branch. Daily tracks remain bounded by each daily canonical-mile
-interval.
+no approach branch, are omitted from `route_gpx.route_parts`, and do not enter
+`route_completeness.unavailable_route_part_ids`. Daily tracks remain bounded by
+each daily canonical-mile interval.
 
 ## Platform Implementation Handoff
 

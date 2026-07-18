@@ -182,15 +182,27 @@ def test_section_route_gpx_is_bounded_by_extent_without_approach_warnings():
         NONE_EGRESS_APPROACH_ID
     )
     full_plan = route_gpx["manifest"][0]
-    assert full_plan["geometry_sources"] == [
-        {
-            "role": "spine",
-            "source": "compiled/spine.geojson",
-            "geometry_id": "defined_trail_spine",
-            "canonical_min_mile": 14.3,
-            "canonical_max_mile": 86.8,
-        }
-    ]
+    assert len(full_plan["geometry_sources"]) == 1
+    source = full_plan["geometry_sources"][0]
+    assert {
+        key: source[key]
+        for key in (
+            "role",
+            "source",
+            "geometry_id",
+            "canonical_min_mile",
+            "canonical_max_mile",
+        )
+    } == {
+        "role": "spine",
+        "source": "compiled/spine.geojson",
+        "geometry_id": "defined_trail_spine",
+        "canonical_min_mile": 14.3,
+        "canonical_max_mile": 86.8,
+    }
+    assert [part["role"] for part in route_gpx["route_parts"]] == ["spine"]
+    assert route_gpx["route_completeness"]["selected_route_part_count"] == 1
+    assert route_gpx["route_completeness"]["unavailable_route_part_ids"] == []
     assert not any(
         warning["code"] in {
             "full_plan_spine_only",

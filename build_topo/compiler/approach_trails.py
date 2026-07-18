@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import csv
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -52,6 +53,8 @@ OUTPUT_PATH = (
 
 
 SCHEMA_VERSION = "cairnos_approach_trails_v2"
+ELEVATION_UNIT = "m"
+ELEVATION_METHOD = "source_embedded_coordinate"
 
 
 def _cell(row, *field_names):
@@ -163,15 +166,45 @@ def _flatten_coordinate_count(geometry):
     return 0
 
 
-def _two_dimensional_geometry(geometry):
+def _geometry_coordinates(geometry):
+    coordinates = geometry.get("coordinates", [])
+    if geometry.get("type") == "LineString":
+        return list(coordinates)
+    if geometry.get("type") == "MultiLineString":
+        return [
+            coordinate
+            for line in coordinates
+            for coordinate in line
+        ]
+    raise ValueError(
+        "Approach geometry must be a LineString or MultiLineString"
+    )
+
+
+def _promoted_geometry(geometry):
     geometry_type = geometry.get("type")
     coordinates = geometry.get("coordinates", [])
+    source_coordinates = _geometry_coordinates(geometry)
+    has_complete_elevation = bool(source_coordinates) and all(
+        len(coordinate) >= 3
+        and isinstance(coordinate[2], (int, float))
+        and not isinstance(coordinate[2], bool)
+        and math.isfinite(coordinate[2])
+        for coordinate in source_coordinates
+    )
+    coordinate_length = 3 if has_complete_elevation else 2
 
     if geometry_type == "LineString":
-        normalized = [coordinate[:2] for coordinate in coordinates]
+        normalized = [
+            coordinate[:coordinate_length]
+            for coordinate in coordinates
+        ]
     elif geometry_type == "MultiLineString":
         normalized = [
-            [coordinate[:2] for coordinate in line]
+            [
+                coordinate[:coordinate_length]
+                for coordinate in line
+            ]
             for line in coordinates
         ]
     else:
@@ -179,10 +212,27 @@ def _two_dimensional_geometry(geometry):
             "Approach geometry must be a LineString or MultiLineString"
         )
 
-    return {
-        "type": geometry_type,
-        "coordinates": normalized,
-    }
+    return (
+        {
+            "type": geometry_type,
+            "coordinates": normalized,
+        },
+        {
+            "status": (
+                "complete"
+                if has_complete_elevation
+                else "unavailable"
+            ),
+            "unit": ELEVATION_UNIT,
+            "method": ELEVATION_METHOD,
+            "coordinate_count": len(source_coordinates),
+            "elevation_coordinate_count": (
+                len(source_coordinates)
+                if has_complete_elevation
+                else 0
+            ),
+        },
+    )
 
 
 def load_approach_geometries(
@@ -247,7 +297,7 @@ def load_approach_geometries(
                     f"{source_feature_id}"
                 )
 
-            geometry = _two_dimensional_geometry(
+            geometry, elevation = _promoted_geometry(
                 feature.get("geometry", {})
             )
             selected_rows = approach_rows[approach_id]
@@ -275,6 +325,11 @@ def load_approach_geometries(
                 "end_mile": max(miles),
                 "coordinate_count": _flatten_coordinate_count(geometry),
                 "geometry": geometry,
+                "elevation": {
+                    **elevation,
+                    "source_path": source_path,
+                    "source_feature_id": source_feature_id,
+                },
                 "provenance": {
                     "source_path": source_path,
                     "source_feature_id": source_feature_id,

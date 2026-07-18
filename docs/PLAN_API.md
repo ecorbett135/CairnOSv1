@@ -186,13 +186,19 @@ planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
 Plan responses also include the additive `route_gpx` section from
-`cairnos_route_gpx_v3` when daily itinerary rows are available. The section
+`cairnos_route_gpx_v4` when daily itinerary rows are available. The section
 contains a full-plan GPX track composed from the exact promoted ingress/egress
 IDs plus the canonical defined-trail spine in traversal order. Each moving-day
 artifact contains the mileage-bounded portion of the same selected route and
 retains the existing planned waypoints. Zero-mile or otherwise unsliceable days
 remain waypoint-only. Off-spine overnight access is not included, and all
 artifacts remain advisory.
+
+V4 emits source-authoritative GPX `<ele>` meters, deterministic track metrics,
+ordered route-part identity/provenance, and separate emitted-track versus
+selected-route completeness. Consumers must not synthesize missing branch
+geometry/elevation. Exact pass-through and profile rules are documented in
+`docs/ROUTE_GPX_EXPORT.md`.
 
 The response echoes `route_selection` in `user_profile` and in `route_gpx`.
 Manifest `geometry_sources` entries identify the spine and any composed

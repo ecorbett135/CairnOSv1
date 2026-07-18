@@ -57,7 +57,7 @@ Exact SECTION handling is documented in
 
 ## Optional Route GPX Artifacts
 
-CairnOS also embeds `cairnos_route_gpx_v3` route GPX artifacts in the additive
+CairnOS also embeds `cairnos_route_gpx_v4` route GPX artifacts in the additive
 `route_gpx` Plan JSON section when daily plan rows are available. These
 artifacts are optional companions for Platform/iOS import and sharing
 workflows, not replacements for CairnOS Plan JSON.
@@ -71,13 +71,15 @@ planned start/stop waypoints. Zero-mile or otherwise unsliceable days remain
 `waypoint_only`.
 
 Platform/iOS should use the full-plan manifest `filename` to resolve the GPX
-string in `artifacts` when rendering the route line. Consumers must preserve
-`route_selection`, inspect manifest `geometry_sources`, and surface
-`selected_route_geometry_unavailable` without synthesizing or substituting a
-branch. Current data promotes North Adams geometry; Williamstown and Journey's
-End remain explicit gaps. Off-spine overnight access remains omitted. All GPX
-artifacts are advisory and must not be used as navigation, distance, elevation,
-closure, water, weather, or safety authority.
+string in `artifacts` when rendering the route line or elevation profile.
+Consumers must preserve `route_selection`, `route_parts`, completeness,
+metrics, warnings, and manifest `geometry_sources`; parse standard `<ele>` as
+meters; and surface unavailable geometry/elevation without synthesizing or
+substituting a branch. Current data promotes North Adams geometry/elevation;
+Williamstown and Journey's End remain explicit gaps. Off-spine overnight
+access remains omitted. Exact pass-through and profile eligibility rules are
+in `docs/ROUTE_GPX_EXPORT.md`. All GPX artifacts remain advisory and must not
+be used as navigation, closure, water, weather, or safety authority.
 
 For SECTION, `route_gpx.route_extent` echoes the selected access-ID bounds and
 the full-plan geometry source exposes the canonical minimum/maximum mile slice.

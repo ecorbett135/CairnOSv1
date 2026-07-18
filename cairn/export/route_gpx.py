@@ -28,15 +28,22 @@ from cairn.export.plan_json import (
     slugify,
     utc_timestamp,
 )
+from cairn.export.route_elevation import (
+    ELEVATION_UNIT,
+    elevation_profile,
+    normalize_track_points,
+    track_metrics,
+)
 from cairn.export.route_geometry import (
     APPROACH_GEOMETRY_SOURCE,
     DAILY_TRACK_GEOMETRY_MODE,
     SPINE_GEOMETRY_SOURCE,
     build_composed_route_geometry,
+    load_spine_route_geometry,
 )
 
 
-ROUTE_GPX_EXPORT_VERSION = "cairnos_route_gpx_v3"
+ROUTE_GPX_EXPORT_VERSION = "cairnos_route_gpx_v4"
 GPX_GEOMETRY_MODE = "full_plan_track"
 WAYPOINT_ONLY_GEOMETRY_MODE = "waypoint_only"
 GPX_MEDIA_TYPE = "application/gpx+xml"
@@ -126,6 +133,13 @@ def coordinate_context(
         trail_root
     )
 
+    spine_coordinates = load_spine_coordinates(
+        trail_root
+    )
+    spine_route_geometry = load_spine_route_geometry(
+        trail_root
+    )
+
     return {
         "access_references": load_resupply_access_reference(
             trail_root
@@ -140,9 +154,14 @@ def coordinate_context(
             overlay_nodes
         ),
         "overlay_nodes": overlay_nodes,
-        "spine_coordinates": load_spine_coordinates(
-            trail_root
+        "spine_coordinates": spine_coordinates,
+        "route_spine_coordinates": (
+            spine_route_geometry["coordinates"]
+            if spine_coordinates
+            else []
         ),
+        "route_spine_elevation": spine_route_geometry["elevation"],
+        "route_spine_provenance": spine_route_geometry["provenance"],
         "total_miles": total_overlay_miles(
             overlay_nodes
         ),
@@ -365,6 +384,117 @@ def warning_codes(
     })
 
 
+def build_route_geometry_incomplete_warning(
+    coverage: dict[str, Any],
+    day: Any = None,
+) -> dict[str, Any]:
+    warning = {
+        "code": "route_geometry_incomplete",
+        "severity": "warning",
+        "message": (
+            "The emitted GPX track does not cover the complete planned "
+            "mileage interval because selected authoritative route geometry "
+            "is unavailable."
+        ),
+        "geometry_coverage": coverage,
+    }
+    if day is not None:
+        warning["day"] = day
+    return warning
+
+
+def build_authoritative_elevation_unavailable_warning(
+    track_points: list[list[float]],
+    coverage: dict[str, Any],
+    day: Any = None,
+) -> dict[str, Any] | None:
+    profile = elevation_profile(track_points)
+    if not track_points:
+        return None
+    if (
+        coverage.get("geometry_complete")
+        and profile["status"] == "complete"
+    ):
+        return None
+    reason = (
+        "route_geometry_incomplete"
+        if not coverage.get("geometry_complete")
+        else "track_points_missing_source_elevation"
+    )
+    warning = {
+        "code": "authoritative_route_elevation_unavailable",
+        "severity": "warning",
+        "reason": reason,
+        "message": (
+            "A complete authoritative elevation profile is unavailable for "
+            "this planned interval. CairnOS did not fill the gap with an "
+            "estimated or unrelated elevation source."
+        ),
+        "elevation": profile,
+    }
+    if day is not None:
+        warning["day"] = day
+    return warning
+
+
+def artifact_contract_warnings(
+    track_points: list[list[float]],
+    coverage: dict[str, Any],
+    day: Any = None,
+) -> list[dict[str, Any]]:
+    warnings = []
+    if (
+        coverage.get("requested_distance_miles") not in (None, 0, 0.0)
+        and not coverage.get("geometry_complete")
+    ):
+        warnings.append(
+            build_route_geometry_incomplete_warning(coverage, day)
+        )
+    elevation_warning = build_authoritative_elevation_unavailable_warning(
+        track_points,
+        coverage,
+        day,
+    )
+    if elevation_warning:
+        warnings.append(elevation_warning)
+    return warnings
+
+
+def route_completeness(
+    route_parts: list[dict[str, Any]],
+    coverage: dict[str, Any],
+    track_points: list[list[float]],
+) -> dict[str, Any]:
+    profile = elevation_profile(track_points)
+    unavailable = [
+        part["route_part_id"]
+        for part in route_parts
+        if part.get("geometry_status") != "available"
+        or part.get("elevation", {}).get("status") != "complete"
+    ]
+    return {
+        "geometry_complete": bool(coverage.get("geometry_complete")),
+        "elevation_complete": bool(
+            coverage.get("geometry_complete")
+            and profile["status"] == "complete"
+        ),
+        "selected_route_part_count": len(route_parts),
+        "geometry_available_part_count": sum(
+            1
+            for part in route_parts
+            if part.get("geometry_status") == "available"
+        ),
+        "elevation_complete_part_count": sum(
+            1
+            for part in route_parts
+            if part.get("elevation", {}).get("status") == "complete"
+        ),
+        "unavailable_route_part_ids": unavailable,
+        "geometry_coverage": coverage,
+        "track_elevation": profile,
+    }
+
+
 def artifact_filename(
     trail_id: str,
     direction: str | None,
@@ -396,10 +526,13 @@ def build_manifest_entry(
     geometry_mode: str,
     track_points: list[list[float]] | None = None,
     geometry_sources: list[dict[str, Any]] | None = None,
+    geometry_coverage: dict[str, Any] | None = None,
     day: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     track_points = track_points or []
     geometry_sources = geometry_sources or []
+    geometry_coverage = geometry_coverage or {}
+    profile = elevation_profile(track_points)
     entry = {
         "artifact_id": artifact_id,
         "filename": filename,
@@ -411,6 +544,13 @@ def build_manifest_entry(
         "track_count": 1 if track_points else 0,
         "track_segment_count": 1 if track_points else 0,
         "track_point_count": len(track_points),
+        "elevation": profile,
+        "metrics": track_metrics(track_points),
+        "geometry_coverage": geometry_coverage,
+        "route_elevation_complete": bool(
+            geometry_coverage.get("geometry_complete")
+            and profile["status"] == "complete"
+        ),
         "warning_codes": warning_codes(warnings),
     }
 
@@ -454,6 +594,16 @@ def format_coordinate(
 ) -> str:
     return (
         f"{float(value):.8f}"
+        .rstrip("0")
+        .rstrip(".")
+    )
+
+
+def format_elevation(
+    value: float,
+) -> str:
+    return (
+        f"{float(value):.3f}"
         .rstrip("0")
         .rstrip(".")
     )
@@ -606,6 +756,85 @@ def track_description(
     return "CairnOS canonical defined-trail spine geometry."
 
 
+def add_track_contract_extensions(
+    extensions: ET.Element,
+    geometry_sources: list[dict[str, Any]],
+    geometry_coverage: dict[str, Any],
+    profile: dict[str, Any],
+    metrics: dict[str, Any],
+) -> None:
+    add_cairnos_extension(
+        extensions,
+        "geometry_complete",
+        str(bool(geometry_coverage.get("geometry_complete"))).lower(),
+    )
+    add_cairnos_extension(
+        extensions,
+        "elevation_status",
+        profile.get("status"),
+    )
+    add_cairnos_extension(
+        extensions,
+        "elevation_unit",
+        profile.get("unit"),
+    )
+    for field_name in (
+        "length_m",
+        "total_ascent_m",
+        "total_descent_m",
+        "average_grade_percent",
+    ):
+        add_cairnos_extension(
+            extensions,
+            field_name,
+            metrics.get(field_name),
+        )
+
+    route_parts = ET.SubElement(
+        extensions,
+        cairnos_tag("route_parts"),
+    )
+    for source in geometry_sources:
+        route_part = ET.SubElement(
+            route_parts,
+            cairnos_tag("route_part"),
+            {
+                "id": str(source.get("route_part_id") or "unknown"),
+                "role": str(source.get("role") or "unknown"),
+                "point_start_index": str(source.get("point_start_index")),
+                "point_end_index": str(source.get("point_end_index")),
+            },
+        )
+        for field_name in (
+            "source",
+            "geometry_id",
+            "approach_id",
+            "start_mile",
+            "end_mile",
+        ):
+            add_cairnos_extension(
+                route_part,
+                field_name,
+                source.get(field_name),
+            )
+        add_cairnos_extension(
+            route_part,
+            "elevation_status",
+            source.get("elevation", {}).get("status"),
+        )
+        provenance = source.get("provenance") or {}
+        for field_name in (
+            "source_path",
+            "source_feature_id",
+            "source_license_status",
+        ):
+            add_cairnos_extension(
+                route_part,
+                field_name,
+                provenance.get(field_name),
+            )
+
+
 def add_track_element(
     root: ET.Element,
     name: str,
@@ -613,6 +842,9 @@ def add_track_element(
     direction: str | None,
     geometry_sources: list[dict[str, Any]] | None = None,
     route_selection: dict[str, str] | None = None,
+    geometry_coverage: dict[str, Any] | None = None,
+    profile: dict[str, Any] | None = None,
+    metrics: dict[str, Any] | None = None,
 ) -> None:
     if not coordinates:
         return
@@ -668,6 +900,13 @@ def add_track_element(
             "egress_approach_id",
             route_selection.get("egress_approach_id"),
         )
+    add_track_contract_extensions(
+        extensions,
+        geometry_sources or [],
+        geometry_coverage or {},
+        profile or elevation_profile(coordinates),
+        metrics or track_metrics(coordinates),
+    )
     segment = ET.SubElement(
         track,
         gpx_tag("trkseg"),
@@ -675,7 +914,7 @@ def add_track_element(
 
     for coordinate in coordinates:
         longitude, latitude = coordinate[:2]
-        ET.SubElement(
+        track_point = ET.SubElement(
             segment,
             gpx_tag("trkpt"),
             {
@@ -687,6 +926,12 @@ def add_track_element(
                 ),
             },
         )
+        if len(coordinate) >= 3:
+            add_text(
+                track_point,
+                gpx_tag("ele"),
+                format_elevation(coordinate[2]),
+            )
 
 
 def build_gpx_document(
@@ -700,8 +945,12 @@ def build_gpx_document(
     metadata_warning: str | None = None,
     geometry_sources: list[dict[str, Any]] | None = None,
     route_selection: dict[str, str] | None = None,
+    geometry_coverage: dict[str, Any] | None = None,
 ) -> str:
     track_points = track_points or []
+    geometry_coverage = geometry_coverage or {}
+    profile = elevation_profile(track_points)
+    metrics = track_metrics(track_points)
     root = ET.Element(
         gpx_tag("gpx"),
         {
@@ -746,6 +995,21 @@ def build_gpx_document(
     )
     add_cairnos_extension(
         metadata_extensions,
+        "elevation_status",
+        profile.get("status"),
+    )
+    add_cairnos_extension(
+        metadata_extensions,
+        "elevation_unit",
+        ELEVATION_UNIT,
+    )
+    add_cairnos_extension(
+        metadata_extensions,
+        "geometry_complete",
+        str(bool(geometry_coverage.get("geometry_complete"))).lower(),
+    )
+    add_cairnos_extension(
+        metadata_extensions,
         "warning",
         metadata_warning,
     )
@@ -763,6 +1027,9 @@ def build_gpx_document(
         direction,
         geometry_sources,
         route_selection,
+        geometry_coverage,
+        profile,
+        metrics,
     )
 
     ET.indent(
@@ -800,14 +1067,21 @@ def build_route_gpx_artifacts(
     geometry = build_composed_route_geometry(
         daily_plan,
         trail_root,
-        context["spine_coordinates"],
+        context["route_spine_coordinates"],
         context["total_miles"],
         direction=direction,
         route_selection=route_selection,
+        spine_elevation=context["route_spine_elevation"],
+        spine_provenance=context["route_spine_provenance"],
     )
-    track_points = geometry["full_track_points"]
+    track_points = normalize_track_points(
+        geometry["full_track_points"]
+    )
     full_geometry_sources = geometry["full_geometry_sources"]
-    daily_track_points = geometry["daily_track_points"]
+    daily_track_points = {
+        day: normalize_track_points(points)
+        for day, points in geometry["daily_track_points"].items()
+    }
     daily_geometry_sources = geometry["daily_geometry_sources"]
     full_geometry_mode = (
         GPX_GEOMETRY_MODE
@@ -839,13 +1113,32 @@ def build_route_gpx_artifacts(
         spine_warnings.append(dict(MISSING_SPINE_WARNING))
     elif not has_approach_geometry and not no_approach_selected:
         spine_warnings.append(dict(FULL_PLAN_SPINE_WARNING))
+    full_contract_warnings = artifact_contract_warnings(
+        track_points,
+        geometry["full_coverage"],
+    )
+    daily_contract_warnings = {
+        day.get("day"): artifact_contract_warnings(
+            daily_track_points.get(day.get("day"), []),
+            geometry["daily_coverage"].get(day.get("day"), {}),
+            day.get("day"),
+        )
+        for day in daily_plan
+    }
     full_plan_advisory_warnings = [
         *spine_warnings,
+        *full_contract_warnings,
         dict(VERIFY_OFFICIAL_SOURCES_WARNING),
     ]
     warnings = [
         *spine_warnings,
         *geometry["warnings"],
+        *full_contract_warnings,
+        *[
+            warning
+            for day_warnings in daily_contract_warnings.values()
+            for warning in day_warnings
+        ],
         *(
             [dict(WAYPOINT_ONLY_WARNING)]
             if any(
@@ -881,6 +1174,7 @@ def build_route_gpx_artifacts(
         ),
         full_geometry_sources,
         geometry["route_selection"],
+        geometry["full_coverage"],
     )
     manifest.append(
         build_manifest_entry(
@@ -896,6 +1190,7 @@ def build_route_gpx_artifacts(
             full_geometry_mode,
             track_points,
             full_geometry_sources,
+            geometry["full_coverage"],
         )
     )
 
@@ -934,6 +1229,7 @@ def build_route_gpx_artifacts(
                 else [dict(WAYPOINT_ONLY_WARNING)]
             ),
             dict(VERIFY_OFFICIAL_SOURCES_WARNING),
+            *daily_contract_warnings.get(day_number, []),
             *day_missing_warnings,
         ]
         filename = artifact_filename(
@@ -959,6 +1255,10 @@ def build_route_gpx_artifacts(
             ),
             geometry_sources=day_sources,
             route_selection=geometry["route_selection"],
+            geometry_coverage=geometry["daily_coverage"].get(
+                day_number,
+                {},
+            ),
         )
         manifest.append(
             build_manifest_entry(
@@ -970,6 +1270,7 @@ def build_route_gpx_artifacts(
                 day_geometry_mode,
                 day_points,
                 day_sources,
+                geometry["daily_coverage"].get(day_number, {}),
                 day=day,
             )
         )
@@ -981,6 +1282,12 @@ def build_route_gpx_artifacts(
         "direction": direction,
         "route_selection": geometry["route_selection"],
         "route_extent": route_extent,
+        "route_parts": geometry["route_parts"],
+        "route_completeness": route_completeness(
+            geometry["route_parts"],
+            geometry["full_coverage"],
+            track_points,
+        ),
         "geometry_mode": full_geometry_mode,
         "warnings": warnings,
         "manifest": manifest,
