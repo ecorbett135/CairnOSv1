@@ -1446,6 +1446,14 @@
     "trail_root": "trails/vermont_long_trail",
     "trip_type": "THRU"
   },
+  "required_anchors": {
+    "contract_version": "cairnos_required_planning_anchors_v1",
+    "semantics": "partial_specification",
+    "required_overnight_anchor_ids": [],
+    "required_resupply_anchor_ids": [],
+    "satisfied_overnight_anchor_ids": [],
+    "satisfied_resupply_anchor_ids": []
+  },
   "resupply_plan": [
     {
       "access_distance_miles": 4.0,

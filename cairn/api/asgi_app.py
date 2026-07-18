@@ -68,9 +68,16 @@ def create_app() -> FastAPI:
         )
 
     @app.get("/v1/trail-inventory")
-    async def trail_inventory() -> JSONResponse:
+    async def trail_inventory(
+        direction: str = "NOBO",
+    ) -> JSONResponse:
         return _json_response(
-            http_contract.handle_plan_api_request("GET", "/v1/trail-inventory", b"")
+            http_contract.handle_plan_api_request(
+                "GET",
+                "/v1/trail-inventory",
+                b"",
+                query_params={"direction": direction},
+            )
         )
 
     @app.post("/v1/plans")

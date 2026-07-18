@@ -3394,7 +3394,52 @@ class LogisticsPlanner:
                     "notes": "start",
                 })
 
+                for event in first_day.get(
+                    "required_resupply_anchors",
+                    [],
+                ):
+                    if (
+                        event.get("mile") is not None
+                        and start_mile is not None
+                        and abs(event["mile"] - start_mile) <= 0.15
+                    ):
+                        rows[0]["required_anchor_id"] = event.get(
+                            "required_anchor_id"
+                        )
+
             for day in daily_plan:
+
+                required_events = list(
+                    day.get(
+                        "required_resupply_anchors",
+                        [],
+                    )
+                    or []
+                )
+                start_required_id = (
+                    rows[0].get("required_anchor_id")
+                    if rows
+                    else None
+                )
+                projected_required_keys = set()
+                for event in required_events:
+                    required_anchor_id = event.get(
+                        "required_anchor_id"
+                    )
+                    if required_anchor_id == start_required_id:
+                        projected_required_keys.add((
+                            event.get("location"),
+                            event.get("mile"),
+                        ))
+                        continue
+                    rows.append({
+                        "day": day.get("day"),
+                        **event,
+                    })
+                    projected_required_keys.add((
+                        event.get("location"),
+                        event.get("mile"),
+                    ))
 
                 if (
                     terminal_day is not None
@@ -3417,6 +3462,12 @@ class LogisticsPlanner:
                 )
 
                 if not location:
+                    continue
+
+                if (
+                    location,
+                    day.get("resupply_mile"),
+                ) in projected_required_keys:
                     continue
 
                 rows.append({

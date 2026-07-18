@@ -15,6 +15,7 @@ from cairn.api.plan_request import (
     LONG_TRAIL_ID,
     LONG_TRAIL_ROOT,
     PlanAPIValidationError,
+    VALID_DIRECTIONS,
 )
 
 
@@ -31,11 +32,16 @@ SOURCE_ARTIFACTS = {
 }
 
 
-def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, Any]:
+def build_trail_inventory_response(
+    trail_id: str = LONG_TRAIL_ID,
+    direction: str = "NOBO",
+) -> dict[str, Any]:
     if trail_id != LONG_TRAIL_ID:
         raise PlanAPIValidationError(
             f"trail_id must be {LONG_TRAIL_ID!r} for the MVP trail inventory"
         )
+    if direction not in VALID_DIRECTIONS:
+        raise PlanAPIValidationError("direction must be one of: NOBO, SOBO")
 
     total_miles = _trail_total_miles(LONG_TRAIL_ROOT)
     overlay_nodes = _overlay_nodes(LONG_TRAIL_ROOT)
@@ -53,10 +59,19 @@ def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, A
     for item in _side_trip_items(LONG_TRAIL_ROOT, resupply_rows, total_miles):
         _append_unique(items, seen_ids, item)
 
+    sorted_items = sorted(
+        items,
+        key=lambda item: _directional_item_sort_key(
+            item,
+            direction,
+        ),
+    )
+
     return {
         "contract_version": CONTRACT_VERSION,
         "trail_id": trail_id,
         "status": "available",
+        "selected_direction": direction,
         "direction_model": {
             "canonical_mile_system": "northbound_reference",
             "supported_directions": ["NOBO", "SOBO"],
@@ -73,15 +88,49 @@ def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, A
                 "resupply, overnight, and side-trip enrichment artifacts."
             ),
         },
-        "items": sorted(
-            items,
-            key=lambda item: (
-                item.get("canonical_mile", 0),
-                item.get("kind", ""),
-                item.get("inventory_id", ""),
+        "required_anchor_options": {
+            "overnight": _required_anchor_options(
+                sorted_items,
+                direction,
+                "overnight_stop",
             ),
-        ),
+            "resupply": _required_anchor_options(
+                sorted_items,
+                direction,
+                "resupply_stop",
+            ),
+        },
+        "items": sorted_items,
     }
+
+
+def _directional_item_sort_key(
+    item: dict[str, Any],
+    direction: str,
+) -> tuple[float, str, str]:
+    return (
+        float(item.get("directional_miles", {}).get(direction, 0)),
+        str(item.get("inventory_id", "")),
+        str(item.get("display_name", "")),
+    )
+
+
+def _required_anchor_options(
+    items: list[dict[str, Any]],
+    direction: str,
+    selectable_role: str,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "inventory_id": item["inventory_id"],
+            "kind": item["kind"],
+            "display_name": item["display_name"],
+            "directional_mile": item["directional_miles"][direction],
+            "label": item["labels"][direction],
+        }
+        for item in items
+        if selectable_role in item.get("selectable_as", [])
+    ]
 
 
 def _overlay_items(

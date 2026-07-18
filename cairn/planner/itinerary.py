@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 import re
 
+from cairn.planner.anchors import RequiredPlanningAnchorError
+
 
 class ItineraryBuilder:
     """Daily stop selection and itinerary synthesis loop for PlannerV2."""
@@ -255,6 +257,8 @@ class ItineraryBuilder:
         logistics_nodes,
         current_mile=None,
         corridor_nodes=None,
+        required_anchor_mile=None,
+        minimum_required_gap=0,
     ):
         """
         Select the best operational stop near target_mile.
@@ -343,6 +347,19 @@ class ItineraryBuilder:
                 <= max(corridor_miles) + 0.05
             )
 
+        def candidate_preserves_required_gap(node):
+            if required_anchor_mile is None:
+                return True
+            mile = self.node_mile(node)
+            if mile is None or abs(mile - required_anchor_mile) <= 0.15:
+                return True
+            if not self.is_forward_progress(mile, required_anchor_mile):
+                return True
+            return self.travel_distance(
+                mile,
+                required_anchor_mile,
+            ) >= minimum_required_gap
+
         def collect_candidates(search_radius):
 
             candidate_nodes = []
@@ -375,6 +392,11 @@ class ItineraryBuilder:
                     continue
 
                 if not candidate_in_corridor(
+                    node
+                ):
+                    continue
+
+                if not candidate_preserves_required_gap(
                     node
                 ):
                     continue
@@ -442,6 +464,11 @@ class ItineraryBuilder:
                 ):
                     continue
 
+                if not candidate_preserves_required_gap(
+                    node
+                ):
+                    continue
+
                 if not self.is_forward_progress(
                     current_mile,
                     mile,
@@ -499,6 +526,125 @@ class ItineraryBuilder:
         )
 
         return candidate_nodes[0]["node"]
+
+    def resolve_required_overnight_nodes(
+        self,
+        overlay_nodes,
+    ):
+        nodes_by_overlay_id = {
+            node.get("overlay_id"): node
+            for node in overlay_nodes
+            if node.get("overlay_id")
+        }
+        resolved = []
+        for anchor in self.required_overnight_anchors:
+            node = nodes_by_overlay_id.get(
+                anchor.get("overlay_id")
+            )
+            if node is None:
+                raise RequiredPlanningAnchorError(
+                    "Required overnight anchor cannot be resolved to current "
+                    f"planner traversal data: {anchor.get('inventory_id')}"
+                )
+            required_node = dict(node)
+            required_node["required_overnight_anchor_id"] = anchor[
+                "inventory_id"
+            ]
+            resolved.append(required_node)
+        return resolved
+
+    def resolve_required_resupply_nodes(
+        self,
+        logistics_candidates,
+    ):
+        nodes_by_planner_id = {
+            self.resupply_node_id(node): node
+            for node in logistics_candidates
+        }
+        resolved = []
+        for anchor in self.required_resupply_anchors:
+            node = nodes_by_planner_id.get(
+                anchor.get("planner_node_id")
+            )
+            if node is None:
+                raise RequiredPlanningAnchorError(
+                    "Required resupply anchor cannot be resolved to current "
+                    f"planner logistics data: {anchor.get('inventory_id')}"
+                )
+            required_node = dict(node)
+            required_node["required_resupply_anchor_id"] = anchor[
+                "inventory_id"
+            ]
+            required_node["required_resupply_town_name"] = anchor.get(
+                "town_name",
+                "",
+            )
+            resolved.append(required_node)
+        return resolved
+
+    def next_required_overnight_node(
+        self,
+        current_mile,
+        required_nodes,
+        satisfied_ids,
+    ):
+        for node in required_nodes:
+            inventory_id = node["required_overnight_anchor_id"]
+            if inventory_id in satisfied_ids:
+                continue
+            mile = self.node_mile(node)
+            if mile is not None and self.is_forward_progress(
+                current_mile,
+                mile,
+            ):
+                return node
+        return None
+
+    def required_resupply_nodes_between(
+        self,
+        start_mile,
+        stop_mile,
+        required_nodes,
+        satisfied_ids,
+        *,
+        include_start=False,
+    ):
+        matches = []
+        for node in required_nodes:
+            inventory_id = node["required_resupply_anchor_id"]
+            if inventory_id in satisfied_ids:
+                continue
+            mile = self.node_mile(node)
+            if mile is None:
+                continue
+            at_start = include_start and abs(mile - start_mile) <= 0.15
+            if at_start or self.mile_in_travel_window(
+                start_mile,
+                stop_mile,
+                mile,
+            ):
+                matches.append(node)
+        return sorted(
+            matches,
+            key=lambda node: self.node_mile(node),
+            reverse=self.is_sobo(),
+        )
+
+    def required_resupply_event(self, node):
+        return {
+            "required_anchor_id": node["required_resupply_anchor_id"],
+            "location": node.get("canonical_name", ""),
+            "mile": round(self.node_mile(node), 1),
+            "town_access": (
+                node.get("required_resupply_town_name")
+                or node.get("town_access", "")
+            ),
+            "access_distance_miles": self.access_distance_miles(node),
+            "access_notes": node.get("access_notes", ""),
+            "resupply_convenience": node.get("resupply_convenience", ""),
+            "access_type": node.get("node_class", "logistics"),
+            "notes": "required resupply",
+        }
 
     def overlay_authoritative_match(
         self,
@@ -668,6 +814,12 @@ class ItineraryBuilder:
             self.build_logistics_candidates()
         )
 
+        required_resupply_nodes = (
+            self.resolve_required_resupply_nodes(
+                logistics_candidates
+            )
+        )
+
         resupply_nodes = (
             logistics_candidates
         )
@@ -693,6 +845,12 @@ class ItineraryBuilder:
         operational_overnight_nodes = (
             self.queries
             .get_operational_overnight_nodes()
+        )
+
+        required_overnight_nodes = (
+            self.resolve_required_overnight_nodes(
+                overlay_nodes
+            )
         )
 
         rows = []
@@ -803,6 +961,8 @@ class ItineraryBuilder:
         last_recovery_day = 0
         used_resupply_ids = set()
         used_recovery_ids = set()
+        satisfied_required_overnight_ids = set()
+        satisfied_required_resupply_ids = set()
         placed_zero_count = 0
         placed_nero_count = 0
 
@@ -954,6 +1114,31 @@ class ItineraryBuilder:
                 )
             )
 
+            next_required_overnight = (
+                self.next_required_overnight_node(
+                    current_mile,
+                    required_overnight_nodes,
+                    satisfied_required_overnight_ids,
+                )
+            )
+            required_overnight_stop = None
+            if next_required_overnight:
+                required_mile = self.node_mile(
+                    next_required_overnight
+                )
+                if (
+                    required_mile is not None
+                    and self.mile_in_travel_window(
+                        current_mile,
+                        target_mile,
+                        required_mile,
+                    )
+                ):
+                    target_mile = round(required_mile, 1)
+                    required_overnight_stop = (
+                        next_required_overnight
+                    )
+
             resupply_search_mile = (
                 self.extended_target_mile(
                     current_mile,
@@ -968,6 +1153,26 @@ class ItineraryBuilder:
                     ),
                 )
             )
+
+            if (
+                next_required_overnight
+                and required_overnight_stop is None
+            ):
+                required_mile = self.node_mile(
+                    next_required_overnight
+                )
+                if (
+                    required_mile is not None
+                    and self.mile_in_travel_window(
+                        current_mile,
+                        resupply_search_mile,
+                        required_mile,
+                    )
+                ):
+                    resupply_search_mile = round(
+                        required_mile,
+                        1,
+                    )
 
             daily_corridor_nodes = (
                 self.corridor_nodes_between(
@@ -1071,7 +1276,11 @@ class ItineraryBuilder:
                     )
                 )
 
-            if recovery_node:
+            if required_overnight_stop:
+                selected_stop = required_overnight_stop
+                recovery_node = None
+                recovery_kind = None
+            elif recovery_node:
                 selected_stop = recovery_node
             elif (
                 egress_node
@@ -1095,6 +1304,16 @@ class ItineraryBuilder:
                         logistics_nodes,
                         current_mile=current_mile,
                         corridor_nodes=daily_corridor_nodes,
+                        required_anchor_mile=(
+                            self.node_mile(
+                                next_required_overnight
+                            )
+                            if next_required_overnight
+                            else None
+                        ),
+                        minimum_required_gap=(
+                            self.min_daily_miles
+                        ),
                     )
                 )
 
@@ -1105,6 +1324,51 @@ class ItineraryBuilder:
                     selected_stop = (
                         planned_resupply_stop
                     )
+
+            if (
+                selected_stop
+                and next_required_overnight
+                and selected_stop.get("overlay_id")
+                == next_required_overnight.get("overlay_id")
+            ):
+                selected_stop = next_required_overnight
+
+            if (
+                selected_stop
+                and next_required_overnight
+                and selected_stop.get("overlay_id")
+                != next_required_overnight.get("overlay_id")
+            ):
+                selected_mile = self.node_mile(
+                    selected_stop
+                )
+                required_mile = self.node_mile(
+                    next_required_overnight
+                )
+                if (
+                    selected_mile is not None
+                    and required_mile is not None
+                    and self.is_forward_progress(
+                        selected_mile,
+                        required_mile,
+                    )
+                    and self.travel_distance(
+                        selected_mile,
+                        required_mile,
+                    ) < self.min_daily_miles
+                    and self.travel_distance(
+                        current_mile,
+                        required_mile,
+                    ) <= self.max_daily_miles
+                    and self.analyze_terrain_interval(
+                        current_mile,
+                        required_mile,
+                    )["elevation_gain_ft"]
+                    <= self.max_daily_elevation
+                ):
+                    selected_stop = next_required_overnight
+                    recovery_node = None
+                    recovery_kind = None
 
             if selected_stop:
                 (
@@ -1433,7 +1697,20 @@ class ItineraryBuilder:
 
             resupply_node = None
 
-            if (
+            required_resupply_nodes_for_day = (
+                self.required_resupply_nodes_between(
+                    current_mile,
+                    next_mile,
+                    required_resupply_nodes,
+                    satisfied_required_resupply_ids,
+                    include_start=(day == 1),
+                )
+            )
+
+            if required_resupply_nodes_for_day:
+                resupply_node = required_resupply_nodes_for_day[0]
+
+            elif (
                 recovery_node
                 and recovery_kind == "nero"
                 and self.is_resupply_candidate(
@@ -1474,7 +1751,10 @@ class ItineraryBuilder:
                     )
                 )
 
-            if resupply_node:
+            if (
+                resupply_node
+                and not required_resupply_nodes_for_day
+            ):
                 resupply_mile_for_day = (
                     self.node_mile(
                         resupply_node
@@ -1494,6 +1774,7 @@ class ItineraryBuilder:
                 resupply_node
                 and not recovery_kind
                 and terminal_mile is not None
+                and not required_resupply_nodes_for_day
             ):
                 resupply_mile_for_terminal = (
                     self.node_mile(
@@ -1548,6 +1829,10 @@ class ItineraryBuilder:
             resupply_access_distance = None
             resupply_access_notes = ""
             resupply_convenience = ""
+            required_resupply_events = [
+                self.required_resupply_event(node)
+                for node in required_resupply_nodes_for_day
+            ]
 
             if resupply_node:
 
@@ -1560,6 +1845,18 @@ class ItineraryBuilder:
                         resupply_node
                     )
                 )
+
+                for required_node in required_resupply_nodes_for_day:
+                    satisfied_required_resupply_ids.add(
+                        required_node[
+                            "required_resupply_anchor_id"
+                        ]
+                    )
+                    used_resupply_ids.add(
+                        self.resupply_node_id(
+                            required_node
+                        )
+                    )
 
                 resupply_location = (
                     resupply_node.get(
@@ -1656,6 +1953,13 @@ class ItineraryBuilder:
                 "daily_stop_overlay_id": (
                     stop_overlay_id
                 ),
+                "required_overnight_anchor_id": (
+                    selected_stop.get(
+                        "required_overnight_anchor_id"
+                    )
+                    if selected_stop
+                    else None
+                ),
                 "daily_traversal_authority": (
                     daily_traversal_authority
                 ),
@@ -1684,11 +1988,26 @@ class ItineraryBuilder:
                 "resupply_convenience": (
                     resupply_convenience
                 ),
+                "required_resupply_anchors": (
+                    required_resupply_events
+                ),
                 "food_carry_days_since_last_resupply": (
                     food_carry_days
                 ),
                 "notes": notes,
             })
+
+            if (
+                selected_stop
+                and selected_stop.get(
+                    "required_overnight_anchor_id"
+                )
+            ):
+                satisfied_required_overnight_ids.add(
+                    selected_stop[
+                        "required_overnight_anchor_id"
+                    ]
+                )
 
             current_mile = next_mile
             current_location = stop_location
@@ -1730,8 +2049,18 @@ class ItineraryBuilder:
                 zero_day = day + 1
                 zero_resupply_node = None
 
-                if self.is_resupply_candidate(
-                    recovery_node
+                required_resupply_node_ids = {
+                    self.resupply_node_id(node)
+                    for node in required_resupply_nodes_for_day
+                }
+
+                if (
+                    self.is_resupply_candidate(
+                        recovery_node
+                    )
+                    and self.resupply_node_id(
+                        recovery_node
+                    ) not in required_resupply_node_ids
                 ):
                     zero_resupply_node = recovery_node
 
@@ -1879,6 +2208,7 @@ class ItineraryBuilder:
                     "daily_stop_overlay_id": (
                         current_overlay_id
                     ),
+                    "required_overnight_anchor_id": None,
                     "daily_traversal_authority": (
                         "zero"
                     ),
@@ -1905,6 +2235,7 @@ class ItineraryBuilder:
                     "resupply_convenience": (
                         zero_resupply_convenience
                     ),
+                    "required_resupply_anchors": [],
                     "food_carry_days_since_last_resupply": (
                         zero_food_carry_days
                     ),

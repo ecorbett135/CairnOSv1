@@ -89,7 +89,28 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | `max_daily_elevation` | number | `1000` to `10000` feet |
 | `resupply_cadence` | integer | `2` to `10` days |
 | `recovery_cadence` | integer | `3` to `14` days |
+| `required_overnight_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `overnight_stop`; default `[]` |
+| `required_resupply_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `resupply_stop`; default `[]` |
 | `planned_start_date` | string or null | Optional advisory start date |
+
+The required-anchor fields are additive fields in `cairnos_plan_api_v1`. Their
+result status uses the explicit sub-contract version
+`cairnos_required_planning_anchors_v1`.
+
+Required-anchor semantics are partial specification:
+
+- each selected overnight site is a hard required overnight stop;
+- each selected resupply point is a hard required itinerary/resupply event;
+- every required id must appear exactly once or plan generation fails;
+- unselected overnight and resupply locations remain available for CairnOS to
+  fill route, pacing, recovery, and food-carry gaps;
+- the arrays must follow travel order for the selected direction;
+- preferred, excluded, and arbitrary user-defined anchors are not part of this
+  contract.
+
+Clients should populate these arrays from `required_anchor_options` in
+`GET /v1/trail-inventory?direction=NOBO|SOBO`. Do not submit display labels or
+planner-internal names as ids.
 
 Example:
 
@@ -105,6 +126,12 @@ Example:
   "max_daily_elevation": 4000,
   "resupply_cadence": 5,
   "recovery_cadence": 6,
+  "required_overnight_anchor_ids": [
+    "vermont_long_trail:overnight:overlay_0023"
+  ],
+  "required_resupply_anchor_ids": [
+    "vermont_long_trail:town:vt_9:14.3:bennington"
+  ],
   "planned_start_date": "2026-07-01"
 }
 ```
@@ -124,6 +151,43 @@ the existing planned waypoints, along with waypoint-only per-day artifacts for
 downstream import/export workflows. The spine omits ingress/egress branches,
 off-spine overnight access, and per-day slicing, and all artifacts must remain
 advisory.
+
+When required-anchor fields are present, the response includes:
+
+```json
+{
+  "required_anchors": {
+    "contract_version": "cairnos_required_planning_anchors_v1",
+    "semantics": "partial_specification",
+    "required_overnight_anchor_ids": [
+      "vermont_long_trail:overnight:overlay_0023"
+    ],
+    "required_resupply_anchor_ids": [
+      "vermont_long_trail:town:vt_9:14.3:bennington"
+    ],
+    "satisfied_overnight_anchor_ids": [
+      "vermont_long_trail:overnight:overlay_0023"
+    ],
+    "satisfied_resupply_anchor_ids": [
+      "vermont_long_trail:town:vt_9:14.3:bennington"
+    ]
+  }
+}
+```
+
+The same ids are attached to planned truth for deterministic consumer checks:
+
+- `daily_plan[].required_overnight_anchor_id` identifies the required overnight
+  represented by that row, or is null;
+- `daily_plan[].required_resupply_anchors` lists required resupply events crossed
+  on that day;
+- `resupply_plan[].required_anchor_id` identifies a required resupply
+  projection; optional planner-added rows omit it;
+- `user_profile.required_overnight_anchor_ids` and
+  `user_profile.required_resupply_anchor_ids` echo the normalized request.
+
+For a successful response, each requested id appears once in its corresponding
+planned-truth annotation and once in the matching `satisfied_*` list.
 
 ## Plan Options Contract
 
@@ -161,7 +225,8 @@ HikerLogix manual planning clients should use CairnOS-owned trail inventory
 instead of copying route, shelter, access, resupply, or side-trip semantics.
 
 ```text
-GET /v1/trail-inventory
+GET /v1/trail-inventory?direction=NOBO
+GET /v1/trail-inventory?direction=SOBO
 ```
 
 Successful trail-inventory responses return `200` with:
@@ -171,17 +236,39 @@ Successful trail-inventory responses return `200` with:
 | `contract_version` | Current trail inventory contract, `cairnos_trail_inventory_v1` |
 | `trail_id` | Current supported trail id, `vermont_long_trail` for the MVP |
 | `status` | `available` when CairnOS can build inventory |
+| `selected_direction` | Direction used to order displayed options; default `NOBO` |
 | `direction_model` | NOBO/SOBO display-mile and continuous-section rules |
 | `source` | Promoted source artifacts used to build inventory |
+| `required_anchor_options` | Direction-ordered `overnight` and `resupply` selector records |
 | `items` | Inventory records for manual planning choices |
 
 The initial live inventory exposes overnight sites, access points, towns, and
 validated side trips. It intentionally avoids bulk road-crossing and trailhead
 promotion until those candidate flags are validated.
 
-Inventory is metadata for manual selection and display-label durability. It is
-not a manual-itinerary validation response and does not change Plan API
-feasibility logic.
+Each required-anchor option contains `inventory_id`, `kind`, `display_name`,
+`directional_mile`, and `label`. Both option lists are sorted by displayed
+directional mile ascending, then by `inventory_id` and `display_name` for
+stable ties. SOBO therefore returns the reverse canonical traversal as
+ascending SOBO display miles.
+
+Inventory is metadata for selection and display-label durability. Required
+anchor feasibility is validated only by `POST /v1/plans`.
+
+Required-anchor validation uses stable `400 validation_error` responses. Exact
+message families include:
+
+```text
+required_overnight_anchor_ids contains unknown inventory_id: <id>
+required_resupply_anchor_ids inventory_id is not selectable as resupply_stop: <id>
+required_overnight_anchor_ids contains duplicate inventory_id: <id>
+required_resupply_anchor_ids resolves multiple inventory IDs to the same resupply anchor: <id>, <id>
+required_overnight_anchor_ids must follow SOBO route order; <id> cannot follow <id>
+Required resupply anchor must appear exactly once: <id> appeared 0 times. Adjust desired_days or daily mileage/elevation limits.
+```
+
+Unknown, incompatible, duplicate, out-of-order, and infeasible anchors never
+fall back to preferences or silent omission.
 
 Error responses are narrow and stable:
 

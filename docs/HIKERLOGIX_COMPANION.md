@@ -63,6 +63,17 @@ The current CairnOS versions remain:
 - `cairnos_trail_inventory_v1` for promoted inventory metadata;
 - `cairnos_route_gpx_v1` for full-plan and per-day waypoint-only GPX artifacts.
 
+Defined-trail Advanced may submit the additive
+`required_overnight_anchor_ids` and `required_resupply_anchor_ids` fields in
+`cairnos_plan_api_v1`. The ids come from the direction-ordered
+`cairnos_trail_inventory_v1.required_anchor_options` lists. They are hard,
+exactly-once partial anchors, not preferences or a manually assembled
+itinerary. CairnOS may add any other overnight or resupply locations needed to
+complete a feasible plan. Successful `cairnos_plan_v1` output reports
+`cairnos_required_planning_anchors_v1` status and attaches the stable ids to
+daily/resupply planned truth; invalid or infeasible anchors return a normalized
+Plan API `400 validation_error`.
+
 Platform wraps accepted planned truth in
 `hikerlogix_current_plan_download_v1`. Platform accepts approved user-owned
 daily actual overlays through `hikerlogix_actuals_upload_v1`. Those HikerLogix

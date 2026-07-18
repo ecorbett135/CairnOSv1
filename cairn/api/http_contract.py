@@ -146,6 +146,7 @@ def handle_plan_api_request(
     body: bytes,
     *,
     request_build_sha: str | None = None,
+    query_params: Mapping[str, Any] | None = None,
 ) -> HTTPContractResponse:
     normalized_method = _normalize_method(method)
     normalized_path = _normalize_path(path)
@@ -154,7 +155,11 @@ def handle_plan_api_request(
         return plan_options_response()
 
     if normalized_method == "GET" and normalized_path in TRAIL_INVENTORY_PATHS:
-        return trail_inventory_response()
+        direction = str(
+            (query_params or {}).get("direction")
+            or "NOBO"
+        ).upper()
+        return trail_inventory_response(direction=direction)
 
     if normalized_method == "POST" and normalized_path in PLAN_CREATE_PATHS:
         return create_plan_response(
@@ -181,9 +186,14 @@ def plan_options_response() -> HTTPContractResponse:
         return internal_error_response()
 
 
-def trail_inventory_response() -> HTTPContractResponse:
+def trail_inventory_response(
+    direction: str = "NOBO",
+) -> HTTPContractResponse:
     try:
-        return json_response(200, build_trail_inventory_response())
+        return json_response(
+            200,
+            build_trail_inventory_response(direction=direction),
+        )
     except PlanAPIValidationError as error:
         return validation_error_response(error)
     except Exception:

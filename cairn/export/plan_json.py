@@ -204,6 +204,10 @@ def build_plan_export(
             "directional_access",
             {},
         ),
+        "required_anchors": itinerary.get(
+            "required_anchors",
+            {},
+        ),
         "resupply_plan": itinerary.get(
             "resupply_plan",
             [],
