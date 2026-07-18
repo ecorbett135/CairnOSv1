@@ -65,8 +65,9 @@ Current execution order:
 1. overlay-authoritative traversal
 1. SECTION planning
 
-SECTION mode remains deferred and hidden from the Streamlit menu for the MVP,
-while the internal code path remains available for later implementation.
+SECTION route extents are promoted through the Plan API for HikerLogix while
+remaining hidden from the Streamlit menu pending separate public-alpha UX and
+access-data hardening.
 
 Open-source, HikerLogix, and intellectual-property posture is documented in
 `docs/OPEN_SOURCE_AND_IP_STRATEGY.md`. The working boundary is:
@@ -389,7 +390,7 @@ The Streamlit UI currently supports:
 
 - trail selection
 - view mode selection for automatic, mobile, or desktop layout
-- trip type selection (`THRU` visible for MVP; `SECTION` deferred)
+- trip type selection (`THRU` visible; Plan API `SECTION` hidden in Streamlit)
 - direction selection (NOBO / SOBO)
 - ingress route selection
 - egress route selection
@@ -608,21 +609,31 @@ Future semantics should still reason more deeply about:
 
 ---
 
-## Section Hiking Not Yet Implemented
+## Section Extent Contract
 
-SECTION mode remains largely incomplete and is intentionally hidden from the
-Streamlit trip type menu for the MVP.
+The promoted Plan API supports a bounded SECTION slice for HikerLogix. SECTION
+is a route extent through PlannerV2, not a separate planner. Requests use
+direction plus stable `start_access_id` and `end_access_id` values from
+overlay-promoted road crossings/trailheads. Planner pacing, terrain, shelter,
+resupply, recovery, and existing Advanced partial anchors operate inside that
+extent.
 
-Future implementation must support:
+The additive `cairnos_route_extent_v1` response preserves canonical full-trail
+miles and adds section-relative travel distance. Reversed/unknown endpoints and
+required anchors outside the extent fail validation. Route GPX is sliced to the
+same canonical bounds and uses intentional `approach_none_ingress` and
+`approach_none_egress` sentinels instead of substituting terminal branches.
 
-- arbitrary ingress
-- arbitrary egress
-- crossing-based traversal
-- partial overlay traversal
-- partial cadence synthesis
-- partial logistics optimization
-- endpoint access and transportation-friction context
-- section-level town, resupply, and recovery viability
+Optional `cairnos_access_point_anchors_v1` records support `checkpoint`,
+`meet_pickup`, `resupply`, and `overnight`. Checkpoint/pickup annotations do not
+force a stop; only the latter two intents force their named behavior.
+Requested, satisfied, and unsatisfied access-ID arrays make projection
+deterministic.
+
+SECTION remains hidden from the Streamlit alpha UI. Additional access data,
+public alpha UX, and richer endpoint transportation validation remain future
+work; the promoted boundary is documented in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 ---
 
@@ -698,7 +709,7 @@ Priority order is currently:
 3. logistics-aware resupply insertion
 4. recovery semantics
 5. operational cadence realism
-6. section hiking substrate
+6. section access-data and public-alpha hardening
 7. planner validation rewrite
 8. Gaia export enrichment hardening
 9. overnight provenance hardening

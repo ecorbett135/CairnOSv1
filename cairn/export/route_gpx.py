@@ -8,6 +8,11 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Any
 
+from cairn.api.route_selection import (
+    NONE_EGRESS_APPROACH_ID,
+    NONE_INGRESS_APPROACH_ID,
+    ROUTE_SELECTION_CONTRACT_VERSION,
+)
 from cairn.export.gaia_geojson import (
     build_overlay_lookup,
     build_waypoint_lookup,
@@ -1049,6 +1054,7 @@ def build_route_gpx_artifacts(
     trail_id: str | None = None,
     generated_at: str | None = None,
     route_selection: dict[str, Any] | None = None,
+    route_extent: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     trail_root = Path(
         trail_root
@@ -1093,10 +1099,19 @@ def build_route_gpx_artifacts(
         source.get("source") == APPROACH_GEOMETRY_SOURCE
         for source in full_geometry_sources
     )
+    normalized_selection = geometry["route_selection"] or {}
+    no_approach_selected = (
+        normalized_selection.get("contract_version")
+        == ROUTE_SELECTION_CONTRACT_VERSION
+        and normalized_selection.get("ingress_approach_id")
+        == NONE_INGRESS_APPROACH_ID
+        and normalized_selection.get("egress_approach_id")
+        == NONE_EGRESS_APPROACH_ID
+    )
     spine_warnings = []
     if not track_points:
         spine_warnings.append(dict(MISSING_SPINE_WARNING))
-    elif not has_approach_geometry:
+    elif not has_approach_geometry and not no_approach_selected:
         spine_warnings.append(dict(FULL_PLAN_SPINE_WARNING))
     full_contract_warnings = artifact_contract_warnings(
         track_points,
@@ -1266,6 +1281,7 @@ def build_route_gpx_artifacts(
         "trail_id": trail_id,
         "direction": direction,
         "route_selection": geometry["route_selection"],
+        "route_extent": route_extent,
         "route_parts": geometry["route_parts"],
         "route_completeness": route_completeness(
             geometry["route_parts"],

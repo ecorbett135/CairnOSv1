@@ -11,6 +11,7 @@ from cairn.api.plan_request import PlanAPIRequest
 from cairn.export.plan_json import build_plan_export
 from cairn.export.route_geometry import RouteGeometryValidationError
 from cairn.planner.anchors import RequiredPlanningAnchorError
+from cairn.planner.checkpoints import AccessPointAnchorError
 from cairn.planner.planner_v2 import PlannerV2
 
 
@@ -54,6 +55,8 @@ def build_plan_response(
             "_required_resupply_anchors": required_anchor_contract[
                 "required_resupply_anchors"
             ],
+            "route_extent": planner_config["route_extent"],
+            "access_point_anchors": planner_config["access_point_anchors"],
             "convenient_resupply_distance_miles": planner_config[
                 "convenient_resupply_distance_miles"
             ],
@@ -69,7 +72,7 @@ def build_plan_response(
         itinerary = planner.synthesize_itinerary(
             desired_days=planner_config["desired_days"]
         )
-    except RequiredPlanningAnchorError as error:
+    except (RequiredPlanningAnchorError, AccessPointAnchorError) as error:
         from cairn.api.plan_request import PlanAPIValidationError
 
         raise PlanAPIValidationError(str(error)) from None

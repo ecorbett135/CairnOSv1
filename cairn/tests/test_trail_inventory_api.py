@@ -59,7 +59,9 @@ def test_build_trail_inventory_response_returns_live_contract_inventory():
     assert {item["kind"] for item in payload["items"]} == {
         "access_point",
         "overnight_site",
+        "road_crossing",
         "side_trip",
+        "trailhead",
         "town",
     }
 

@@ -85,6 +85,12 @@ disconnected promoted geometry return deterministic Plan API validation errors.
 A known compatible selection without promoted geometry remains valid and emits
 `selected_route_geometry_unavailable`; no other branch is substituted.
 
+SECTION uses the intentional `approach_none_ingress` and
+`approach_none_egress` sentinels. They add no branch and do not emit a missing-
+geometry warning. They are omitted from `route_parts` and do not count as
+unavailable route parts. `route_extent` identifies the selected access IDs and
+canonical bounds.
+
 `GET /v1/plan-options` returns the route-selection version, stable IDs,
 directional roles, and `geometry_status` for current clients.
 
@@ -115,6 +121,7 @@ The returned payload includes:
 - `trail_id`;
 - `direction`;
 - normalized `route_selection`;
+- normalized `route_extent` when supplied by the Plan API;
 - ordered `route_parts` for selected ingress, spine, and selected egress,
   including explicit unavailable parts;
 - `route_completeness` for the full planned interval;
@@ -168,6 +175,12 @@ mile. Daily bounds come from each row's `daily_start_mile` and
 domain over cumulative coordinate distance. A day that crosses mile 0 can
 therefore contain selected southern approach geometry followed by the spine;
 the equivalent SOBO day reverses that order.
+
+For SECTION, the first/final daily bounds are the selected promoted access
+points. The full-plan spine geometry source records `canonical_min_mile` and
+`canonical_max_mile`, and `route_gpx.route_extent` echoes the exact
+`cairnos_route_extent_v1` contract. See
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 This slicing is export interoperability, not planner traversal authority.
 Guidebook miles and overlay semantics remain the public planning domain.

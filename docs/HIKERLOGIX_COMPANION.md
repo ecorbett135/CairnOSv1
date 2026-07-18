@@ -73,6 +73,20 @@ The current CairnOS versions remain:
   preserved waypoints, source-authoritative elevation, reproducible metrics,
   route-part completeness, and provenance manifests;
 - `cairnos_route_selection_v1` for stable selected ingress/egress approach IDs.
+- `cairnos_route_extent_v1` for one continuous direction-aware defined-trail
+  extent;
+- `cairnos_access_point_anchors_v1` for intermediate operational checkpoint
+  projection and satisfaction.
+
+Defined-trail Basic and Advanced use the same PlannerV2 route extent. Platform
+submits `trip_type: SECTION` with CairnOS-owned `start_access_id` and
+`end_access_id` values. Advanced may add the existing required shelter/resupply
+partial anchors; it does not call a separate planner. Optional
+`access_point_anchors` can represent checkpoint, pickup, resupply, or overnight
+intent. Only explicit `resupply` and `overnight` intents force those behaviors.
+Exact request/inventory/response examples, none sentinel IDs, filtering/order
+rules, and satisfaction fields are in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 Defined-trail Advanced may submit the additive
 `required_overnight_anchor_ids` and `required_resupply_anchor_ids` fields in
@@ -89,7 +103,11 @@ Plan builders should also submit the additive `route_selection` object using
 stable IDs from `GET /v1/plan-options`. Legacy route-name-only requests remain
 valid, but Platform should persist and forward the normalized
 `cairnos_route_selection_v1` object returned by CairnOS. iOS should render the
-supplied v3 GPX track and must not derive or substitute ingress/egress geometry.
+supplied route GPX track and must not derive or substitute ingress/egress
+geometry.
+For SECTION, normalized route selection uses `approach_none_ingress` and
+`approach_none_egress`; `route_gpx.route_extent` and manifest canonical bounds
+identify the selected defined-trail slice.
 
 Platform wraps accepted planned truth in
 `hikerlogix_current_plan_download_v1`. Platform accepts approved user-owned

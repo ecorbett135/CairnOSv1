@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from cairn.api.access_points import mile_inside_extent
 from cairn.api.plan_request import PlanAPIValidationError
 from cairn.api.trail_inventory import build_trail_inventory_response
 
@@ -48,6 +49,10 @@ def resolve_required_anchor_contract(
         resupply,
         "required_resupply_anchor_ids",
         request.direction,
+    )
+    _validate_anchors_inside_extent(
+        [*overnight, *resupply],
+        request.route_extent or {},
     )
 
     return {
@@ -156,3 +161,18 @@ def _resupply_planner_node_id(item: dict[str, Any]) -> str:
     )
     mile = float(item["canonical_mile"])
     return f"{access_label}:{mile:.1f}"
+
+
+def _validate_anchors_inside_extent(
+    anchors: list[dict[str, Any]],
+    route_extent: dict[str, Any],
+) -> None:
+    if route_extent.get("extent_type") != "defined_trail_section":
+        return
+    for anchor in anchors:
+        mile = float(anchor["canonical_mile"])
+        if not mile_inside_extent(mile, route_extent):
+            raise PlanAPIValidationError(
+                "Required planning anchor is outside the selected extent: "
+                f"{anchor['inventory_id']}"
+            )

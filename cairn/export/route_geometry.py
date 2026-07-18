@@ -9,7 +9,11 @@ import math
 from pathlib import Path
 from typing import Any, Mapping
 
-from cairn.api.route_selection import ROUTE_SELECTION_CONTRACT_VERSION
+from cairn.api.route_selection import (
+    NONE_EGRESS_APPROACH_ID,
+    NONE_INGRESS_APPROACH_ID,
+    ROUTE_SELECTION_CONTRACT_VERSION,
+)
 
 
 APPROACH_GEOMETRY_SOURCE = "compiled/approach_trails.json"
@@ -128,6 +132,13 @@ def build_composed_route_geometry(
         }
         for role in ("ingress", "egress"):
             approach_id = normalized_selection[f"{role}_approach_id"]
+            sentinel_id = (
+                NONE_INGRESS_APPROACH_ID
+                if role == "ingress"
+                else NONE_EGRESS_APPROACH_ID
+            )
+            if approach_id == sentinel_id:
+                continue
             entry = catalog.get(approach_id)
             if entry is None:
                 raise RouteGeometryValidationError(
@@ -525,6 +536,8 @@ def _slice_pieces(
             "route_part_id": _route_part_id(piece),
             "start_mile": overlap_low if ascending else overlap_high,
             "end_mile": overlap_high if ascending else overlap_low,
+            "canonical_min_mile": round(overlap_low, 1),
+            "canonical_max_mile": round(overlap_high, 1),
             "point_start_index": point_start_index,
             "point_end_index": point_end_index,
             "point_count": point_end_index - point_start_index + 1,
@@ -717,21 +730,22 @@ def _selected_route_parts(
     if route_selection:
         ingress_id = route_selection["ingress_approach_id"]
         egress_id = route_selection["egress_approach_id"]
-        ordered.append((
-            "ingress",
-            next(
-                (
-                    piece
-                    for piece in pieces
-                    if piece.get("role") == "ingress"
-                    and piece.get("approach_id") == ingress_id
+        if ingress_id != NONE_INGRESS_APPROACH_ID:
+            ordered.append((
+                "ingress",
+                next(
+                    (
+                        piece
+                        for piece in pieces
+                        if piece.get("role") == "ingress"
+                        and piece.get("approach_id") == ingress_id
+                    ),
+                    None,
                 ),
-                None,
-            ),
-            ingress_id,
-        ))
+                ingress_id,
+            ))
     ordered.append(("spine", spine_piece, None))
-    if route_selection:
+    if route_selection and egress_id != NONE_EGRESS_APPROACH_ID:
         ordered.append((
             "egress",
             next(
