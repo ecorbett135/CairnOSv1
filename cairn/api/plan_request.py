@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from cairn.api.plan_controls import plan_control_spec
+from cairn.api.route_selection import normalize_route_selection
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -69,6 +70,7 @@ class PlanAPIRequest:
     selected_town_ids: tuple[str, ...] = ()
     required_overnight_anchor_ids: tuple[str, ...] = ()
     required_resupply_anchor_ids: tuple[str, ...] = ()
+    route_selection: dict[str, str] | None = None
     planned_start_date: str | None = None
 
     @classmethod
@@ -217,6 +219,17 @@ class PlanAPIRequest:
             "required_resupply_anchor_ids",
         )
 
+        try:
+            route_selection = normalize_route_selection(
+                payload,
+                direction=direction,
+                ingress_route=ingress_route,
+                egress_route=egress_route,
+                trail_root=LONG_TRAIL_ROOT,
+            )
+        except ValueError as error:
+            raise PlanAPIValidationError(str(error)) from None
+
         planned_start_date = payload.get("planned_start_date")
         if planned_start_date is not None and not isinstance(planned_start_date, str):
             raise PlanAPIValidationError("planned_start_date must be a string")
@@ -245,6 +258,7 @@ class PlanAPIRequest:
             selected_town_ids=selected_town_ids,
             required_overnight_anchor_ids=required_overnight_anchor_ids,
             required_resupply_anchor_ids=required_resupply_anchor_ids,
+            route_selection=route_selection,
             planned_start_date=planned_start_date,
         )
 
@@ -281,6 +295,7 @@ class PlanAPIRequest:
             ),
             "ingress_route": self.ingress_route,
             "egress_route": self.egress_route,
+            "route_selection": dict(self.route_selection or {}),
             "start_date": self.planned_start_date,
         }
 

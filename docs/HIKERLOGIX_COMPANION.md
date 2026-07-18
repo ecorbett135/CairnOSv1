@@ -61,7 +61,9 @@ The current CairnOS versions remain:
 - `cairnos_plan_api_v1` for stateless plan generation;
 - `cairnos_plan_v1` for planned itinerary/reasoning export;
 - `cairnos_trail_inventory_v1` for promoted inventory metadata;
-- `cairnos_route_gpx_v1` for full-plan and per-day waypoint-only GPX artifacts.
+- `cairnos_route_gpx_v3` for composed full-plan and moving-day GPX tracks with
+  preserved waypoints and source manifests;
+- `cairnos_route_selection_v1` for stable selected ingress/egress approach IDs.
 
 Defined-trail Advanced may submit the additive
 `required_overnight_anchor_ids` and `required_resupply_anchor_ids` fields in
@@ -74,15 +76,22 @@ complete a feasible plan. Successful `cairnos_plan_v1` output reports
 daily/resupply planned truth; invalid or infeasible anchors return a normalized
 Plan API `400 validation_error`.
 
+Plan builders should also submit the additive `route_selection` object using
+stable IDs from `GET /v1/plan-options`. Legacy route-name-only requests remain
+valid, but Platform should persist and forward the normalized
+`cairnos_route_selection_v1` object returned by CairnOS. iOS should render the
+supplied v3 GPX track and must not derive or substitute ingress/egress geometry.
+
 Platform wraps accepted planned truth in
 `hikerlogix_current_plan_download_v1`. Platform accepts approved user-owned
 daily actual overlays through `hikerlogix_actuals_upload_v1`. Those HikerLogix
 contracts do not extend or version CairnOS schemas.
 
-CairnOS owns route-spine/overlay authority and uses it to resolve GPX
-waypoints. The current GPX artifacts do not contain route or track geometry and
-must not be presented as navigation authority. Platform and iOS may expose or
-share the artifacts where supported while preserving that warning.
+CairnOS owns route-spine/overlay authority and uses stable route-selection IDs
+to compose only promoted approach geometry around the canonical spine. Platform
+and iOS should render the supplied GPX rather than synthesize branch geometry,
+must surface geometry-unavailable warnings, and must not present the artifacts
+as navigation authority.
 
 ## Actuals And Analytics Boundary
 

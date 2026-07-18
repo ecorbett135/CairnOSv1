@@ -664,6 +664,14 @@ overnight candidates remain displayable overnight access points anchored to the
 mainline overlay; they do not become route deviations or replace the compiled
 route overlay as operational truth.
 
+The Plan API now normalizes selected ingress/egress names to stable
+`cairnos_route_selection_v1` approach IDs. Route GPX v3 composes promoted
+geometry for exactly those IDs around the canonical spine and slices moving-day
+tracks across the same mileage interval. North Adams is the first promoted
+branch geometry; Williamstown and Journey's End remain known selections with
+explicit geometry-unavailable warnings until their own provenanced geometry is
+promoted. Missing geometry never causes another approach branch to be reused.
+
 The Plan API now supports partial required-anchor specification for HikerLogix
 Advanced planning. Stable inventory ids can require overnight or resupply
 anchors; unselected sites remain planner candidates, NOBO/SOBO order is
