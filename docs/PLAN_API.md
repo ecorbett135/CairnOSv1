@@ -83,6 +83,7 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | `direction` | string | `NOBO` or `SOBO` |
 | `ingress_route` | string | NOBO: `Williamstown Approach` or `North Adams Approach`; SOBO: `Journey's End Trail` |
 | `egress_route` | string | NOBO: `Journey's End Trail`; SOBO: `Williamstown Approach` or `North Adams Approach` |
+| `route_selection` | object | Optional `cairnos_route_selection_v1` stable-ID selection; legacy requests derive the IDs from `ingress_route` / `egress_route` |
 | `desired_days` | integer | `3` to `60` |
 | `min_daily_miles` | number | `4` to `25` |
 | `max_daily_miles` | number | `8` to `40`, greater than or equal to `min_daily_miles` |
@@ -92,6 +93,30 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | `required_overnight_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `overnight_stop`; default `[]` |
 | `required_resupply_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `resupply_stop`; default `[]` |
 | `planned_start_date` | string or null | Optional advisory start date |
+
+`route_selection` is the additive geometry/traversal selection contract:
+
+```json
+{
+  "contract_version": "cairnos_route_selection_v1",
+  "ingress_approach_id": "approach_north_adams",
+  "egress_approach_id": "egress_journeys_end"
+}
+```
+
+The IDs come from `GET /v1/plan-options` under
+`route_selection.options`. CairnOS validates that each ID exists, matches the
+corresponding legacy route name, connects to the correct terminus for the
+requested direction/role, and is not reused for both roles. If the object is
+omitted, CairnOS resolves the existing route names to exactly one compiled
+`approach_id` each and echoes the normalized shape. This preserves v1 callers
+while giving export consumers stable selected-route identity.
+
+Geometry availability is separate from route validity. A known compatible
+selection with no promoted geometry remains plannable and returns
+`selected_route_geometry_unavailable`; CairnOS never substitutes a different
+approach. Unknown, incompatible, or disconnected selected geometry fails with
+a deterministic validation error.
 
 The required-anchor fields are additive fields in `cairnos_plan_api_v1`. Their
 result status uses the explicit sub-contract version
@@ -120,6 +145,11 @@ Example:
   "direction": "NOBO",
   "ingress_route": "North Adams Approach",
   "egress_route": "Journey's End Trail",
+  "route_selection": {
+    "contract_version": "cairnos_route_selection_v1",
+    "ingress_approach_id": "approach_north_adams",
+    "egress_approach_id": "egress_journeys_end"
+  },
   "desired_days": 30,
   "min_daily_miles": 8,
   "max_daily_miles": 15,
@@ -145,12 +175,19 @@ planning software and is not a safety authority, guidebook, current-conditions
 source, or navigation tool.
 
 Plan responses also include the additive `route_gpx` section from
-`cairnos_route_gpx_v2` when daily itinerary rows are available. The section
-contains a full-plan GPX artifact with one compiled Long Trail spine track plus
-the existing planned waypoints, along with waypoint-only per-day artifacts for
-downstream import/export workflows. The spine omits ingress/egress branches,
-off-spine overnight access, and per-day slicing, and all artifacts must remain
-advisory.
+`cairnos_route_gpx_v3` when daily itinerary rows are available. The section
+contains a full-plan GPX track composed from the exact promoted ingress/egress
+IDs plus the canonical defined-trail spine in traversal order. Each moving-day
+artifact contains the mileage-bounded portion of the same selected route and
+retains the existing planned waypoints. Zero-mile or otherwise unsliceable days
+remain waypoint-only. Off-spine overnight access is not included, and all
+artifacts remain advisory.
+
+The response echoes `route_selection` in `user_profile` and in `route_gpx`.
+Manifest `geometry_sources` entries identify the spine and any composed
+approach IDs, geometry IDs, connection gap, and promoted provenance. Current
+Long Trail data promotes North Adams approach geometry; Williamstown and
+Journey's End report geometry-unavailable warnings until separately promoted.
 
 When required-anchor fields are present, the response includes:
 
@@ -207,6 +244,7 @@ Successful options responses return `200` with:
 | `trail_id` | Current supported trail id, `vermont_long_trail` for the MVP |
 | `status` | `available` when CairnOS can build the option metadata |
 | `control_specs` | Shared slider/select/checkbox specs for Plan API inputs |
+| `route_selection` | `cairnos_route_selection_v1` metadata, stable approach IDs, directional roles, and geometry availability |
 | `side_trip_options` | Validated optional side trip choices |
 | `town_options` | Town preference choices derived from resupply amenities |
 
@@ -265,6 +303,9 @@ required_overnight_anchor_ids contains duplicate inventory_id: <id>
 required_resupply_anchor_ids resolves multiple inventory IDs to the same resupply anchor: <id>, <id>
 required_overnight_anchor_ids must follow SOBO route order; <id> cannot follow <id>
 Required resupply anchor must appear exactly once: <id> appeared 0 times. Adjust desired_days or daily mileage/elevation limits.
+route_selection.ingress_approach_id unknown approach_id: <id>
+route_selection.ingress_approach_id is incompatible with ingress_route '<name>': <id> identifies '<other-name>'
+Selected ingress approach_id '<id>' geometry is disconnected from the southern defined-trail terminus by <miles> miles
 ```
 
 Unknown, incompatible, duplicate, out-of-order, and infeasible anchors never

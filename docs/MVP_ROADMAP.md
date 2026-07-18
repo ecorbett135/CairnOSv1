@@ -237,12 +237,14 @@ is designed and manually validated in Gaia. That export should group each
 moving day as a colored LineString segment with start/stop points, but it
 should not ship until folder/color behavior is tested through Gaia import.
 
-A minimal route GPX artifact layer now exists for downstream HikerLogix
-Platform/iOS import work. The current `cairnos_route_gpx_v2` output adds the
-compiled Long Trail spine as a direction-aware track in the full-plan GPX while
-preserving daily start/stop waypoints and waypoint-only per-day files. It does
-not attempt per-day geometry slicing, ingress/egress branch geometry, or
-off-spine overnight-access geometry.
+A route GPX artifact layer now exists for downstream HikerLogix Platform/iOS
+import work. The current `cairnos_route_gpx_v3` output composes promoted
+geometry for the stable ingress/egress IDs in `cairnos_route_selection_v1`
+around the canonical Long Trail spine, preserves daily start/stop waypoints,
+and emits mileage-bounded moving-day tracks. North Adams is currently the only
+promoted branch geometry; known selections without geometry warn explicitly
+and never receive another branch. Off-spine overnight-access geometry remains
+out of scope.
 
 Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
 exports can be compared against Cairn intervals from the ignored

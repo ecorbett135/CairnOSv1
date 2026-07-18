@@ -373,6 +373,39 @@ def validate_approach_trails():
                     f"Approach trail missing field: {field}"
                 )
 
+    geometries = payload.get(
+        "approach_geometries",
+        [],
+    )
+    approach_ids = {
+        trail.get("approach_id")
+        for trail in trails
+    }
+    for geometry in geometries:
+        if geometry.get("approach_id") not in approach_ids:
+            raise RuntimeError(
+                "Approach geometry references an unknown approach_id"
+            )
+        if not geometry.get("geometry_id"):
+            raise RuntimeError(
+                "Approach geometry missing stable geometry_id"
+            )
+        if geometry.get("coordinate_count", 0) < 2:
+            raise RuntimeError(
+                "Approach geometry must contain at least two coordinates"
+            )
+        provenance = geometry.get("provenance", {})
+        for field in [
+            "source_path",
+            "source_feature_id",
+            "source_feature_title",
+            "source_license_status",
+        ]:
+            if not provenance.get(field):
+                raise RuntimeError(
+                    f"Approach geometry provenance missing field: {field}"
+                )
+
     print("[OK] Approach trails valid")
 
 

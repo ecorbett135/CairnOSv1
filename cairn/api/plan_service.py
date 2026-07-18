@@ -9,6 +9,7 @@ from typing import Any
 from cairn.api.planning_anchors import resolve_required_anchor_contract
 from cairn.api.plan_request import PlanAPIRequest
 from cairn.export.plan_json import build_plan_export
+from cairn.export.route_geometry import RouteGeometryValidationError
 from cairn.planner.anchors import RequiredPlanningAnchorError
 from cairn.planner.planner_v2 import PlannerV2
 
@@ -60,6 +61,7 @@ def build_plan_response(
             "direction": planner_config["direction"],
             "ingress_route": planner_config["ingress_route"],
             "egress_route": planner_config["egress_route"],
+            "route_selection": planner_config["route_selection"],
             "start_date": planner_config["start_date"],
         },
     )
@@ -76,9 +78,14 @@ def build_plan_response(
         "itinerary": itinerary,
         "build_sha": build_sha or "api",
     }
-    return build_plan_export(
-        planner_result,
-        trail_root=planner_config["trail_root"],
-        build_sha=build_sha,
-        generated_at=generated_at,
-    )
+    try:
+        return build_plan_export(
+            planner_result,
+            trail_root=planner_config["trail_root"],
+            build_sha=build_sha,
+            generated_at=generated_at,
+        )
+    except RouteGeometryValidationError as error:
+        from cairn.api.plan_request import PlanAPIValidationError
+
+        raise PlanAPIValidationError(str(error)) from None

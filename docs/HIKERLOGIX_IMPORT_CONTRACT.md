@@ -54,23 +54,27 @@ Optional sections such as `resupply_town_details`, `selected_experiences`, and
 
 ## Optional Route GPX Artifacts
 
-CairnOS also embeds `cairnos_route_gpx_v2` route GPX artifacts in the additive
+CairnOS also embeds `cairnos_route_gpx_v3` route GPX artifacts in the additive
 `route_gpx` Plan JSON section when daily plan rows are available. These
 artifacts are optional companions for Platform/iOS import and sharing
 workflows, not replacements for CairnOS Plan JSON.
 
 The top-level contract uses `geometry_mode: full_plan_track`. The manifest entry
-with `scope: full_plan` contains one standard GPX `trk`/`trkseg` over the
-compiled Long Trail spine plus the existing daily start/stop waypoints. Its
-track points are ordered for the plan direction. Per-day manifest entries use
-`geometry_mode: waypoint_only` and contain only their planned start/stop
-waypoints.
+with `scope: full_plan` contains one standard GPX `trk`/`trkseg` composed from
+the exact promoted `cairnos_route_selection_v1` ingress/egress IDs and the
+canonical Long Trail spine, ordered for the plan direction. Moving-day entries
+use `geometry_mode: daily_track` and contain a mileage-bounded slice plus their
+planned start/stop waypoints. Zero-mile or otherwise unsliceable days remain
+`waypoint_only`.
 
 Platform/iOS should use the full-plan manifest `filename` to resolve the GPX
-string in `artifacts` when rendering the route line. The spine omits selected
-ingress/egress branches, off-spine overnight access, and per-day slicing. All
-GPX artifacts remain advisory and must not be used as navigation, distance,
-elevation, closure, water, weather, or safety authority.
+string in `artifacts` when rendering the route line. Consumers must preserve
+`route_selection`, inspect manifest `geometry_sources`, and surface
+`selected_route_geometry_unavailable` without synthesizing or substituting a
+branch. Current data promotes North Adams geometry; Williamstown and Journey's
+End remain explicit gaps. Off-spine overnight access remains omitted. All GPX
+artifacts are advisory and must not be used as navigation, distance, elevation,
+closure, water, weather, or safety authority.
 
 ## Fixture Contract
 

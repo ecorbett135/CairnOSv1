@@ -1,8 +1,12 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 import xml.etree.ElementTree as ET
+import copy
+import json
 
 import cairn.export.route_gpx as route_gpx
+import cairn.export.route_geometry as route_geometry
+import pytest
 from cairn.export.gaia_geojson import (
     load_spine_coordinates,
 )
@@ -14,6 +18,11 @@ from cairn.export.route_gpx import (
     SPINE_GEOMETRY_SOURCE,
     WAYPOINT_ONLY_GEOMETRY_MODE,
     build_route_gpx_artifacts,
+)
+from cairn.export.route_geometry import (
+    APPROACH_GEOMETRY_SOURCE,
+    DAILY_TRACK_GEOMETRY_MODE,
+    RouteGeometryValidationError,
 )
 
 
@@ -41,6 +50,14 @@ def gpx_track_points(root):
         "gpx:trk/gpx:trkseg/gpx:trkpt",
         NS,
     )
+
+
+def selected_routes(ingress, egress):
+    return {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": ingress,
+        "egress_approach_id": egress,
+    }
 
 
 def test_route_gpx_export_builds_full_plan_and_daily_artifacts(
@@ -223,15 +240,11 @@ def test_route_gpx_export_builds_parseable_day_artifacts(
 
     assert day_entry["artifact_id"] == "day_001"
     assert day_entry["scope"] == "day"
-    assert day_entry["geometry_mode"] == (
-        WAYPOINT_ONLY_GEOMETRY_MODE
-    )
-    assert day_entry["track_count"] == 0
-    assert day_entry["track_segment_count"] == 0
-    assert day_entry["track_point_count"] == 0
-    assert "waypoint_only_gpx" in day_entry[
-        "warning_codes"
-    ]
+    assert day_entry["geometry_mode"] == DAILY_TRACK_GEOMETRY_MODE
+    assert day_entry["track_count"] == 1
+    assert day_entry["track_segment_count"] == 1
+    assert day_entry["track_point_count"] > 1
+    assert "waypoint_only_gpx" not in day_entry["warning_codes"]
     assert day_entry["day"] == 1
     assert day_entry["daily_start_location"] == (
         itinerary["daily_plan"][0][
@@ -268,10 +281,8 @@ def test_route_gpx_export_builds_parseable_day_artifacts(
         ),
     ]
     assert day_entry["waypoint_count"] == 2
-    assert root.find(
-        "gpx:trk",
-        NS,
-    ) is None
+    assert root.find("gpx:trk", NS) is not None
+    assert len(gpx_track_points(root)) == day_entry["track_point_count"]
 
 
 def test_route_gpx_export_preserves_sobo_direction_context(
@@ -458,3 +469,261 @@ def test_route_gpx_export_reports_unresolved_waypoint_coordinates(
     )
 
     assert gpx_waypoints(root) == []
+
+
+def test_selected_north_adams_ingress_precedes_nobo_spine_and_daily_slice(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        }
+    )
+    itinerary = planner.synthesize_itinerary(desired_days=28)
+    export = build_route_gpx_artifacts(
+        itinerary["daily_plan"],
+        trail_root,
+        direction="NOBO",
+        trail_id="vermont_long_trail",
+        generated_at="20260718T120000Z",
+        route_selection=selected_routes(
+            "approach_north_adams",
+            "egress_journeys_end",
+        ),
+    )
+
+    approach_payload = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )
+    approach_start = approach_payload["approach_geometries"][0][
+        "geometry"
+    ]["coordinates"][0][0]
+    spine_coordinates = load_spine_coordinates(trail_root)
+    full_entry = export["manifest"][0]
+    full_root = parse_gpx(export["artifacts"][full_entry["filename"]])
+    full_points = gpx_track_points(full_root)
+
+    assert full_entry["geometry_source"] == "composed_selected_route"
+    assert full_entry["track_point_count"] > len(spine_coordinates)
+    assert [
+        source.get("approach_id")
+        for source in full_entry["geometry_sources"]
+    ] == ["approach_north_adams", None]
+    assert float(full_points[0].get("lon")) == approach_start[0]
+    assert float(full_points[0].get("lat")) == approach_start[1]
+    assert (
+        full_points[0].get("lon"),
+        full_points[0].get("lat"),
+    ) != (
+        str(spine_coordinates[0][0]),
+        str(spine_coordinates[0][1]),
+    )
+    assert "full_plan_spine_only" not in full_entry["warning_codes"]
+    assert "selected_route_geometry_unavailable" in full_entry[
+        "warning_codes"
+    ]
+
+    first_day = export["manifest"][1]
+    first_day_root = parse_gpx(
+        export["artifacts"][first_day["filename"]]
+    )
+    first_day_points = gpx_track_points(first_day_root)
+    assert first_day["geometry_mode"] == DAILY_TRACK_GEOMETRY_MODE
+    assert first_day_points[0].attrib == full_points[0].attrib
+    assert first_day["geometry_sources"][0]["approach_id"] == (
+        "approach_north_adams"
+    )
+
+
+def test_selected_north_adams_egress_follows_sobo_spine(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "SOBO",
+            "ingress_route": "Journey's End Trail",
+            "egress_route": "North Adams Approach",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        }
+    )
+    itinerary = planner.synthesize_itinerary(desired_days=28)
+    export = build_route_gpx_artifacts(
+        itinerary["daily_plan"],
+        trail_root,
+        direction="SOBO",
+        trail_id="vermont_long_trail",
+        generated_at="20260718T120000Z",
+        route_selection=selected_routes(
+            "egress_journeys_end",
+            "approach_north_adams",
+        ),
+    )
+    approach_payload = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )
+    approach_start = approach_payload["approach_geometries"][0][
+        "geometry"
+    ]["coordinates"][0][0]
+    full_entry = export["manifest"][0]
+    full_points = gpx_track_points(
+        parse_gpx(export["artifacts"][full_entry["filename"]])
+    )
+
+    assert float(full_points[-1].get("lon")) == approach_start[0]
+    assert float(full_points[-1].get("lat")) == approach_start[1]
+    assert full_entry["geometry_sources"][-1]["approach_id"] == (
+        "approach_north_adams"
+    )
+    last_day = export["manifest"][-1]
+    assert last_day["geometry_sources"][-1]["approach_id"] == (
+        "approach_north_adams"
+    )
+
+
+def test_section_interval_slices_selected_approach_before_spine(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        }
+    )
+    first_day = planner.synthesize_itinerary(desired_days=28)["daily_plan"][0]
+    section_day = {
+        **first_day,
+        "daily_start_mile": -2.4,
+        "daily_stop_mile": 1.0,
+        "daily_miles": 3.4,
+    }
+    export = build_route_gpx_artifacts(
+        [section_day],
+        trail_root,
+        direction="NOBO",
+        trail_id="vermont_long_trail",
+        generated_at="20260718T120000Z",
+        route_selection=selected_routes(
+            "approach_north_adams",
+            "egress_journeys_end",
+        ),
+    )
+    full_entry = export["manifest"][0]
+    full_points = gpx_track_points(
+        parse_gpx(export["artifacts"][full_entry["filename"]])
+    )
+    source_start = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )["approach_geometries"][0]["geometry"]["coordinates"][0][0]
+
+    assert full_entry["geometry_sources"][0]["approach_id"] == (
+        "approach_north_adams"
+    )
+    assert float(full_points[0].get("lon")) != source_start[0]
+    assert export["manifest"][1]["track_point_count"] == len(full_points)
+
+
+def test_alternate_selection_never_substitutes_north_adams_geometry(
+    planner_factory,
+    trail_root,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "Williamstown Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        }
+    )
+    itinerary = planner.synthesize_itinerary(desired_days=28)
+    export = build_route_gpx_artifacts(
+        itinerary["daily_plan"],
+        trail_root,
+        direction="NOBO",
+        trail_id="vermont_long_trail",
+        generated_at="20260718T120000Z",
+        route_selection=selected_routes(
+            "approach_williamstown",
+            "egress_journeys_end",
+        ),
+    )
+    full_entry = export["manifest"][0]
+
+    assert all(
+        source.get("approach_id") != "approach_north_adams"
+        for source in full_entry["geometry_sources"]
+    )
+    assert full_entry["geometry_source"] == SPINE_GEOMETRY_SOURCE
+    assert [
+        warning["approach_id"]
+        for warning in export["warnings"]
+        if warning["code"] == "selected_route_geometry_unavailable"
+    ] == ["approach_williamstown", "egress_journeys_end"]
+
+
+def test_selected_disconnected_approach_geometry_fails_deterministically(
+    planner_factory,
+    trail_root,
+    monkeypatch,
+):
+    planner = planner_factory(
+        user_profile={
+            "direction": "NOBO",
+            "ingress_route": "North Adams Approach",
+            "egress_route": "Journey's End Trail",
+            "min_daily_miles": 8,
+            "max_daily_miles": 16,
+        }
+    )
+    itinerary = planner.synthesize_itinerary(desired_days=28)
+    payload = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )
+    disconnected = copy.deepcopy(payload)
+    disconnected["approach_geometries"][0]["geometry"] = {
+        "type": "LineString",
+        "coordinates": [[0.0, 0.0], [0.1, 0.1]],
+    }
+    monkeypatch.setattr(
+        route_geometry,
+        "_load_approach_payload",
+        lambda _trail_root: disconnected,
+    )
+
+    with pytest.raises(
+        RouteGeometryValidationError,
+        match=(
+            "Selected ingress approach_id 'approach_north_adams' geometry "
+            "is disconnected from the southern defined-trail terminus"
+        ),
+    ):
+        build_route_gpx_artifacts(
+            itinerary["daily_plan"],
+            trail_root,
+            direction="NOBO",
+            trail_id="vermont_long_trail",
+            generated_at="20260718T120000Z",
+            route_selection=selected_routes(
+                "approach_north_adams",
+                "egress_journeys_end",
+            ),
+        )

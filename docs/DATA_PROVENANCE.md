@@ -109,6 +109,14 @@ Generated files should generally go under `data/generated/` or another ignored
 output directory unless they are deliberate release artifacts with documented
 provenance.
 
+Compiled approach geometry is a deliberate runtime artifact. Each promoted
+branch must retain a stable `approach_id`, a stable `geometry_id`, its exact raw
+source path and feature ID/title, source-license status, and transformation
+notes. The compiler copies geometry coordinates only; source notes and
+non-geometry personal metadata must not enter `compiled/approach_trails.json`.
+An unresolved source-license status remains an explicit reuse limitation even
+when the geometry is operationally useful inside CairnOS.
+
 ## Commercial And Companion-App Boundary
 
 Future HikerLogix work may use CairnOS exports or Apache-licensed CairnOS code,

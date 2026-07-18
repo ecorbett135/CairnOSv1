@@ -49,14 +49,18 @@ mobile-specific normalized schema too early.
 ## Route GPX Artifacts
 
 The export embeds an additive `route_gpx` section using the
-`cairnos_route_gpx_v2` contract. It includes a manifest plus GPX XML artifacts
-for the full plan and each planned day. The full-plan artifact contains the
-compiled Long Trail spine as one GPX track plus planned daily start/stop
-waypoints. Per-day artifacts remain waypoint-only.
+`cairnos_route_gpx_v3` contract. It includes a manifest plus GPX XML artifacts
+for the full plan and each planned day. The full-plan artifact composes
+promoted geometry for exactly the stable `cairnos_route_selection_v1`
+ingress/egress IDs around the canonical Long Trail spine. Moving-day artifacts
+contain mileage-bounded track slices; all artifacts preserve planned daily
+start/stop waypoints.
 
 Downstream clients may expose these artifacts for Gaia GPS, COROS, Files, or
-other import workflows. They must preserve the full-plan-spine and per-day
-waypoint-only warnings and must not present the GPX as navigational authority.
+other import workflows. They must honor manifest `geometry_sources`, surface
+geometry-unavailable warnings without substituting another branch, and must not
+present the GPX as navigational authority. Zero-mile or otherwise unsliceable
+day artifacts use `geometry_mode: waypoint_only`.
 
 ## Privacy And Provenance
 

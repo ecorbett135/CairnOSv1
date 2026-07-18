@@ -213,8 +213,9 @@ hosted Alpha runtime requirements.
   partial Advanced-planning anchors, while CairnOS fills all unselected gaps
   and fails precisely if a required anchor cannot appear exactly once.
 - Provides route GPX artifacts for HikerLogix Platform/iOS import work,
-  with a full-plan Long Trail spine track, preserved start/stop waypoints,
-  waypoint-only per-day files, and manifest entries.
+  with selected promoted ingress/egress geometry composed around the canonical
+  Long Trail spine, preserved start/stop waypoints, daily moving-track slices,
+  and manifest provenance.
 - Includes a Streamlit UI scaffold in `cairn/interfaces/streamlit_app.py` for operational presentation.
 - Provides tests in `cairn/tests/` for planner behavior, operational stop
   selection, SOBO direction semantics, Streamlit UI controls, Gaia export
@@ -351,13 +352,20 @@ daily plan:
 - manifest entries with filenames, scope, waypoint/track counts, warning
   codes, and day metadata
 
-The current `cairnos_route_gpx_v2` contract keeps planned daily start/stop
+The current `cairnos_route_gpx_v3` contract keeps planned daily start/stop
 waypoints resolved through the same coordinate lookup path as Gaia export. Its
-full-plan artifact also contains one GPX track built from the compiled Long
-Trail spine, ordered NOBO or reversed for SOBO. Per-day artifacts remain
-waypoint-only because daily route-geometry slicing has not yet been validated.
-The spine does not include selected ingress/egress branches or off-spine
-overnight access and is advisory export geometry, not navigational authority.
+full-plan track composes only the promoted geometry identified by the request's
+`cairnos_route_selection_v1` ingress/egress IDs with the canonical Long Trail
+spine, in NOBO or SOBO traversal order. Moving-day artifacts contain mileage-
+bounded track slices and include selected approach geometry when the day
+crosses that branch. Zero-mile or otherwise unsliceable days remain
+waypoint-only.
+
+The current promoted branch geometry covers `approach_north_adams`. Known
+routes without promoted geometry emit `selected_route_geometry_unavailable`;
+the exporter never substitutes North Adams or another branch. Off-spine
+overnight access remains outside this track contract. All GPX geometry is
+advisory export context, not navigational authority.
 
 ## Resupply and recovery semantics
 
