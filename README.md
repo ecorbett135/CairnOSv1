@@ -209,6 +209,9 @@ hosted Alpha runtime requirements.
 - Exports PlannerV2 itineraries as Gaia-compatible GeoJSON with daily stops, planned resupply road crossings, shelter/campsite markers, and the trail spine.
 - Exports schema-versioned CairnOS Plan JSON as the deterministic itinerary
   and reasoning contract for Platform and transition iOS imports.
+- Accepts direction-ordered required overnight and resupply inventory ids as
+  partial Advanced-planning anchors, while CairnOS fills all unselected gaps
+  and fails precisely if a required anchor cannot appear exactly once.
 - Provides route GPX artifacts for HikerLogix Platform/iOS import work,
   with a full-plan Long Trail spine track, preserved start/stop waypoints,
   waypoint-only per-day files, and manifest entries.

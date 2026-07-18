@@ -154,7 +154,7 @@ def test_asgi_and_lambda_share_trail_inventory_success(monkeypatch):
     monkeypatch.setattr(
         http_contract,
         "build_trail_inventory_response",
-        lambda trail_id="vermont_long_trail": expected_body,
+        lambda trail_id="vermont_long_trail", direction="NOBO": expected_body,
         raising=False,
     )
 

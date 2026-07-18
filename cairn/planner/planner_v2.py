@@ -35,6 +35,10 @@ from cairn.planner.season import (
     SeasonAdvisoryPlanner,
 )
 
+from cairn.planner.anchors import (
+    build_required_anchor_status,
+)
+
 
 class PlannerV2:
 
@@ -208,6 +212,22 @@ class PlannerV2:
         self.selected_town_ids = (
             self.user_profile.get(
                 "selected_town_ids",
+                [],
+            )
+            or []
+        )
+
+        self.required_overnight_anchors = list(
+            self.user_profile.get(
+                "_required_overnight_anchors",
+                [],
+            )
+            or []
+        )
+
+        self.required_resupply_anchors = list(
+            self.user_profile.get(
+                "_required_resupply_anchors",
                 [],
             )
             or []
@@ -2922,6 +2942,8 @@ class PlannerV2:
         logistics_nodes,
         current_mile=None,
         corridor_nodes=None,
+        required_anchor_mile=None,
+        minimum_required_gap=0,
     ):
         return (
             self.itinerary_builder
@@ -2931,6 +2953,12 @@ class PlannerV2:
                 logistics_nodes,
                 current_mile=current_mile,
                 corridor_nodes=corridor_nodes,
+                required_anchor_mile=(
+                    required_anchor_mile
+                ),
+                minimum_required_gap=(
+                    minimum_required_gap
+                ),
             )
         )
 
@@ -3029,6 +3057,28 @@ class PlannerV2:
             )
         )
 
+        required_anchors = (
+            build_required_anchor_status(
+                required_overnight_anchors=(
+                    self.required_overnight_anchors
+                ),
+                required_resupply_anchors=(
+                    self.required_resupply_anchors
+                ),
+                daily_plan=daily_plan,
+                resupply_plan=resupply_plan,
+                min_daily_miles=(
+                    self.min_daily_miles
+                ),
+                max_daily_miles=(
+                    self.max_daily_miles
+                ),
+                max_daily_elevation=(
+                    self.max_daily_elevation
+                ),
+            )
+        )
+
         completion_analysis = (
             self.apply_itinerary_exceptions(
                 completion_analysis,
@@ -3073,6 +3123,9 @@ class PlannerV2:
             ),
             "selected_experiences": (
                 selected_experiences
+            ),
+            "required_anchors": (
+                required_anchors
             ),
             "directional_access": (
                 directional_access

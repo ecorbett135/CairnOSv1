@@ -664,6 +664,13 @@ overnight candidates remain displayable overnight access points anchored to the
 mainline overlay; they do not become route deviations or replace the compiled
 route overlay as operational truth.
 
+The Plan API now supports partial required-anchor specification for HikerLogix
+Advanced planning. Stable inventory ids can require overnight or resupply
+anchors; unselected sites remain planner candidates, NOBO/SOBO order is
+validated, and successful planned truth records every required id exactly once.
+Unknown, incompatible, duplicate, out-of-order, or infeasible anchors produce
+deterministic user-readable validation errors instead of silent omission.
+
 ---
 
 # Current Priorities

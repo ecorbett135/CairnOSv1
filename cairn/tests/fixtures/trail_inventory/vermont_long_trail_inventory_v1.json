@@ -2,6 +2,7 @@
   "contract_version": "cairnos_trail_inventory_v1",
   "trail_id": "vermont_long_trail",
   "status": "available",
+  "selected_direction": "NOBO",
   "direction_model": {
     "canonical_mile_system": "northbound_reference",
     "supported_directions": ["NOBO", "SOBO"],
@@ -22,6 +23,33 @@
       "trails/vermont_long_trail/raw/csv/route_master.csv"
     ],
     "fixture_base_commit": "7d1931fb00575b0ccb5f9467120fb6e3ec231e51"
+  },
+  "required_anchor_options": {
+    "overnight": [
+      {
+        "inventory_id": "vermont_long_trail:overnight:overlay_0008",
+        "kind": "overnight_site",
+        "display_name": "Seth Warner Shelter",
+        "directional_mile": 5.5,
+        "label": "[NOBO Mile 5.5] Seth Warner Shelter"
+      }
+    ],
+    "resupply": [
+      {
+        "inventory_id": "vermont_long_trail:access:vt_9:14.3",
+        "kind": "access_point",
+        "display_name": "Vt. 9",
+        "directional_mile": 14.3,
+        "label": "[NOBO Mile 14.3] Vt. 9"
+      },
+      {
+        "inventory_id": "vermont_long_trail:town:vt_9:14.3:bennington",
+        "kind": "town",
+        "display_name": "Bennington",
+        "directional_mile": 14.3,
+        "label": "[NOBO Mile 14.3] Bennington [Vt. 9]"
+      }
+    ]
   },
   "items": [
     {

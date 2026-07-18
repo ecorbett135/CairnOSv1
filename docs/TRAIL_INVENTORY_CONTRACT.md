@@ -21,7 +21,8 @@ cairnos_trail_inventory_v1
 API path:
 
 ```text
-GET /v1/trail-inventory
+GET /v1/trail-inventory?direction=NOBO
+GET /v1/trail-inventory?direction=SOBO
 ```
 
 The Plan API remains the auto-build endpoint. Trail inventory is for manual
@@ -60,8 +61,13 @@ promotes explicitly.
   "contract_version": "cairnos_trail_inventory_v1",
   "trail_id": "vermont_long_trail",
   "status": "available",
+  "selected_direction": "NOBO",
   "direction_model": {},
   "source": {},
+  "required_anchor_options": {
+    "overnight": [],
+    "resupply": []
+  },
   "items": []
 }
 ```
@@ -71,8 +77,10 @@ promotes explicitly.
 | `contract_version` | yes | Stable inventory contract version. |
 | `trail_id` | yes | CairnOS trail id. The MVP value is `vermont_long_trail`. |
 | `status` | yes | `available` when CairnOS can build inventory. |
+| `selected_direction` | yes | Direction used for item and required-anchor option ordering. |
 | `direction_model` | yes | Direction and mile-display rules. |
 | `source` | yes | Provenance and source artifact summary. |
+| `required_anchor_options` | yes | Direction-ordered overnight and resupply selector records. |
 | `items` | yes | Stable inventory records. |
 
 The contract is additive during alpha. Consumers should ignore unknown optional
@@ -100,6 +108,12 @@ does not invent a separate SOBO trail dataset.
 
 Consumers may display NOBO and SOBO miles, but must keep canonical ordering
 anchored to CairnOS inventory ids and CairnOS validation.
+
+The endpoint defaults to `NOBO`. For both directions, `items` and each
+`required_anchor_options` list are ordered by the displayed directional mile
+ascending. Equal-mile records use `inventory_id`, then `display_name`, as the
+stable tie-breaker. This makes the returned list follow travel order without
+creating a second canonical mile system.
 
 Expose the canonical northbound-reference mile even when displaying a SOBO
 label. SOBO display miles are derived presentation values, not a separate
@@ -182,9 +196,14 @@ the same as user-facing NOBO/SOBO itinerary direction.
 
 ## Validation Boundary
 
-Trail inventory alone does not prove that an itinerary is feasible.
+Trail inventory alone does not prove that an itinerary is feasible. The Plan
+API now accepts inventory-backed `required_overnight_anchor_ids` and
+`required_resupply_anchor_ids` as a partial specification. CairnOS validates
+role compatibility, direction order, duplicates, planner feasibility, and
+exactly-once representation during `POST /v1/plans`.
 
-Future manual-itinerary validation should be a separate CairnOS contract that
+Future full manual-itinerary validation should remain a separate CairnOS
+contract that
 accepts selected inventory ids and returns:
 
 - ordered day validity;

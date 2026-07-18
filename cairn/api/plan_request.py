@@ -67,6 +67,8 @@ class PlanAPIRequest:
     convenient_resupply_distance_miles: float = 1.0
     selected_side_trip_ids: tuple[str, ...] = ()
     selected_town_ids: tuple[str, ...] = ()
+    required_overnight_anchor_ids: tuple[str, ...] = ()
+    required_resupply_anchor_ids: tuple[str, ...] = ()
     planned_start_date: str | None = None
 
     @classmethod
@@ -206,6 +208,14 @@ class PlanAPIRequest:
             payload,
             "selected_town_ids",
         )
+        required_overnight_anchor_ids = _payload_unique_string_list(
+            payload,
+            "required_overnight_anchor_ids",
+        )
+        required_resupply_anchor_ids = _payload_unique_string_list(
+            payload,
+            "required_resupply_anchor_ids",
+        )
 
         planned_start_date = payload.get("planned_start_date")
         if planned_start_date is not None and not isinstance(planned_start_date, str):
@@ -233,6 +243,8 @@ class PlanAPIRequest:
             convenient_resupply_distance_miles=convenient_resupply_distance_miles,
             selected_side_trip_ids=selected_side_trip_ids,
             selected_town_ids=selected_town_ids,
+            required_overnight_anchor_ids=required_overnight_anchor_ids,
+            required_resupply_anchor_ids=required_resupply_anchor_ids,
             planned_start_date=planned_start_date,
         )
 
@@ -258,6 +270,12 @@ class PlanAPIRequest:
             "prefer_bear_box_sites": self.prefer_bear_box_sites,
             "selected_side_trip_ids": list(self.selected_side_trip_ids),
             "selected_town_ids": list(self.selected_town_ids),
+            "required_overnight_anchor_ids": list(
+                self.required_overnight_anchor_ids
+            ),
+            "required_resupply_anchor_ids": list(
+                self.required_resupply_anchor_ids
+            ),
             "convenient_resupply_distance_miles": (
                 self.convenient_resupply_distance_miles
             ),
@@ -360,6 +378,21 @@ def _payload_string_list(
             raise PlanAPIValidationError(f"{field_name} must be a list of strings")
         selected_ids.append(item.strip())
     return tuple(selected_ids)
+
+
+def _payload_unique_string_list(
+    payload: Mapping[str, Any],
+    field_name: str,
+) -> tuple[str, ...]:
+    selected_ids = _payload_string_list(payload, field_name)
+    seen_ids: set[str] = set()
+    for inventory_id in selected_ids:
+        if inventory_id in seen_ids:
+            raise PlanAPIValidationError(
+                f"{field_name} contains duplicate inventory_id: {inventory_id}"
+            )
+        seen_ids.add(inventory_id)
+    return selected_ids
 
 
 def _validate_route_name(value: Any, field_name: str) -> str:

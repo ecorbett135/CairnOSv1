@@ -6,8 +6,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from cairn.api.planning_anchors import resolve_required_anchor_contract
 from cairn.api.plan_request import PlanAPIRequest
 from cairn.export.plan_json import build_plan_export
+from cairn.planner.anchors import RequiredPlanningAnchorError
 from cairn.planner.planner_v2 import PlannerV2
 
 
@@ -18,6 +20,7 @@ def build_plan_response(
 ) -> dict[str, Any]:
     request = PlanAPIRequest.from_payload(payload)
     planner_config = request.to_planner_config()
+    required_anchor_contract = resolve_required_anchor_contract(request)
     planner = PlannerV2(
         trail_root=planner_config["trail_root"],
         user_profile={
@@ -38,6 +41,18 @@ def build_plan_response(
             "prefer_bear_box_sites": planner_config["prefer_bear_box_sites"],
             "selected_side_trip_ids": planner_config["selected_side_trip_ids"],
             "selected_town_ids": planner_config["selected_town_ids"],
+            "required_overnight_anchor_ids": planner_config[
+                "required_overnight_anchor_ids"
+            ],
+            "required_resupply_anchor_ids": planner_config[
+                "required_resupply_anchor_ids"
+            ],
+            "_required_overnight_anchors": required_anchor_contract[
+                "required_overnight_anchors"
+            ],
+            "_required_resupply_anchors": required_anchor_contract[
+                "required_resupply_anchors"
+            ],
             "convenient_resupply_distance_miles": planner_config[
                 "convenient_resupply_distance_miles"
             ],
@@ -48,9 +63,14 @@ def build_plan_response(
             "start_date": planner_config["start_date"],
         },
     )
-    itinerary = planner.synthesize_itinerary(
-        desired_days=planner_config["desired_days"]
-    )
+    try:
+        itinerary = planner.synthesize_itinerary(
+            desired_days=planner_config["desired_days"]
+        )
+    except RequiredPlanningAnchorError as error:
+        from cairn.api.plan_request import PlanAPIValidationError
+
+        raise PlanAPIValidationError(str(error)) from None
     planner_result = {
         "config": planner_config,
         "itinerary": itinerary,
