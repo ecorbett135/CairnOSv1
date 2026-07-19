@@ -19,6 +19,7 @@ def test_trail_inventory_fixture_shape_is_versioned_and_directional():
     assert payload["contract_version"] == "cairnos_trail_inventory_v1"
     assert payload["trail_id"] == "vermont_long_trail"
     assert payload["status"] == "available"
+    assert payload["selected_direction"] == "NOBO"
     assert payload["direction_model"]["canonical_mile_system"] == (
         "northbound_reference"
     )
@@ -26,6 +27,26 @@ def test_trail_inventory_fixture_shape_is_versioned_and_directional():
     assert payload["direction_model"]["section_model"] == "single_continuous_range"
     assert payload["direction_model"]["flip_flop_supported"] is False
     assert payload["items"]
+    assert payload["required_anchor_options"]["overnight"]
+    assert payload["required_anchor_options"]["resupply"]
+    assert payload["access_point_options"]
+    assert payload["checkpoint_options"]
+
+
+def test_trail_inventory_fixture_anchor_options_are_directionally_ordered():
+    payload = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+
+    for anchor_type in ("overnight", "resupply"):
+        options = payload["required_anchor_options"][anchor_type]
+        sort_keys = [
+            (
+                option["directional_mile"],
+                option["inventory_id"],
+                option["display_name"],
+            )
+            for option in options
+        ]
+        assert sort_keys == sorted(sort_keys)
 
 
 def test_trail_inventory_fixture_records_have_stable_ids_and_labels():
@@ -74,6 +95,16 @@ def test_trail_inventory_fixture_contains_expected_manual_planning_examples():
     shelter = items_by_id["vermont_long_trail:overnight:overlay_0008"]
     assert shelter["display_name"] == "Seth Warner Shelter"
     assert "overnight_stop" in shelter["selectable_as"]
+
+    access = items_by_id["vermont_long_trail:access:overlay_0033"]
+    assert access["kind"] == "trailhead"
+    assert "section_boundary" in access["selectable_as"]
+    assert access["supported_intents"] == [
+        "checkpoint",
+        "meet_pickup",
+        "resupply",
+        "overnight",
+    ]
 
     side_trip = items_by_id["vermont_long_trail:side_trip:lawsons_finest_taproom"]
     assert side_trip["experience"]["validation_status"] == "validated"

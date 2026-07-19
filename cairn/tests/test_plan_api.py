@@ -2,8 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import copy
 import json
+import xml.etree.ElementTree as ET
 from pathlib import Path
+
+import pytest
 
 from cairn.api.plan_request import (
     PlanAPIRequest,
@@ -14,6 +18,8 @@ import cairn.api.http_contract as http_contract
 import cairn.api.lambda_handler as lambda_handler
 import cairn.api.plan_options as plan_options
 import cairn.api.plan_service as plan_service
+import cairn.export.route_geometry as route_geometry
+from cairn.export.route_gpx import GPX_NAMESPACE
 
 
 def _valid_plan_api_payload():
@@ -55,6 +61,11 @@ def test_plan_api_request_builds_streamlit_equivalent_config():
     assert config["direction"] == "NOBO"
     assert config["ingress_route"] == "North Adams Approach"
     assert config["egress_route"] == "Journey's End Trail"
+    assert config["route_selection"] == {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": "approach_north_adams",
+        "egress_approach_id": "egress_journeys_end",
+    }
     assert config["desired_days"] == 28
     assert config["trail_root"].endswith("trails/vermont_long_trail")
     assert config["start_date"] == "2026-07-01"
@@ -350,7 +361,7 @@ def test_build_plan_response_includes_route_gpx_artifacts():
 
     assert (
         route_gpx["export_version"]
-        == "cairnos_route_gpx_v2"
+        == "cairnos_route_gpx_v4"
     )
     assert route_gpx["geometry_mode"] == "full_plan_track"
     assert route_gpx["direction"] == "NOBO"
@@ -363,9 +374,159 @@ def test_build_plan_response_includes_route_gpx_artifacts():
     }
     assert route_gpx["manifest"][0]["scope"] == "full_plan"
     assert route_gpx["manifest"][0]["track_point_count"] > 0
-    assert route_gpx["manifest"][1]["geometry_mode"] == (
-        "waypoint_only"
+    assert route_gpx["manifest"][0]["geometry_source"] == (
+        "composed_selected_route"
     )
+    assert route_gpx["manifest"][0]["elevation"]["status"] == "complete"
+    assert route_gpx["manifest"][0]["metrics"]["length_m"] > 0
+    assert route_gpx["manifest"][1]["geometry_mode"] == "daily_track"
+
+
+def test_north_adams_request_fixture_starts_track_at_selected_approach(
+    trail_root,
+):
+    fixture_path = (
+        Path(__file__).parent
+        / "fixtures"
+        / "plan_api"
+        / "valid_plan_request.json"
+    )
+    request = json.loads(fixture_path.read_text())
+    payload = plan_service.build_plan_response(
+        request,
+        build_sha="fixture-test",
+        generated_at="20260718T120000Z",
+    )
+    route_gpx = payload["route_gpx"]
+    full_entry = route_gpx["manifest"][0]
+    root = ET.fromstring(route_gpx["artifacts"][full_entry["filename"]])
+    first_track_point = root.find(
+        f"{{{GPX_NAMESPACE}}}trk/"
+        f"{{{GPX_NAMESPACE}}}trkseg/"
+        f"{{{GPX_NAMESPACE}}}trkpt"
+    )
+    compiled = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )
+    expected = compiled["approach_geometries"][0]["geometry"][
+        "coordinates"
+    ][0][0]
+
+    assert first_track_point is not None
+    assert float(first_track_point.get("lon")) == expected[0]
+    assert float(first_track_point.get("lat")) == expected[1]
+    elevation = first_track_point.find(
+        f"{{{GPX_NAMESPACE}}}ele"
+    )
+    assert elevation is not None
+    assert float(elevation.text) == expected[2]
+    assert full_entry["geometry_sources"][0]["approach_id"] == (
+        "approach_north_adams"
+    )
+
+
+def test_alternate_request_fixture_does_not_receive_north_adams_geometry():
+    fixture_path = (
+        Path(__file__).parent
+        / "fixtures"
+        / "plan_api"
+        / "alternate_ingress_plan_request.json"
+    )
+    payload = plan_service.build_plan_response(
+        json.loads(fixture_path.read_text()),
+        build_sha="fixture-test",
+        generated_at="20260718T120000Z",
+    )
+    route_gpx = payload["route_gpx"]
+    full_entry = route_gpx["manifest"][0]
+
+    assert all(
+        source.get("approach_id") != "approach_north_adams"
+        for source in full_entry["geometry_sources"]
+    )
+    assert {
+        warning.get("approach_id")
+        for warning in route_gpx["warnings"]
+        if warning["code"] == "selected_route_geometry_unavailable"
+    } == {"approach_williamstown", "egress_journeys_end"}
+
+
+def test_plan_api_request_accepts_explicit_stable_route_selection():
+    payload = _valid_plan_api_payload()
+    payload["route_selection"] = {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": "approach_north_adams",
+        "egress_approach_id": "egress_journeys_end",
+    }
+
+    request = PlanAPIRequest.from_payload(payload)
+
+    assert request.route_selection == payload["route_selection"]
+
+
+def test_plan_api_request_rejects_unknown_route_selection_id():
+    payload = _valid_plan_api_payload()
+    payload["route_selection"] = {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": "approach_unknown",
+        "egress_approach_id": "egress_journeys_end",
+    }
+
+    with pytest.raises(
+        PlanAPIValidationError,
+        match=(
+            "route_selection.ingress_approach_id unknown approach_id: "
+            "approach_unknown"
+        ),
+    ):
+        PlanAPIRequest.from_payload(payload)
+
+
+def test_plan_api_request_rejects_route_id_name_mismatch():
+    payload = _valid_plan_api_payload()
+    payload["route_selection"] = {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": "approach_williamstown",
+        "egress_approach_id": "egress_journeys_end",
+    }
+
+    with pytest.raises(
+        PlanAPIValidationError,
+        match="is incompatible with ingress_route 'North Adams Approach'",
+    ):
+        PlanAPIRequest.from_payload(payload)
+
+
+def test_plan_api_maps_disconnected_selected_geometry_to_validation_error(
+    trail_root,
+    monkeypatch,
+):
+    compiled = json.loads(
+        (
+            trail_root / "compiled" / "approach_trails.json"
+        ).read_text()
+    )
+    disconnected = copy.deepcopy(compiled)
+    disconnected["approach_geometries"][0]["geometry"] = {
+        "type": "LineString",
+        "coordinates": [[0.0, 0.0], [0.1, 0.1]],
+    }
+    monkeypatch.setattr(
+        route_geometry,
+        "_load_approach_payload",
+        lambda _trail_root: disconnected,
+    )
+
+    with pytest.raises(
+        PlanAPIValidationError,
+        match=(
+            "Selected ingress approach_id 'approach_north_adams' geometry "
+            "is disconnected from the southern defined-trail terminus"
+        ),
+    ):
+        plan_service.build_plan_response(_valid_plan_api_payload())
 
 
 def test_build_plan_options_response_returns_cairnos_owned_choices():
@@ -374,6 +535,24 @@ def test_build_plan_options_response_returns_cairnos_owned_choices():
     assert payload["trail_id"] == "vermont_long_trail"
     assert payload["status"] == "available"
     assert payload["control_specs"]
+    route_selection = payload["route_selection"]
+    assert route_selection["contract_version"] == (
+        "cairnos_route_selection_v1"
+    )
+    route_options = {
+        option["approach_id"]: option
+        for option in route_selection["options"]
+    }
+    assert route_options["approach_north_adams"]["geometry_status"] == (
+        "available"
+    )
+    assert route_options["approach_north_adams"]["selectable_roles"] == [
+        "NOBO_INGRESS",
+        "SOBO_EGRESS",
+    ]
+    assert route_options["egress_journeys_end"]["geometry_status"] == (
+        "unavailable"
+    )
     assert payload["side_trip_options"]
     assert payload["town_options"]
 

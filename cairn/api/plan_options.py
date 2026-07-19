@@ -15,6 +15,7 @@ from cairn.api.plan_request import (
     LONG_TRAIL_ROOT,
     PlanAPIValidationError,
 )
+from cairn.api.route_selection import build_route_selection_options
 
 
 def build_plan_options_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, Any]:
@@ -27,6 +28,7 @@ def build_plan_options_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, Any]
         "trail_id": trail_id,
         "status": "available",
         "control_specs": build_plan_control_specs_response(),
+        "route_selection": build_route_selection_options(LONG_TRAIL_ROOT),
         "side_trip_options": build_side_trip_options(LONG_TRAIL_ROOT),
         "town_options": build_town_options(LONG_TRAIL_ROOT),
     }

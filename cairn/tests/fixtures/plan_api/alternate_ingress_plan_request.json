@@ -1,11 +1,11 @@
 {
   "trail_id": "vermont_long_trail",
   "direction": "NOBO",
-  "ingress_route": "North Adams Approach",
+  "ingress_route": "Williamstown Approach",
   "egress_route": "Journey's End Trail",
   "route_selection": {
     "contract_version": "cairnos_route_selection_v1",
-    "ingress_approach_id": "approach_north_adams",
+    "ingress_approach_id": "approach_williamstown",
     "egress_approach_id": "egress_journeys_end"
   },
   "desired_days": 28,

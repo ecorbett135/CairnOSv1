@@ -21,7 +21,8 @@ cairnos_trail_inventory_v1
 API path:
 
 ```text
-GET /v1/trail-inventory
+GET /v1/trail-inventory?direction=NOBO
+GET /v1/trail-inventory?direction=SOBO
 ```
 
 The Plan API remains the auto-build endpoint. Trail inventory is for manual
@@ -60,8 +61,16 @@ promotes explicitly.
   "contract_version": "cairnos_trail_inventory_v1",
   "trail_id": "vermont_long_trail",
   "status": "available",
+  "selected_direction": "NOBO",
   "direction_model": {},
   "source": {},
+  "route_extent": null,
+  "access_point_options": [],
+  "checkpoint_options": [],
+  "required_anchor_options": {
+    "overnight": [],
+    "resupply": []
+  },
   "items": []
 }
 ```
@@ -71,8 +80,13 @@ promotes explicitly.
 | `contract_version` | yes | Stable inventory contract version. |
 | `trail_id` | yes | CairnOS trail id. The MVP value is `vermont_long_trail`. |
 | `status` | yes | `available` when CairnOS can build inventory. |
+| `selected_direction` | yes | Direction used for item and required-anchor option ordering. |
 | `direction_model` | yes | Direction and mile-display rules. |
 | `source` | yes | Provenance and source artifact summary. |
+| `route_extent` | yes | Null or normalized selected extent from endpoint query parameters. |
+| `access_point_options` | yes | Full promoted section-boundary inventory in travel order. |
+| `checkpoint_options` | yes | Full-trail or selected-extent intermediate access inventory. |
+| `required_anchor_options` | yes | Direction-ordered overnight and resupply selector records. |
 | `items` | yes | Stable inventory records. |
 
 The contract is additive during alpha. Consumers should ignore unknown optional
@@ -100,6 +114,12 @@ does not invent a separate SOBO trail dataset.
 
 Consumers may display NOBO and SOBO miles, but must keep canonical ordering
 anchored to CairnOS inventory ids and CairnOS validation.
+
+The endpoint defaults to `NOBO`. For both directions, `items` and each
+`required_anchor_options` list are ordered by the displayed directional mile
+ascending. Equal-mile records use `inventory_id`, then `display_name`, as the
+stable tie-breaker. This makes the returned list follow travel order without
+creating a second canonical mile system.
 
 Expose the canonical northbound-reference mile even when displaying a SOBO
 label. SOBO display miles are derived presentation values, not a separate
@@ -169,22 +189,39 @@ old plans remain readable if later CairnOS inventory labels change.
 
 ## Section Hiking
 
-The supported manual section model is one continuous range in one direction.
-Consumers can filter inventory between selected start/end inventory ids, then
-order the items by the selected direction.
+The Plan API supports one continuous defined-trail range in one direction.
+SECTION is a route extent handled by PlannerV2, not a separate planner.
+Consumers select CairnOS `start_access_id` and `end_access_id` values from
+`access_point_options`, then request dependent inventory with both endpoint
+query parameters. Exact request, response, sentinel, filtering, and Platform
+handoff examples are in `docs/SECTION_ACCESS_POINT_CONTRACT.md`.
+
+Promoted access points use stable overlay-backed IDs:
+
+```text
+vermont_long_trail:access:<overlay_id>
+```
+
+`access_point_options` always contains the full promoted boundary inventory.
+When an extent is selected, `checkpoint_options` contains only access points
+strictly between the endpoints while required overnight/resupply options are
+filtered inclusively. All option arrays follow selected-direction travel order
+and retain canonical northbound-reference miles. Extent-filtered options add
+`section_relative_mile` measured from the selected start.
 
 Complex flip-flops, disconnected sections, and mixed-direction itineraries are
 out of scope for v1.
 
-Approach trails and termini need explicit direction handling before live
-promotion. Raw approach records may carry source-direction details that are not
-the same as user-facing NOBO/SOBO itinerary direction.
-
 ## Validation Boundary
 
-Trail inventory alone does not prove that an itinerary is feasible.
+Trail inventory alone does not prove that an itinerary is feasible. The Plan
+API now accepts inventory-backed `required_overnight_anchor_ids` and
+`required_resupply_anchor_ids` as a partial specification. CairnOS validates
+role compatibility, direction order, duplicates, planner feasibility, and
+exactly-once representation during `POST /v1/plans`.
 
-Future manual-itinerary validation should be a separate CairnOS contract that
+Future full manual-itinerary validation should remain a separate CairnOS
+contract that
 accepts selected inventory ids and returns:
 
 - ordered day validity;
@@ -199,9 +236,9 @@ must not present them as CairnOS-validated planned truth.
 
 ## Endpoint And Fixture
 
-The live alpha endpoint emits overnight sites, access points, towns, and
-validated side trips. It intentionally avoids bulk road-crossing and trailhead
-promotion until those candidate fields are validated.
+The live alpha endpoint emits overnight sites, overlay-promoted road crossings
+and trailheads, resupply access points, towns, and validated side trips. It
+does not bulk-promote candidate fields from `crossings_refined.json`.
 
 The representative fixture lives at:
 
@@ -230,9 +267,8 @@ The endpoint generates inventory from these CairnOS-owned artifacts rather than
 requiring HikerLogix to hand-maintain a product copy.
 
 Crossing and trailhead metadata requires care. `crossings_refined.json` exposes
-many road crossings, but current refined crossing flags can be candidate or
-derived values. Do not present every crossing as verified vehicle access or a
-validated trailhead until the compiler promotes that distinction explicitly.
+many candidate or derived crossings. Only road-crossing/trailhead semantics
+already promoted into `route_overlay.json` enter the live access inventory.
 
 Before a live endpoint is promoted, source/provenance gaps in reusable Long
 Trail data should be reviewed in `data/DATASETS.md`.
@@ -250,9 +286,7 @@ Trail data should be reviewed in `data/DATASETS.md`.
 
 - Normalize total-mile handling so plan options, inventory labels, and plan
   summaries use one documented trail-mile authority.
-- Add query support only if a client needs server-side filtering; clients can
-  initially filter by `kind`, direction, section range, or selectable role.
-- Promote validated crossing and trailhead metadata only after candidate flags
-  are reviewed.
+- Continue reviewing candidate crossing/trailhead rows before promoting any
+  additional access semantics into `route_overlay.json`.
 - Add a future manual-itinerary validation contract that accepts selected
   inventory ids and returns feasibility, mileage, elevation, and warnings.

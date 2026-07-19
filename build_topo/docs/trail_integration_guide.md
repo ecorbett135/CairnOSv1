@@ -260,6 +260,11 @@ operational_graph.json
 cairn_schema_registry.json
 ```
 
+`spine.geojson` retains the third coordinate only when every source GPX track
+point has a valid `<ele>` value. The third coordinate is meters. Incomplete
+source elevation is not interpolated or estimated; downstream route exports
+must report it unavailable.
+
 ---
 
 # Integrating Alternate Routes

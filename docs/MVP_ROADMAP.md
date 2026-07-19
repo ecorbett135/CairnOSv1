@@ -26,10 +26,14 @@ planning before expanding into broader route modes.
 - a versioned trail-inventory contract and endpoint for HikerLogix
   inventory-bound Manual Build/Edit, documented in
   `docs/TRAIL_INVENTORY_CONTRACT.md`
+- Plan API SECTION extents bounded by promoted road-crossing/trailhead access
+  IDs, with optional intermediate operational access-point anchors
 
-SECTION planning is intentionally deferred. The underlying planner branches
-remain in place for later work, but the Streamlit UI hides SECTION mode until
-the traversal and data semantics are ready.
+The first SECTION contract slice is implemented for HikerLogix: Basic and
+Advanced both use the same direction-aware route extent through PlannerV2,
+required shelter/resupply anchors remain partial constraints, and route GPX is
+bounded to that extent. The Streamlit UI still hides SECTION; broader public
+alpha UX and additional promoted access data remain later work.
 
 ## Product Boundary
 
@@ -60,10 +64,11 @@ Do not spend MVP effort on:
 1. overlay-authoritative traversal
 1. SECTION planning
 
-Overlay-authoritative traversal in the MVP scope means NOBO and SOBO THRU daily
-planning follows ordered overlay corridors for the mainline plus selected
-ingress and egress endpoints. SECTION planning remains a later slice; this
-work does not add user-facing SECTION controls.
+Overlay-authoritative traversal means NOBO and SOBO THRU daily planning follows
+ordered overlay corridors for the mainline plus selected ingress and egress
+endpoints. The promoted SECTION API slice applies the same reasoning inside a
+continuous access-ID-bounded overlay extent. This work does not add Streamlit
+SECTION controls.
 
 HikerLogix integration is active but tracked separately from the core CairnOS
 MVP sequence. Platform/Web owns planning UI and centralized records; iOS owns
@@ -201,7 +206,7 @@ Those prompts must not become safety determinations, live trail-condition
 claims, feasibility scoring inputs, or Gaia export properties.
 
 Transportation and access friction should become explicit advisory logistics
-context for town stops, termini, road crossings, and future SECTION endpoints.
+context for town stops, termini, road crossings, and promoted SECTION endpoints.
 This should extend structured resupply access metadata without depending on
 prose parsing or guaranteeing current shuttle, transit, parking, or business
 availability.
@@ -237,12 +242,22 @@ is designed and manually validated in Gaia. That export should group each
 moving day as a colored LineString segment with start/stop points, but it
 should not ship until folder/color behavior is tested through Gaia import.
 
-A minimal route GPX artifact layer now exists for downstream HikerLogix
-Platform/iOS import work. The current `cairnos_route_gpx_v2` output adds the
-compiled Long Trail spine as a direction-aware track in the full-plan GPX while
-preserving daily start/stop waypoints and waypoint-only per-day files. It does
-not attempt per-day geometry slicing, ingress/egress branch geometry, or
-off-spine overnight-access geometry.
+A route GPX artifact layer now exists for downstream HikerLogix Platform/iOS
+import work. The `cairnos_route_gpx_v3` baseline composes promoted
+geometry for the stable ingress/egress IDs in `cairnos_route_selection_v1`
+around the canonical Long Trail spine, preserves daily start/stop waypoints,
+and emits mileage-bounded moving-day tracks. North Adams is currently the only
+promoted branch geometry; known selections without geometry warn explicitly
+and never receive another branch. Off-spine overnight-access geometry remains
+out of scope.
+
+The additive `cairnos_route_gpx_v4` contract now promotes source-embedded
+meter elevation for canonical spine and promoted approach points, emits
+standard GPX `<ele>` in full-plan and moving-day tracks, and exposes
+reproducible length/ascent/descent/signed-average-grade metrics. It carries
+ordered selected route-part identity, provenance, and geometry/elevation
+completeness so missing Williamstown or Journey's End geometry cannot be
+silently presented downstream as a complete route profile.
 
 Elevation calibration now has an IP-safe local workflow: user-owned Gaia/Garmin
 exports can be compared against Cairn intervals from the ignored

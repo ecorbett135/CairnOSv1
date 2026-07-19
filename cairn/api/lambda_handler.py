@@ -35,6 +35,7 @@ def handler(event: Mapping[str, Any], context: object) -> dict[str, Any]:
                 "CAIRNOS_BUILD_SHA",
                 http_contract.DEFAULT_BUILD_SHA,
             ),
+            query_params=_query_params(event),
         )
     )
 
@@ -85,6 +86,13 @@ def _body_bytes(event: Mapping[str, Any]) -> bytes:
     if event.get("isBase64Encoded") is True:
         return base64.b64decode(body_bytes, validate=True)
     return body_bytes
+
+
+def _query_params(event: Mapping[str, Any]) -> Mapping[str, Any]:
+    query_params = event.get("queryStringParameters")
+    if isinstance(query_params, Mapping):
+        return query_params
+    return {}
 
 
 def _json_response(response: http_contract.HTTPContractResponse) -> dict[str, Any]:

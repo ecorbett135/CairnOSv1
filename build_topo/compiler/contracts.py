@@ -134,6 +134,7 @@ STAGE_CONTRACTS = (
         module="build_topo.compiler.approach_trails",
         required_inputs=(
             "compiled/route_overlay.json",
+            "raw/csv/approach_trails.csv",
         ),
         generated_outputs=(
             ArtifactContract("compiled/approach_trails.json", "json"),
@@ -141,6 +142,7 @@ STAGE_CONTRACTS = (
         validation_rules=(
             "approach trails json parses",
             "approach metadata remains explicit",
+            "approach geometry retains stable ids and exact provenance",
         ),
     ),
     StageContract(

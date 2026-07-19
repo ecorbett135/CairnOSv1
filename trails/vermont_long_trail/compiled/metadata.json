@@ -1,5 +1,11 @@
 {
   "trail": "vermont_long_trail",
   "schema_version": "1.0",
-  "spine_points": 19817
+  "spine_points": 19817,
+  "spine_elevation_status": "complete",
+  "spine_elevation_unit": "m",
+  "spine_elevation_method": "source_embedded_gpx_ele",
+  "spine_elevation_points": 19817,
+  "spine_source_path": "raw/gpx/long-trail-spine.gpx",
+  "spine_source_license_status": "UNKNOWN \u2014 needs review"
 }

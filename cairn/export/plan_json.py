@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from cairn.api.route_selection import normalize_route_selection
+
 
 PLAN_EXPORT_SCHEMA_VERSION = "cairnos_plan_v1"
 
@@ -152,10 +154,27 @@ def build_plan_export(
         trail_root
     )
     generated_at = generated_at or utc_timestamp()
-    config = planner_result.get(
-        "config",
-        {},
-    )
+    config = dict(planner_result.get("config", {}))
+    if (
+        not config.get("route_selection")
+        and all(
+            isinstance(config.get(field_name), str)
+            and config.get(field_name)
+            for field_name in (
+                "direction",
+                "ingress_route",
+                "egress_route",
+            )
+        )
+    ):
+        config["route_selection"] = normalize_route_selection(
+            config,
+            direction=config["direction"],
+            ingress_route=config["ingress_route"],
+            egress_route=config["egress_route"],
+            trail_root=trail_root,
+            trip_type=config.get("trip_type", "THRU"),
+        )
     itinerary = planner_result.get(
         "itinerary",
         {},
@@ -204,6 +223,18 @@ def build_plan_export(
             "directional_access",
             {},
         ),
+        "required_anchors": itinerary.get(
+            "required_anchors",
+            {},
+        ),
+        "route_extent": itinerary.get(
+            "route_extent",
+            config.get("route_extent", {}),
+        ),
+        "access_point_anchors": itinerary.get(
+            "access_point_anchors",
+            {},
+        ),
         "resupply_plan": itinerary.get(
             "resupply_plan",
             [],
@@ -234,6 +265,8 @@ def build_plan_export(
             direction=config.get("direction"),
             trail_id=trail_id,
             generated_at=generated_at,
+            route_selection=config.get("route_selection"),
+            route_extent=config.get("route_extent"),
         )
 
     return sanitize_value(

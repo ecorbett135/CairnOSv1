@@ -34,6 +34,9 @@ The export includes:
 - `completion_analysis`
 - `expedition_summary`
 - `directional_access`
+- `route_extent`
+- `access_point_anchors`
+- `required_anchors`
 - `resupply_plan`
 - `resupply_town_details`
 - `selected_experiences`
@@ -49,14 +52,31 @@ mobile-specific normalized schema too early.
 ## Route GPX Artifacts
 
 The export embeds an additive `route_gpx` section using the
-`cairnos_route_gpx_v2` contract. It includes a manifest plus GPX XML artifacts
-for the full plan and each planned day. The full-plan artifact contains the
-compiled Long Trail spine as one GPX track plus planned daily start/stop
-waypoints. Per-day artifacts remain waypoint-only.
+`cairnos_route_gpx_v4` contract. It includes a manifest plus GPX XML artifacts
+for the full plan and each planned day. The full-plan artifact composes
+promoted geometry for exactly the stable `cairnos_route_selection_v1`
+ingress/egress IDs around the canonical Long Trail spine. Moving-day artifacts
+contain mileage-bounded track slices; all artifacts preserve planned daily
+start/stop waypoints.
+
+V4 adds source-authoritative GPX `<ele>` meters, reproducible
+length/ascent/descent/signed-average-grade metrics, ordered route-part
+identity/provenance, and explicit geometry/elevation completeness. See
+`docs/ROUTE_GPX_EXPORT.md` for the exact Platform pass-through and iOS/Web
+profile-consumer handoff.
 
 Downstream clients may expose these artifacts for Gaia GPS, COROS, Files, or
-other import workflows. They must preserve the full-plan-spine and per-day
-waypoint-only warnings and must not present the GPX as navigational authority.
+other import workflows. They must honor manifest `geometry_sources`, surface
+geometry-unavailable warnings without substituting another branch, and must not
+present the GPX as navigational authority. Zero-mile or otherwise unsliceable
+day artifacts use `geometry_mode: waypoint_only`.
+
+SECTION exports use additive `cairnos_route_extent_v1` and
+`cairnos_access_point_anchors_v1` sections. Canonical full-trail miles remain
+the planned-truth mile fields; section-relative fields measure travel distance
+from the selected access-point start. `route_gpx.route_extent` and manifest
+canonical bounds identify the supplied spine slice. Exact Platform examples
+are in `docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 ## Privacy And Provenance
 

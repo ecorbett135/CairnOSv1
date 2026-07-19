@@ -54,6 +54,14 @@ pause/resume changes eligible future actual dates without mutating planned
 truth. Plan-number display, lifecycle UI, and date-cascade behavior are
 HikerLogix concerns, not CairnOS contract semantics.
 
+Platform-generated display-name defaults are `<Trail> <Direction> Thru` for a
+full-trail plan and `<Trail> <Direction> Section` for a bounded section. They
+must never append `Plan` or expose CairnOS branding. Platform and iOS may let
+the user rename generated or Custom plans, but that display-name mutation must
+not change the internal UUID or the human `LT###`/`CP###` display number. This
+rule belongs in downstream Django/API persistence and React/native creation,
+edit, and review surfaces; CairnOS artifact filenames remain unchanged.
+
 ## Contract Layering
 
 The current CairnOS versions remain:
@@ -61,17 +69,56 @@ The current CairnOS versions remain:
 - `cairnos_plan_api_v1` for stateless plan generation;
 - `cairnos_plan_v1` for planned itinerary/reasoning export;
 - `cairnos_trail_inventory_v1` for promoted inventory metadata;
-- `cairnos_route_gpx_v1` for full-plan and per-day waypoint-only GPX artifacts.
+- `cairnos_route_gpx_v4` for composed full-plan and moving-day GPX tracks with
+  preserved waypoints, source-authoritative elevation, reproducible metrics,
+  route-part completeness, and provenance manifests;
+- `cairnos_route_selection_v1` for stable selected ingress/egress approach IDs.
+- `cairnos_route_extent_v1` for one continuous direction-aware defined-trail
+  extent;
+- `cairnos_access_point_anchors_v1` for intermediate operational checkpoint
+  projection and satisfaction.
+
+Defined-trail Basic and Advanced use the same PlannerV2 route extent. Platform
+submits `trip_type: SECTION` with CairnOS-owned `start_access_id` and
+`end_access_id` values. Advanced may add the existing required shelter/resupply
+partial anchors; it does not call a separate planner. Optional
+`access_point_anchors` can represent checkpoint, pickup, resupply, or overnight
+intent. Only explicit `resupply` and `overnight` intents force those behaviors.
+Exact request/inventory/response examples, none sentinel IDs, filtering/order
+rules, and satisfaction fields are in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
+
+Defined-trail Advanced may submit the additive
+`required_overnight_anchor_ids` and `required_resupply_anchor_ids` fields in
+`cairnos_plan_api_v1`. The ids come from the direction-ordered
+`cairnos_trail_inventory_v1.required_anchor_options` lists. They are hard,
+exactly-once partial anchors, not preferences or a manually assembled
+itinerary. CairnOS may add any other overnight or resupply locations needed to
+complete a feasible plan. Successful `cairnos_plan_v1` output reports
+`cairnos_required_planning_anchors_v1` status and attaches the stable ids to
+daily/resupply planned truth; invalid or infeasible anchors return a normalized
+Plan API `400 validation_error`.
+
+Plan builders should also submit the additive `route_selection` object using
+stable IDs from `GET /v1/plan-options`. Legacy route-name-only requests remain
+valid, but Platform should persist and forward the normalized
+`cairnos_route_selection_v1` object returned by CairnOS. iOS should render the
+supplied route GPX track and must not derive or substitute ingress/egress
+geometry.
+For SECTION, normalized route selection uses `approach_none_ingress` and
+`approach_none_egress`; `route_gpx.route_extent` and manifest canonical bounds
+identify the selected defined-trail slice.
 
 Platform wraps accepted planned truth in
 `hikerlogix_current_plan_download_v1`. Platform accepts approved user-owned
 daily actual overlays through `hikerlogix_actuals_upload_v1`. Those HikerLogix
 contracts do not extend or version CairnOS schemas.
 
-CairnOS owns route-spine/overlay authority and uses it to resolve GPX
-waypoints. The current GPX artifacts do not contain route or track geometry and
-must not be presented as navigation authority. Platform and iOS may expose or
-share the artifacts where supported while preserving that warning.
+CairnOS owns route-spine/overlay authority and uses stable route-selection IDs
+to compose only promoted approach geometry around the canonical spine. Platform
+and iOS should render the supplied GPX rather than synthesize branch geometry,
+must surface geometry-unavailable warnings, and must not present the artifacts
+as navigation authority.
 
 ## Actuals And Analytics Boundary
 

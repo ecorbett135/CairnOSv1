@@ -45,6 +45,7 @@ def test_build_trail_inventory_response_returns_live_contract_inventory():
     assert payload["contract_version"] == "cairnos_trail_inventory_v1"
     assert payload["trail_id"] == "vermont_long_trail"
     assert payload["status"] == "available"
+    assert payload["selected_direction"] == "NOBO"
     assert payload["direction_model"] == {
         "canonical_mile_system": "northbound_reference",
         "supported_directions": ["NOBO", "SOBO"],
@@ -58,7 +59,9 @@ def test_build_trail_inventory_response_returns_live_contract_inventory():
     assert {item["kind"] for item in payload["items"]} == {
         "access_point",
         "overnight_site",
+        "road_crossing",
         "side_trip",
+        "trailhead",
         "town",
     }
 
@@ -68,6 +71,68 @@ def test_build_trail_inventory_response_returns_live_contract_inventory():
     for item in payload["items"]:
         for related_id in item.get("related_inventory_ids", []):
             assert related_id in items_by_id
+
+
+def test_required_anchor_options_follow_displayed_directional_miles():
+    nobo = build_trail_inventory_response(
+        "vermont_long_trail",
+        direction="NOBO",
+    )
+    sobo = build_trail_inventory_response(
+        "vermont_long_trail",
+        direction="SOBO",
+    )
+
+    for payload, direction in ((nobo, "NOBO"), (sobo, "SOBO")):
+        assert payload["selected_direction"] == direction
+        items_by_id = _items_by_id(payload)
+        for anchor_type in ("overnight", "resupply"):
+            options = payload["required_anchor_options"][anchor_type]
+            sort_keys = [
+                (
+                    option["directional_mile"],
+                    option["inventory_id"],
+                    option["display_name"],
+                )
+                for option in options
+            ]
+            assert sort_keys == sorted(sort_keys)
+            assert all(
+                option["label"]
+                == items_by_id[option["inventory_id"]]["labels"][direction]
+                for option in options
+            )
+
+    assert nobo["required_anchor_options"]["overnight"][0][
+        "inventory_id"
+    ] != sobo["required_anchor_options"]["overnight"][0]["inventory_id"]
+    assert nobo["required_anchor_options"]["resupply"][0][
+        "inventory_id"
+    ] != sobo["required_anchor_options"]["resupply"][0]["inventory_id"]
+
+
+def test_asgi_inventory_direction_query_orders_anchor_options():
+    response = _client().get("/v1/trail-inventory?direction=SOBO")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["selected_direction"] == "SOBO"
+    for anchor_type in ("overnight", "resupply"):
+        miles = [
+            option["directional_mile"]
+            for option in payload["required_anchor_options"][anchor_type]
+        ]
+        assert miles == sorted(miles)
+
+
+def test_asgi_inventory_rejects_unknown_direction():
+    response = _client().get("/v1/trail-inventory?direction=WEST")
+
+    assert response.status_code == 400
+    assert response.json() == {
+        "error": "validation_error",
+        "message": "direction must be one of: NOBO, SOBO",
+    }
 
 
 def test_build_trail_inventory_response_includes_key_manual_planning_records():
@@ -135,6 +200,19 @@ def test_lambda_handler_returns_trail_inventory_for_trailing_slash():
     assert response["statusCode"] == 200
     payload = _json_response(response)
     assert payload["contract_version"] == "cairnos_trail_inventory_v1"
+
+
+def test_lambda_handler_applies_inventory_direction_query():
+    event = _lambda_get_event("/v1/trail-inventory")
+    event["queryStringParameters"] = {"direction": "SOBO"}
+
+    response = lambda_handler.handler(event, None)
+
+    assert response["statusCode"] == 200
+    payload = _json_response(response)
+    assert payload["selected_direction"] == "SOBO"
+    assert payload["required_anchor_options"]["overnight"]
+    assert payload["required_anchor_options"]["resupply"]
 
 
 def test_lambda_handler_rejects_unowned_inventory_alias():

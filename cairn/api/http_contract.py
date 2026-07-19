@@ -146,6 +146,7 @@ def handle_plan_api_request(
     body: bytes,
     *,
     request_build_sha: str | None = None,
+    query_params: Mapping[str, Any] | None = None,
 ) -> HTTPContractResponse:
     normalized_method = _normalize_method(method)
     normalized_path = _normalize_path(path)
@@ -154,7 +155,15 @@ def handle_plan_api_request(
         return plan_options_response()
 
     if normalized_method == "GET" and normalized_path in TRAIL_INVENTORY_PATHS:
-        return trail_inventory_response()
+        direction = str(
+            (query_params or {}).get("direction")
+            or "NOBO"
+        ).upper()
+        return trail_inventory_response(
+            direction=direction,
+            start_access_id=(query_params or {}).get("start_access_id"),
+            end_access_id=(query_params or {}).get("end_access_id"),
+        )
 
     if normalized_method == "POST" and normalized_path in PLAN_CREATE_PATHS:
         return create_plan_response(
@@ -181,9 +190,23 @@ def plan_options_response() -> HTTPContractResponse:
         return internal_error_response()
 
 
-def trail_inventory_response() -> HTTPContractResponse:
+def trail_inventory_response(
+    direction: str = "NOBO",
+    start_access_id: str | None = None,
+    end_access_id: str | None = None,
+) -> HTTPContractResponse:
     try:
-        return json_response(200, build_trail_inventory_response())
+        inventory_kwargs: dict[str, Any] = {
+            "direction": direction,
+        }
+        if start_access_id is not None:
+            inventory_kwargs["start_access_id"] = start_access_id
+        if end_access_id is not None:
+            inventory_kwargs["end_access_id"] = end_access_id
+        return json_response(
+            200,
+            build_trail_inventory_response(**inventory_kwargs),
+        )
     except PlanAPIValidationError as error:
         return validation_error_response(error)
     except Exception:

@@ -37,8 +37,11 @@ HikerLogix v1 import should require these top-level sections:
 - `daily_plan`
 - `warnings`
 
-Optional sections such as `resupply_town_details`, `selected_experiences`, and
+Optional additive sections such as `route_extent`, `access_point_anchors`,
+`required_anchors`, `resupply_town_details`, `selected_experiences`, and
 `season_advisories` should be displayed when present but must not block import.
+Exact SECTION handling is documented in
+`docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
 ## Read-Only Import Rules
 
@@ -54,23 +57,35 @@ Optional sections such as `resupply_town_details`, `selected_experiences`, and
 
 ## Optional Route GPX Artifacts
 
-CairnOS also embeds `cairnos_route_gpx_v2` route GPX artifacts in the additive
+CairnOS also embeds `cairnos_route_gpx_v4` route GPX artifacts in the additive
 `route_gpx` Plan JSON section when daily plan rows are available. These
 artifacts are optional companions for Platform/iOS import and sharing
 workflows, not replacements for CairnOS Plan JSON.
 
 The top-level contract uses `geometry_mode: full_plan_track`. The manifest entry
-with `scope: full_plan` contains one standard GPX `trk`/`trkseg` over the
-compiled Long Trail spine plus the existing daily start/stop waypoints. Its
-track points are ordered for the plan direction. Per-day manifest entries use
-`geometry_mode: waypoint_only` and contain only their planned start/stop
-waypoints.
+with `scope: full_plan` contains one standard GPX `trk`/`trkseg` composed from
+the exact promoted `cairnos_route_selection_v1` ingress/egress IDs and the
+canonical Long Trail spine, ordered for the plan direction. Moving-day entries
+use `geometry_mode: daily_track` and contain a mileage-bounded slice plus their
+planned start/stop waypoints. Zero-mile or otherwise unsliceable days remain
+`waypoint_only`.
 
 Platform/iOS should use the full-plan manifest `filename` to resolve the GPX
-string in `artifacts` when rendering the route line. The spine omits selected
-ingress/egress branches, off-spine overnight access, and per-day slicing. All
-GPX artifacts remain advisory and must not be used as navigation, distance,
-elevation, closure, water, weather, or safety authority.
+string in `artifacts` when rendering the route line or elevation profile.
+Consumers must preserve `route_selection`, `route_parts`, completeness,
+metrics, warnings, and manifest `geometry_sources`; parse standard `<ele>` as
+meters; and surface unavailable geometry/elevation without synthesizing or
+substituting a branch. Current data promotes North Adams geometry/elevation;
+Williamstown and Journey's End remain explicit gaps. Off-spine overnight
+access remains omitted. Exact pass-through and profile eligibility rules are
+in `docs/ROUTE_GPX_EXPORT.md`. All GPX artifacts remain advisory and must not
+be used as navigation, closure, water, weather, or safety authority.
+
+For SECTION, `route_gpx.route_extent` echoes the selected access-ID bounds and
+the full-plan geometry source exposes the canonical minimum/maximum mile slice.
+Intentional `approach_none_ingress` and `approach_none_egress` selections add no
+branch and are not geometry-unavailable warnings. Consumers must render the
+supplied slice rather than deriving section geometry.
 
 ## Fixture Contract
 

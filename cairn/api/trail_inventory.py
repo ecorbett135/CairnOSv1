@@ -11,10 +11,17 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any
 
+from cairn.api.access_points import (
+    access_point_options,
+    build_access_point_catalog,
+    mile_inside_extent,
+    normalize_route_extent,
+)
 from cairn.api.plan_request import (
     LONG_TRAIL_ID,
     LONG_TRAIL_ROOT,
     PlanAPIValidationError,
+    VALID_DIRECTIONS,
 )
 
 
@@ -31,19 +38,53 @@ SOURCE_ARTIFACTS = {
 }
 
 
-def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, Any]:
+def build_trail_inventory_response(
+    trail_id: str = LONG_TRAIL_ID,
+    direction: str = "NOBO",
+    start_access_id: str | None = None,
+    end_access_id: str | None = None,
+) -> dict[str, Any]:
     if trail_id != LONG_TRAIL_ID:
         raise PlanAPIValidationError(
             f"trail_id must be {LONG_TRAIL_ID!r} for the MVP trail inventory"
         )
+    if direction not in VALID_DIRECTIONS:
+        raise PlanAPIValidationError("direction must be one of: NOBO, SOBO")
 
     total_miles = _trail_total_miles(LONG_TRAIL_ROOT)
+    access_catalog = build_access_point_catalog(
+        LONG_TRAIL_ROOT,
+        trail_id,
+    )
+    if (start_access_id is None) != (end_access_id is None):
+        raise PlanAPIValidationError(
+            "start_access_id and end_access_id must be provided together"
+        )
+    route_extent = None
+    if start_access_id is not None and end_access_id is not None:
+        try:
+            route_extent = normalize_route_extent(
+                trip_type="SECTION",
+                direction=direction,
+                start_access_id=start_access_id,
+                end_access_id=end_access_id,
+                trail_root=LONG_TRAIL_ROOT,
+                trail_id=trail_id,
+            )
+        except ValueError as error:
+            raise PlanAPIValidationError(str(error)) from None
     overlay_nodes = _overlay_nodes(LONG_TRAIL_ROOT)
     overnight_lookup = _overnight_lookup(LONG_TRAIL_ROOT)
     resupply_rows = _resupply_rows_by_id(LONG_TRAIL_ROOT)
 
     items: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
+    for access in access_catalog.values():
+        _append_unique(
+            items,
+            seen_ids,
+            _access_point_item(access, total_miles),
+        )
     for item in _overlay_items(overlay_nodes, overnight_lookup, total_miles):
         _append_unique(items, seen_ids, item)
 
@@ -53,10 +94,19 @@ def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, A
     for item in _side_trip_items(LONG_TRAIL_ROOT, resupply_rows, total_miles):
         _append_unique(items, seen_ids, item)
 
+    sorted_items = sorted(
+        items,
+        key=lambda item: _directional_item_sort_key(
+            item,
+            direction,
+        ),
+    )
+
     return {
         "contract_version": CONTRACT_VERSION,
         "trail_id": trail_id,
         "status": "available",
+        "selected_direction": direction,
         "direction_model": {
             "canonical_mile_system": "northbound_reference",
             "supported_directions": ["NOBO", "SOBO"],
@@ -73,15 +123,124 @@ def build_trail_inventory_response(trail_id: str = LONG_TRAIL_ID) -> dict[str, A
                 "resupply, overnight, and side-trip enrichment artifacts."
             ),
         },
-        "items": sorted(
-            items,
-            key=lambda item: (
-                item.get("canonical_mile", 0),
-                item.get("kind", ""),
-                item.get("inventory_id", ""),
-            ),
+        "route_extent": route_extent,
+        "access_point_options": access_point_options(
+            access_catalog,
+            direction=direction,
+            total_miles=float(total_miles),
         ),
+        "checkpoint_options": access_point_options(
+            access_catalog,
+            direction=direction,
+            total_miles=float(total_miles),
+            route_extent=route_extent,
+            intermediate_only=bool(route_extent),
+        ),
+        "required_anchor_options": {
+            "overnight": _required_anchor_options(
+                sorted_items,
+                direction,
+                "overnight_stop",
+                route_extent,
+            ),
+            "resupply": _required_anchor_options(
+                sorted_items,
+                direction,
+                "resupply_stop",
+                route_extent,
+            ),
+        },
+        "items": sorted_items,
     }
+
+
+def _directional_item_sort_key(
+    item: dict[str, Any],
+    direction: str,
+) -> tuple[float, str, str]:
+    return (
+        float(item.get("directional_miles", {}).get(direction, 0)),
+        str(item.get("inventory_id", "")),
+        str(item.get("display_name", "")),
+    )
+
+
+def _required_anchor_options(
+    items: list[dict[str, Any]],
+    direction: str,
+    selectable_role: str,
+    route_extent: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    options = []
+    for item in items:
+        if selectable_role not in item.get("selectable_as", []):
+            continue
+        if route_extent is not None and not mile_inside_extent(
+            float(item["canonical_mile"]),
+            route_extent,
+        ):
+            continue
+        option = {
+            "inventory_id": item["inventory_id"],
+            "kind": item["kind"],
+            "display_name": item["display_name"],
+            "canonical_mile": item["canonical_mile"],
+            "directional_mile": item["directional_miles"][direction],
+            "label": item["labels"][direction],
+        }
+        if route_extent is not None:
+            option["section_relative_mile"] = round(
+                abs(
+                    float(item["canonical_mile"])
+                    - float(route_extent["canonical_start_mile"])
+                ),
+                1,
+            )
+        options.append(option)
+    return options
+
+
+def _access_point_item(
+    access: dict[str, Any],
+    total_miles: Decimal,
+) -> dict[str, Any]:
+    mile = Decimal(str(access["canonical_mile"]))
+    item = _base_item(
+        inventory_id=access["inventory_id"],
+        kind=access["kind"],
+        display_name=access["display_name"],
+        canonical_mile=mile,
+        total_miles=total_miles,
+        source_artifacts=[SOURCE_ARTIFACTS["route_overlay"]],
+        selectable_as=[
+            "section_boundary",
+            "operational_checkpoint",
+            "day_start",
+            "day_stop",
+        ],
+    )
+    item["access_id"] = access["access_id"]
+    item["overlay"] = {
+        "overlay_id": access["overlay_id"],
+        "node_class": access["node_class"],
+        "division": access["division"],
+    }
+    item["access"] = {
+        key: access[key]
+        for key in (
+            "road_crossing",
+            "town_access",
+            "access_notes",
+        )
+        if access.get(key)
+    }
+    item["supported_intents"] = [
+        "checkpoint",
+        "meet_pickup",
+        "resupply",
+        "overnight",
+    ]
+    return item
 
 
 def _overlay_items(

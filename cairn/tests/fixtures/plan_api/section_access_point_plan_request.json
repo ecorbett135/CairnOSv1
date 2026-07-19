@@ -1,0 +1,35 @@
+{
+  "trail_id": "vermont_long_trail",
+  "trip_type": "SECTION",
+  "direction": "NOBO",
+  "start_access_id": "vermont_long_trail:access:overlay_0015",
+  "end_access_id": "vermont_long_trail:access:overlay_0077",
+  "desired_days": 7,
+  "min_daily_miles": 4,
+  "max_daily_miles": 16,
+  "max_daily_elevation": 5000,
+  "resupply_cadence": 5,
+  "recovery_cadence": 6,
+  "required_overnight_anchor_ids": [
+    "vermont_long_trail:overnight:overlay_0023"
+  ],
+  "required_resupply_anchor_ids": [],
+  "access_point_anchors": [
+    {
+      "access_id": "vermont_long_trail:access:overlay_0033",
+      "intent": "meet_pickup",
+      "date": "2026-07-03",
+      "time": "14:00",
+      "note": "Meet at Kelley Stand"
+    },
+    {
+      "access_id": "vermont_long_trail:access:overlay_0043",
+      "intent": "resupply"
+    },
+    {
+      "access_id": "vermont_long_trail:access:overlay_0061",
+      "intent": "overnight"
+    }
+  ],
+  "planned_start_date": "2026-07-01"
+}

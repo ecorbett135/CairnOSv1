@@ -3,18 +3,18 @@
   "direction": "NOBO",
   "ingress_route": "North Adams Approach",
   "egress_route": "Journey's End Trail",
-  "route_selection": {
-    "contract_version": "cairnos_route_selection_v1",
-    "ingress_approach_id": "approach_north_adams",
-    "egress_approach_id": "egress_journeys_end"
-  },
   "desired_days": 28,
   "min_daily_miles": 8,
   "max_daily_miles": 15,
   "max_daily_elevation": 4000,
   "resupply_cadence": 5,
   "recovery_cadence": 6,
-  "required_overnight_anchor_ids": [],
-  "required_resupply_anchor_ids": [],
-  "planned_start_date": "2026-07-01"
+  "required_overnight_anchor_ids": [
+    "vermont_long_trail:overnight:overlay_0023",
+    "vermont_long_trail:overnight:overlay_0067"
+  ],
+  "required_resupply_anchor_ids": [
+    "vermont_long_trail:town:vt_9:14.3:bennington",
+    "vermont_long_trail:access:vt_11_30:54.4"
+  ]
 }

@@ -1579,6 +1579,42 @@ def validate_approach_rows(
             examples=blank_terminus_rows[:5],
         )
 
+    for geometry in compiled_payload.get("approach_geometries", []):
+        geometry_payload = geometry.get("geometry", {})
+        raw_coordinates = geometry_payload.get("coordinates", [])
+        if geometry_payload.get("type") == "LineString":
+            coordinates = raw_coordinates
+        elif geometry_payload.get("type") == "MultiLineString":
+            coordinates = [
+                coordinate
+                for line in raw_coordinates
+                for coordinate in line
+            ]
+        else:
+            coordinates = []
+        elevation_count = sum(
+            1
+            for coordinate in coordinates
+            if isinstance(coordinate, list)
+            and len(coordinate) >= 3
+            and to_float(coordinate[2]) is not None
+        )
+        elevation = geometry.get("elevation", {})
+        if (
+            elevation.get("status") == "complete"
+            and elevation_count != len(coordinates)
+        ):
+            add_finding(
+                findings,
+                "error",
+                "compiled_approach_elevation_incomplete",
+                "Compiled approach marks elevation complete but points are missing elevation.",
+                compiled_path,
+                approach_id=geometry.get("approach_id"),
+                coordinates=len(coordinates),
+                elevation_coordinates=elevation_count,
+            )
+
     return findings
 
 
@@ -1646,6 +1682,38 @@ def validate_spine_payload(
             "Spine geometry loaded.",
             path,
             coordinates=len(coordinates),
+        )
+
+    properties = line_features[0].get("properties", {})
+    elevation_count = sum(
+        1
+        for coordinate in coordinates
+        if isinstance(coordinate, list)
+        and len(coordinate) >= 3
+        and to_float(coordinate[2]) is not None
+    )
+    if (
+        properties.get("elevation_status") == "complete"
+        and elevation_count != len(coordinates)
+    ):
+        add_finding(
+            findings,
+            "error",
+            "spine_elevation_incomplete",
+            "Spine marks elevation complete but track points are missing elevation.",
+            path,
+            coordinates=len(coordinates),
+            elevation_coordinates=elevation_count,
+        )
+    elif elevation_count == len(coordinates) and coordinates:
+        add_finding(
+            findings,
+            "info",
+            "spine_elevation_summary",
+            "Spine source elevation is complete.",
+            path,
+            unit=properties.get("elevation_unit"),
+            elevation_coordinates=elevation_count,
         )
 
     return findings

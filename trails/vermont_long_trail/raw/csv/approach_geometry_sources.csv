@@ -1,0 +1,2 @@
+approach_id,geometry_id,source_path,source_feature_id,source_feature_title,source_kind,source_license_status,transformation_notes
+approach_north_adams,approach_north_adams_geometry_v1,raw/geojson/gaia_reference.geojson,399a680d-2d50-440e-a22a-c82fd457f3fd,North Adams Approach Trail,Maintainer-owned Gaia GPS route export,UNKNOWN — needs review,"Longitude, latitude, and source-embedded elevation coordinates only; source notes and non-geometry personal metadata are excluded from the compiled artifact."

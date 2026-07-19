@@ -25,6 +25,7 @@ REQUIRED_TOP_LEVEL_FIELDS = {
     "completion_analysis",
     "expedition_summary",
     "directional_access",
+    "required_anchors",
     "resupply_plan",
     "resupply_town_details",
     "selected_experiences",
@@ -44,6 +45,7 @@ MOBILE_REQUIRED_FIELDS = {
     "completion_analysis",
     "expedition_summary",
     "directional_access",
+    "required_anchors",
     "resupply_plan",
     "daily_plan",
     "warnings",
@@ -143,6 +145,11 @@ def test_plan_json_export_contains_versioned_contract(
     assert export["expedition_summary"]
     assert export["directional_access"]
     assert export["selected_experiences"]
+    assert export["user_profile"]["route_selection"] == {
+        "contract_version": "cairnos_route_selection_v1",
+        "ingress_approach_id": "approach_north_adams",
+        "egress_approach_id": "egress_journeys_end",
+    }
     assert any(
         warning["code"] == "alpha_advisory"
         for warning in export["warnings"]
