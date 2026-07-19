@@ -1,5 +1,6 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 
-fastapi
-uvicorn
+fastapi==0.138.0
+starlette==1.2.1
+uvicorn==0.49.0

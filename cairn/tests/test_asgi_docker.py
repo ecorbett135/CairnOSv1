@@ -7,8 +7,16 @@ from pathlib import Path
 def test_asgi_dockerfile_uses_narrow_api_requirements():
     dockerfile = Path("Dockerfile.asgi").read_text(encoding="utf-8")
 
+    assert "ARG RELEASE_PLATFORM=linux/amd64" in dockerfile
+    assert (
+        "FROM --platform=${RELEASE_PLATFORM} "
+        "python:3.11.15-slim-bookworm@sha256:"
+        "28255a3ace7eb4c48bc1b57b90af29e1bc82b4fd6c60614a8e3dce61b87ff941"
+        in dockerfile
+    )
     assert "requirements.api.txt" in dockerfile
     assert "requirements.txt" not in dockerfile
+    assert "--upgrade pip" not in dockerfile
     assert "cairn.api.asgi_app:app" in dockerfile
     assert "--host" in dockerfile
     assert "0.0.0.0" in dockerfile
@@ -18,9 +26,17 @@ def test_asgi_dockerfile_uses_narrow_api_requirements():
 
 def test_asgi_requirements_are_container_scoped():
     requirements = Path("requirements.api.txt").read_text(encoding="utf-8")
+    runtime_requirements = {
+        line
+        for line in requirements.splitlines()
+        if line and not line.startswith("#")
+    }
 
-    assert "fastapi" in requirements
-    assert "uvicorn" in requirements
+    assert runtime_requirements == {
+        "fastapi==0.138.0",
+        "starlette==1.2.1",
+        "uvicorn==0.49.0",
+    }
     assert "geopandas" not in requirements
     assert "rasterio" not in requirements
     assert "streamlit" not in requirements
