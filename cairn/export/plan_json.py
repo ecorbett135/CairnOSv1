@@ -255,8 +255,21 @@ def build_plan_export(
         "warnings": plan_warnings(),
     }
     if daily_plan:
+        from cairn.export.weather_location import (
+            build_planned_day_weather_locations,
+        )
         from cairn.export.route_gpx import (
             build_route_gpx_artifacts,
+        )
+
+        payload["planned_day_weather_locations"] = (
+            build_planned_day_weather_locations(
+                daily_plan,
+                trail_root,
+                trail_id=trail_id,
+                direction=config.get("direction"),
+                trip_type=config.get("trip_type"),
+            )
         )
 
         payload["route_gpx"] = build_route_gpx_artifacts(

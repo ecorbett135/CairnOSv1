@@ -1,0 +1,32 @@
+{
+  "contract_version": "cairnos_planned_day_weather_location_v1",
+  "plan_id": "cairnos-plan-example",
+  "trail_id": "vermont_long_trail",
+  "direction": "NOBO",
+  "location_semantic": "planned_daily_stop",
+  "coordinate_reference_system": "EPSG:4326",
+  "days": [
+    {
+      "day": 1,
+      "day_id": "cairnos-plan-example:day:1",
+      "location_role": "planned_daily_stop",
+      "authority": "cairnos_planned_itinerary",
+      "planned_stop": {"overlay_id": "overlay_0008", "canonical_location": "Seth Warner Shelter", "display_location": "Seth Warner Shelter", "location_type": "shelter", "trail_mile": 5.5},
+      "availability": "available",
+      "coordinates": {"latitude": 42.79804580776522, "longitude": -73.11836957931519, "coordinate_order": "latitude_longitude", "crs": "EPSG:4326"},
+      "provenance": {"coordinate_source": "overnight_reference_waypoint", "source_reference": "overlay_0008"},
+      "unavailable_reason": null
+    },
+    {
+      "day": 2,
+      "day_id": "cairnos-plan-example:day:2",
+      "location_role": "planned_daily_stop",
+      "authority": "cairnos_planned_itinerary",
+      "planned_stop": {"overlay_id": "overlay_missing", "canonical_location": "Unresolved planned camp", "display_location": "Unresolved planned camp", "location_type": "camp", "trail_mile": 12.0},
+      "availability": "unavailable",
+      "coordinates": null,
+      "provenance": null,
+      "unavailable_reason": "no_authoritative_planned_stop_coordinates"
+    }
+  ]
+}
