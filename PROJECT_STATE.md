@@ -83,6 +83,12 @@ Open-source, HikerLogix, and intellectual-property posture is documented in
   consumed by Platform and transition iOS import. Platform-owned
   `hikerlogix_current_plan_download_v1` and `hikerlogix_actuals_upload_v1` are
   downstream HikerLogix contracts, not CairnOS schemas.
+- The additive `cairnos_planned_day_weather_location_v1` section makes each
+  CairnOS-selected planned daily stop the authoritative foreground-weather
+  lookup location. It preserves explicit off-spine waypoint coordinates and
+  exports unavailable rather than interpolating or using device/route
+  geometry. Forecast-date availability remains separate, and forecasts are
+  never observations.
 
 ---
 
