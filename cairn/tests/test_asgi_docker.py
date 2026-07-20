@@ -7,11 +7,11 @@ from pathlib import Path
 def test_asgi_dockerfile_uses_narrow_api_requirements():
     dockerfile = Path("Dockerfile.asgi").read_text(encoding="utf-8")
 
-    assert "ARG RELEASE_PLATFORM=linux/amd64" in dockerfile
+    assert "ARG RELEASE_PLATFORM=linux/arm64" in dockerfile
     assert (
         "FROM --platform=${RELEASE_PLATFORM} "
         "python:3.11.15-slim-bookworm@sha256:"
-        "28255a3ace7eb4c48bc1b57b90af29e1bc82b4fd6c60614a8e3dce61b87ff941"
+        "b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba"
         in dockerfile
     )
     assert "requirements.api.txt" in dockerfile
@@ -46,7 +46,9 @@ def test_compose_exposes_local_cairnos_api_service():
     compose = Path("compose.yaml").read_text(encoding="utf-8")
 
     assert "cairnos-api:" in compose
+    assert "platform: linux/arm64" in compose
     assert "Dockerfile.asgi" in compose
+    assert "RELEASE_PLATFORM: linux/arm64" in compose
     assert '"8010:8010"' in compose
     assert "CAIRNOS_API_MAX_BODY_BYTES" in compose
     assert "CAIRNOS_BUILD_SHA" in compose
