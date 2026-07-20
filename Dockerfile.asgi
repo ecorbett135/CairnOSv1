@@ -1,8 +1,8 @@
 # Copyright 2026 Eric Corbett
 # SPDX-License-Identifier: Apache-2.0
 
-ARG RELEASE_PLATFORM=linux/amd64
-FROM --platform=${RELEASE_PLATFORM} python:3.11.15-slim-bookworm@sha256:28255a3ace7eb4c48bc1b57b90af29e1bc82b4fd6c60614a8e3dce61b87ff941
+ARG RELEASE_PLATFORM=linux/arm64
+FROM --platform=${RELEASE_PLATFORM} python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

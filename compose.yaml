@@ -3,9 +3,12 @@
 
 services:
   cairnos-api:
+    platform: linux/arm64
     build:
       context: .
       dockerfile: Dockerfile.asgi
+      args:
+        RELEASE_PLATFORM: linux/arm64
     image: cairnos-api:local
     environment:
       CAIRNOS_API_MAX_BODY_BYTES: "32768"
