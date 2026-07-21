@@ -121,6 +121,19 @@ PLAN_CONTROL_SPECS: tuple[dict[str, Any], ...] = (
         "step": 1,
     },
     {
+        "id": "nero_max_trail_miles",
+        "label": "Maximum Trail Miles for a Selected-Town Nero",
+        "input": "slider",
+        "value_type": "number",
+        "min": 1,
+        "max": 15,
+        "step": 0.5,
+        "required_when": {
+            "town_stop_intent": "nero",
+        },
+        "default": None,
+    },
+    {
         "id": "allow_extra_resupply_only",
         "label": "Allow Extra Resupply-Only Stops",
         "input": "checkbox",

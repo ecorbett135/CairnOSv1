@@ -247,6 +247,17 @@ def build_plan_export(
             "selected_experiences",
             [],
         ),
+        "town_stop_status": itinerary.get(
+            "town_stop_status",
+            {
+                "contract_version": "cairnos_town_stops_v1",
+                "semantics": "required_user_selected_town_stops",
+                "requested_town_stop_ids": [],
+                "satisfied_town_stop_ids": [],
+                "unsatisfied_town_stop_ids": [],
+                "stops": [],
+            },
+        ),
         "season_advisories": itinerary.get(
             "season_advisories",
             [],

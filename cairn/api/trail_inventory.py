@@ -34,6 +34,12 @@ SOURCE_ARTIFACTS = {
     "waypoint_reference": "trails/vermont_long_trail/compiled/waypoint_reference.json",
     "resupply_amenities": "trails/vermont_long_trail/raw/csv/resupply_amenities.csv",
     "side_trip_options": "trails/vermont_long_trail/raw/csv/side_trip_options.csv",
+    "town_experience_mappings": (
+        "trails/vermont_long_trail/raw/csv/town_experience_mappings.csv"
+    ),
+    "town_access_mappings": (
+        "trails/vermont_long_trail/raw/csv/town_access_mappings.csv"
+    ),
     "route_master": "trails/vermont_long_trail/raw/csv/route_master.csv",
 }
 
@@ -88,7 +94,11 @@ def build_trail_inventory_response(
     for item in _overlay_items(overlay_nodes, overnight_lookup, total_miles):
         _append_unique(items, seen_ids, item)
 
-    for item in _resupply_items(resupply_rows.values(), total_miles):
+    for item in _resupply_items(
+        resupply_rows.values(),
+        total_miles,
+        _town_access_relationships(LONG_TRAIL_ROOT),
+    ):
         _append_unique(items, seen_ids, item)
 
     for item in _side_trip_items(LONG_TRAIL_ROOT, resupply_rows, total_miles):
@@ -147,6 +157,15 @@ def build_trail_inventory_response(
                 sorted_items,
                 direction,
                 "resupply_stop",
+                route_extent,
+            ),
+        },
+        "town_stop_options": {
+            "contract_version": "cairnos_town_stop_options_v1",
+            "semantics": "towns_grouped_by_trail_exit_access",
+            "options": _town_stop_options(
+                sorted_items,
+                direction,
                 route_extent,
             ),
         },
@@ -304,6 +323,7 @@ def _overnight_item(
 def _resupply_items(
     rows: list[dict[str, str]],
     total_miles: Decimal,
+    access_relationships: dict[str, str],
 ) -> list[dict[str, Any]]:
     items = []
     for row in rows:
@@ -338,6 +358,8 @@ def _resupply_items(
         access_item["access"] = _access_metadata(row)
         access_item["resupply"] = _resupply_metadata(row)
         access_item["related_inventory_ids"] = town_ids
+        if access_id in access_relationships:
+            access_item["overlay_id"] = access_relationships[access_id]
         items.append(access_item)
 
         for town_name in _split_town_access_names(town_access):
@@ -357,6 +379,8 @@ def _resupply_items(
                 f"{canonical_hint}:{_format_mile(mile)}::{town_name}"
             )
             town_item["related_inventory_ids"] = [access_id]
+            if access_id in access_relationships:
+                town_item["access_overlay_id"] = access_relationships[access_id]
             items.append(town_item)
     return items
 
@@ -371,6 +395,7 @@ def _side_trip_items(
         return []
 
     items = []
+    relationships = _town_experience_relationships(trail_root)
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
@@ -394,6 +419,7 @@ def _side_trip_items(
                 source_artifacts=[
                     SOURCE_ARTIFACTS["side_trip_options"],
                     SOURCE_ARTIFACTS["resupply_amenities"],
+                    SOURCE_ARTIFACTS["town_experience_mappings"],
                 ],
                 selectable_as=["side_trip_preference"],
                 access_label=access_label,
@@ -408,8 +434,153 @@ def _side_trip_items(
                 "validation_date": _cell(row, "validation_date"),
             }
             item["planner_preference_id"] = side_trip_id
+            relationship = relationships.get(item["inventory_id"])
+            if relationship:
+                item["town_inventory_id"] = relationship["town_inventory_id"]
+                item["access_inventory_id"] = relationship["access_inventory_id"]
+                item["related_inventory_ids"] = [
+                    relationship["town_inventory_id"],
+                    relationship["access_inventory_id"],
+                ]
             items.append(item)
     return items
+
+
+def _town_experience_relationships(
+    trail_root: Path,
+) -> dict[str, dict[str, str]]:
+    path = trail_root / "raw" / "csv" / "town_experience_mappings.csv"
+    if not path.exists():
+        return {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        return {
+            _cell(row, "experience_inventory_id"): {
+                "town_inventory_id": _cell(row, "town_inventory_id"),
+                "access_inventory_id": _cell(row, "access_inventory_id"),
+            }
+            for row in csv.DictReader(handle)
+            if _cell(row, "experience_inventory_id")
+            and _cell(row, "town_inventory_id")
+            and _cell(row, "access_inventory_id")
+        }
+
+
+def _town_access_relationships(trail_root: Path) -> dict[str, str]:
+    path = trail_root / "raw" / "csv" / "town_access_mappings.csv"
+    if not path.exists():
+        return {}
+    with path.open(newline="", encoding="utf-8") as handle:
+        return {
+            _cell(row, "access_inventory_id"): _cell(row, "overlay_id")
+            for row in csv.DictReader(handle)
+            if _cell(row, "access_inventory_id") and _cell(row, "overlay_id")
+        }
+
+
+def _town_stop_options(
+    items: list[dict[str, Any]],
+    direction: str,
+    route_extent: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    items_by_id = {item["inventory_id"]: item for item in items}
+    experiences_by_town: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        town_id = item.get("town_inventory_id")
+        if item.get("kind") != "side_trip" or not town_id:
+            continue
+        experiences_by_town.setdefault(town_id, []).append(
+            {
+                "experience_inventory_id": item["inventory_id"],
+                "town_inventory_id": town_id,
+                "access_inventory_id": item["access_inventory_id"],
+                "name": item["display_name"],
+                "category": item["experience"].get("category"),
+                "estimated_time": item["experience"].get("estimated_time"),
+                "planning_notes": item["experience"].get("planning_notes"),
+                "validation_status": item["experience"].get("validation_status"),
+                "validation_date": item["experience"].get("validation_date"),
+            }
+        )
+
+    options: list[dict[str, Any]] = []
+    for town in items:
+        if town.get("kind") != "town":
+            continue
+        if route_extent is not None and not mile_inside_extent(
+            float(town["canonical_mile"]), route_extent
+        ):
+            continue
+        access_id = next(
+            (
+                related_id
+                for related_id in town.get("related_inventory_ids", [])
+                if items_by_id.get(related_id, {}).get("kind") == "access_point"
+            ),
+            None,
+        )
+        if access_id is None:
+            continue
+        access_item = items_by_id[access_id]
+        experiences = sorted(
+            experiences_by_town.get(town["inventory_id"], []),
+            key=lambda item: item["experience_inventory_id"],
+        )
+        supported_intents = ["resupply", "nero"]
+        if town.get("resupply", {}).get("zero_candidate"):
+            supported_intents.append("zero")
+        if experiences:
+            supported_intents.append("experience")
+        nobo_mile = town["directional_miles"]["NOBO"]
+        sobo_mile = town["directional_miles"]["SOBO"]
+        option_access = {
+            key: value
+            for key, value in town.get("access", {}).items()
+            if key != "town_access"
+        }
+        option_access["town_name"] = town["display_name"]
+        option = {
+            "town_inventory_id": town["inventory_id"],
+            "town_name": town["display_name"],
+            "access_inventory_id": access_id,
+            "access_name": access_item["display_name"],
+            "access_overlay_id": access_item.get("overlay_id"),
+            "canonical_mile": town["canonical_mile"],
+            "directional_miles": dict(town["directional_miles"]),
+            "directional_mile": town["directional_miles"][direction],
+            "labels": {
+                "NOBO": (
+                    f"[NOBO Trail Mile {nobo_mile}] {town['display_name']} "
+                    f"via {access_item['display_name']}"
+                ),
+                "SOBO": (
+                    f"[SOBO Trail Mile {sobo_mile}] {town['display_name']} "
+                    f"via {access_item['display_name']}"
+                ),
+            },
+            "access": option_access,
+            "services": list(town.get("resupply", {}).get("services", [])),
+            "zero_candidate": bool(
+                town.get("resupply", {}).get("zero_candidate")
+            ),
+            "supported_intents": supported_intents,
+            "experiences": experiences,
+        }
+        if route_extent is not None:
+            option["section_relative_mile"] = round(
+                abs(
+                    float(town["canonical_mile"])
+                    - float(route_extent["canonical_start_mile"])
+                ),
+                1,
+            )
+        options.append(option)
+    return sorted(
+        options,
+        key=lambda option: (
+            float(option["directional_mile"]),
+            option["town_inventory_id"],
+        ),
+    )
 
 
 def _base_item(
