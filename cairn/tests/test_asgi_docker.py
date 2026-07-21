@@ -35,7 +35,7 @@ def test_asgi_requirements_are_container_scoped():
     assert runtime_requirements == {
         "fastapi==0.138.0",
         "starlette==1.2.1",
-        "uvicorn==0.49.0",
+        "uvicorn==0.51.0",
     }
     assert "geopandas" not in requirements
     assert "rasterio" not in requirements
