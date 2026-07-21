@@ -1,0 +1,15 @@
+{
+  "contract_version": "cairnos_town_stop_options_v1",
+  "semantics": "towns_grouped_by_trail_exit_access",
+  "option": {
+    "town_inventory_id": "vermont_long_trail:town:vt_17:162.9:waitsfield",
+    "town_name": "Waitsfield",
+    "access_inventory_id": "vermont_long_trail:access:vt_17:162.9",
+    "access_name": "Vt. 17",
+    "access_overlay_id": "overlay_0147",
+    "canonical_mile": 162.9,
+    "directional_miles": {"NOBO": 162.9, "SOBO": 109.2},
+    "supported_intents": ["resupply", "nero", "zero", "experience"],
+    "experience_inventory_id": "vermont_long_trail:side_trip:lawsons_finest_taproom"
+  }
+}

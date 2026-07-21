@@ -267,12 +267,17 @@ def request_too_large_response() -> HTTPContractResponse:
 
 
 def validation_error_response(error: PlanAPIValidationError) -> HTTPContractResponse:
+    payload: dict[str, Any] = {
+        "error": "validation_error",
+        "message": str(error),
+    }
+    if error.code != "validation_error":
+        payload["code"] = error.code
+    if error.context:
+        payload["context"] = error.context
     return json_response(
         400,
-        {
-            "error": "validation_error",
-            "message": str(error),
-        },
+        payload,
     )
 
 

@@ -8,6 +8,10 @@ from typing import Any
 
 from cairn.api.planning_anchors import resolve_required_anchor_contract
 from cairn.api.plan_request import PlanAPIRequest
+from cairn.api.town_stops import (
+    apply_town_stop_contract,
+    resolve_town_stop_contract,
+)
 from cairn.export.plan_json import build_plan_export
 from cairn.export.route_geometry import RouteGeometryValidationError
 from cairn.planner.anchors import RequiredPlanningAnchorError
@@ -23,6 +27,7 @@ def build_plan_response(
     request = PlanAPIRequest.from_payload(payload)
     planner_config = request.to_planner_config()
     required_anchor_contract = resolve_required_anchor_contract(request)
+    town_stop_contract = resolve_town_stop_contract(request)
     planner = PlannerV2(
         trail_root=planner_config["trail_root"],
         user_profile={
@@ -55,6 +60,12 @@ def build_plan_response(
             "_required_resupply_anchors": required_anchor_contract[
                 "required_resupply_anchors"
             ],
+            "_town_stop_overnight_anchors": town_stop_contract[
+                "required_overnight_anchors"
+            ],
+            "_town_stop_resupply_anchors": town_stop_contract[
+                "required_resupply_anchors"
+            ],
             "route_extent": planner_config["route_extent"],
             "access_point_anchors": planner_config["access_point_anchors"],
             "convenient_resupply_distance_miles": planner_config[
@@ -66,6 +77,8 @@ def build_plan_response(
             "egress_route": planner_config["egress_route"],
             "route_selection": planner_config["route_selection"],
             "start_date": planner_config["start_date"],
+            "town_stop_selections": planner_config["town_stop_selections"],
+            "nero_max_trail_miles": planner_config["nero_max_trail_miles"],
         },
     )
     try:
@@ -75,7 +88,19 @@ def build_plan_response(
     except (RequiredPlanningAnchorError, AccessPointAnchorError) as error:
         from cairn.api.plan_request import PlanAPIValidationError
 
+        if request.town_stop_selections:
+            raise PlanAPIValidationError(
+                "A selected town stop could not be included with the current itinerary.",
+                code="town_stop_infeasible",
+                context={"constraint": "planner_required_stop"},
+            ) from None
         raise PlanAPIValidationError(str(error)) from None
+    itinerary = apply_town_stop_contract(
+        itinerary,
+        town_stop_contract,
+        nero_max_trail_miles=request.nero_max_trail_miles,
+        planned_start_date=request.planned_start_date,
+    )
     planner_result = {
         "config": planner_config,
         "itinerary": itinerary,
