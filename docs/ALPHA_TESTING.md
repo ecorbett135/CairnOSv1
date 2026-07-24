@@ -54,8 +54,8 @@ feedback-system secrets to the repository.
 
 ## Runtime Data Package
 
-The hosted Streamlit app does not need the topology compiler or full raw source
-dataset. Runtime planning currently requires:
+The hosted Streamlit app does not need the separately maintained topology
+builder or full raw source dataset. Runtime planning currently requires:
 
 - `cairn/`
 - `cairn/interfaces/streamlit_app.py`
@@ -67,12 +67,12 @@ dataset. Runtime planning currently requires:
 
 The hosted Alpha should not need:
 
-- `build_topo/`
+- separately maintained topology-builder source
 - `trails/vermont_long_trail/raw/shp/`
 - raw DEM files
 - raw Gaia/shelter/campsite source GeoJSON
 - intermediate compiler outputs
-- topology compiler dependencies such as `geopandas`, `fiona`, `pyproj`, or
+- topology-builder dependencies such as `geopandas`, `fiona`, `pyproj`, or
   `rasterio`
 
 Do not upload private tester data, proprietary route exports, unreviewed

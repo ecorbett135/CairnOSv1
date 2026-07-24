@@ -147,18 +147,17 @@ The planner should:
 
 # Current Runtime Architecture
 
-## build_topo/
+## Compiled Trail Package Production
 
-Responsible for:
+The topology-building implementation is maintained separately from the public
+CairnOS runtime repository. That toolchain is responsible for topology
+compilation, terrain segmentation, operational overlays, logistics nodes,
+crossings, graph substrate generation, schema registry generation, and
+build-time validation.
 
-- topology compilation
-- terrain segmentation
-- operational overlay generation
-- logistics node generation
-- crossings generation
-- graph substrate generation
-- schema registry generation
-- validation pipeline
+The public repository retains the promoted trail inputs and compiled runtime
+artifacts consumed by PlannerV2, Streamlit, tests, and the Plan API. Runtime
+code must not import or invoke the separate builder.
 
 Key Outputs:
 

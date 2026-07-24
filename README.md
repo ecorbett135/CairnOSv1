@@ -164,9 +164,9 @@ data is currently:
 - `trails/vermont_long_trail/raw/csv/town_lodging_options.csv`
 - `trails/vermont_long_trail/raw/csv/side_trip_options.csv`
 
-The topology compiler, raw SHP/DEM inputs, raw enrichment exports, and
-build-time GIS dependencies are development assets and should not be treated as
-hosted Alpha runtime requirements.
+The separately maintained topology-builder toolchain, raw SHP/DEM inputs, raw
+enrichment exports, and build-time GIS dependencies are development assets and
+should not be treated as hosted Alpha runtime requirements.
 
 ## What it does today
 
@@ -276,7 +276,6 @@ roadmap decisions are tracked in `docs/RESEARCH_LOG.md`.
 
 ## Project structure
 
-- `build_topo/` — topology compiler and operational graph generation
 - `cairn/runtime/` — runtime graph loading, traversal semantics, operational queries
 - `cairn/planner/` — `PlannerV2` facade plus terrain, logistics, and itinerary helper modules
 - `cairn/validation/` — reusable itinerary validation helpers
@@ -285,6 +284,10 @@ roadmap decisions are tracked in `docs/RESEARCH_LOG.md`.
 - `docs/` — documentation assets and provenance/licensing notes
 - `trails/vermont_long_trail/` — sample trail dataset and compiled outputs
 - `cairn/tests/` — automated tests for planner and runtime behavior
+
+Compiled trail packages are produced by a separately maintained topology
+builder. The public runtime repository retains the promoted inputs and compiled
+artifacts but does not contain or invoke that builder.
 
 ## Streamlit UI
 
@@ -562,13 +565,7 @@ Optional Gaia-exported waypoint data can be stored at:
 trails/vermont_long_trail/raw/geojson/gaia_reference.geojson
 ```
 
-The standalone compiler stub:
-
-```text
-build_topo/compiler/gaia_reference_overlay.py
-```
-
-parses Point features into:
+The separately maintained topology builder parses Point features into:
 
 ```text
 trails/vermont_long_trail/compiled/waypoint_reference.json
@@ -585,13 +582,7 @@ trails/vermont_long_trail/raw/geojson/shelters.geojson
 trails/vermont_long_trail/raw/geojson/campsites.geojson
 ```
 
-The overnight reference compiler:
-
-```text
-build_topo/compiler/overnight_reference.py
-```
-
-produces:
+The separately maintained topology builder produces:
 
 ```text
 trails/vermont_long_trail/compiled/overnight_reference.json
@@ -653,10 +644,11 @@ amenity is compiled into structured metadata.
 - Overnight reference data can add planner stop candidates only after matching,
   spine-distance checks, and provenance review.
 - Existing code still reads trail datasets from `trails/`; do not move those files without compatibility shims and tests.
-- The build pipeline is responsible for generating terrain and operational graph artifacts, not the planner itself.
+- The separately maintained build pipeline is responsible for generating
+  terrain and operational graph artifacts, not the planner itself.
 - Hosted Alpha deployments should rely on compiled runtime artifacts and the
   small raw CSV files listed in `docs/ALPHA_TESTING.md`, not the full
-  build/topology source dataset.
+  topology-builder source dataset.
 - SECTION planning is intentionally hidden from the Streamlit menu while the
   promoted Plan API serves access-ID-bounded SECTION extents for HikerLogix.
 - See `docs/MVP_ROADMAP.md` before starting data quality, mile-system,
