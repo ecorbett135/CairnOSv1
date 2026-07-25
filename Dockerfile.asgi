@@ -2,15 +2,33 @@
 # SPDX-License-Identifier: Apache-2.0
 
 ARG RELEASE_PLATFORM=linux/arm64
-FROM --platform=${RELEASE_PLATFORM} python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+FROM --platform=${RELEASE_PLATFORM} python:3.11.15-alpine3.23@sha256:f73754c398b259dfbbe482361dca8b464dea57da74efe5214966ca2ee767ee12
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+RUN apk add --no-cache --virtual .cairnos-python-rundeps \
+        so:libbz2.so.1 \
+        so:libcrypto.so.3 \
+        so:libffi.so.8 \
+        so:libgdbm.so.6 \
+        so:libgdbm_compat.so.4 \
+        so:liblzma.so.5 \
+        so:libncursesw.so.6 \
+        so:libnsl.so.3 \
+        so:libpanelw.so.6 \
+        so:libreadline.so.8 \
+        so:libssl.so.3 \
+        so:libtirpc.so.3 \
+        so:libuuid.so.1 \
+        so:libz.so.1 \
+    && apk del .python-rundeps
+
 COPY requirements.api.txt /app/requirements.api.txt
-RUN python -m pip install --no-cache-dir -r /app/requirements.api.txt
+RUN python -m pip install --no-cache-dir -r /app/requirements.api.txt \
+    && python -m pip uninstall --yes setuptools wheel
 
 COPY . /app
 
