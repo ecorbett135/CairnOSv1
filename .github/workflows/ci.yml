@@ -38,7 +38,7 @@ jobs:
         run: git diff --check
 
       - name: Compile Python modules
-        run: python -m compileall -q dev.py cairn build_topo
+        run: python -m compileall -q dev.py cairn
 
       - name: Run scenario smoke test
         run: python dev.py
