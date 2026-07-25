@@ -10,13 +10,16 @@ def test_asgi_dockerfile_uses_narrow_api_requirements():
     assert "ARG RELEASE_PLATFORM=linux/arm64" in dockerfile
     assert (
         "FROM --platform=${RELEASE_PLATFORM} "
-        "python:3.11.15-slim-bookworm@sha256:"
-        "b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba"
+        "python:3.11.15-alpine3.23@sha256:"
+        "f73754c398b259dfbbe482361dca8b464dea57da74efe5214966ca2ee767ee12"
         in dockerfile
     )
+    assert "apk del .python-rundeps" in dockerfile
+    assert "so:libsqlite3.so.0" not in dockerfile
     assert "requirements.api.txt" in dockerfile
     assert "requirements.txt" not in dockerfile
     assert "--upgrade pip" not in dockerfile
+    assert "pip uninstall --yes setuptools wheel" in dockerfile
     assert "cairn.api.asgi_app:app" in dockerfile
     assert "--host" in dockerfile
     assert "0.0.0.0" in dockerfile
