@@ -98,6 +98,11 @@ The body must be a JSON object with the MVP Long Trail planning fields:
 | `required_overnight_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `overnight_stop`; default `[]` |
 | `required_resupply_anchor_ids` | array of strings | Optional ordered `inventory_id` values selectable as `resupply_stop`; default `[]` |
 | `planned_start_date` | string or null | Optional advisory start date |
+| `town_stop_selections` | array of objects | Optional stable-ID required town-stop selections |
+| `nero_max_trail_miles` | number | Required only for selected-town `nero`; user-selected and intentionally has no CairnOS default |
+
+Unified town-stop request, validation, failure, zero/nero, and satisfaction
+semantics are documented in `docs/TOWN_STOP_CONTRACT.md`.
 
 `route_selection` is the additive geometry/traversal selection contract:
 

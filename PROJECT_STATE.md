@@ -83,6 +83,12 @@ Open-source, HikerLogix, and intellectual-property posture is documented in
   consumed by Platform and transition iOS import. Platform-owned
   `hikerlogix_current_plan_download_v1` and `hikerlogix_actuals_upload_v1` are
   downstream HikerLogix contracts, not CairnOS schemas.
+- The additive `cairnos_planned_day_weather_location_v1` section makes each
+  CairnOS-selected planned daily stop the authoritative foreground-weather
+  lookup location. It preserves explicit off-spine waypoint coordinates and
+  exports unavailable rather than interpolating or using device/route
+  geometry. Forecast-date availability remains separate, and forecasts are
+  never observations.
 
 ---
 
@@ -141,18 +147,17 @@ The planner should:
 
 # Current Runtime Architecture
 
-## build_topo/
+## Compiled Trail Package Production
 
-Responsible for:
+The topology-building implementation is maintained separately from the public
+CairnOS runtime repository. That toolchain is responsible for topology
+compilation, terrain segmentation, operational overlays, logistics nodes,
+crossings, graph substrate generation, schema registry generation, and
+build-time validation.
 
-- topology compilation
-- terrain segmentation
-- operational overlay generation
-- logistics node generation
-- crossings generation
-- graph substrate generation
-- schema registry generation
-- validation pipeline
+The public repository retains the promoted trail inputs and compiled runtime
+artifacts consumed by PlannerV2, Streamlit, tests, and the Plan API. Runtime
+code must not import or invoke the separate builder.
 
 Key Outputs:
 

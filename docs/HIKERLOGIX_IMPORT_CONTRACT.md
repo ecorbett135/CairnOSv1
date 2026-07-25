@@ -40,6 +40,10 @@ HikerLogix v1 import should require these top-level sections:
 Optional additive sections such as `route_extent`, `access_point_anchors`,
 `required_anchors`, `resupply_town_details`, `selected_experiences`, and
 `season_advisories` should be displayed when present but must not block import.
+The additive `planned_day_weather_locations` section is the authoritative
+per-itinerary-day planned-stop coordinate contract and must be preserved
+unchanged. Exact semantics and unavailable behavior are documented in
+`docs/PLANNED_DAY_WEATHER_LOCATION_CONTRACT.md`.
 Exact SECTION handling is documented in
 `docs/SECTION_ACCESS_POINT_CONTRACT.md`.
 
@@ -52,6 +56,9 @@ Exact SECTION handling is documented in
   CairnOS plan rows.
 - HikerLogix must not treat the plan as navigation, emergency, weather, water,
   closure, medical, or official guidebook authority.
+- Forecast availability for a planned date is separate from coordinate
+  availability, and forecasts must never be treated as observed conditions or
+  user-owned actuals.
 - Gaia GeoJSON remains a separate navigation-tool export and is not the mobile
   plan contract.
 

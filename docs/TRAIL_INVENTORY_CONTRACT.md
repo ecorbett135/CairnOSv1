@@ -28,6 +28,11 @@ GET /v1/trail-inventory?direction=SOBO
 The Plan API remains the auto-build endpoint. Trail inventory is for manual
 selection, validation handoff, and display-label durability.
 
+The response also contains the additive grouped `town_stop_options` contract,
+versioned as `cairnos_town_stop_options_v1`. See
+`docs/TOWN_STOP_CONTRACT.md` for the direction-aware display-mile rule,
+section filtering, explicit experience relationships, and client obligations.
+
 ## Authority Boundary
 
 CairnOS owns:

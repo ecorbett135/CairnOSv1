@@ -588,7 +588,7 @@ Avoid tightly coupling:
 
 - Streamlit UI
 - planner internals
-- topology compiler internals
+- separately maintained topology-builder internals
 
 through brittle assumptions.
 

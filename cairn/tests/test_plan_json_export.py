@@ -140,6 +140,21 @@ def test_plan_json_export_contains_versioned_contract(
         == "[redacted_path]"
     )
     assert export["daily_plan"]
+    weather_locations = export[
+        "planned_day_weather_locations"
+    ]
+    assert weather_locations["contract_version"] == (
+        "cairnos_planned_day_weather_location_v1"
+    )
+    assert len(weather_locations["days"]) == len(
+        export["daily_plan"]
+    )
+    assert all(
+        row["day_id"].startswith(
+            f"{weather_locations['plan_id']}:day:"
+        )
+        for row in weather_locations["days"]
+    )
     assert export["resupply_plan"]
     assert export["completion_analysis"]
     assert export["expedition_summary"]

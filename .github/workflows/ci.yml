@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -38,7 +38,7 @@ jobs:
         run: git diff --check
 
       - name: Compile Python modules
-        run: python -m compileall -q dev.py cairn build_topo
+        run: python -m compileall -q dev.py cairn
 
       - name: Run scenario smoke test
         run: python dev.py

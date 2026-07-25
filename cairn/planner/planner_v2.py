@@ -255,6 +255,13 @@ class PlannerV2:
 
         self.planning_required_overnight_anchors = [
             *self.required_overnight_anchors,
+            *list(
+                self.user_profile.get(
+                    "_town_stop_overnight_anchors",
+                    [],
+                )
+                or []
+            ),
             *[
                 {
                     "inventory_id": anchor["access_id"],
@@ -268,6 +275,13 @@ class PlannerV2:
 
         self.planning_required_resupply_anchors = [
             *self.required_resupply_anchors,
+            *list(
+                self.user_profile.get(
+                    "_town_stop_resupply_anchors",
+                    [],
+                )
+                or []
+            ),
             *[
                 {
                     "inventory_id": anchor["access_id"],

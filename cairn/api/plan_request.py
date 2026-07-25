@@ -51,6 +51,17 @@ VALID_EGRESS_ROUTES_BY_DIRECTION = {
 class PlanAPIValidationError(ValueError):
     """Raised when a Plan API request payload is invalid."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "validation_error",
+        context: Mapping[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.context = dict(context or {})
+
 
 @dataclass(frozen=True)
 class PlanAPIRequest:
@@ -86,6 +97,8 @@ class PlanAPIRequest:
     access_point_anchors: tuple[dict[str, Any], ...] = ()
     route_selection: dict[str, str] | None = None
     planned_start_date: str | None = None
+    town_stop_selections: tuple[dict[str, Any], ...] = ()
+    nero_max_trail_miles: float | None = None
 
     @classmethod
     def from_payload(cls, payload: Mapping[str, Any]) -> PlanAPIRequest:
@@ -259,6 +272,21 @@ class PlanAPIRequest:
             payload,
             "required_resupply_anchor_ids",
         )
+        town_stop_selections = _payload_town_stop_selections(payload)
+        has_selected_nero = any(
+            "nero" in selection["intents"]
+            for selection in town_stop_selections
+        )
+        nero_max_trail_miles = None
+        if "nero_max_trail_miles" in payload:
+            nero_max_trail_miles = _payload_optional_control_number(
+                payload,
+                "nero_max_trail_miles",
+            )
+        if has_selected_nero and nero_max_trail_miles is None:
+            raise PlanAPIValidationError(
+                "nero_max_trail_miles is required when a town stop has nero intent"
+            )
 
         try:
             route_extent = normalize_route_extent(
@@ -325,6 +353,8 @@ class PlanAPIRequest:
             access_point_anchors=access_point_anchors,
             route_selection=route_selection,
             planned_start_date=planned_start_date,
+            town_stop_selections=town_stop_selections,
+            nero_max_trail_miles=nero_max_trail_miles,
         )
 
     def to_planner_config(self) -> dict[str, Any]:
@@ -368,6 +398,17 @@ class PlanAPIRequest:
             "egress_route": self.egress_route,
             "route_selection": dict(self.route_selection or {}),
             "start_date": self.planned_start_date,
+            "town_stop_selections": [
+                {
+                    **selection,
+                    "intents": list(selection["intents"]),
+                    "experience_inventory_ids": list(
+                        selection["experience_inventory_ids"]
+                    ),
+                }
+                for selection in self.town_stop_selections
+            ],
+            "nero_max_trail_miles": self.nero_max_trail_miles,
         }
 
 
@@ -428,6 +469,109 @@ def _payload_control_number(
             f"{field_name} must be between {spec['min']:g} and {spec['max']:g}"
         )
     return parsed
+
+
+def _payload_optional_control_number(
+    payload: Mapping[str, Any],
+    field_name: str,
+) -> float:
+    spec = plan_control_spec(field_name)
+    parsed = _validate_number(payload[field_name], field_name)
+    if not spec["min"] <= parsed <= spec["max"]:
+        raise PlanAPIValidationError(
+            f"{field_name} must be between {spec['min']:g} and {spec['max']:g}"
+        )
+    return parsed
+
+
+def _payload_town_stop_selections(
+    payload: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    value = payload.get("town_stop_selections", [])
+    if not isinstance(value, list):
+        raise PlanAPIValidationError("town_stop_selections must be a list")
+    valid_intents = {"resupply", "zero", "nero", "experience"}
+    selections: list[dict[str, Any]] = []
+    seen_towns: set[str] = set()
+    seen_experiences: set[str] = set()
+    for index, item in enumerate(value):
+        if not isinstance(item, Mapping):
+            raise PlanAPIValidationError(
+                f"town_stop_selections[{index}] must be an object"
+            )
+        town_id = item.get("town_inventory_id")
+        intents = item.get("intents")
+        experience_ids = item.get("experience_inventory_ids", [])
+        if not isinstance(town_id, str) or not town_id.strip():
+            raise PlanAPIValidationError(
+                f"town_stop_selections[{index}].town_inventory_id must be a string"
+            )
+        town_id = town_id.strip()
+        if town_id in seen_towns:
+            raise PlanAPIValidationError(
+                f"town_stop_selections contains duplicate town_inventory_id: {town_id}"
+            )
+        seen_towns.add(town_id)
+        if not isinstance(intents, list) or not intents:
+            raise PlanAPIValidationError(
+                f"town_stop_selections[{index}].intents must be a non-empty list"
+            )
+        normalized_intents: list[str] = []
+        for intent in intents:
+            if not isinstance(intent, str) or intent not in valid_intents:
+                raise PlanAPIValidationError(
+                    "town stop intents must be one of: experience, nero, resupply, zero"
+                )
+            if intent in normalized_intents:
+                raise PlanAPIValidationError(
+                    f"town_stop_selections[{index}].intents contains duplicate: {intent}"
+                )
+            normalized_intents.append(intent)
+        if not isinstance(experience_ids, list):
+            raise PlanAPIValidationError(
+                f"town_stop_selections[{index}].experience_inventory_ids must be a list"
+            )
+        normalized_experiences: list[str] = []
+        for experience_id in experience_ids:
+            if not isinstance(experience_id, str) or not experience_id.strip():
+                raise PlanAPIValidationError(
+                    "experience_inventory_ids must contain non-empty strings"
+                )
+            experience_id = experience_id.strip()
+            if experience_id in seen_experiences:
+                raise PlanAPIValidationError(
+                    f"town_stop_selections contains duplicate experience_inventory_id: {experience_id}"
+                )
+            seen_experiences.add(experience_id)
+            normalized_experiences.append(experience_id)
+        if normalized_experiences and "experience" not in normalized_intents:
+            raise PlanAPIValidationError(
+                "experience_inventory_ids require the experience intent"
+            )
+        if "experience" in normalized_intents and not normalized_experiences:
+            raise PlanAPIValidationError(
+                "experience intent requires at least one experience_inventory_id"
+            )
+        selections.append(
+            {
+                "town_inventory_id": town_id,
+                "intents": tuple(normalized_intents),
+                "experience_inventory_ids": tuple(normalized_experiences),
+            }
+        )
+    if selections and any(
+        payload.get(field_name)
+        for field_name in (
+            "selected_town_ids",
+            "selected_side_trip_ids",
+            "required_resupply_anchor_ids",
+        )
+    ):
+        raise PlanAPIValidationError(
+            "town_stop_selections cannot be combined with legacy town, side-trip, "
+            "or required-resupply selections"
+        )
+    return tuple(selections)
 
 
 def _target_count_value(
