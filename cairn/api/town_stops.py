@@ -23,6 +23,12 @@ def resolve_town_stop_contract(request: PlanAPIRequest) -> dict[str, Any]:
         end_access_id=request.end_access_id if request.trip_type == "SECTION" else None,
     )
     options = inventory["town_stop_options"]["options"]
+    route_extent = inventory.get("route_extent")
+    endpoint_total_miles = float(
+        route_extent["distance_miles"]
+        if route_extent
+        else inventory["direction_model"]["trail_total_miles"]
+    )
     options_by_town = {option["town_inventory_id"]: option for option in options}
     resolved: list[dict[str, Any]] = []
     access_to_town: dict[str, str] = {}
@@ -72,7 +78,19 @@ def resolve_town_stop_contract(request: PlanAPIRequest) -> dict[str, Any]:
                 },
             )
         access_to_town[access_id] = town_id
-        resolved.append({**selection, **option})
+        endpoint_mile = float(
+            option.get("section_relative_mile", option["directional_mile"])
+        )
+        resolved.append(
+            {
+                **selection,
+                **option,
+                "_route_endpoint": (
+                    endpoint_mile <= 0
+                    or endpoint_mile >= endpoint_total_miles
+                ),
+            }
+        )
 
     resolved.sort(
         key=lambda item: (float(item["directional_mile"]), item["town_inventory_id"])
@@ -100,6 +118,13 @@ def resolve_town_stop_contract(request: PlanAPIRequest) -> dict[str, Any]:
             "town_stop": True,
         }
         for item in resolved
+        if (
+            not item["_route_endpoint"]
+            and any(
+                intent in {"zero", "nero", "experience"}
+                for intent in item["intents"]
+            )
+        )
     ]
     return {
         "contract_version": TOWN_STOP_OPTIONS_VERSION,
@@ -131,30 +156,40 @@ def apply_town_stop_contract(
             row for row in daily_plan
             if row.get("required_overnight_anchor_id") == town_id
         ]
-        if len(matching_days) != 1:
-            raise _infeasible(selection, "required_stop_exactly_once")
-        day_row = matching_days[0]
-        planned_day = int(day_row["day"])
         matching_resupply = [
             row for row in resupply_plan if row.get("required_anchor_id") == town_id
         ]
         if "resupply" in selection["intents"] and len(matching_resupply) != 1:
             raise _infeasible(selection, "resupply_exactly_once")
+        matched_at_start = False
+        if len(matching_days) == 1:
+            day_row = matching_days[0]
+        elif selection.get("_route_endpoint"):
+            day_row, matched_at_start = _endpoint_day(daily_plan, selection)
+            if day_row is None:
+                raise _infeasible(selection, "route_endpoint_once")
+        elif set(selection["intents"]) == {"resupply"} and len(matching_resupply) == 1:
+            resupply_day = int(matching_resupply[0]["day"])
+            day_row = next(
+                (row for row in daily_plan if int(row["day"]) == resupply_day),
+                None,
+            )
+            if day_row is None:
+                raise _infeasible(selection, "resupply_day_once")
+        else:
+            raise _infeasible(selection, "required_stop_exactly_once")
+        planned_day = int(day_row["day"])
         intents = list(selection["intents"])
+        preference_exceeded = False
         if "nero" in intents:
             miles = float(day_row.get("daily_miles") or 0)
-            if nero_max_trail_miles is None or miles > nero_max_trail_miles:
-                raise PlanAPIValidationError(
-                    f"{selection['town_name']} cannot be reached within the selected nero mileage.",
-                    code="town_stop_nero_infeasible",
-                    context={
-                        "town_inventory_id": town_id,
-                        "access_inventory_id": selection["access_inventory_id"],
-                        "planned_trail_miles": miles,
-                        "nero_max_trail_miles": nero_max_trail_miles,
-                    },
-                )
+            preference_exceeded = bool(
+                nero_max_trail_miles is not None
+                and miles > nero_max_trail_miles
+            )
             day_row["town_stop_nero"] = True
+            day_row["town_stop_nero_max_trail_miles"] = nero_max_trail_miles
+            day_row["town_stop_nero_preference_exceeded"] = preference_exceeded
         day_row["town_stop_inventory_id"] = town_id
         day_row["town_stop_intents"] = intents
         day_row["town_stop_experience_inventory_ids"] = list(
@@ -169,18 +204,30 @@ def apply_town_stop_contract(
         if selected_experience_names:
             day_row["selected_side_trips"] = "; ".join(selected_experience_names)
         if "zero" in intents:
-            zero_insertions.append((daily_plan.index(day_row) + 1, _zero_row(day_row, selection)))
-        statuses.append(
-            {
-                "town_inventory_id": town_id,
-                "access_inventory_id": selection["access_inventory_id"],
-                "planned_day": planned_day,
-                "planned_date": day_row.get("date"),
-                "intents": intents,
-                "experience_inventory_ids": list(selection["experience_inventory_ids"]),
-                "status": "satisfied",
-            }
-        )
+            zero_insertions.append(
+                (
+                    daily_plan.index(day_row) + (0 if matched_at_start else 1),
+                    _zero_row(day_row, selection, at_start=matched_at_start),
+                )
+            )
+        status = {
+            "town_inventory_id": town_id,
+            "access_inventory_id": selection["access_inventory_id"],
+            "planned_day": planned_day,
+            "planned_date": day_row.get("date"),
+            "intents": intents,
+            "experience_inventory_ids": list(selection["experience_inventory_ids"]),
+            "status": "satisfied",
+        }
+        if "nero" in intents:
+            status.update(
+                {
+                    "planned_trail_miles": float(day_row.get("daily_miles") or 0),
+                    "nero_max_trail_miles": nero_max_trail_miles,
+                    "nero_preference_exceeded": preference_exceeded,
+                }
+            )
+        statuses.append(status)
 
     for index, row in reversed(zero_insertions):
         daily_plan.insert(index, row)
@@ -205,8 +252,41 @@ def _planner_node_id(option: dict[str, Any]) -> str:
     return f"{label}:{float(option['canonical_mile']):.1f}"
 
 
-def _zero_row(day_row: dict[str, Any], selection: dict[str, Any]) -> dict[str, Any]:
+def _endpoint_day(
+    daily_plan: list[dict[str, Any]],
+    selection: dict[str, Any],
+) -> tuple[dict[str, Any] | None, bool]:
+    mile = float(selection["canonical_mile"])
+    for row in daily_plan:
+        if abs(float(row.get("daily_start_mile") or 0) - mile) <= 0.15:
+            return row, True
+        if abs(float(row.get("daily_stop_mile") or 0) - mile) <= 0.15:
+            return row, False
+    return None, False
+
+
+def _zero_row(
+    day_row: dict[str, Any],
+    selection: dict[str, Any],
+    *,
+    at_start: bool = False,
+) -> dict[str, Any]:
     row = dict(day_row)
+    if at_start:
+        mile = float(selection["canonical_mile"])
+        location = selection["access_name"]
+        row.update(
+            {
+                "daily_start_mile": mile,
+                "daily_start_location": location,
+                "daily_start_canonical_location": location,
+                "daily_stop_mile": mile,
+                "daily_stop_location": location,
+                "daily_stop_canonical_location": location,
+                "daily_stop_location_type": "town",
+                "town_access": selection["town_name"],
+            }
+        )
     row.update(
         {
             "daily_miles": 0.0,
