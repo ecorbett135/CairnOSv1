@@ -344,7 +344,7 @@ required_resupply_anchor_ids inventory_id is not selectable as resupply_stop: <i
 required_overnight_anchor_ids contains duplicate inventory_id: <id>
 required_resupply_anchor_ids resolves multiple inventory IDs to the same resupply anchor: <id>, <id>
 required_overnight_anchor_ids must follow SOBO route order; <id> cannot follow <id>
-Required resupply anchor must appear exactly once: <id> appeared 0 times. Adjust desired_days or daily mileage/elevation limits.
+Required resupply anchor must appear exactly once: <id> appeared 0 times. Adjust the selected route or anchor.
 route_selection.ingress_approach_id unknown approach_id: <id>
 route_selection.ingress_approach_id is incompatible with ingress_route '<name>': <id> identifies '<other-name>'
 Selected ingress approach_id '<id>' geometry is disconnected from the southern defined-trail terminus by <miles> miles

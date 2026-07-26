@@ -229,7 +229,7 @@ def test_required_resupply_ids_reject_same_physical_anchor_twice():
         _build(request)
 
 
-def test_infeasible_required_overnight_returns_precise_contract_error():
+def test_required_overnight_overrides_mileage_and_elevation_preferences():
     request = _required_request()
     request["max_daily_elevation"] = 1000
     request["required_overnight_anchor_ids"] = [
@@ -237,17 +237,17 @@ def test_infeasible_required_overnight_returns_precise_contract_error():
     ]
     request["required_resupply_anchor_ids"] = []
 
-    response = create_plan_response(
-        json.dumps(request).encode("utf-8"),
-        request_build_sha="required-anchor-test",
+    payload = _build(request)
+    anchored = next(
+        row
+        for row in payload["daily_plan"]
+        if row.get("required_overnight_anchor_id")
+        == "vermont_long_trail:overnight:overlay_0008"
     )
-
-    assert response.status_code == 400
-    assert response.payload["error"] == "validation_error"
-    assert response.payload["message"] == (
-        "Required overnight anchor "
-        "vermont_long_trail:overnight:overlay_0008 is infeasible within "
-        "max_daily_elevation=1000; planned day 1 requires 2910.0 feet of gain"
+    assert anchored["daily_elevation_gain"] > request["max_daily_elevation"]
+    assert any(
+        exception["constraint"] == "daily_elevation_gain"
+        for exception in payload["completion_analysis"]["itinerary_exceptions"]
     )
 
 

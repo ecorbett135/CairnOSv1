@@ -59,7 +59,9 @@ conflict.
 When any selection includes `nero`, the request must supply
 `nero_max_trail_miles`. CairnOS publishes its allowed range in control metadata
 but intentionally supplies no product default. Platform and iOS must not embed
-a threshold.
+a threshold. In Advanced planning the selected value is an explicit preference:
+the selected town remains authoritative when the generated arrival or departure
+day exceeds it, and the overage is reported in `town_stop_status`.
 
 New town-stop selections cannot be mixed with legacy `selected_town_ids`,
 `selected_side_trip_ids`, or `required_resupply_anchor_ids`. Requests using
@@ -71,14 +73,23 @@ only legacy fields continue to decode and produce legacy output.
 one row per selected town. Each row carries its access ID, planned day/date,
 combined intents, and experience IDs.
 
-- `resupply` appears exactly once in `resupply_plan`;
+- `resupply` appears exactly once in `resupply_plan` and does not by itself
+  require an overnight stop;
 - `zero` inserts one deterministic zero-mile calendar row at the town;
-- `nero` stays attached to the selected access and cannot exceed the user's
-  `nero_max_trail_miles`;
+- `nero` stays attached to the selected access and reports whether the generated
+  day exceeds the user's `nero_max_trail_miles` preference;
 - `experience` is confirmed on the same single town-stop row.
 
-Failure is atomic and returns a plain-language message, stable `code`, and
-structured `context`. Stable codes are
+Selected route-start and route-end towns attach to the moving day that
+traverses their authoritative access waypoint, even when an ingress or egress
+approach extends beyond that waypoint.
+
+Explicit Advanced selections take precedence over automatic mileage, elevation,
+resupply-cadence, and recovery-cadence preferences. Those overages remain
+visible as itinerary or town-stop exceptions. Failure remains atomic for
+unsupported relationships, unresolved route identity, duplicate satisfaction,
+or genuinely unplaceable route geometry and returns a plain-language message,
+stable `code`, and structured `context`. Stable codes are
 `town_stop_unknown_or_outside_extent`, `town_stop_intent_unsupported`,
 `town_stop_experience_parent_mismatch`, `town_stop_shared_access_conflict`,
 `town_stop_nero_infeasible`, and `town_stop_infeasible`.
