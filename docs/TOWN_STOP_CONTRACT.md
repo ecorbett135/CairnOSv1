@@ -80,6 +80,10 @@ combined intents, and experience IDs.
   day exceeds the user's `nero_max_trail_miles` preference;
 - `experience` is confirmed on the same single town-stop row.
 
+Selected route-start and route-end towns attach to the moving day that
+traverses their authoritative access waypoint, even when an ingress or egress
+approach extends beyond that waypoint.
+
 Explicit Advanced selections take precedence over automatic mileage, elevation,
 resupply-cadence, and recovery-cadence preferences. Those overages remain
 visible as itinerary or town-stop exceptions. Failure remains atomic for
