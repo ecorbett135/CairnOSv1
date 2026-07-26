@@ -81,14 +81,14 @@ def resolve_town_stop_contract(request: PlanAPIRequest) -> dict[str, Any]:
         endpoint_mile = float(
             option.get("section_relative_mile", option["directional_mile"])
         )
+        endpoint_at_start = endpoint_mile <= 0
+        endpoint_at_end = endpoint_mile >= endpoint_total_miles
         resolved.append(
             {
                 **selection,
                 **option,
-                "_route_endpoint": (
-                    endpoint_mile <= 0
-                    or endpoint_mile >= endpoint_total_miles
-                ),
+                "_route_endpoint": endpoint_at_start or endpoint_at_end,
+                "_route_endpoint_at_start": endpoint_at_start,
             }
         )
 
@@ -257,11 +257,19 @@ def _endpoint_day(
     selection: dict[str, Any],
 ) -> tuple[dict[str, Any] | None, bool]:
     mile = float(selection["canonical_mile"])
+    at_route_start = bool(selection.get("_route_endpoint_at_start"))
     for row in daily_plan:
         if abs(float(row.get("daily_start_mile") or 0) - mile) <= 0.15:
-            return row, True
+            return row, at_route_start
         if abs(float(row.get("daily_stop_mile") or 0) - mile) <= 0.15:
-            return row, False
+            return row, at_route_start
+    for row in daily_plan:
+        start_mile = float(row.get("daily_start_mile") or 0)
+        stop_mile = float(row.get("daily_stop_mile") or 0)
+        lower_bound = min(start_mile, stop_mile) - 0.15
+        upper_bound = max(start_mile, stop_mile) + 0.15
+        if lower_bound <= mile <= upper_bound:
+            return row, at_route_start
     return None, False
 
 
