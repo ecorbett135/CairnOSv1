@@ -1413,23 +1413,23 @@ class ItineraryBuilder:
                 if (
                     selected_mile is not None
                     and required_mile is not None
-                    and self.is_forward_progress(
-                        selected_mile,
-                        required_mile,
+                    and (
+                        self.mile_in_travel_window(
+                            current_mile,
+                            selected_mile,
+                            required_mile,
+                        )
+                        or (
+                            self.is_forward_progress(
+                                selected_mile,
+                                required_mile,
+                            )
+                            and self.travel_distance(
+                                selected_mile,
+                                required_mile,
+                            ) < self.min_daily_miles
+                        )
                     )
-                    and self.travel_distance(
-                        selected_mile,
-                        required_mile,
-                    ) < self.min_daily_miles
-                    and self.travel_distance(
-                        current_mile,
-                        required_mile,
-                    ) <= self.max_daily_miles
-                    and self.analyze_terrain_interval(
-                        current_mile,
-                        required_mile,
-                    )["elevation_gain_ft"]
-                    <= self.max_daily_elevation
                 ):
                     selected_stop = next_required_overnight
                     recovery_node = None
