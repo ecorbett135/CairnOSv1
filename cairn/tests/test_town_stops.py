@@ -116,21 +116,94 @@ def test_multiple_intents_produce_one_stop_and_one_resupply_truth():
     assert zero_rows[0]["date"] == "2026-07-20"
 
 
-def test_nero_uses_request_control_and_remains_on_selected_access():
+def test_nero_uses_request_control_as_preference_and_remains_on_selected_access():
     payload = request_payload()
     payload["town_stop_selections"] = [selection(intents=["nero"])]
     with pytest.raises(PlanAPIValidationError, match="nero_max_trail_miles"):
         PlanAPIRequest.from_payload(payload)
     payload["nero_max_trail_miles"] = 9
-    with pytest.raises(PlanAPIValidationError) as raised:
-        build_plan_response(payload, generated_at="20260721T120000Z")
-    assert raised.value.code == "town_stop_nero_infeasible"
+    exceeded = build_plan_response(payload, generated_at="20260721T120000Z")
+    exceeded_status = exceeded["town_stop_status"]["stops"][0]
+    assert exceeded_status["nero_preference_exceeded"] is True
+    assert exceeded_status["planned_trail_miles"] > 9
     payload["nero_max_trail_miles"] = 10
     result = build_plan_response(payload, generated_at="20260721T120000Z")
     stop = result["town_stop_status"]["stops"][0]
+    assert stop["nero_preference_exceeded"] is False
     assert stop["access_inventory_id"] == "vermont_long_trail:access:vt_17:162.9"
     arrival = next(row for row in result["daily_plan"] if row.get("town_stop_nero"))
     assert arrival["daily_miles"] <= 10
+
+
+def test_resupply_only_town_does_not_require_an_overnight_stop():
+    payload = request_payload()
+    payload["town_stop_selections"] = [
+        selection(
+            "vermont_long_trail:town:mass_2:-3.8:north_adams",
+            intents=["resupply"],
+        )
+    ]
+
+    result = build_plan_response(payload, generated_at="20260721T120000Z")
+
+    stop = result["town_stop_status"]["stops"][0]
+    assert stop["planned_day"] == 1
+    assert stop["status"] == "satisfied"
+    assert not any(
+        row.get("required_overnight_anchor_id")
+        == "vermont_long_trail:town:mass_2:-3.8:north_adams"
+        for row in result["daily_plan"]
+    )
+    assert sum(
+        row.get("required_anchor_id")
+        == "vermont_long_trail:town:mass_2:-3.8:north_adams"
+        for row in result["resupply_plan"]
+    ) == 1
+
+
+def test_route_start_nero_is_an_explicit_preference_not_an_overnight_anchor():
+    payload = request_payload()
+    payload["town_stop_selections"] = [
+        selection(
+            "vermont_long_trail:town:mass_2:-3.8:north_adams",
+            intents=["nero"],
+        )
+    ]
+    payload["nero_max_trail_miles"] = 1
+
+    result = build_plan_response(payload, generated_at="20260721T120000Z")
+
+    stop = result["town_stop_status"]["stops"][0]
+    assert stop["planned_day"] == 1
+    assert stop["nero_preference_exceeded"] is True
+    day_one = result["daily_plan"][0]
+    assert day_one["town_stop_nero"] is True
+    assert day_one["town_stop_inventory_id"] == (
+        "vermont_long_trail:town:mass_2:-3.8:north_adams"
+    )
+
+
+def test_section_start_resupply_uses_section_endpoint_without_overnight():
+    payload = json.loads(
+        (FIXTURES / "section_access_point_plan_request.json").read_text()
+    )
+    payload["town_stop_selections"] = [
+        selection(
+            "vermont_long_trail:town:vt_9:14.3:bennington",
+            intents=["resupply"],
+        )
+    ]
+
+    result = build_plan_response(payload, generated_at="20260721T120000Z")
+
+    stop = result["town_stop_status"]["stops"][0]
+    assert stop["planned_day"] == 1
+    assert stop["status"] == "satisfied"
+    assert not any(
+        row.get("required_overnight_anchor_id")
+        == "vermont_long_trail:town:vt_9:14.3:bennington"
+        for row in result["daily_plan"]
+    )
 
 
 def test_shared_access_conflict_is_deterministic():

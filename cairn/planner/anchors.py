@@ -36,27 +36,10 @@ def build_required_anchor_status(
             if row.get("required_overnight_anchor_id") == inventory_id
         ]
         _require_exactly_once("overnight", inventory_id, len(matching_rows))
-        row = matching_rows[0]
-        if 0 < float(row.get("daily_miles") or 0) < min_daily_miles:
-            raise RequiredPlanningAnchorError(
-                f"Required overnight anchor {inventory_id} is infeasible within "
-                f"min_daily_miles={min_daily_miles:g}; planned day "
-                f"{row.get('day')} requires only {row.get('daily_miles')} miles"
-            )
-        if float(row.get("daily_miles") or 0) > max_daily_miles:
-            raise RequiredPlanningAnchorError(
-                f"Required overnight anchor {inventory_id} is infeasible within "
-                f"max_daily_miles={max_daily_miles:g}; planned day "
-                f"{row.get('day')} requires {row.get('daily_miles')} miles"
-            )
-        if float(row.get("daily_elevation_gain") or 0) > max_daily_elevation:
-            raise RequiredPlanningAnchorError(
-                f"Required overnight anchor {inventory_id} is infeasible within "
-                f"max_daily_elevation={max_daily_elevation:g}; planned day "
-                f"{row.get('day')} requires "
-                f"{row.get('daily_elevation_gain')} feet of gain"
-            )
-
+        # Advanced selections are authoritative partial specifications. Mileage
+        # and elevation controls remain preferences and are reported by the
+        # normal itinerary-exception analysis instead of rejecting a plan that
+        # successfully placed the requested anchor.
     for inventory_id in resupply_ids:
         count = sum(
             row.get("required_anchor_id") == inventory_id
